@@ -23,7 +23,72 @@ abre automáticamente el navegador. Si PowerShell bloquea scripts locales:
 powershell -ExecutionPolicy Bypass -File .\run-gui.ps1
 ```
 
-El comando Docker Compose equivalente, válido en cualquier sistema, es:
+#### Linux
+
+Requisitos: Docker Engine con Compose v2, o Docker Desktop para Linux. Desde la
+raiz del proyecto:
+
+```bash
+bash ./run-gui-linux.sh
+```
+
+El lanzador comprueba Docker, construye la imagen, inicia el contenedor, espera
+el estado de noVNC y abre la URL mediante `xdg-open` cuando esta disponible.
+
+#### WSL2
+
+Con Docker Desktop iniciado, ejecuta desde la distribucion Linux:
+
+```bash
+cd /mnt/c/ruta/al/proyecto/TheLegendOfTecla
+bash ./run-gui-linux.sh
+```
+
+El mismo lanzador funciona tanto con la integracion WSL de Docker Desktop
+activada como desactivada. En el segundo caso recurre automaticamente a
+`docker.exe` y abre la GUI en el navegador de Windows. La ruta del proyecto debe
+estar accesible desde WSL, normalmente bajo `/mnt/c`.
+
+#### macOS
+
+Requisito: Docker Desktop para Mac iniciado. Funciona en equipos Intel y Apple
+Silicon porque las imagenes base publican arquitecturas `linux/amd64` y
+`linux/arm64`.
+
+Desde Terminal:
+
+```bash
+cd /ruta/al/proyecto/TheLegendOfTecla
+bash ./run-gui-macos.command
+```
+
+Tambien se puede abrir `run-gui-macos.command` desde Finder si tiene permiso de
+ejecucion (`chmod +x run-gui-macos.command`). El navegador se abre con la orden
+nativa `open`. No se necesita instalar XQuartz.
+
+#### Opciones comunes de Linux, WSL y macOS
+
+```bash
+bash ./run-gui.sh --no-open          # no abre el navegador
+bash ./run-gui.sh --no-build         # reutiliza la imagen existente
+TECLA_GUI_PORT=6081 bash ./run-gui.sh # usa otro puerto local
+```
+
+#### Validacion multiplataforma realizada
+
+- Ubuntu sobre WSL2: sintaxis, deteccion automatica de Docker Desktop sin
+  integracion WSL, construccion/arranque mediante `docker.exe` y respuesta de
+  noVNC comprobadas.
+- Linux/macOS: los tres lanzadores superan `bash -n` y evitan extensiones
+  posteriores al Bash 3.2 incluido tradicionalmente con macOS.
+- Mac Intel y Apple Silicon: los manifiestos de las imagenes Maven y Eclipse
+  Temurin utilizadas se comprobaron para `linux/amd64` y `linux/arm64/v8`.
+
+La ejecucion no se ha probado sobre hardware macOS desde este equipo Windows;
+la comprobacion de Mac cubre el script, Compose y la disponibilidad de todas
+las arquitecturas necesarias.
+
+El comando Docker Compose equivalente, valido en cualquier sistema, es:
 
 ```bash
 docker compose up --build --detach gui

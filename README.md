@@ -34,6 +34,23 @@ Si la politica de ejecucion de PowerShell bloquea scripts locales:
 powershell -ExecutionPolicy Bypass -File .\run-gui.ps1
 ```
 
+En Linux o dentro de WSL2:
+
+```bash
+bash ./run-gui-linux.sh
+```
+
+En macOS (Intel o Apple Silicon), con Docker Desktop iniciado:
+
+```bash
+bash ./run-gui-macos.command
+```
+
+Los lanzadores Linux/macOS utilizan [run-gui.sh](run-gui.sh), esperan a que
+noVNC responda y abren el navegador. En WSL se usa Docker nativo si la
+integracion esta activada y, si no lo esta, se detecta automaticamente
+`docker.exe`. No se necesita X11, WSLg ni XQuartz.
+
 Tambien puede iniciarse directamente con Docker Compose:
 
 ```bash
@@ -47,6 +64,15 @@ escritorio virtual y noVNC. Para detenerlo:
 ```bash
 docker compose stop gui
 ```
+
+Para no abrir el navegador o reutilizar una imagen ya construida:
+
+```bash
+bash ./run-gui.sh --no-open --no-build
+```
+
+El puerto puede cambiarse, por ejemplo, con
+`TECLA_GUI_PORT=6081 bash ./run-gui.sh`.
 
 ### Ejecucion local
 

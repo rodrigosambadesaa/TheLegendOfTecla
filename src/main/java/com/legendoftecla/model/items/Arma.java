@@ -13,6 +13,11 @@ public final class Arma extends Objeto {
 
     /**
      * Ejecuta Arma.
+      * @param danio valor de {@code danio}
+      * @param descripcion valor de {@code descripcion}
+      * @param dosManos valor de {@code dosManos}
+      * @param nombre valor de {@code nombre}
+      * @param peso valor de {@code peso}
      */
     public Arma(String nombre, String descripcion, double peso, int danio, boolean dosManos) {
         super(nombre, descripcion, peso);
@@ -22,6 +27,7 @@ public final class Arma extends Objeto {
 
     /**
      * Ejecuta getDanio.
+      * @return resultado de la operacion
      */
     public int getDanio() {
         return danio;
@@ -29,6 +35,7 @@ public final class Arma extends Objeto {
 
     /**
      * Ejecuta isDosManos.
+      * @return resultado de la operacion
      */
     public boolean isDosManos() {
         return dosManos;

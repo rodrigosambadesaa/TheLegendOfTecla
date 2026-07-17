@@ -16,6 +16,12 @@ public class Mapa {
 
     /**
      * Ejecuta Mapa.
+      * @param columnas valor de {@code columnas}
+      * @param descripcion valor de {@code descripcion}
+      * @param filas valor de {@code filas}
+      * @param inicio valor de {@code inicio}
+      * @param nombre valor de {@code nombre}
+      * @param objetivo valor de {@code objetivo}
      */
     public Mapa(String nombre, String descripcion, int filas, int columnas, Posicion inicio, Posicion objetivo) {
         this.nombre = nombre;
@@ -27,6 +33,7 @@ public class Mapa {
 
     /**
      * Ejecuta getNombre.
+      * @return resultado de la operacion
      */
     public String getNombre() {
         return nombre;
@@ -34,6 +41,7 @@ public class Mapa {
 
     /**
      * Ejecuta getDescripcion.
+      * @return resultado de la operacion
      */
     public String getDescripcion() {
         return descripcion;
@@ -41,6 +49,7 @@ public class Mapa {
 
     /**
      * Ejecuta getInicio.
+      * @return resultado de la operacion
      */
     public Posicion getInicio() {
         return inicio;
@@ -48,6 +57,7 @@ public class Mapa {
 
     /**
      * Ejecuta getObjetivo.
+      * @return resultado de la operacion
      */
     public Posicion getObjetivo() {
         return objetivo;
@@ -55,6 +65,7 @@ public class Mapa {
 
     /**
      * Ejecuta getFilas.
+      * @return resultado de la operacion
      */
     public int getFilas() {
         return celdas.length;
@@ -62,6 +73,7 @@ public class Mapa {
 
     /**
      * Ejecuta getColumnas.
+      * @return resultado de la operacion
      */
     public int getColumnas() {
         return celdas[0].length;
@@ -69,6 +81,9 @@ public class Mapa {
 
     /**
      * Ejecuta setCelda.
+      * @param celda valor de {@code celda}
+      * @param columna valor de {@code columna}
+      * @param fila valor de {@code fila}
      */
     public void setCelda(int fila, int columna, Celda celda) {
         celdas[fila][columna] = celda;
@@ -76,6 +91,8 @@ public class Mapa {
 
     /**
      * Ejecuta getCelda.
+      * @param posicion valor de {@code posicion}
+      * @return resultado de la operacion
      */
     public Celda getCelda(Posicion posicion) {
         return celdas[posicion.getFila()][posicion.getColumna()];
@@ -83,6 +100,8 @@ public class Mapa {
 
     /**
      * Ejecuta estaDentro.
+      * @param posicion valor de {@code posicion}
+      * @return resultado de la operacion
      */
     public boolean estaDentro(Posicion posicion) {
         return posicion.getFila() >= 0 && posicion.getFila() < getFilas()
@@ -91,6 +110,8 @@ public class Mapa {
 
     /**
      * Ejecuta esTransitable.
+      * @param posicion valor de {@code posicion}
+      * @return resultado de la operacion
      */
     public boolean esTransitable(Posicion posicion) {
         return estaDentro(posicion) && getCelda(posicion).isTransitable();
@@ -98,6 +119,9 @@ public class Mapa {
 
     /**
      * Ejecuta hayLineaAtaque.
+      * @param destino valor de {@code destino}
+      * @param origen valor de {@code origen}
+      * @return resultado de la operacion
      */
     public boolean hayLineaAtaque(Posicion origen, Posicion destino) {
         if (!estaDentro(origen) || !estaDentro(destino)) {
@@ -123,6 +147,8 @@ public class Mapa {
 
     /**
      * Ejecuta renderAscii.
+      * @param jugador valor de {@code jugador}
+      * @return resultado de la operacion
      */
     public String renderAscii(Posicion jugador) {
         return renderAscii(jugador, Collections.emptySet(), Collections.emptySet());
@@ -130,6 +156,9 @@ public class Mapa {
 
     /**
      * Ejecuta renderAscii.
+      * @param enemigosVisibles valor de {@code enemigosVisibles}
+      * @param jugador valor de {@code jugador}
+      * @return resultado de la operacion
      */
     public String renderAscii(Posicion jugador, Set<Posicion> enemigosVisibles) {
         return renderAscii(jugador, enemigosVisibles, Collections.emptySet());
@@ -137,6 +166,10 @@ public class Mapa {
 
     /**
      * Ejecuta renderAscii.
+      * @param aliadosVisibles valor de {@code aliadosVisibles}
+      * @param enemigosVisibles valor de {@code enemigosVisibles}
+      * @param jugador valor de {@code jugador}
+      * @return resultado de la operacion
      */
     public String renderAscii(Posicion jugador, Set<Posicion> enemigosVisibles, Set<Posicion> aliadosVisibles) {
         StringBuilder sb = new StringBuilder();

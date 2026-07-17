@@ -32,6 +32,10 @@ public final class MotorPartida {
     private boolean finalizada;
     private SistemaPuntuacion.EstadoFinalPartida estadoFinal;
 
+    /**
+     * Crea una instancia de {@code MotorPartida}.
+      * @param juego valor de {@code juego}
+     */
     public MotorPartida(Juego juego) {
         this.juego = juego;
         this.contexto = new CommandContext(juego);
@@ -41,18 +45,34 @@ public final class MotorPartida {
         evaluarFinNatural();
     }
 
+    /**
+     * Obtiene el valor de {@code Juego}.
+      * @return resultado de la operacion
+     */
     public Juego getJuego() {
         return juego;
     }
 
+    /**
+     * Indica el estado de {@code Finalizada}.
+      * @return resultado de la operacion
+     */
     public boolean isFinalizada() {
         return finalizada;
     }
 
+    /**
+     * Obtiene el valor de {@code EstadoFinal}.
+      * @return resultado de la operacion
+     */
     public SistemaPuntuacion.EstadoFinalPartida getEstadoFinal() {
         return estadoFinal;
     }
 
+    /**
+     * Obtiene el valor de {@code EstadoJugador}.
+      * @return resultado de la operacion
+     */
     public String getEstadoJugador() {
         return juego.getJugador().getNombre()
                 + "  Salud " + juego.getJugador().getSalud() + "/" + juego.getJugador().getSaludMaxima()
@@ -60,6 +80,11 @@ public final class MotorPartida {
                 + "  Pasos " + juego.getPasos() + "/" + juego.getPasosMaximos();
     }
 
+    /**
+     * Ejecuta la operacion publica {@code ejecutarComando}.
+      * @param linea valor de {@code linea}
+      * @return resultado de la operacion
+     */
     public boolean ejecutarComando(String linea) {
         if (finalizada) {
             return false;
@@ -84,6 +109,10 @@ public final class MotorPartida {
         return !finalizada;
     }
 
+    /**
+     * Obtiene el valor de {@code AliadosVisibles}.
+      * @return resultado de la operacion
+     */
     public Set<Posicion> getAliadosVisibles() {
         Set<Posicion> visibles = new HashSet<>();
         for (Aliado aliado : juego.getAliados()) {
@@ -94,6 +123,10 @@ public final class MotorPartida {
         return visibles;
     }
 
+    /**
+     * Obtiene el valor de {@code EnemigosVisibles}.
+      * @return resultado de la operacion
+     */
     public Set<Posicion> getEnemigosVisibles() {
         Set<Posicion> visibles = new HashSet<>();
         Posicion jugadorPos = juego.getJugador().getPosicion();

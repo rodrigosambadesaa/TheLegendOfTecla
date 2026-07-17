@@ -12,6 +12,10 @@ import com.legendoftecla.model.world.Posicion;
 public final class Marine extends Jugador {
     /**
      * Ejecuta Marine.
+      * @param mochila valor de {@code mochila}
+      * @param nombre valor de {@code nombre}
+      * @param posicion valor de {@code posicion}
+      * @param visionBase valor de {@code visionBase}
      */
     public Marine(String nombre, Posicion posicion, Mochila mochila, int visionBase) {
         super(nombre, 120, 90, posicion, mochila, visionBase);

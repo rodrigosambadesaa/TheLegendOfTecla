@@ -14,12 +14,21 @@ import java.nio.file.Path;
 
 /** Lee, valida y escribe escenarios editables en JSON. */
 public final class SerializadorEscenarioJson {
+    /**
+     * Valor publico {@code NOMBRE_ARCHIVO} utilizado por el modelo del juego.
+     */
     public static final String NOMBRE_ARCHIVO = "escenario.json";
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
     private SerializadorEscenarioJson() {
     }
 
+    /**
+     * Ejecuta la operacion publica {@code cargar}.
+      * @param directorio valor de {@code directorio}
+      * @return resultado de la operacion
+      * @throws com.legendoftecla.exceptions.JuegoException si la operacion no puede completarse
+     */
     public static EscenarioDefinicion cargar(Path directorio) throws JuegoException {
         Path archivo = resolverArchivo(directorio);
         try (Reader reader = Files.newBufferedReader(archivo, StandardCharsets.UTF_8)) {
@@ -35,6 +44,14 @@ public final class SerializadorEscenarioJson {
         }
     }
 
+    /**
+     * Ejecuta la operacion publica {@code guardar}.
+      * @param directorio valor de {@code directorio}
+      * @param escenario valor de {@code escenario}
+      * @return resultado de la operacion
+      * @throws com.legendoftecla.exceptions.JuegoException si la operacion no puede completarse
+      * @throws java.io.IOException si la operacion no puede completarse
+     */
     public static Path guardar(EscenarioDefinicion escenario, Path directorio) throws IOException, JuegoException {
         escenario.normalizar();
         validar(escenario);
@@ -49,6 +66,11 @@ public final class SerializadorEscenarioJson {
         return archivo;
     }
 
+    /**
+     * Ejecuta la operacion publica {@code validar}.
+      * @param escenario valor de {@code escenario}
+      * @throws com.legendoftecla.exceptions.JuegoException si la operacion no puede completarse
+     */
     public static void validar(EscenarioDefinicion escenario) throws JuegoException {
         if (escenario.filas < 3 || escenario.columnas < 3) {
             throw new JuegoException("El escenario debe medir al menos 3x3.");

@@ -12,6 +12,7 @@ public final class ComandoEstado {
 
     /**
      * Ejecuta imprimirEstado.
+      * @param context valor de {@code context}
      */
     public static void imprimirEstado(CommandContext context) {
         Jugador jugador = context.getJuego().getJugador();

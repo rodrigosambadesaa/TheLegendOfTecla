@@ -1,6 +1,6 @@
 # The Legend of Tecla (Java)
 
-Implementacion en Java del proyecto de POO por entregas (P1, P2, P3):
+Implementacion en Java del proyecto de POO por entregas (P1, P2, P3) y con ampliaciones voluntarias:
 
 - Mapa ASCII con celdas transitables/no transitables.
 - Jerarquia de personajes y objetos con herencia/polimorfismo.
@@ -80,6 +80,17 @@ docker compose run --rm juego --interactivo
 
 La documentacion completa, incluyendo Docker, ejecucion local, argumentos y
 el editor grafico, esta en [EJECUCION.md](EJECUCION.md).
+
+## Javadoc
+
+Genera en Docker la documentacion HTML de toda la API publica:
+
+```bash
+docker compose run --rm javadoc
+```
+
+Abre despues `target/reports/apidocs/index.html`. La misma documentacion se
+genera localmente con `mvn javadoc:javadoc` y tambien durante `mvn verify`.
 
 ## Ejecutar localmente
 

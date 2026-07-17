@@ -15,6 +15,7 @@ public class CommandParser {
 
     /**
      * Ejecuta CommandParser.
+      * @param context valor de {@code context}
      */
     public CommandParser(CommandContext context) {
         this.context = context;
@@ -22,6 +23,9 @@ public class CommandParser {
 
     /**
      * Ejecuta parse.
+      * @param linea valor de {@code linea}
+      * @return resultado de la operacion
+      * @throws com.legendoftecla.exceptions.ComandoException si la operacion no puede completarse
      */
     public Comando parse(String linea) throws ComandoException {
         String[] partes = linea.trim().split("\\s+");

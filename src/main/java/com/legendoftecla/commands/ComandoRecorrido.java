@@ -9,6 +9,7 @@ public class ComandoRecorrido implements Comando {
 
     /**
      * Ejecuta ComandoRecorrido.
+      * @param context valor de {@code context}
      */
     public ComandoRecorrido(CommandContext context) {
         this.context = context;

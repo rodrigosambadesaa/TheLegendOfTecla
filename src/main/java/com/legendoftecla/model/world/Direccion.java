@@ -5,9 +5,21 @@ package com.legendoftecla.model.world;
  * Representa la entidad Direccion del juego.
  */
 public enum Direccion {
+    /**
+     * Opcion {@code NORTE}.
+     */
     NORTE(-1, 0),
+    /**
+     * Opcion {@code SUR}.
+     */
     SUR(1, 0),
+    /**
+     * Indica el estado de {@code TE}.
+     */
     ESTE(0, 1),
+    /**
+     * Opcion {@code OESTE}.
+     */
     OESTE(0, -1);
 
     private final int deltaFila;
@@ -20,6 +32,7 @@ public enum Direccion {
 
     /**
      * Ejecuta getDeltaFila.
+      * @return resultado de la operacion
      */
     public int getDeltaFila() {
         return deltaFila;
@@ -27,6 +40,7 @@ public enum Direccion {
 
     /**
      * Ejecuta getDeltaColumna.
+      * @return resultado de la operacion
      */
     public int getDeltaColumna() {
         return deltaColumna;
@@ -34,6 +48,8 @@ public enum Direccion {
 
     /**
      * Ejecuta desdeTexto.
+      * @param texto valor de {@code texto}
+      * @return resultado de la operacion
      */
     public static Direccion desdeTexto(String texto) {
         return switch (texto.toLowerCase()) {

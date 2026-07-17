@@ -24,6 +24,10 @@ public class Juego {
 
     /**
      * Ejecuta Juego.
+      * @param consola valor de {@code consola}
+      * @param jugador valor de {@code jugador}
+      * @param mapa valor de {@code mapa}
+      * @param pasosMaximos valor de {@code pasosMaximos}
      */
     public Juego(Consola consola, Mapa mapa, Jugador jugador, int pasosMaximos) {
         this.consola = consola;
@@ -39,6 +43,7 @@ public class Juego {
 
     /**
      * Ejecuta getConsola.
+      * @return resultado de la operacion
      */
     public Consola getConsola() {
         return consola;
@@ -46,6 +51,7 @@ public class Juego {
 
     /**
      * Ejecuta getMapa.
+      * @return resultado de la operacion
      */
     public Mapa getMapa() {
         return mapa;
@@ -53,6 +59,7 @@ public class Juego {
 
     /**
      * Ejecuta getJugador.
+      * @return resultado de la operacion
      */
     public Jugador getJugador() {
         return jugador;
@@ -60,6 +67,7 @@ public class Juego {
 
     /**
      * Ejecuta getPasos.
+      * @return resultado de la operacion
      */
     public int getPasos() {
         return pasos;
@@ -67,6 +75,7 @@ public class Juego {
 
     /**
      * Ejecuta getPasosMaximos.
+      * @return resultado de la operacion
      */
     public int getPasosMaximos() {
         return pasosMaximos;
@@ -81,6 +90,7 @@ public class Juego {
 
     /**
      * Ejecuta agregarEnemigo.
+      * @param enemigo valor de {@code enemigo}
      */
     public void agregarEnemigo(Enemigo enemigo) {
         enemigos.add(enemigo);
@@ -88,6 +98,7 @@ public class Juego {
 
     /**
      * Ejecuta getEnemigos.
+      * @return resultado de la operacion
      */
     public List<Enemigo> getEnemigos() {
         return enemigos;
@@ -95,6 +106,7 @@ public class Juego {
 
     /**
      * Ejecuta agregarAliado.
+      * @param aliado valor de {@code aliado}
      */
     public void agregarAliado(Aliado aliado) {
         aliados.add(aliado);
@@ -103,6 +115,7 @@ public class Juego {
 
     /**
      * Ejecuta getAliados.
+      * @return resultado de la operacion
      */
     public List<Aliado> getAliados() {
         return aliados;
@@ -110,6 +123,7 @@ public class Juego {
 
     /**
      * Ejecuta getAliadosIniciales.
+      * @return resultado de la operacion
      */
     public int getAliadosIniciales() {
         return aliadosIniciales;
@@ -117,6 +131,7 @@ public class Juego {
 
     /**
      * Ejecuta getAliadosExtraidos.
+      * @return resultado de la operacion
      */
     public int getAliadosExtraidos() {
         return aliadosExtraidos;
@@ -124,6 +139,8 @@ public class Juego {
 
     /**
      * Ejecuta extraerAliado.
+      * @param aliado valor de {@code aliado}
+      * @return resultado de la operacion
      */
     public boolean extraerAliado(Aliado aliado) {
         if (aliado == null || aliado.getSalud() <= 0) {
@@ -138,6 +155,7 @@ public class Juego {
 
     /**
      * Ejecuta jugadorGano.
+      * @return resultado de la operacion
      */
     public boolean jugadorGano() {
         if (!jugador.getPosicion().equals(mapa.getObjetivo())) {
@@ -151,6 +169,7 @@ public class Juego {
 
     /**
      * Ejecuta jugadorMuerto.
+      * @return resultado de la operacion
      */
     public boolean jugadorMuerto() {
         return jugador.getSalud() <= 0 || jugador.getEnergia() <= 0;
@@ -158,6 +177,7 @@ public class Juego {
 
     /**
      * Ejecuta excedioPasos.
+      * @return resultado de la operacion
      */
     public boolean excedioPasos() {
         return pasos > pasosMaximos;

@@ -12,6 +12,11 @@ public final class ArteEnemigoLore {
     private ArteEnemigoLore() {
     }
 
+    /**
+     * Ejecuta la operacion publica {@code renderizarFicha}.
+      * @param enemigo valor de {@code enemigo}
+      * @return resultado de la operacion
+     */
     public static String renderizarFicha(Enemigo enemigo) {
         return String.join("\n",
                 "------------------------------",

@@ -5,7 +5,16 @@ import com.legendoftecla.model.world.DimensionesMapa;
 
 import java.nio.file.Path;
 
-/** Datos necesarios para crear una partida desde cualquier interfaz. */
+/**
+ * Datos necesarios para crear una partida desde cualquier interfaz.
+ *
+ * @param nombreJugador nombre del personaje controlado por el usuario
+ * @param clase clase elegida para el jugador
+ * @param modo origen y tipo del mapa que se cargara
+ * @param dificultad nivel de dificultad de la partida
+ * @param dimensiones dimensiones opcionales del mapa
+ * @param directorioDatos directorio de un escenario externo, si procede
+ */
 public record ConfiguracionPartida(
         String nombreJugador,
         String clase,
@@ -14,6 +23,9 @@ public record ConfiguracionPartida(
         DimensionesMapa dimensiones,
         Path directorioDatos) {
 
+    /**
+     * Valida y crea una instancia de {@code ConfiguracionPartida}.
+     */
     public ConfiguracionPartida {
         if (nombreJugador == null || nombreJugador.isBlank()) {
             throw new IllegalArgumentException("El nombre del jugador es obligatorio.");

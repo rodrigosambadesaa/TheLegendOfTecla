@@ -37,22 +37,73 @@ import java.util.List;
 
 /** Vista completa de juego: mapa, estado, acciones, comandos y registro. */
 public final class PanelJuego extends JPanel {
+    /**
+     * Valor publico {@code motor} utilizado por el modelo del juego.
+     */
     private final MotorPartida motor;
+    /**
+     * Valor publico {@code consola} utilizado por el modelo del juego.
+     */
     private final ConsolaGrafica consola;
+    /**
+     * Valor publico {@code mapaPanel} utilizado por el modelo del juego.
+     */
     private final MapaGraficoPanel mapaPanel;
+    /**
+     * Valor publico {@code scrollMapa} utilizado por el modelo del juego.
+     */
     private final JScrollPane scrollMapa;
+    /**
+     * Valor publico {@code registro} utilizado por el modelo del juego.
+     */
     private final JTextPane registro;
+    /**
+     * Valor publico {@code comando} utilizado por el modelo del juego.
+     */
     private final JTextField comando;
+    /**
+     * Valor publico {@code estado} utilizado por el modelo del juego.
+     */
     private final JLabel estado;
+    /**
+     * Valor publico {@code mochila} utilizado por el modelo del juego.
+     */
     private final JLabel mochila;
+    /**
+     * Valor publico {@code ejecutar} utilizado por el modelo del juego.
+     */
     private final JButton ejecutar;
+    /**
+     * Valor publico {@code coger} utilizado por el modelo del juego.
+     */
     private JButton coger;
+    /**
+     * Valor publico {@code usar} utilizado por el modelo del juego.
+     */
     private JButton usar;
+    /**
+     * Valor publico {@code tirar} utilizado por el modelo del juego.
+     */
     private JButton tirar;
+    /**
+     * Valor publico {@code equipar} utilizado por el modelo del juego.
+     */
     private JButton equipar;
+    /**
+     * Valor publico {@code desequipar} utilizado por el modelo del juego.
+     */
     private JButton desequipar;
+    /**
+     * Valor publico {@code atacar} utilizado por el modelo del juego.
+     */
     private JButton atacar;
 
+    /**
+     * Crea una instancia de {@code PanelJuego}.
+      * @param consola valor de {@code consola}
+      * @param motor valor de {@code motor}
+      * @param volver valor de {@code volver}
+     */
     public PanelJuego(MotorPartida motor, ConsolaGrafica consola, Runnable volver) {
         super(new BorderLayout(8, 8));
         this.motor = motor;

@@ -13,6 +13,8 @@ public class ComandoDesequipar implements Comando {
 
     /**
      * Ejecuta ComandoDesequipar.
+      * @param context valor de {@code context}
+      * @param nombreObjeto valor de {@code nombreObjeto}
      */
     public ComandoDesequipar(CommandContext context, String nombreObjeto) {
         this.context = context;

@@ -19,12 +19,31 @@ public final class VentanaPrincipal extends JFrame {
     private static final String JUEGO = "juego";
     private static final String EDITOR = "editor";
 
+    /**
+     * Ejecuta la operacion publica {@code CardLayout}.
+     */
     private final CardLayout tarjetas = new CardLayout();
+    /**
+     * Ejecuta la operacion publica {@code JPanel}.
+     */
     private final JPanel contenido = new JPanel(tarjetas);
+    /**
+     * Valor publico {@code configuracion} utilizado por el modelo del juego.
+     */
     private final PanelConfiguracion configuracion;
+    /**
+     * Valor publico {@code panelJuego} utilizado por el modelo del juego.
+     */
     private PanelJuego panelJuego;
+    /**
+     * Valor publico {@code panelEditor} utilizado por el modelo del juego.
+     */
     private PanelEditorMapa panelEditor;
 
+    /**
+     * Crea una instancia de {@code VentanaPrincipal}.
+      * @param abrirEditor valor de {@code abrirEditor}
+     */
     public VentanaPrincipal(boolean abrirEditor) {
         super("The Legend of Tecla");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -42,6 +61,10 @@ public final class VentanaPrincipal extends JFrame {
         }
     }
 
+    /**
+     * Ejecuta la operacion publica {@code iniciar}.
+      * @param abrirEditor valor de {@code abrirEditor}
+     */
     public static void iniciar(boolean abrirEditor) {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

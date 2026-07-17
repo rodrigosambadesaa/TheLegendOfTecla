@@ -24,6 +24,7 @@ public class ComandoSalir implements Comando {
 
     /**
      * Ejecuta isSalir.
+      * @return resultado de la operacion
      */
     public boolean isSalir() {
         return salir;

@@ -10,6 +10,12 @@ public abstract class Enemigo extends Personaje {
 
     /**
      * Ejecuta Enemigo.
+      * @param energia valor de {@code energia}
+      * @param mochila valor de {@code mochila}
+      * @param nombre valor de {@code nombre}
+      * @param posicion valor de {@code posicion}
+      * @param salud valor de {@code salud}
+      * @param visionBase valor de {@code visionBase}
      */
     protected Enemigo(String nombre, int salud, int energia, Posicion posicion, Mochila mochila, int visionBase) {
         super(nombre, salud, energia, posicion, mochila, visionBase);
@@ -23,6 +29,10 @@ public abstract class Enemigo extends Personaje {
         return Math.max(1, (int) Math.round(base * multiplicadorDanioGlobal));
     }
 
+    /**
+     * Ejecuta la operacion publica {@code setMultiplicadorDanioGlobal}.
+      * @param multiplicador valor de {@code multiplicador}
+     */
     public static void setMultiplicadorDanioGlobal(double multiplicador) {
         multiplicadorDanioGlobal = Math.max(0.1, multiplicador);
     }

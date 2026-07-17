@@ -18,6 +18,9 @@ public final class SistemaPuntuacion {
 
     /**
      * Ejecuta calcular.
+      * @param estado valor de {@code estado}
+      * @param juego valor de {@code juego}
+      * @return resultado de la operacion
      */
     public static ResultadoPuntuacion calcular(Juego juego, EstadoFinalPartida estado) {
         Jugador jugador = juego.getJugador();
@@ -63,13 +66,31 @@ public final class SistemaPuntuacion {
         return Math.max(0.0f, Math.min(1.0f, valor));
     }
 
+    /**
+     * Representa {@code EstadoFinalPartida} dentro del dominio del juego.
+     */
     public enum EstadoFinalPartida {
+        /**
+         * Valor publico {@code VICTORIA} utilizado por el modelo del juego.
+         */
         VICTORIA,
+        /**
+         * Valor publico {@code MUERTE} utilizado por el modelo del juego.
+         */
         MUERTE,
+        /**
+         * Valor publico {@code SIN_PASOS} utilizado por el modelo del juego.
+         */
         SIN_PASOS,
+        /**
+         * Valor publico {@code valor} utilizado por el modelo del juego.
+         */
         SALIDA_MANUAL
     }
 
+    /**
+     * Representa {@code ResultadoPuntuacion} dentro del dominio del juego.
+     */
     public static final class ResultadoPuntuacion {
         private final int total;
         private final int salud;
@@ -94,6 +115,7 @@ public final class SistemaPuntuacion {
 
         /**
          * Ejecuta getTotal.
+          * @return resultado de la operacion
          */
         public int getTotal() {
             return total;
@@ -101,6 +123,7 @@ public final class SistemaPuntuacion {
 
         /**
          * Ejecuta formatearDesglose.
+          * @return resultado de la operacion
          */
         public String[] formatearDesglose() {
             return new String[] {

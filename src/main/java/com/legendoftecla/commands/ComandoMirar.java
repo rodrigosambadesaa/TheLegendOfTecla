@@ -19,6 +19,7 @@ public class ComandoMirar implements Comando {
 
     /**
      * Ejecuta ComandoMirar.
+      * @param context valor de {@code context}
      */
     public ComandoMirar(CommandContext context) {
         this(context, null, 0);
@@ -26,6 +27,9 @@ public class ComandoMirar implements Comando {
 
     /**
      * Ejecuta ComandoMirar.
+      * @param context valor de {@code context}
+      * @param direccion valor de {@code direccion}
+      * @param pasos valor de {@code pasos}
      */
     public ComandoMirar(CommandContext context, Direccion direccion, int pasos) {
         this.context = context;

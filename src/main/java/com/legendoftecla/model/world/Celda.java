@@ -21,6 +21,8 @@ public class Celda {
 
     /**
      * Ejecuta Celda.
+      * @param descripcion valor de {@code descripcion}
+      * @param transitable valor de {@code transitable}
      */
     public Celda(String descripcion, boolean transitable) {
         this.descripcion = descripcion;
@@ -32,6 +34,7 @@ public class Celda {
 
     /**
      * Ejecuta getDescripcion.
+      * @return resultado de la operacion
      */
     public String getDescripcion() {
         return descripcion;
@@ -39,6 +42,7 @@ public class Celda {
 
     /**
      * Ejecuta isTransitable.
+      * @return resultado de la operacion
      */
     public boolean isTransitable() {
         return transitable;
@@ -46,6 +50,7 @@ public class Celda {
 
     /**
      * Ejecuta getObjetos.
+      * @return resultado de la operacion
      */
     public List<Objeto> getObjetos() {
         return Collections.unmodifiableList(objetos);
@@ -53,6 +58,7 @@ public class Celda {
 
     /**
      * Ejecuta getEnemigos.
+      * @return resultado de la operacion
      */
     public List<Enemigo> getEnemigos() {
         return Collections.unmodifiableList(enemigos);
@@ -60,6 +66,7 @@ public class Celda {
 
     /**
      * Ejecuta getAliados.
+      * @return resultado de la operacion
      */
     public List<Aliado> getAliados() {
         return Collections.unmodifiableList(aliados);
@@ -67,6 +74,7 @@ public class Celda {
 
     /**
      * Ejecuta agregarObjeto.
+      * @param objeto valor de {@code objeto}
      */
     public void agregarObjeto(Objeto objeto) {
         objetos.add(objeto);
@@ -74,6 +82,8 @@ public class Celda {
 
     /**
      * Ejecuta quitarObjetoPorNombre.
+      * @param nombre valor de {@code nombre}
+      * @return resultado de la operacion
      */
     public Objeto quitarObjetoPorNombre(String nombre) {
         for (int i = 0; i < objetos.size(); i++) {
@@ -87,6 +97,7 @@ public class Celda {
 
     /**
      * Ejecuta agregarEnemigo.
+      * @param enemigo valor de {@code enemigo}
      */
     public void agregarEnemigo(Enemigo enemigo) {
         enemigos.add(enemigo);
@@ -94,6 +105,7 @@ public class Celda {
 
     /**
      * Ejecuta quitarEnemigo.
+      * @param enemigo valor de {@code enemigo}
      */
     public void quitarEnemigo(Enemigo enemigo) {
         enemigos.remove(enemigo);
@@ -101,6 +113,7 @@ public class Celda {
 
     /**
      * Ejecuta agregarAliado.
+      * @param aliado valor de {@code aliado}
      */
     public void agregarAliado(Aliado aliado) {
         aliados.add(aliado);
@@ -108,6 +121,7 @@ public class Celda {
 
     /**
      * Ejecuta quitarAliado.
+      * @param aliado valor de {@code aliado}
      */
     public void quitarAliado(Aliado aliado) {
         aliados.remove(aliado);

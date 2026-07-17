@@ -9,6 +9,10 @@ import com.legendoftecla.model.world.Posicion;
 public final class Francotirador extends Jugador {
     /**
      * Ejecuta Francotirador.
+      * @param mochila valor de {@code mochila}
+      * @param nombre valor de {@code nombre}
+      * @param posicion valor de {@code posicion}
+      * @param visionBase valor de {@code visionBase}
      */
     public Francotirador(String nombre, Posicion posicion, Mochila mochila, int visionBase) {
         super(nombre, 100, 100, posicion, mochila, visionBase + 1);

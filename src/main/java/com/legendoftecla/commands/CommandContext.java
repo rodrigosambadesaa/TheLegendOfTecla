@@ -11,6 +11,7 @@ public class CommandContext {
 
     /**
      * Ejecuta CommandContext.
+      * @param juego valor de {@code juego}
      */
     public CommandContext(Juego juego) {
         this.juego = juego;
@@ -18,6 +19,7 @@ public class CommandContext {
 
     /**
      * Ejecuta getJuego.
+      * @return resultado de la operacion
      */
     public Juego getJuego() {
         return juego;

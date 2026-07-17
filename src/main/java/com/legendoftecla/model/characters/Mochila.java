@@ -17,6 +17,8 @@ public class Mochila {
 
     /**
      * Ejecuta Mochila.
+      * @param capacidadMax valor de {@code capacidadMax}
+      * @param pesoMax valor de {@code pesoMax}
      */
     public Mochila(int capacidadMax, double pesoMax) {
         this.capacidadMax = capacidadMax;
@@ -26,6 +28,7 @@ public class Mochila {
 
     /**
      * Ejecuta getObjetos.
+      * @return resultado de la operacion
      */
     public List<Objeto> getObjetos() {
         return Collections.unmodifiableList(objetos);
@@ -33,6 +36,7 @@ public class Mochila {
 
     /**
      * Ejecuta getCapacidadMax.
+      * @return resultado de la operacion
      */
     public int getCapacidadMax() {
         return capacidadMax;
@@ -40,6 +44,7 @@ public class Mochila {
 
     /**
      * Ejecuta getPesoMax.
+      * @return resultado de la operacion
      */
     public double getPesoMax() {
         return pesoMax;
@@ -47,6 +52,7 @@ public class Mochila {
 
     /**
      * Ejecuta getPesoActual.
+      * @return resultado de la operacion
      */
     public double getPesoActual() {
         return objetos.stream().mapToDouble(Objeto::getPeso).sum();
@@ -54,6 +60,7 @@ public class Mochila {
 
     /**
      * Ejecuta getEspacioRestante.
+      * @return resultado de la operacion
      */
     public int getEspacioRestante() {
         return capacidadMax - objetos.size();
@@ -61,6 +68,8 @@ public class Mochila {
 
     /**
      * Ejecuta puedeGuardar.
+      * @param objeto valor de {@code objeto}
+      * @return resultado de la operacion
      */
     public boolean puedeGuardar(Objeto objeto) {
         return objetos.size() < capacidadMax && getPesoActual() + objeto.getPeso() <= pesoMax;
@@ -68,6 +77,8 @@ public class Mochila {
 
     /**
      * Ejecuta guardar.
+      * @param objeto valor de {@code objeto}
+      * @return resultado de la operacion
      */
     public boolean guardar(Objeto objeto) {
         if (!puedeGuardar(objeto)) {
@@ -79,6 +90,8 @@ public class Mochila {
 
     /**
      * Ejecuta quitarPorNombre.
+      * @param nombre valor de {@code nombre}
+      * @return resultado de la operacion
      */
     public Objeto quitarPorNombre(String nombre) {
         for (int i = 0; i < objetos.size(); i++) {

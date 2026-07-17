@@ -12,6 +12,8 @@ public class Posicion {
 
     /**
      * Ejecuta Posicion.
+      * @param columna valor de {@code columna}
+      * @param fila valor de {@code fila}
      */
     public Posicion(int fila, int columna) {
         this.fila = fila;
@@ -20,6 +22,7 @@ public class Posicion {
 
     /**
      * Ejecuta getFila.
+      * @return resultado de la operacion
      */
     public int getFila() {
         return fila;
@@ -27,6 +30,7 @@ public class Posicion {
 
     /**
      * Ejecuta getColumna.
+      * @return resultado de la operacion
      */
     public int getColumna() {
         return columna;
@@ -34,6 +38,8 @@ public class Posicion {
 
     /**
      * Ejecuta mover.
+      * @param direccion valor de {@code direccion}
+      * @return resultado de la operacion
      */
     public Posicion mover(Direccion direccion) {
         return new Posicion(fila + direccion.getDeltaFila(), columna + direccion.getDeltaColumna());
@@ -41,6 +47,8 @@ public class Posicion {
 
     /**
      * Ejecuta distanciaManhattan.
+      * @param otra valor de {@code otra}
+      * @return resultado de la operacion
      */
     public int distanciaManhattan(Posicion otra) {
         return Math.abs(fila - otra.fila) + Math.abs(columna - otra.columna);

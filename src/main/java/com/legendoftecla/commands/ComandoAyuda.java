@@ -10,6 +10,7 @@ public class ComandoAyuda implements Comando {
 
     /**
      * Ejecuta ComandoAyuda.
+      * @param context valor de {@code context}
      */
     public ComandoAyuda(CommandContext context) {
         this.context = context;

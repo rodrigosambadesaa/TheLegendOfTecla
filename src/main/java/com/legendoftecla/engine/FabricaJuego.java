@@ -13,6 +13,13 @@ public final class FabricaJuego {
     private FabricaJuego() {
     }
 
+    /**
+     * Ejecuta la operacion publica {@code crear}.
+      * @param configuracion valor de {@code configuracion}
+      * @param consola valor de {@code consola}
+      * @return resultado de la operacion
+      * @throws com.legendoftecla.exceptions.JuegoException si la operacion no puede completarse
+     */
     public static Juego crear(Consola consola, ConfiguracionPartida configuracion) throws JuegoException {
         CargadorJuego cargador = switch (configuracion.modo()) {
             case "ficheros" -> new CargadorJuegoDeFicheros(

@@ -8,6 +8,16 @@ import java.util.Locale;
 
 /**
  * Opciones de arranque para iniciar el juego sin completar el asistente interactivo.
+  * @param clase valor de {@code clase}
+  * @param dificultad valor de {@code dificultad}
+  * @param dimensiones valor de {@code dimensiones}
+  * @param directorioDatos valor de {@code directorioDatos}
+  * @param editor valor de {@code editor}
+  * @param gui valor de {@code gui}
+  * @param modo valor de {@code modo}
+  * @param mostrarAyuda valor de {@code mostrarAyuda}
+  * @param nombre valor de {@code nombre}
+  * @param rapido valor de {@code rapido}
  */
 public record OpcionesInicio(
         String nombre,
@@ -21,6 +31,11 @@ public record OpcionesInicio(
         boolean gui,
         boolean editor) {
 
+    /**
+     * Ejecuta la operacion publica {@code desdeArgumentos}.
+      * @param args valor de {@code args}
+      * @return resultado de la operacion
+     */
     public static OpcionesInicio desdeArgumentos(String[] args) {
         String nombre = null;
         String clase = null;
@@ -68,6 +83,10 @@ public record OpcionesInicio(
                 directorioDatos, rapido, mostrarAyuda, gui, editor);
     }
 
+    /**
+     * Ejecuta la operacion publica {@code ayuda}.
+      * @return resultado de la operacion
+     */
     public static String ayuda() {
         return """
                 Uso: java -jar the-legend-of-tecla.jar [opciones]

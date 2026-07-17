@@ -23,6 +23,10 @@ public final class Main {
     private Main() {
     }
 
+    /**
+     * Crea una instancia de {@code Main}.
+      * @param args valor de {@code args}
+     */
     public static void main(String[] args) {
         OpcionesInicio opciones;
         try {

@@ -51,18 +51,56 @@ public final class PanelEditorMapa extends JPanel {
         }
     }
 
+    /**
+     * Valor publico {@code escenarioGuardado} utilizado por el modelo del juego.
+     */
     private final Consumer<Path> escenarioGuardado;
+    /**
+     * Valor publico {@code volver} utilizado por el modelo del juego.
+     */
     private final Runnable volver;
+    /**
+     * Ejecuta la operacion publica {@code JTextField}.
+     */
     private final JTextField nombre = new JTextField(18);
+    /**
+     * Ejecuta la operacion publica {@code JTextField}.
+     */
     private final JTextField descripcion = new JTextField(26);
+    /**
+     * Ejecuta la operacion publica {@code SpinnerNumberModel}.
+     */
     private final JSpinner pasos = new JSpinner(new SpinnerNumberModel(160, 1, 100000, 10));
+    /**
+     * Ejecuta la operacion publica {@code SpinnerNumberModel}.
+     */
     private final JSpinner filas = new JSpinner(new SpinnerNumberModel(10, 3, 60, 1));
+    /**
+     * Ejecuta la operacion publica {@code SpinnerNumberModel}.
+     */
     private final JSpinner columnas = new JSpinner(new SpinnerNumberModel(10, 3, 60, 1));
+    /**
+     * Ejecuta la operacion publica {@code values}.
+     */
     private final JComboBox<Herramienta> herramienta = new JComboBox<>(Herramienta.values());
+    /**
+     * Ejecuta la operacion publica {@code JPanel}.
+     */
     private final JPanel cuadricula = new JPanel();
+    /**
+     * Valor publico {@code escenario} utilizado por el modelo del juego.
+     */
     private EscenarioDefinicion escenario;
+    /**
+     * Valor publico {@code directorioActual} utilizado por el modelo del juego.
+     */
     private Path directorioActual;
 
+    /**
+     * Crea una instancia de {@code PanelEditorMapa}.
+      * @param escenarioGuardado valor de {@code escenarioGuardado}
+      * @param volver valor de {@code volver}
+     */
     public PanelEditorMapa(Consumer<Path> escenarioGuardado, Runnable volver) {
         super(new BorderLayout(6, 6));
         this.escenarioGuardado = escenarioGuardado;

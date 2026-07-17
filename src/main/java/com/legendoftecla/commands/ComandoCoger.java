@@ -15,6 +15,8 @@ public class ComandoCoger implements Comando {
 
     /**
      * Ejecuta ComandoCoger.
+      * @param context valor de {@code context}
+      * @param nombreObjeto valor de {@code nombreObjeto}
      */
     public ComandoCoger(CommandContext context, String nombreObjeto) {
         this.context = context;

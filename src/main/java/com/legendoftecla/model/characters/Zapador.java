@@ -12,6 +12,10 @@ import com.legendoftecla.model.world.Posicion;
 public final class Zapador extends Jugador {
     /**
      * Ejecuta Zapador.
+      * @param mochila valor de {@code mochila}
+      * @param nombre valor de {@code nombre}
+      * @param posicion valor de {@code posicion}
+      * @param visionBase valor de {@code visionBase}
      */
     public Zapador(String nombre, Posicion posicion, Mochila mochila, int visionBase) {
         super(nombre, 105, 95, posicion, mochila, visionBase);

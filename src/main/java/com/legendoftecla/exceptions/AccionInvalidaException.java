@@ -7,6 +7,7 @@ package com.legendoftecla.exceptions;
 public class AccionInvalidaException extends JuegoException {
     /**
      * Ejecuta AccionInvalidaException.
+      * @param message valor de {@code message}
      */
     public AccionInvalidaException(String message) {
         super(message);

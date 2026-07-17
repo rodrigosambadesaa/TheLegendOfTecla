@@ -14,6 +14,8 @@ public class ComandoMover implements Comando {
 
     /**
      * Ejecuta ComandoMover.
+      * @param context valor de {@code context}
+      * @param direccion valor de {@code direccion}
      */
     public ComandoMover(CommandContext context, Direccion direccion) {
         this.context = context;

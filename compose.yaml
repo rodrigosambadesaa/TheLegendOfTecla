@@ -13,3 +13,14 @@ services:
       - "127.0.0.1:6080:6080"
     shm_size: "256mb"
     restart: "no"
+
+  javadoc:
+    image: maven:3.9.11-eclipse-temurin-21-alpine
+    working_dir: /workspace
+    command: mvn -B -ntp javadoc:javadoc
+    volumes:
+      - .:/workspace
+      - maven-cache:/root/.m2
+
+volumes:
+  maven-cache:

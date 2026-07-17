@@ -10,6 +10,9 @@ import com.legendoftecla.model.characters.Personaje;
 public final class Explosivo extends Objeto {
     /**
      * Ejecuta Explosivo.
+      * @param descripcion valor de {@code descripcion}
+      * @param nombre valor de {@code nombre}
+      * @param peso valor de {@code peso}
      */
     public Explosivo(String nombre, String descripcion, double peso) {
         super(nombre, descripcion, peso);

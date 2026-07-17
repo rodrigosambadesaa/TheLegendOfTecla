@@ -15,6 +15,8 @@ public class ComandoTirar implements Comando {
 
     /**
      * Ejecuta ComandoTirar.
+      * @param context valor de {@code context}
+      * @param nombreObjeto valor de {@code nombreObjeto}
      */
     public ComandoTirar(CommandContext context, String nombreObjeto) {
         this.context = context;

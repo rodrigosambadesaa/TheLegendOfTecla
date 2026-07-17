@@ -12,6 +12,8 @@ public class ComandoRepetido implements Comando {
 
     /**
      * Ejecuta ComandoRepetido.
+      * @param comando valor de {@code comando}
+      * @param repeticiones valor de {@code repeticiones}
      */
     public ComandoRepetido(Comando comando, int repeticiones) {
         this.comando = comando;

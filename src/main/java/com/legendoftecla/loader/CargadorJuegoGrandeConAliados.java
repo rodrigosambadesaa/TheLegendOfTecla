@@ -24,6 +24,11 @@ public class CargadorJuegoGrandeConAliados implements CargadorJuego {
 
     /**
      * Ejecuta CargadorJuegoGrandeConAliados.
+      * @param clase valor de {@code clase}
+      * @param consola valor de {@code consola}
+      * @param dificultad valor de {@code dificultad}
+      * @param dimensiones valor de {@code dimensiones}
+      * @param nombreJugador valor de {@code nombreJugador}
      */
     public CargadorJuegoGrandeConAliados(Consola consola, String nombreJugador, String clase,
             Dificultad dificultad, DimensionesMapa dimensiones) {

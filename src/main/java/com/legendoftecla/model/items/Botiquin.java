@@ -11,12 +11,20 @@ public final class Botiquin extends Objeto {
 
     /**
      * Ejecuta Botiquin.
+      * @param curacion valor de {@code curacion}
+      * @param descripcion valor de {@code descripcion}
+      * @param nombre valor de {@code nombre}
+      * @param peso valor de {@code peso}
      */
     public Botiquin(String nombre, String descripcion, double peso, int curacion) {
         super(nombre, descripcion, peso);
         this.curacion = curacion;
     }
 
+    /**
+     * Obtiene el valor de {@code Curacion}.
+      * @return resultado de la operacion
+     */
     public int getCuracion() {
         return curacion;
     }

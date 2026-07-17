@@ -20,8 +20,15 @@ import java.util.Set;
 /** Dibuja el estado del mapa mediante formas y colores, nunca como texto ASCII. */
 public final class MapaGraficoPanel extends JPanel {
     private static final int TAMANO_CELDA = 32;
+    /**
+     * Valor publico {@code motor} utilizado por el modelo del juego.
+     */
     private final MotorPartida motor;
 
+    /**
+     * Crea una instancia de {@code MapaGraficoPanel}.
+      * @param motor valor de {@code motor}
+     */
     public MapaGraficoPanel(MotorPartida motor) {
         this.motor = motor;
         Mapa mapa = motor.getJuego().getMapa();

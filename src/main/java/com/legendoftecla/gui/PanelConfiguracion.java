@@ -31,23 +31,52 @@ public final class PanelConfiguracion extends JPanel {
         }
     }
 
+    /**
+     * Ejecuta la operacion publica {@code JTextField}.
+     */
     private final JTextField nombre = new JTextField("Tecla", 24);
+    /**
+     * Valor publico {@code clase} utilizado por el modelo del juego.
+     */
     private final JComboBox<Opcion> clase = new JComboBox<>(new Opcion[]{
             new Opcion("Marine", "marine"),
             new Opcion("Francotirador", "francotirador"),
             new Opcion("Zapador", "zapador")
     });
+    /**
+     * Valor publico {@code modo} utilizado por el modelo del juego.
+     */
     private final JComboBox<Opcion> modo = new JComboBox<>(new Opcion[]{
             new Opcion("Mapa predeterminado", "default"),
             new Opcion("Mapa grande con aliados", "grande"),
             new Opcion("Escenario desde ficheros / JSON", "ficheros")
     });
+    /**
+     * Ejecuta la operacion publica {@code values}.
+     */
     private final JComboBox<Dificultad> dificultad = new JComboBox<>(Dificultad.values());
+    /**
+     * Ejecuta la operacion publica {@code JTextField}.
+     */
     private final JTextField filas = new JTextField(5);
+    /**
+     * Ejecuta la operacion publica {@code JTextField}.
+     */
     private final JTextField columnas = new JTextField(5);
+    /**
+     * Ejecuta la operacion publica {@code JTextField}.
+     */
     private final JTextField directorio = new JTextField(30);
+    /**
+     * Ejecuta la operacion publica {@code JButton}.
+     */
     private final JButton examinar = new JButton("Examinar...");
 
+    /**
+     * Crea una instancia de {@code PanelConfiguracion}.
+      * @param abrirEditor valor de {@code abrirEditor}
+      * @param iniciar valor de {@code iniciar}
+     */
     public PanelConfiguracion(Consumer<ConfiguracionPartida> iniciar, Runnable abrirEditor) {
         super(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(30, 50, 30, 50));
@@ -117,6 +146,10 @@ public final class PanelConfiguracion extends JPanel {
         add(botones, BorderLayout.SOUTH);
     }
 
+    /**
+     * Ejecuta la operacion publica {@code seleccionarDirectorio}.
+      * @param ruta valor de {@code ruta}
+     */
     public void seleccionarDirectorio(Path ruta) {
         directorio.setText(ruta.toAbsolutePath().toString());
         modo.setSelectedIndex(2);

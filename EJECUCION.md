@@ -202,6 +202,29 @@ Para mostrar todas las opciones disponibles:
 java -jar target/the-legend-of-tecla.jar --help
 ```
 
+## Generar Javadoc HTML
+
+La documentacion de todas las clases, constructores y metodos publicos se puede
+generar sin instalar Java ni Maven localmente:
+
+```bash
+docker compose run --rm javadoc
+```
+
+El resultado se escribe en `target/reports/apidocs/`. Abre
+`target/reports/apidocs/index.html` con cualquier navegador.
+
+Si Java 17 y Maven estan instalados, los comandos equivalentes son:
+
+```bash
+mvn javadoc:javadoc
+mvn verify
+```
+
+`mvn verify` ejecuta las pruebas y genera tambien el Javadoc. La configuracion
+valida la sintaxis, referencias y estructura de los comentarios, publica solo
+la API visible y hace fallar la construccion ante errores o avisos de Javadoc.
+
 ## Uso de la consola
 
 Una vez iniciada la partida aparece el indicador `accion>`. Escribe `ayuda` para

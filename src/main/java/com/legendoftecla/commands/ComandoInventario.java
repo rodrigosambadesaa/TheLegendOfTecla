@@ -11,6 +11,7 @@ public class ComandoInventario implements Comando {
 
     /**
      * Ejecuta ComandoInventario.
+      * @param context valor de {@code context}
      */
     public ComandoInventario(CommandContext context) {
         this.context = context;

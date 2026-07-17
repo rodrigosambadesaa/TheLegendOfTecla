@@ -7,6 +7,7 @@ package com.legendoftecla.exceptions;
 public class ObjetoNoUsableException extends JuegoException {
     /**
      * Ejecuta ObjetoNoUsableException.
+      * @param message valor de {@code message}
      */
     public ObjetoNoUsableException(String message) {
         super(message);

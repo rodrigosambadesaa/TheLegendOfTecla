@@ -21,6 +21,7 @@ public class ComandoCompuesto implements Comando {
 
     /**
      * Ejecuta agregar.
+      * @param comando valor de {@code comando}
      */
     public void agregar(Comando comando) {
         comandos.add(comando);

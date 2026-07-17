@@ -9,6 +9,10 @@ import com.legendoftecla.model.world.Posicion;
 public final class HeavyFloater extends Floater {
     /**
      * Ejecuta HeavyFloater.
+      * @param mochila valor de {@code mochila}
+      * @param nombre valor de {@code nombre}
+      * @param posicion valor de {@code posicion}
+      * @param visionBase valor de {@code visionBase}
      */
     public HeavyFloater(String nombre, Posicion posicion, Mochila mochila, int visionBase) {
         super(nombre, 110, 60, posicion, mochila, visionBase);

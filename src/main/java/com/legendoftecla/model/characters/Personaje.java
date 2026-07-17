@@ -15,21 +15,63 @@ import java.util.List;
  * Representa la entidad Personaje del juego.
  */
 public abstract class Personaje {
+    /**
+     * Valor publico {@code nombre} utilizado por el modelo del juego.
+     */
     protected final String nombre;
+    /**
+     * Valor publico {@code salud} utilizado por el modelo del juego.
+     */
     protected int salud;
+    /**
+     * Valor publico {@code saludMaxima} utilizado por el modelo del juego.
+     */
     protected int saludMaxima;
+    /**
+     * Valor publico {@code energia} utilizado por el modelo del juego.
+     */
     protected int energia;
+    /**
+     * Valor publico {@code energiaMaxima} utilizado por el modelo del juego.
+     */
     protected int energiaMaxima;
+    /**
+     * Valor publico {@code posicion} utilizado por el modelo del juego.
+     */
     protected Posicion posicion;
+    /**
+     * Valor publico {@code mochila} utilizado por el modelo del juego.
+     */
     protected final Mochila mochila;
+    /**
+     * Valor publico {@code armasEquipadas} utilizado por el modelo del juego.
+     */
     protected final List<Arma> armasEquipadas;
+    /**
+     * Valor publico {@code armaduraEquipada} utilizado por el modelo del juego.
+     */
     protected Armadura armaduraEquipada;
+    /**
+     * Valor publico {@code visionBase} utilizado por el modelo del juego.
+     */
     protected int visionBase;
+    /**
+     * Valor publico {@code visionTemporal} utilizado por el modelo del juego.
+     */
     protected int visionTemporal;
+    /**
+     * Valor publico {@code penalizacionEnergiaSiguienteTurno} utilizado por el modelo del juego.
+     */
     protected double penalizacionEnergiaSiguienteTurno;
 
     /**
      * Ejecuta Personaje.
+      * @param energia valor de {@code energia}
+      * @param mochila valor de {@code mochila}
+      * @param nombre valor de {@code nombre}
+      * @param posicion valor de {@code posicion}
+      * @param salud valor de {@code salud}
+      * @param visionBase valor de {@code visionBase}
      */
     protected Personaje(String nombre, int salud, int energia, Posicion posicion, Mochila mochila, int visionBase) {
         this.nombre = nombre;
@@ -47,6 +89,7 @@ public abstract class Personaje {
 
     /**
      * Ejecuta getNombre.
+      * @return resultado de la operacion
      */
     public String getNombre() {
         return nombre;
@@ -54,6 +97,7 @@ public abstract class Personaje {
 
     /**
      * Ejecuta getSalud.
+      * @return resultado de la operacion
      */
     public int getSalud() {
         return salud;
@@ -61,6 +105,7 @@ public abstract class Personaje {
 
     /**
      * Ejecuta getSaludMaxima.
+      * @return resultado de la operacion
      */
     public int getSaludMaxima() {
         return saludMaxima;
@@ -68,6 +113,7 @@ public abstract class Personaje {
 
     /**
      * Ejecuta getEnergia.
+      * @return resultado de la operacion
      */
     public int getEnergia() {
         return energia;
@@ -75,6 +121,7 @@ public abstract class Personaje {
 
     /**
      * Ejecuta getEnergiaMaxima.
+      * @return resultado de la operacion
      */
     public int getEnergiaMaxima() {
         return energiaMaxima;
@@ -82,6 +129,7 @@ public abstract class Personaje {
 
     /**
      * Ejecuta getPosicion.
+      * @return resultado de la operacion
      */
     public Posicion getPosicion() {
         return posicion;
@@ -89,6 +137,7 @@ public abstract class Personaje {
 
     /**
      * Ejecuta getMochila.
+      * @return resultado de la operacion
      */
     public Mochila getMochila() {
         return mochila;
@@ -96,12 +145,19 @@ public abstract class Personaje {
 
     /**
      * Ejecuta getRangoVision.
+      * @return resultado de la operacion
      */
     public int getRangoVision() {
         return visionBase + visionTemporal;
     }
 
-    /** Configura las estadisticas base al cargar un escenario creado por el editor. */
+    /**
+     * Configura las estadisticas base al cargar un escenario creado por el editor.
+     *
+     * @param nuevaSalud salud maxima que tendra el personaje
+     * @param nuevaEnergia energia maxima que tendra el personaje
+     * @param nuevaVision alcance visual base del personaje
+     */
     public void configurarEstadisticas(int nuevaSalud, int nuevaEnergia, int nuevaVision) {
         if (nuevaSalud <= 0 || nuevaEnergia <= 0 || nuevaVision <= 0) {
             throw new IllegalArgumentException("Salud, energia y vision deben ser mayores que cero.");
@@ -116,6 +172,7 @@ public abstract class Personaje {
 
     /**
      * Ejecuta getArmasEquipadas.
+      * @return resultado de la operacion
      */
     public List<Arma> getArmasEquipadas() {
         return armasEquipadas;
@@ -123,6 +180,7 @@ public abstract class Personaje {
 
     /**
      * Ejecuta getArmaduraEquipada.
+      * @return resultado de la operacion
      */
     public Armadura getArmaduraEquipada() {
         return armaduraEquipada;
@@ -130,6 +188,9 @@ public abstract class Personaje {
 
     /**
      * Ejecuta mover.
+      * @param direccion valor de {@code direccion}
+      * @param juego valor de {@code juego}
+      * @throws com.legendoftecla.exceptions.AccionInvalidaException si la operacion no puede completarse
      */
     public void mover(Direccion direccion, Juego juego) throws AccionInvalidaException {
         Posicion destino = posicion.mover(direccion);
@@ -143,6 +204,8 @@ public abstract class Personaje {
 
     /**
      * Ejecuta coger.
+      * @param objeto valor de {@code objeto}
+      * @throws com.legendoftecla.exceptions.AccionInvalidaException si la operacion no puede completarse
      */
     public void coger(Objeto objeto) throws AccionInvalidaException {
         if (!mochila.guardar(objeto)) {
@@ -152,6 +215,9 @@ public abstract class Personaje {
 
     /**
      * Ejecuta tirar.
+      * @param nombreObjeto valor de {@code nombreObjeto}
+      * @return resultado de la operacion
+      * @throws com.legendoftecla.exceptions.AccionInvalidaException si la operacion no puede completarse
      */
     public Objeto tirar(String nombreObjeto) throws AccionInvalidaException {
         Objeto obj = mochila.quitarPorNombre(nombreObjeto);
@@ -163,6 +229,8 @@ public abstract class Personaje {
 
     /**
      * Ejecuta equipar.
+      * @param objeto valor de {@code objeto}
+      * @throws com.legendoftecla.exceptions.AccionInvalidaException si la operacion no puede completarse
      */
     public void equipar(Objeto objeto) throws AccionInvalidaException {
         if (objeto instanceof Arma arma) {
@@ -178,6 +246,8 @@ public abstract class Personaje {
 
     /**
      * Ejecuta desequipar.
+      * @param nombreObjeto valor de {@code nombreObjeto}
+      * @throws com.legendoftecla.exceptions.AccionInvalidaException si la operacion no puede completarse
      */
     public void desequipar(String nombreObjeto) throws AccionInvalidaException {
         for (int i = 0; i < armasEquipadas.size(); i++) {
@@ -198,6 +268,7 @@ public abstract class Personaje {
 
     /**
      * Ejecuta atacar.
+      * @param objetivo valor de {@code objetivo}
      */
     public void atacar(Personaje objetivo) {
         int danio = calcularDanio(objetivo);
@@ -206,6 +277,7 @@ public abstract class Personaje {
 
     /**
      * Ejecuta atacar.
+      * @param objetivos valor de {@code objetivos}
      */
     public void atacar(List<? extends Personaje> objetivos) {
         if (objetivos.isEmpty()) {
@@ -219,6 +291,8 @@ public abstract class Personaje {
 
     /**
      * Ejecuta calcularDanio.
+      * @param objetivo valor de {@code objetivo}
+      * @return resultado de la operacion
      */
     protected int calcularDanio(Personaje objetivo) {
         int base = armasEquipadas.stream().mapToInt(Arma::getDanio).sum();
@@ -230,11 +304,15 @@ public abstract class Personaje {
 
     /**
      * Ejecuta aplicarModificadorDanio.
+      * @param base valor de {@code base}
+      * @param objetivo valor de {@code objetivo}
+      * @return resultado de la operacion
      */
     protected abstract int aplicarModificadorDanio(int base, Personaje objetivo);
 
     /**
      * Ejecuta calcularCosteMovimiento.
+      * @return resultado de la operacion
      */
     protected int calcularCosteMovimiento() {
         int pesoExtra = (int) (mochila.getPesoActual() / 5.0);
@@ -248,6 +326,8 @@ public abstract class Personaje {
 
     /**
      * Ejecuta equiparArma.
+      * @param arma valor de {@code arma}
+      * @throws com.legendoftecla.exceptions.AccionInvalidaException si la operacion no puede completarse
      */
     protected void equiparArma(Arma arma) throws AccionInvalidaException {
         int usadas = 0;
@@ -263,6 +343,7 @@ public abstract class Personaje {
 
     /**
      * Ejecuta equiparArmadura.
+      * @param armadura valor de {@code armadura}
      */
     protected void equiparArmadura(Armadura armadura) {
         this.armaduraEquipada = armadura;
@@ -274,6 +355,7 @@ public abstract class Personaje {
 
     /**
      * Ejecuta recibirDanio.
+      * @param danio valor de {@code danio}
      */
     public void recibirDanio(int danio) {
         int mitigado = danio;
@@ -285,6 +367,7 @@ public abstract class Personaje {
 
     /**
      * Ejecuta recuperarSalud.
+      * @param cantidad valor de {@code cantidad}
      */
     public void recuperarSalud(int cantidad) {
         salud = Math.min(saludMaxima, salud + cantidad);
@@ -292,6 +375,7 @@ public abstract class Personaje {
 
     /**
      * Ejecuta recuperarEnergia.
+      * @param cantidad valor de {@code cantidad}
      */
     public void recuperarEnergia(int cantidad) {
         energia = Math.min(energiaMaxima, energia + cantidad);
@@ -299,6 +383,7 @@ public abstract class Personaje {
 
     /**
      * Ejecuta escalarSalud.
+      * @param factor valor de {@code factor}
      */
     public void escalarSalud(double factor) {
         if (factor <= 0) {
@@ -312,6 +397,8 @@ public abstract class Personaje {
 
     /**
      * Ejecuta gastarEnergia.
+      * @param cantidad valor de {@code cantidad}
+      * @throws com.legendoftecla.exceptions.AccionInvalidaException si la operacion no puede completarse
      */
     public void gastarEnergia(int cantidad) throws AccionInvalidaException {
         if (energia < cantidad) {
@@ -322,6 +409,7 @@ public abstract class Personaje {
 
     /**
      * Ejecuta aumentarVisionTemporal.
+      * @param incremento valor de {@code incremento}
      */
     public void aumentarVisionTemporal(int incremento) {
         visionTemporal = Math.max(visionTemporal, incremento);
@@ -329,6 +417,7 @@ public abstract class Personaje {
 
     /**
      * Ejecuta aplicarPenalizacionEnergiaSiguienteTurno.
+      * @param porcentaje valor de {@code porcentaje}
      */
     public void aplicarPenalizacionEnergiaSiguienteTurno(double porcentaje) {
         penalizacionEnergiaSiguienteTurno = Math.max(penalizacionEnergiaSiguienteTurno, porcentaje);

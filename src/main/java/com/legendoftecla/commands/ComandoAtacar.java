@@ -23,6 +23,9 @@ public class ComandoAtacar implements Comando {
 
     /**
      * Ejecuta ComandoAtacar.
+      * @param alcance valor de {@code alcance}
+      * @param context valor de {@code context}
+      * @param nombreObjetivo valor de {@code nombreObjetivo}
      */
     public ComandoAtacar(CommandContext context, String alcance, String nombreObjetivo) {
         this.context = context;

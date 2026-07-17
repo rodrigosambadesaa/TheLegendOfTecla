@@ -39,6 +39,15 @@ public final class CargadorJuegoJson implements CargadorJuego {
     private final Dificultad dificultad;
     private final DimensionesMapa dimensiones;
 
+    /**
+     * Crea una instancia de {@code CargadorJuegoJson}.
+      * @param clase valor de {@code clase}
+      * @param consola valor de {@code consola}
+      * @param dificultad valor de {@code dificultad}
+      * @param dimensiones valor de {@code dimensiones}
+      * @param directorio valor de {@code directorio}
+      * @param nombreJugador valor de {@code nombreJugador}
+     */
     public CargadorJuegoJson(Consola consola, String nombreJugador, String clase, Path directorio,
             Dificultad dificultad, DimensionesMapa dimensiones) {
         this.consola = consola;

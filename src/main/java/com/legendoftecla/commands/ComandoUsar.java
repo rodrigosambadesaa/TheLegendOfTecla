@@ -14,6 +14,8 @@ public class ComandoUsar implements Comando {
 
     /**
      * Ejecuta ComandoUsar.
+      * @param context valor de {@code context}
+      * @param nombreObjeto valor de {@code nombreObjeto}
      */
     public ComandoUsar(CommandContext context, String nombreObjeto) {
         this.context = context;

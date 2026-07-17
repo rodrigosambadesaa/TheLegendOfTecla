@@ -11,6 +11,10 @@ public final class Binocular extends Objeto {
 
     /**
      * Ejecuta Binocular.
+      * @param descripcion valor de {@code descripcion}
+      * @param nombre valor de {@code nombre}
+      * @param peso valor de {@code peso}
+      * @param rango valor de {@code rango}
      */
     public Binocular(String nombre, String descripcion, double peso, int rango) {
         super(nombre, descripcion, peso);
@@ -19,6 +23,7 @@ public final class Binocular extends Objeto {
 
     /**
      * Ejecuta getRango.
+      * @return resultado de la operacion
      */
     public int getRango() {
         return rango;

@@ -14,6 +14,8 @@ public class ComandoEquipar implements Comando {
 
     /**
      * Ejecuta ComandoEquipar.
+      * @param context valor de {@code context}
+      * @param nombreObjeto valor de {@code nombreObjeto}
      */
     public ComandoEquipar(CommandContext context, String nombreObjeto) {
         this.context = context;

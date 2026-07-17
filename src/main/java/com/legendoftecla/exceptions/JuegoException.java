@@ -7,6 +7,7 @@ package com.legendoftecla.exceptions;
 public class JuegoException extends Exception {
     /**
      * Ejecuta JuegoException.
+      * @param message valor de {@code message}
      */
     public JuegoException(String message) {
         super(message);

@@ -28,19 +28,23 @@ public final class FabricaJuego {
                     configuracion.clase(),
                     configuracion.directorioDatos(),
                     configuracion.dificultad(),
-                    configuracion.dimensiones());
+                    configuracion.dimensiones(),
+                    configuracion.conAliados());
             case "grande" -> new CargadorJuegoGrandeConAliados(
                     consola,
                     configuracion.nombreJugador(),
                     configuracion.clase(),
                     configuracion.dificultad(),
-                    configuracion.dimensiones());
+                    configuracion.dimensiones(),
+                    configuracion.conAliados(),
+                    configuracion.varianteMapa());
             default -> new CargadorJuegoPorDefecto(
                     consola,
                     configuracion.nombreJugador(),
                     configuracion.clase(),
                     configuracion.dificultad(),
-                    configuracion.dimensiones());
+                    configuracion.dimensiones(),
+                    configuracion.conAliados());
         };
         return cargador.cargarJuego();
     }

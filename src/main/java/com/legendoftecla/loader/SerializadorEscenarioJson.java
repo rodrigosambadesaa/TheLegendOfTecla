@@ -90,9 +90,6 @@ public final class SerializadorEscenarioJson {
         for (EscenarioDefinicion.PersonajeDef enemigo : escenario.enemigos) {
             validarPersonaje(escenario, enemigo, "enemigo");
         }
-        for (EscenarioDefinicion.PersonajeDef aliado : escenario.aliados) {
-            validarPersonaje(escenario, aliado, "aliado");
-        }
         for (EscenarioDefinicion.ObjetoDef objeto : escenario.objetos) {
             validarPunto(escenario, objeto, "objeto");
             if (objeto.nombre == null || objeto.nombre.isBlank() || objeto.peso < 0) {

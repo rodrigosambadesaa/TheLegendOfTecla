@@ -104,7 +104,7 @@ public final class VentanaPrincipal extends JFrame {
         tarjetas.show(contenido, EDITOR);
     }
 
-    private void escenarioGuardado(Path directorio) {
-        configuracion.seleccionarDirectorio(directorio);
+    private void escenarioGuardado(Path directorio, boolean conAliados) {
+        configuracion.seleccionarDirectorio(directorio, conAliados);
     }
 }

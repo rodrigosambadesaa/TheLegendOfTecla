@@ -45,6 +45,7 @@ public class CommandParser {
             case "equipar" -> requiereArg(partes, new ComandoEquipar(context, unir(partes, 1)));
             case "desequipar" -> requiereArg(partes, new ComandoDesequipar(context, unir(partes, 1)));
             case "atacar" -> parseAtacar(partes);
+            case "lanzar" -> parseLanzarExplosivo(partes);
             case "salir" -> new ComandoSalir();
             default -> throw new ComandoException("Comando desconocido: " + cmd);
         };
@@ -120,6 +121,13 @@ public class CommandParser {
             return new ComandoRepetido(base, repeticiones);
         }
         return base;
+    }
+
+    private Comando parseLanzarExplosivo(String[] partes) throws ComandoException {
+        if (partes.length < 3 || !esAlcance(partes[1])) {
+            throw new ComandoException("Uso: lanzar <distancia><direccion> <explosivo>");
+        }
+        return new ComandoLanzarExplosivo(context, partes[1], unir(partes, 2));
     }
 
     private int parseEntero(String valor) throws ComandoException {

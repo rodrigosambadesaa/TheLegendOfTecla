@@ -59,16 +59,21 @@ java -jar target/the-legend-of-tecla.jar --gui
 Desde la pantalla inicial se puede jugar en cualquiera de los tres modos:
 
 - Mapa predeterminado.
-- Mapa grande con enemigos y aliados.
+- Mapa grande con 50 distribuciones alternativas.
 - Escenario desde los tres ficheros TXT antiguos o desde `escenario.json`.
 
 Toda la partida se desarrolla en una sola ventana. El mapa utiliza celdas y
 formas graficas para representar muros, jugador, objetivo, objetos, aliados y
 enemigos visibles. Los controles de movimiento, coger, usar, tirar, equipar,
-desequipar, atacar, inventario, estado, ayuda, recorrido y salida estan
+desequipar, atacar, lanzar explosivos, inventario, estado, ayuda, recorrido y salida estan
 disponibles como botones. Las acciones que necesitan un objeto o enemigo abren
 un selector contextual, por lo que se puede completar la partida sin escribir
 comandos. El campo situado bajo el mapa se mantiene como alternativa.
+
+La casilla `Incluir aliados automaticos` esta disponible con dimensiones
+predeterminadas o personalizadas y tambien al cargar ficheros. No se solicita
+el numero ni las caracteristicas: se calculan a partir del tamano del mapa y la
+dificultad. En el modo grande, `Variante del mapa` permite escoger de 1 a 50.
 
 ### Editor grafico de mapas
 
@@ -85,7 +90,7 @@ inicial. El editor permite:
 - Personalizar la descripcion y transitabilidad de cada celda.
 - Colocar y mover el inicio del jugador y el objetivo.
 - Anadir enemigos configurando tipo, nombre, salud, energia y vision.
-- Anadir aliados configurando nombre, salud, energia y vision.
+- Elegir mediante una casilla si el escenario debe proponer aliados automaticos.
 - Anadir botiquines, armas, armaduras, binoculares, energia y explosivos con
   peso y atributos especificos.
 - Abrir, editar y guardar escenarios completos en `escenario.json`.
@@ -160,6 +165,15 @@ Valores admitidos:
 - `--dificultad`: `muy_facil`, `facil`, `normal`, `dificil`,
   `muy_dificil`, `pesadilla` o `demente`.
 - `--dimensiones`: filas y columnas en formato `12x20`, con un minimo de `3x3`.
+- `--aliados`: `si` o `no`; nunca admite cantidades ni atributos manuales.
+- `--variante`: numero de `1` a `50` para el mapa grande.
+
+Ejemplo con la variante 37 y aliados automaticos:
+
+```bash
+docker run --rm -it the-legend-of-tecla \
+  --rapido --modo grande --variante 37 --aliados si
+```
 
 Para jugar con el escenario basico incluido en la imagen:
 
@@ -178,7 +192,10 @@ docker run --rm -it `
   --rapido --modo ficheros --datos /escenario
 ```
 
-El directorio debe contener `mapa.txt`, `objetos.txt` y `enemigos.txt`.
+El directorio debe contener `mapa.txt`, `objetos.txt` y `enemigos.txt`, o bien
+un `escenario.json`. Los JSON pueden guardar `"conAliados": true` o `false`;
+la opcion de arranque/GUI es la confirmacion final y permite activar o desactivar
+los aliados sin editar posiciones ni estadisticas.
 
 ## Opcion 3: ejecucion local con Java
 
@@ -236,9 +253,14 @@ mover este
 inventario
 coger botiquin_1
 atacar Sectoid_0
+lanzar 3e c4_1
 recorrido
 salir
 ```
+
+El comando `lanzar` y el boton `Lanzar explosivo` son exclusivos del zapador.
+Permiten alcanzar una celda situada en linea recta hasta cinco casillas, dañan
+a todos los enemigos de esa celda y consumen la carga utilizada.
 
 Al escribir `salir`, pulsar `Ctrl+C` o cerrar la entrada estandar finaliza la
 sesion. Si la terminal no representa correctamente los colores, ejecuta Docker

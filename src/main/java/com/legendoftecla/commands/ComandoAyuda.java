@@ -42,11 +42,13 @@ public class ComandoAyuda implements Comando {
                 "   Ejemplo: desequipar rifle",
                 "9) atacar [<distancia><direccion>] [objetivo|todos] [repeticiones]",
                 "   Ejemplos: atacar | atacar todos | atacar 2e Sectoid_A 2",
-                "10) recorrido",
+                "10) lanzar <distancia><direccion> <explosivo>",
+                "    Ejemplo: lanzar 3e c4_1 (solo zapador, alcance maximo 5)",
+                "11) recorrido",
                 "    Ejemplo: recorrido",
-                "11) ayuda (alias: comandos)",
+                "12) ayuda (alias: comandos)",
                 "    Ejemplo: ayuda",
-                "12) salir",
+                "13) salir",
                 "    Ejemplo: salir");
         context.getJuego().getConsola().imprimirInfo(ayuda);
     }

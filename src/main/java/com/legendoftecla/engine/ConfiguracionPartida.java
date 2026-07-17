@@ -14,6 +14,8 @@ import java.nio.file.Path;
  * @param dificultad nivel de dificultad de la partida
  * @param dimensiones dimensiones opcionales del mapa
  * @param directorioDatos directorio de un escenario externo, si procede
+ * @param conAliados indica si la partida debe incluir aliados generados automaticamente
+ * @param varianteMapa variante determinista del mapa generado, entre 1 y 50
  */
 public record ConfiguracionPartida(
         String nombreJugador,
@@ -21,7 +23,9 @@ public record ConfiguracionPartida(
         String modo,
         Dificultad dificultad,
         DimensionesMapa dimensiones,
-        Path directorioDatos) {
+        Path directorioDatos,
+        boolean conAliados,
+        int varianteMapa) {
 
     /**
      * Valida y crea una instancia de {@code ConfiguracionPartida}.
@@ -41,6 +45,9 @@ public record ConfiguracionPartida(
         }
         if ("ficheros".equals(modo) && directorioDatos == null) {
             throw new IllegalArgumentException("Selecciona el directorio del escenario.");
+        }
+        if (varianteMapa < 1 || varianteMapa > 50) {
+            throw new IllegalArgumentException("La variante del mapa debe estar entre 1 y 50.");
         }
     }
 }

@@ -5,6 +5,7 @@
   "filas": 8,
   "columnas": 10,
   "pasosMaximos": 180,
+  "conAliados": true,
   "inicio": { "fila": 0, "columna": 0 },
   "objetivo": { "fila": 7, "columna": 9 },
   "celdas": [
@@ -22,12 +23,6 @@
     {
       "tipo": "heavyfloater", "nombre": "Guardian", "fila": 6, "columna": 8,
       "salud": 140, "energia": 60, "vision": 3
-    }
-  ],
-  "aliados": [
-    {
-      "tipo": "aliado", "nombre": "Omega", "fila": 5, "columna": 4,
-      "salud": 110, "energia": 150, "vision": 5
     }
   ],
   "objetos": [

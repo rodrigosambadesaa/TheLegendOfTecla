@@ -83,10 +83,16 @@ public final class Main {
             directorio = Path.of(consola.leer(
                     "Ruta del directorio con escenario.json o mapa.txt, objetos.txt y enemigos.txt:"));
         }
+        boolean conAliados = opciones.conAliados() != null
+                ? opciones.conAliados()
+                : leerAliados(consola);
+        int varianteMapa = opciones.varianteMapa() != null
+                ? opciones.varianteMapa()
+                : ("grande".equals(modo) ? leerVariante(consola) : 1);
 
         try {
             ConfiguracionPartida configuracion = new ConfiguracionPartida(
-                    nombre, clase, modo, dificultad, dimensiones, directorio);
+                    nombre, clase, modo, dificultad, dimensiones, directorio, conAliados, varianteMapa);
             Juego juego = FabricaJuego.crear(consola, configuracion);
             MotorPartida motor = new MotorPartida(juego);
 
@@ -126,7 +132,8 @@ public final class Main {
     private static String leerModo(Consola consola) {
         while (true) {
             String modo = consola.leer(
-                    "Modo (1=default sin aliados, 2=grande con aliados, 3=ficheros):").trim().toLowerCase();
+                    "Modo (1=predeterminado, 2=grande con 50 variantes, 3=ficheros/JSON):")
+                    .trim().toLowerCase();
             switch (modo) {
                 case "1", "default" -> {
                     return "default";
@@ -175,6 +182,37 @@ public final class Main {
             } catch (RuntimeException e) {
                 consola.imprimir("Tamano invalido: " + e.getMessage(), TipoMensaje.ERROR);
             }
+        }
+    }
+
+    private static boolean leerAliados(Consola consola) {
+        while (true) {
+            String entrada = consola.leer("¿Incluir aliados calculados automaticamente? (si/no) [no]:");
+            if (entrada == null || entrada.isBlank() || "no".equalsIgnoreCase(entrada.trim())) {
+                return false;
+            }
+            if ("si".equalsIgnoreCase(entrada.trim()) || "sí".equalsIgnoreCase(entrada.trim())) {
+                return true;
+            }
+            consola.imprimir("Respuesta invalida. Escribe si o no.", TipoMensaje.ERROR);
+        }
+    }
+
+    private static int leerVariante(Consola consola) {
+        while (true) {
+            String entrada = consola.leer("Variante del mapa grande (1-50) [1]:");
+            if (entrada == null || entrada.isBlank()) {
+                return 1;
+            }
+            try {
+                int variante = Integer.parseInt(entrada.trim());
+                if (variante >= 1 && variante <= 50) {
+                    return variante;
+                }
+            } catch (NumberFormatException ignored) {
+                // Se informa con el mismo mensaje para cualquier valor no valido.
+            }
+            consola.imprimir("La variante debe ser un numero entre 1 y 50.", TipoMensaje.ERROR);
         }
     }
 }

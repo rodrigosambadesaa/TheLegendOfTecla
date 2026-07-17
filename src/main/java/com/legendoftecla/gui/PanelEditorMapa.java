@@ -24,7 +24,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.nio.file.Path;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 /** Editor visual de escenarios completos guardados en escenario.json. */
 public final class PanelEditorMapa extends JPanel {
@@ -34,7 +34,6 @@ public final class PanelEditorMapa extends JPanel {
         INICIO("Inicio del jugador"),
         OBJETIVO("Objetivo"),
         ENEMIGO("Anadir enemigo"),
-        ALIADO("Anadir aliado"),
         OBJETO("Anadir objeto"),
         EDITAR_CELDA("Editar celda"),
         BORRAR("Borrar contenido");
@@ -54,7 +53,7 @@ public final class PanelEditorMapa extends JPanel {
     /**
      * Valor publico {@code escenarioGuardado} utilizado por el modelo del juego.
      */
-    private final Consumer<Path> escenarioGuardado;
+    private final BiConsumer<Path, Boolean> escenarioGuardado;
     /**
      * Valor publico {@code volver} utilizado por el modelo del juego.
      */
@@ -74,11 +73,11 @@ public final class PanelEditorMapa extends JPanel {
     /**
      * Ejecuta la operacion publica {@code SpinnerNumberModel}.
      */
-    private final JSpinner filas = new JSpinner(new SpinnerNumberModel(10, 3, 60, 1));
+    private final JSpinner filas = ControlesNumericos.entero("editor.dimensiones.filas", 10, 3, 100, 1);
     /**
      * Ejecuta la operacion publica {@code SpinnerNumberModel}.
      */
-    private final JSpinner columnas = new JSpinner(new SpinnerNumberModel(10, 3, 60, 1));
+    private final JSpinner columnas = ControlesNumericos.entero("editor.dimensiones.columnas", 10, 3, 100, 1);
     /**
      * Ejecuta la operacion publica {@code values}.
      */
@@ -95,13 +94,15 @@ public final class PanelEditorMapa extends JPanel {
      * Valor publico {@code directorioActual} utilizado por el modelo del juego.
      */
     private Path directorioActual;
+    /** Selector persistido que activa la generacion automatica de aliados. */
+    private final JCheckBox conAliados = new JCheckBox("Incluir aliados automaticos");
 
     /**
      * Crea una instancia de {@code PanelEditorMapa}.
       * @param escenarioGuardado valor de {@code escenarioGuardado}
       * @param volver valor de {@code volver}
      */
-    public PanelEditorMapa(Consumer<Path> escenarioGuardado, Runnable volver) {
+    public PanelEditorMapa(BiConsumer<Path, Boolean> escenarioGuardado, Runnable volver) {
         super(new BorderLayout(6, 6));
         this.escenarioGuardado = escenarioGuardado;
         this.volver = volver;
@@ -130,6 +131,7 @@ public final class PanelEditorMapa extends JPanel {
         metadatos.add(descripcion);
         metadatos.add(new JLabel("Pasos max.:"));
         metadatos.add(pasos);
+        metadatos.add(conAliados);
         contenedor.add(metadatos, BorderLayout.CENTER);
 
         JToolBar barra = new JToolBar();
@@ -168,7 +170,6 @@ public final class PanelEditorMapa extends JPanel {
         leyenda.add(new JLabel("Verde: inicio"));
         leyenda.add(new JLabel("Dorado: objetivo"));
         leyenda.add(new JLabel("Rojo: enemigo"));
-        leyenda.add(new JLabel("Azul: aliado"));
         leyenda.add(new JLabel("Amarillo: objeto"));
         leyenda.add(new JLabel("Gris oscuro: muro"));
         return leyenda;
@@ -222,8 +223,7 @@ public final class PanelEditorMapa extends JPanel {
                     celda.transitable = true;
                     escenario.objetivo = new EscenarioDefinicion.Punto(fila, columna);
                 }
-                case ENEMIGO -> anadirPersonaje(fila, columna, false);
-                case ALIADO -> anadirPersonaje(fila, columna, true);
+                case ENEMIGO -> anadirPersonaje(fila, columna);
                 case OBJETO -> anadirObjeto(fila, columna);
                 case EDITAR_CELDA -> editarCelda(celda);
                 case BORRAR -> borrarContenido(fila, columna);
@@ -243,21 +243,21 @@ public final class PanelEditorMapa extends JPanel {
         celda.descripcion = "Muro";
     }
 
-    private void anadirPersonaje(int fila, int columna, boolean aliado) {
+    private void anadirPersonaje(int fila, int columna) {
         exigirSuelo(fila, columna);
         JComboBox<String> tipo = new JComboBox<>(new String[]{"sectoid", "lightfloater", "heavyfloater"});
-        JTextField nombrePersonaje = new JTextField(aliado ? "Aliado" : "Enemigo");
-        JSpinner salud = new JSpinner(new SpinnerNumberModel(aliado ? 90 : 70, 1, 5000, 5));
-        JSpinner energia = new JSpinner(new SpinnerNumberModel(aliado ? 140 : 70, 1, 5000, 5));
+        JTextField nombrePersonaje = new JTextField("Enemigo");
+        JSpinner salud = new JSpinner(new SpinnerNumberModel(70, 1, 5000, 5));
+        JSpinner energia = new JSpinner(new SpinnerNumberModel(70, 1, 5000, 5));
         JSpinner vision = new JSpinner(new SpinnerNumberModel(3, 1, 100, 1));
         JPanel formulario = formulario(
-                aliado ? null : new JLabel("Tipo:"), aliado ? null : tipo,
+                new JLabel("Tipo:"), tipo,
                 new JLabel("Nombre:"), nombrePersonaje,
                 new JLabel("Salud:"), salud,
                 new JLabel("Energia:"), energia,
                 new JLabel("Vision:"), vision);
         int respuesta = JOptionPane.showConfirmDialog(this, formulario,
-                aliado ? "Configurar aliado" : "Configurar enemigo",
+                "Configurar enemigo",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (respuesta != JOptionPane.OK_OPTION) {
             return;
@@ -268,12 +268,12 @@ public final class PanelEditorMapa extends JPanel {
         EscenarioDefinicion.PersonajeDef personaje = new EscenarioDefinicion.PersonajeDef();
         personaje.fila = fila;
         personaje.columna = columna;
-        personaje.tipo = aliado ? "aliado" : (String) tipo.getSelectedItem();
+        personaje.tipo = (String) tipo.getSelectedItem();
         personaje.nombre = nombrePersonaje.getText().trim();
         personaje.salud = numero(salud);
         personaje.energia = numero(energia);
         personaje.vision = numero(vision);
-        (aliado ? escenario.aliados : escenario.enemigos).add(personaje);
+        escenario.enemigos.add(personaje);
     }
 
     private void anadirObjeto(int fila, int columna) {
@@ -341,7 +341,6 @@ public final class PanelEditorMapa extends JPanel {
 
     private void borrarContenido(int fila, int columna) {
         escenario.enemigos.removeIf(p -> p.fila == fila && p.columna == columna);
-        escenario.aliados.removeIf(p -> p.fila == fila && p.columna == columna);
         escenario.objetos.removeIf(p -> p.fila == fila && p.columna == columna);
     }
 
@@ -363,10 +362,6 @@ public final class PanelEditorMapa extends JPanel {
             boton.setBackground(new Color(170, 55, 60));
             simbolo += "◆";
         }
-        if (escenario.aliados.stream().anyMatch(p -> p.fila == fila && p.columna == columna)) {
-            boton.setBackground(new Color(45, 105, 185));
-            simbolo += "▲";
-        }
         if (escenario.objetos.stream().anyMatch(p -> p.fila == fila && p.columna == columna)) {
             simbolo += "■";
         }
@@ -376,11 +371,10 @@ public final class PanelEditorMapa extends JPanel {
 
     private String crearTooltip(int fila, int columna, EscenarioDefinicion.CeldaDef celda) {
         long enemigos = escenario.enemigos.stream().filter(p -> p.fila == fila && p.columna == columna).count();
-        long aliados = escenario.aliados.stream().filter(p -> p.fila == fila && p.columna == columna).count();
         long objetos = escenario.objetos.stream().filter(p -> p.fila == fila && p.columna == columna).count();
         return "<html><b>" + fila + "," + columna + "</b> " + celda.descripcion
                 + "<br>" + (celda.transitable ? "Transitable" : "Muro")
-                + "<br>Enemigos: " + enemigos + " | Aliados: " + aliados + " | Objetos: " + objetos + "</html>";
+                + "<br>Enemigos: " + enemigos + " | Objetos: " + objetos + "</html>";
     }
 
     private void guardarEscenario(boolean elegirDirectorio) {
@@ -398,7 +392,7 @@ public final class PanelEditorMapa extends JPanel {
             Path archivo = SerializadorEscenarioJson.guardar(escenario, directorioActual);
             JOptionPane.showMessageDialog(this, "Escenario guardado en:\n" + archivo,
                     "Guardado correcto", JOptionPane.INFORMATION_MESSAGE);
-            escenarioGuardado.accept(archivo.getParent());
+            escenarioGuardado.accept(archivo.getParent(), escenario.conAliados);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "No se pudo guardar", JOptionPane.ERROR_MESSAGE);
         }
@@ -429,6 +423,7 @@ public final class PanelEditorMapa extends JPanel {
         pasos.setValue(escenario.pasosMaximos);
         filas.setValue(escenario.filas);
         columnas.setValue(escenario.columnas);
+        conAliados.setSelected(escenario.conAliados);
     }
 
     private void sincronizarMetadatos() {
@@ -438,6 +433,7 @@ public final class PanelEditorMapa extends JPanel {
         escenario.nombre = nombre.getText().trim();
         escenario.descripcion = descripcion.getText().trim();
         escenario.pasosMaximos = numero(pasos);
+        escenario.conAliados = conAliados.isSelected();
     }
 
     private EscenarioDefinicion.CeldaDef asegurarCelda(int fila, int columna) {
@@ -460,7 +456,7 @@ public final class PanelEditorMapa extends JPanel {
     }
 
     private int numero(JSpinner spinner) {
-        return ((Number) spinner.getValue()).intValue();
+        return ControlesNumericos.valorEntero(spinner);
     }
 
     private JPanel formulario(java.awt.Component... componentes) {

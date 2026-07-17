@@ -5,8 +5,10 @@ import com.legendoftecla.engine.MotorPartida;
 import com.legendoftecla.model.characters.Enemigo;
 import com.legendoftecla.model.characters.Mochila;
 import com.legendoftecla.model.characters.Personaje;
+import com.legendoftecla.model.characters.Zapador;
 import com.legendoftecla.model.items.Arma;
 import com.legendoftecla.model.items.Armadura;
+import com.legendoftecla.model.items.Explosivo;
 import com.legendoftecla.model.items.Objeto;
 import com.legendoftecla.model.world.Celda;
 import com.legendoftecla.model.world.Posicion;
@@ -33,7 +35,9 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /** Vista completa de juego: mapa, estado, acciones, comandos y registro. */
 public final class PanelJuego extends JPanel {
@@ -97,6 +101,8 @@ public final class PanelJuego extends JPanel {
      * Valor publico {@code atacar} utilizado por el modelo del juego.
      */
     private JButton atacar;
+    /** Boton contextual para lanzar un explosivo del zapador. */
+    private JButton lanzarExplosivo;
 
     /**
      * Crea una instancia de {@code PanelJuego}.
@@ -181,12 +187,14 @@ public final class PanelJuego extends JPanel {
         equipar = botonContextual("Equipar", this::equiparObjeto);
         desequipar = botonContextual("Desequipar", this::desequiparObjeto);
         atacar = botonContextual("Atacar", this::atacarEnemigo);
+        lanzarExplosivo = botonContextual("Lanzar explosivo", this::lanzarExplosivo);
         utilidades.add(coger);
         utilidades.add(usar);
         utilidades.add(tirar);
         utilidades.add(equipar);
         utilidades.add(desequipar);
         utilidades.add(atacar);
+        utilidades.add(lanzarExplosivo);
         utilidades.add(boton("Inventario", "inventario"));
         utilidades.add(boton("Estado", "mirar"));
         utilidades.add(boton("Ayuda", "ayuda"));
@@ -224,7 +232,9 @@ public final class PanelJuego extends JPanel {
 
     private void usarObjeto() {
         seleccionarYEjecutar("Usar objeto", "usar", objetosMochila().stream()
-                .filter(objeto -> !(objeto instanceof Arma) && !(objeto instanceof Armadura))
+                .filter(objeto -> !(objeto instanceof Arma)
+                        && !(objeto instanceof Armadura)
+                        && !(objeto instanceof Explosivo))
                 .map(objeto -> new OpcionAccion(describir(objeto), "usar " + objeto.getNombre()))
                 .toList());
     }
@@ -271,6 +281,39 @@ public final class PanelJuego extends JPanel {
             }
         }
         seleccionarYEjecutar("Atacar enemigo", "atacar", opciones);
+    }
+
+    private void lanzarExplosivo() {
+        Posicion origen = motor.getJuego().getJugador().getPosicion();
+        List<Explosivo> explosivos = objetosMochila().stream()
+                .filter(Explosivo.class::isInstance)
+                .map(Explosivo.class::cast)
+                .toList();
+        List<OpcionAccion> opciones = new ArrayList<>();
+        Set<Posicion> destinosIncluidos = new HashSet<>();
+        for (Enemigo enemigo : motor.getJuego().getEnemigos()) {
+            Posicion destino = enemigo.getPosicion();
+            if (enemigo.getSalud() <= 0 || !destinosIncluidos.add(destino)) {
+                continue;
+            }
+            String alcance = alcanceAtaque(origen, destino);
+            if (alcance == null || alcance.isBlank()
+                    || !motor.getJuego().getMapa().hayLineaAtaque(origen, destino)) {
+                continue;
+            }
+            int distancia = origen.distanciaManhattan(destino);
+            long enemigosEnCelda = motor.getJuego().getMapa().getCelda(destino).getEnemigos().stream()
+                    .filter(objetivo -> objetivo.getSalud() > 0)
+                    .count();
+            for (Explosivo explosivo : explosivos) {
+                if (distancia <= explosivo.getAlcanceMaximo()) {
+                    opciones.add(new OpcionAccion(
+                            explosivo.getNombre() + " a " + alcance + " - " + enemigosEnCelda + " enemigo(s)",
+                            "lanzar " + alcance + " " + explosivo.getNombre()));
+                }
+            }
+        }
+        seleccionarYEjecutar("Lanzar explosivo", "lanzar", opciones);
     }
 
     private void seleccionarYEjecutar(String titulo, String verbo, List<OpcionAccion> opciones) {
@@ -354,7 +397,9 @@ public final class PanelJuego extends JPanel {
         ejecutar.setEnabled(activa);
         coger.setEnabled(activa && !celdaJugador().getObjetos().isEmpty());
         usar.setEnabled(activa && objetosMochila().stream()
-                .anyMatch(objeto -> !(objeto instanceof Arma) && !(objeto instanceof Armadura)));
+                .anyMatch(objeto -> !(objeto instanceof Arma)
+                        && !(objeto instanceof Armadura)
+                        && !(objeto instanceof Explosivo)));
         tirar.setEnabled(activa && !objetosMochila().isEmpty());
         equipar.setEnabled(activa && objetosMochila().stream()
                 .anyMatch(objeto -> objeto instanceof Arma || objeto instanceof Armadura));
@@ -362,6 +407,7 @@ public final class PanelJuego extends JPanel {
         desequipar.setEnabled(activa && (!jugador.getArmasEquipadas().isEmpty()
                 || jugador.getArmaduraEquipada() != null));
         atacar.setEnabled(activa && hayEnemigoAtacable());
+        lanzarExplosivo.setEnabled(activa && hayLanzamientoExplosivoDisponible());
     }
 
     private boolean hayEnemigoAtacable() {
@@ -369,6 +415,28 @@ public final class PanelJuego extends JPanel {
         return motor.getJuego().getEnemigos().stream().anyMatch(enemigo ->
                 enemigo.getSalud() > 0
                         && alcanceAtaque(origen, enemigo.getPosicion()) != null
+                        && motor.getJuego().getMapa().hayLineaAtaque(origen, enemigo.getPosicion()));
+    }
+
+    private boolean hayLanzamientoExplosivoDisponible() {
+        if (!(motor.getJuego().getJugador() instanceof Zapador)) {
+            return false;
+        }
+        int alcanceMaximo = objetosMochila().stream()
+                .filter(Explosivo.class::isInstance)
+                .map(Explosivo.class::cast)
+                .mapToInt(Explosivo::getAlcanceMaximo)
+                .max()
+                .orElse(0);
+        if (alcanceMaximo == 0) {
+            return false;
+        }
+        Posicion origen = motor.getJuego().getJugador().getPosicion();
+        return motor.getJuego().getEnemigos().stream().anyMatch(enemigo ->
+                enemigo.getSalud() > 0
+                        && origen.distanciaManhattan(enemigo.getPosicion()) <= alcanceMaximo
+                        && alcanceAtaque(origen, enemigo.getPosicion()) != null
+                        && !origen.equals(enemigo.getPosicion())
                         && motor.getJuego().getMapa().hayLineaAtaque(origen, enemigo.getPosicion()));
     }
 

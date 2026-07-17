@@ -36,6 +36,8 @@ public class EscenarioDefinicion {
      * Valor publico {@code pasosMaximos} utilizado por el modelo del juego.
      */
     public int pasosMaximos = 160;
+    /** Indica si el escenario propone activar aliados generados automaticamente. */
+    public boolean conAliados = false;
     /** Punto inicial del jugador dentro del escenario. */
     public Punto inicio = new Punto(0, 0);
     /** Punto que el jugador debe alcanzar para completar el escenario. */
@@ -48,10 +50,6 @@ public class EscenarioDefinicion {
      * Valor publico {@code enemigos} utilizado por el modelo del juego.
      */
     public List<PersonajeDef> enemigos = new ArrayList<>();
-    /**
-     * Valor publico {@code aliados} utilizado por el modelo del juego.
-     */
-    public List<PersonajeDef> aliados = new ArrayList<>();
     /**
      * Valor publico {@code objetos} utilizado por el modelo del juego.
      */
@@ -87,7 +85,6 @@ public class EscenarioDefinicion {
         if (objetivo == null) objetivo = new Punto(Math.max(0, filas - 1), Math.max(0, columnas - 1));
         if (celdas == null) celdas = new ArrayList<>();
         if (enemigos == null) enemigos = new ArrayList<>();
-        if (aliados == null) aliados = new ArrayList<>();
         if (objetos == null) objetos = new ArrayList<>();
         if (pasosMaximos <= 0) pasosMaximos = Math.max(80, filas * columnas * 2);
     }

@@ -8,11 +8,13 @@ Implementacion en Java del proyecto de POO por entregas (P1, P2, P3) y con ampli
 - Equipar/desequipar, usar objetos, atacar NPCs, recorrido.
 - Interfaz de comandos y comandos compuestos/repetidos.
 - Cargador por defecto y cargador por ficheros.
-- Modo de mapa grande (50x50) con aliados y mas enemigos.
+- Modo de mapa grande (50x50) con 50 variantes deterministas seleccionables.
+- Aliados opcionales en todos los modos, con cantidad y atributos calculados automaticamente.
+- Suministros de energia escalados y Toritos distribuidos sobre una ruta transitable en mapas grandes.
 - Bucle principal con captura de excepciones.
 - Interfaz grafica completa en una unica ventana para los tres modos.
 - Mapa grafico con celdas, jugador, objetivo, objetos, aliados y enemigos.
-- Botones contextuales para coger, usar, tirar, equipar, desequipar y atacar.
+- Botones contextuales para coger, usar, tirar, equipar, desequipar, atacar y lanzar explosivos.
 - Editor grafico de escenarios completos con persistencia JSON.
 
 ## Interfaz grafica
@@ -61,8 +63,9 @@ Para abrir directamente el editor de mapas:
 java -jar target/the-legend-of-tecla.jar --editor
 ```
 
-La GUI permite seleccionar los modos predeterminado, grande y desde ficheros. La
-version de consola sigue disponible y utiliza el mismo motor de partida.
+La GUI permite seleccionar los modos predeterminado, grande y desde ficheros,
+activar aliados mediante una casilla y elegir una de las 50 variantes del mapa
+grande. La version de consola ofrece las mismas opciones y utiliza el mismo motor.
 
 ## Ejecutar con Docker
 
@@ -103,9 +106,13 @@ java -jar target/the-legend-of-tecla.jar --rapido
 
 Al iniciar el juego, el modo se elige con:
 
-- `1`: mapa por defecto, sin aliados.
-- `2`: mapa grande 50x50, con mas enemigos y aliados.
+- `1`: mapa por defecto.
+- `2`: mapa grande 50x50 con 50 variantes.
 - `3`: carga desde ficheros.
+
+En los tres modos se pregunta si se desean aliados. Solo se elige `si` o `no`:
+el juego calcula su cantidad, posiciones, salud, energia, vision y equipo segun
+el mapa y la dificultad.
 
 ## Formato basico de ficheros (modo ficheros)
 
@@ -142,7 +149,10 @@ heavyfloater;Heavy_1;4;4
 - [data/escenario_grande/objetos.txt](data/escenario_grande/objetos.txt)
 - [data/escenario_grande/enemigos.txt](data/escenario_grande/enemigos.txt)
 
-Nota: al cargar un mapa de ficheros mayor de `20x20`, el juego genera aliados automaticamente para ayudar al jugador.
+Los aliados de escenarios TXT se controlan con la opcion global `--aliados si|no`.
+En JSON se guarda tambien `"conAliados": true|false`; la GUI lee ese valor al
+seleccionar el escenario y permite confirmarlo o cambiarlo antes de jugar. No se
+guardan posiciones ni caracteristicas de aliados personalizables.
 
 Tambien se incluye un escenario completo en
 [data/escenario_json/escenario.json](data/escenario_json/escenario.json), compatible

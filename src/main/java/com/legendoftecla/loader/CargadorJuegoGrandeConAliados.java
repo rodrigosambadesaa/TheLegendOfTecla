@@ -9,18 +9,27 @@ import com.legendoftecla.model.world.DimensionesMapa;
 import com.legendoftecla.model.world.*;
 
 import java.util.ArrayList;
+import java.util.ArrayDeque;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 /**
  * Representa la entidad CargadorJuegoGrandeConAliados del juego.
  */
 public class CargadorJuegoGrandeConAliados implements CargadorJuego {
+    private static final int PASOS_ENTRE_TORITOS_RUTA = 5;
+    private static final int ENERGIA_TORITO_GRANDE = 35;
+
     private final Consola consola;
     private final String nombreJugador;
     private final String clase;
     private final Dificultad dificultad;
     private final DimensionesMapa dimensiones;
+    private final boolean conAliados;
+    private final int varianteMapa;
 
     /**
      * Ejecuta CargadorJuegoGrandeConAliados.
@@ -29,14 +38,18 @@ public class CargadorJuegoGrandeConAliados implements CargadorJuego {
       * @param dificultad valor de {@code dificultad}
       * @param dimensiones valor de {@code dimensiones}
       * @param nombreJugador valor de {@code nombreJugador}
+      * @param conAliados indica si se deben generar aliados automaticamente
+      * @param varianteMapa variante determinista del mapa, entre 1 y 50
      */
     public CargadorJuegoGrandeConAliados(Consola consola, String nombreJugador, String clase,
-            Dificultad dificultad, DimensionesMapa dimensiones) {
+            Dificultad dificultad, DimensionesMapa dimensiones, boolean conAliados, int varianteMapa) {
         this.consola = consola;
         this.nombreJugador = nombreJugador;
         this.clase = clase;
         this.dificultad = dificultad;
         this.dimensiones = dimensiones;
+        this.conAliados = conAliados;
+        this.varianteMapa = varianteMapa;
     }
 
     @Override
@@ -46,15 +59,24 @@ public class CargadorJuegoGrandeConAliados implements CargadorJuego {
     public Juego cargarJuego() {
         int filas = dimensiones != null ? dimensiones.filas() : 50;
         int columnas = dimensiones != null ? dimensiones.columnas() : 50;
-        Mapa mapa = new Mapa("Megabase Atlas", "Complejo militar de gran escala", filas, columnas, new Posicion(0, 0),
+        Mapa mapa = new Mapa("Megabase Atlas - Variante " + varianteMapa,
+                "Complejo militar de gran escala, distribucion " + varianteMapa,
+                filas, columnas, new Posicion(0, 0),
                 new Posicion(filas - 1, columnas - 1));
 
+        int periodoFilas = 5 + varianteMapa % 5;
+        int periodoColumnas = 7 + (varianteMapa * 3) % 6;
+        int desfaseFilas = varianteMapa % periodoFilas;
+        int desfaseColumnas = (varianteMapa * 2) % periodoColumnas;
         for (int f = 0; f < filas; f++) {
             for (int c = 0; c < columnas; c++) {
-                boolean transitable = true;
-                if ((f % 7 == 0 && c > 2 && c < columnas - 3) || (c % 9 == 0 && f > 1 && f < filas - 2)) {
-                    transitable = (f % 14 == 0) || (c % 18 == 0);
-                }
+                boolean corredorSeguro = f == 0 || c == columnas - 1;
+                boolean muroHorizontal = (f + desfaseFilas) % periodoFilas == 0
+                        && c > 2 && c < columnas - 3;
+                boolean muroVertical = (c + desfaseColumnas) % periodoColumnas == 0
+                        && f > 1 && f < filas - 2;
+                boolean abertura = (f + c + varianteMapa) % (6 + varianteMapa % 4) == 0;
+                boolean transitable = corredorSeguro || (!(muroHorizontal || muroVertical) || abertura);
                 mapa.setCelda(f, c, new Celda("Sector " + f + "," + c, transitable));
             }
         }
@@ -75,12 +97,19 @@ public class CargadorJuegoGrandeConAliados implements CargadorJuego {
 
         Juego juego = new Juego(consola, mapa, jugador, 2200);
 
-        Random random = new Random(42);
+        Random random = new Random(4200L + varianteMapa);
         Enemigo.setMultiplicadorDanioGlobal(dificultad.getMultiplicadorDanioEnemigo());
-        poblarObjetos(mapa, random, 180);
+        int cantidadObjetos = Math.max(180, (filas * columnas) / 12);
+        poblarObjetos(mapa, random, cantidadObjetos);
+        poblarToritosEnRuta(mapa);
         poblarEnemigos(juego, mapa, random);
-        poblarAliadosSiMapaGrande(juego, mapa, random);
+        int cantidadAliados = conAliados
+                ? GeneradorAliados.poblar(juego, mapa, dificultad,
+                        new Random(5200L + varianteMapa), "AliadoAtlasV" + varianteMapa)
+                : 0;
         consola.imprimirInfo("Dificultad: " + dificultad.getEtiqueta()
+                + " | variante=" + varianteMapa
+                + " | aliados=" + cantidadAliados
                 + " | salud x" + dificultad.getMultiplicadorSaludEnemigo()
                 + " | danio x" + dificultad.getMultiplicadorDanioEnemigo());
 
@@ -90,16 +119,61 @@ public class CargadorJuegoGrandeConAliados implements CargadorJuego {
     private void poblarObjetos(Mapa mapa, Random random, int cantidad) {
         for (int i = 0; i < cantidad; i++) {
             Posicion p = randomPosTransitable(mapa, random, new ArrayList<>());
-            int tipo = random.nextInt(5);
+            int tipo = random.nextInt(6);
             switch (tipo) {
                 case 0 -> mapa.getCelda(p).agregarObjeto(new Botiquin("botiquin_" + i, "Curacion media", 1.0, 20));
-                case 1 -> mapa.getCelda(p).agregarObjeto(new ToritoRojo("torito_" + i, "Energia instantanea", 0.5, 20));
-                case 2 -> mapa.getCelda(p).agregarObjeto(new Arma("rifle_" + i, "Arma tactica", 3.5, 14, false));
-                case 3 ->
+                case 1, 2 -> mapa.getCelda(p).agregarObjeto(new ToritoRojo(
+                        "torito_" + i, "Energia instantanea", 0.5, ENERGIA_TORITO_GRANDE));
+                case 3 -> mapa.getCelda(p).agregarObjeto(new Arma("rifle_" + i, "Arma tactica", 3.5, 14, false));
+                case 4 ->
                     mapa.getCelda(p).agregarObjeto(new Armadura("armadura_" + i, "Blindaje compuesto", 5.5, 3, 8, 8));
                 default -> mapa.getCelda(p).agregarObjeto(new Binocular("binocular_" + i, "Vision ampliada", 1.0, 2));
             }
         }
+    }
+
+    private void poblarToritosEnRuta(Mapa mapa) {
+        List<Posicion> ruta = buscarRutaTransitable(mapa);
+        int numero = 0;
+        for (int i = PASOS_ENTRE_TORITOS_RUTA; i < ruta.size() - 1; i += PASOS_ENTRE_TORITOS_RUTA) {
+            Posicion posicion = ruta.get(i);
+            mapa.getCelda(posicion).agregarObjeto(new ToritoRojo(
+                    "torito_ruta_" + numero++,
+                    "Suministro de energia de la ruta principal",
+                    0.5,
+                    ENERGIA_TORITO_GRANDE));
+        }
+    }
+
+    private List<Posicion> buscarRutaTransitable(Mapa mapa) {
+        ArrayDeque<Posicion> pendientes = new ArrayDeque<>();
+        Map<Posicion, Posicion> anterior = new HashMap<>();
+        pendientes.add(mapa.getInicio());
+        anterior.put(mapa.getInicio(), null);
+
+        while (!pendientes.isEmpty()) {
+            Posicion actual = pendientes.removeFirst();
+            if (actual.equals(mapa.getObjetivo())) {
+                break;
+            }
+            for (Direccion direccion : Direccion.values()) {
+                Posicion siguiente = actual.mover(direccion);
+                if (mapa.esTransitable(siguiente) && !anterior.containsKey(siguiente)) {
+                    anterior.put(siguiente, actual);
+                    pendientes.addLast(siguiente);
+                }
+            }
+        }
+
+        if (!anterior.containsKey(mapa.getObjetivo())) {
+            return List.of();
+        }
+        List<Posicion> ruta = new ArrayList<>();
+        for (Posicion posicion = mapa.getObjetivo(); posicion != null; posicion = anterior.get(posicion)) {
+            ruta.add(posicion);
+        }
+        Collections.reverse(ruta);
+        return ruta;
     }
 
     private void poblarEnemigos(Juego juego, Mapa mapa, Random random) {
@@ -122,27 +196,6 @@ public class CargadorJuegoGrandeConAliados implements CargadorJuego {
             enemigo.escalarSalud(dificultad.getMultiplicadorSaludEnemigo());
             mapa.getCelda(p).agregarEnemigo(enemigo);
             juego.agregarEnemigo(enemigo);
-            ocupadas.add(p);
-        }
-    }
-
-    private void poblarAliadosSiMapaGrande(Juego juego, Mapa mapa, Random random) {
-        if (mapa.getFilas() <= 20 || mapa.getColumnas() <= 20) {
-            return;
-        }
-        int cantidadAliados = Math.max(3, (mapa.getFilas() * mapa.getColumnas()) / 250);
-        List<Posicion> ocupadas = new ArrayList<>();
-        ocupadas.add(mapa.getInicio());
-        ocupadas.add(mapa.getObjetivo());
-        for (int i = 0; i < cantidadAliados; i++) {
-            Posicion p = randomPosTransitable(mapa, random, ocupadas);
-            Aliado aliado = new Aliado("Aliado_" + i, p, new Mochila(4, 12), 3);
-            if (random.nextDouble() < 0.5) {
-                aliado.getMochila().guardar(new Binocular("radar_tactico_" + i,
-                        "Radar tactico que mejora la evaluacion de amenazas", 1.0, 2));
-            }
-            mapa.getCelda(p).agregarAliado(aliado);
-            juego.agregarAliado(aliado);
             ocupadas.add(p);
         }
     }

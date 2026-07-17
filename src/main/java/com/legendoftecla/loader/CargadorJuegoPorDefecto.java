@@ -21,6 +21,7 @@ public class CargadorJuegoPorDefecto implements CargadorJuego {
     private final String clase;
     private final Dificultad dificultad;
     private final DimensionesMapa dimensiones;
+    private final boolean conAliados;
 
     /**
      * Ejecuta CargadorJuegoPorDefecto.
@@ -29,14 +30,16 @@ public class CargadorJuegoPorDefecto implements CargadorJuego {
       * @param dificultad valor de {@code dificultad}
       * @param dimensiones valor de {@code dimensiones}
       * @param nombreJugador valor de {@code nombreJugador}
+      * @param conAliados indica si se deben generar aliados automaticamente
      */
     public CargadorJuegoPorDefecto(Consola consola, String nombreJugador, String clase,
-            Dificultad dificultad, DimensionesMapa dimensiones) {
+            Dificultad dificultad, DimensionesMapa dimensiones, boolean conAliados) {
         this.consola = consola;
         this.nombreJugador = nombreJugador;
         this.clase = clase;
         this.dificultad = dificultad;
         this.dimensiones = dimensiones;
+        this.conAliados = conAliados;
     }
 
     @Override
@@ -79,8 +82,12 @@ public class CargadorJuegoPorDefecto implements CargadorJuego {
         int baseEnemigos = Math.max(4, (filas * columnas) / 28);
         int cantidadEnemigos = dificultad.ajustarCantidadEnemigos(baseEnemigos);
         poblarEnemigos(juego, mapa, random, cantidadEnemigos);
+        int cantidadAliados = conAliados
+                ? GeneradorAliados.poblar(juego, mapa, dificultad, new Random(12), "AliadoBase")
+                : 0;
         consola.imprimirInfo("Dificultad: " + dificultad.getEtiqueta()
                 + " | enemigos=" + cantidadEnemigos
+                + " | aliados=" + cantidadAliados
                 + " | salud x" + dificultad.getMultiplicadorSaludEnemigo()
                 + " | danio x" + dificultad.getMultiplicadorDanioEnemigo());
 

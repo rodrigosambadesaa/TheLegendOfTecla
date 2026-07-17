@@ -4,7 +4,6 @@ import com.legendoftecla.console.Consola;
 import com.legendoftecla.constants.Dificultad;
 import com.legendoftecla.constants.GameConstants;
 import com.legendoftecla.exceptions.JuegoException;
-import com.legendoftecla.model.characters.Aliado;
 import com.legendoftecla.model.characters.Enemigo;
 import com.legendoftecla.model.characters.Francotirador;
 import com.legendoftecla.model.characters.HeavyFloater;
@@ -29,6 +28,7 @@ import com.legendoftecla.model.world.Posicion;
 
 import java.nio.file.Path;
 import java.util.Locale;
+import java.util.Random;
 
 /** Carga el formato completo generado por el editor grafico. */
 public final class CargadorJuegoJson implements CargadorJuego {
@@ -38,6 +38,7 @@ public final class CargadorJuegoJson implements CargadorJuego {
     private final Path directorio;
     private final Dificultad dificultad;
     private final DimensionesMapa dimensiones;
+    private final boolean conAliados;
 
     /**
      * Crea una instancia de {@code CargadorJuegoJson}.
@@ -47,15 +48,17 @@ public final class CargadorJuegoJson implements CargadorJuego {
       * @param dimensiones valor de {@code dimensiones}
       * @param directorio valor de {@code directorio}
       * @param nombreJugador valor de {@code nombreJugador}
+      * @param conAliados indica si se deben generar aliados automaticamente
      */
     public CargadorJuegoJson(Consola consola, String nombreJugador, String clase, Path directorio,
-            Dificultad dificultad, DimensionesMapa dimensiones) {
+            Dificultad dificultad, DimensionesMapa dimensiones, boolean conAliados) {
         this.consola = consola;
         this.nombreJugador = nombreJugador;
         this.clase = clase;
         this.directorio = directorio;
         this.dificultad = dificultad;
         this.dimensiones = dimensiones;
+        this.conAliados = conAliados;
     }
 
     @Override
@@ -105,19 +108,14 @@ public final class CargadorJuegoJson implements CargadorJuego {
             juego.agregarEnemigo(enemigo);
         }
 
-        for (EscenarioDefinicion.PersonajeDef personajeDef : definicion.aliados) {
-            Posicion posicion = posicion(personajeDef);
-            exigirTransitable(mapa, posicion, "aliado " + personajeDef.nombre);
-            Aliado aliado = new Aliado(personajeDef.nombre, posicion, new Mochila(8, 30), personajeDef.vision);
-            aliado.configurarEstadisticas(personajeDef.salud, personajeDef.energia, personajeDef.vision);
-            mapa.getCelda(posicion).agregarAliado(aliado);
-            juego.agregarAliado(aliado);
-        }
+        int cantidadAliados = conAliados
+                ? GeneradorAliados.poblar(juego, mapa, dificultad, new Random(303), "AliadoJson")
+                : 0;
 
         consola.imprimirInfo("Escenario JSON cargado: " + definicion.nombre
                 + " | dificultad=" + dificultad.getEtiqueta()
                 + " | enemigos=" + cantidadEnemigos
-                + " | aliados=" + definicion.aliados.size());
+                + " | aliados=" + cantidadAliados);
         return juego;
     }
 

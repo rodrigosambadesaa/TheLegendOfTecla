@@ -6,7 +6,6 @@ import com.legendoftecla.constants.GameConstants;
 import com.legendoftecla.exceptions.JuegoException;
 import com.legendoftecla.model.characters.*;
 import com.legendoftecla.model.items.Arma;
-import com.legendoftecla.model.items.Binocular;
 import com.legendoftecla.model.items.Botiquin;
 import com.legendoftecla.model.items.Objeto;
 import com.legendoftecla.model.world.*;
@@ -27,6 +26,7 @@ public class CargadorJuegoDeFicheros implements CargadorJuego {
     private final Path directorio;
     private final Dificultad dificultad;
     private final DimensionesMapa dimensiones;
+    private final boolean conAliados;
 
     /**
      * Ejecuta CargadorJuegoDeFicheros.
@@ -36,15 +36,17 @@ public class CargadorJuegoDeFicheros implements CargadorJuego {
       * @param dimensiones valor de {@code dimensiones}
       * @param directorio valor de {@code directorio}
       * @param nombreJugador valor de {@code nombreJugador}
+      * @param conAliados indica si se deben generar aliados automaticamente
      */
     public CargadorJuegoDeFicheros(Consola consola, String nombreJugador, String clase, Path directorio,
-            Dificultad dificultad, DimensionesMapa dimensiones) {
+            Dificultad dificultad, DimensionesMapa dimensiones, boolean conAliados) {
         this.consola = consola;
         this.nombreJugador = nombreJugador;
         this.clase = clase;
         this.directorio = directorio;
         this.dificultad = dificultad;
         this.dimensiones = dimensiones;
+        this.conAliados = conAliados;
     }
 
     @Override
@@ -54,7 +56,7 @@ public class CargadorJuegoDeFicheros implements CargadorJuego {
     public Juego cargarJuego() throws JuegoException {
         if (Files.exists(directorio.resolve(SerializadorEscenarioJson.NOMBRE_ARCHIVO))) {
             return new CargadorJuegoJson(consola, nombreJugador, clase, directorio,
-                    dificultad, dimensiones).cargarJuego();
+                    dificultad, dimensiones, conAliados).cargarJuego();
         }
         try {
             Path mapaPath = directorio.resolve("mapa.txt");
@@ -152,20 +154,10 @@ public class CargadorJuegoDeFicheros implements CargadorJuego {
                     + " | salud x" + dificultad.getMultiplicadorSaludEnemigo()
                     + " | danio x" + dificultad.getMultiplicadorDanioEnemigo());
 
-            if (filas > 20 && cols > 20) {
-                int cantidadAliados = Math.max(3, (filas * cols) / 250);
-                Random random = new Random(77);
-                for (int i = 0; i < cantidadAliados; i++) {
-                    Posicion p = randomPosTransitableSinEnemigos(mapa, random, inicio, objetivo);
-                    Aliado aliado = new Aliado("AliadoF_" + i, p, new Mochila(4, 12), 3);
-                    if (random.nextDouble() < 0.5) {
-                        aliado.getMochila().guardar(new Binocular("radar_tactico_f_" + i,
-                                "Radar tactico que mejora la evaluacion de amenazas", 1.0, 2));
-                    }
-                    mapa.getCelda(p).agregarAliado(aliado);
-                    juego.agregarAliado(aliado);
-                }
-            }
+            int cantidadAliados = conAliados
+                    ? GeneradorAliados.poblar(juego, mapa, dificultad, new Random(77), "AliadoFichero")
+                    : 0;
+            consola.imprimirInfo("Aliados automaticos=" + cantidadAliados);
 
             return juego;
         } catch (IOException | RuntimeException e) {

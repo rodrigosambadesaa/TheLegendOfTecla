@@ -3,6 +3,7 @@ package com.legendoftecla.model.characters;
 import com.legendoftecla.exceptions.AccionInvalidaException;
 import com.legendoftecla.model.items.Arma;
 import com.legendoftecla.model.items.Armadura;
+import com.legendoftecla.model.items.Explosivo;
 import com.legendoftecla.model.items.Objeto;
 import com.legendoftecla.model.world.Direccion;
 import com.legendoftecla.model.world.Juego;
@@ -208,6 +209,9 @@ public abstract class Personaje {
       * @throws com.legendoftecla.exceptions.AccionInvalidaException si la operacion no puede completarse
      */
     public void coger(Objeto objeto) throws AccionInvalidaException {
+        if (objeto instanceof Explosivo && !(this instanceof Zapador)) {
+            throw new AccionInvalidaException("Solo el zapador puede cargar explosivos.");
+        }
         if (!mochila.guardar(objeto)) {
             throw new AccionInvalidaException("La mochila no tiene capacidad o peso disponible.");
         }

@@ -1,0 +1,8 @@
+.git
+.vscode
+out
+target
+docs
+*.pdf
+/*.txt
+README.md

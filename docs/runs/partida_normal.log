@@ -1,0 +1,137 @@
+Bienvenido a The Legend of Tecla
+Introduce nombre del personaje: Elige clase (marine/francotirador/zapador): Modo (1=default sin aliados, 2=grande 50x50 con aliados, 3=ficheros): Mapa: Base Lambda
+Instalacion abandonada de la resistencia
+J o . . . . . . . . 
+. o . # # # # # . . 
+. . o . o . # . . . 
+. # # # # # # . . . 
+. . . . o . # . . . 
+. . . . # # # # # . 
+. o . . . . . . . . 
+. . # # # # # . . . 
+. . . o . . . . o . 
+. . . . . . . . . X 
+
+Tecla [salud(120) energia(90)] pasos 0/160
+accion> Comandos: mover <dir>, mirar [obj], coger <obj>, tirar <obj>, inventario, usar <obj>, equipar <obj>, desequipar <obj>, atacar <objetivo>, recorrido, ayuda, salir
+J o . . . . . . . . 
+. o . # # # # # . . 
+. . o . o . # . . . 
+. # # # # # # . . . 
+. . . . o . # . . . 
+. . . . # # # # # . 
+. o . . . . . . . . 
+. . # # # # # . . . 
+. . . o . . . . o . 
+. . . . . . . . . X 
+
+Tecla [salud(120) energia(90)] pasos 0/160
+accion> Celda 0,0
+No hay objetos en esta celda.
+J o . . . . . . . . 
+. o . # # # # # . . 
+. . o . o . # . . . 
+. # # # # # # . . . 
+. . . . o . # . . . 
+. . . . # # # # # . 
+. o . . . . . . . . 
+. . # # # # # . . . 
+. . . o . . . . o . 
+. . . . . . . . . X 
+
+Tecla [salud(120) energia(90)] pasos 0/160
+accion> Te mueves a ESTE.
+. J . . . . . . . . 
+. o . # # # # # . . 
+. . o . o . # . . . 
+. # # # # # # . . . 
+. . . . o . # . . . 
+. . . . # # # # # . 
+. o . . . . . . . . 
+. . # # # # # . . . 
+. . . o . . . . o . 
+. . . . . . . . . X 
+
+Tecla [salud(120) energia(84)] pasos 1/160
+accion> Recoges botiquin_pequeno.
+. J . . . . . . . . 
+. o . # # # # # . . 
+. . o . o . # . . . 
+. # # # # # # . . . 
+. . . . o . # . . . 
+. . . . # # # # # . 
+. o . . . . . . . . 
+. . # # # # # . . . 
+. . . o . . . . o . 
+. . . . . . . . . X 
+
+Tecla [salud(120) energia(84)] pasos 1/160
+accion> Mochila: peso 1,00/40.0 kg, espacio restante 9
+- botiquin_pequeno (Cura 20 de salud, 1.0 kg)
+. J . . . . . . . . 
+. o . # # # # # . . 
+. . o . o . # . . . 
+. # # # # # # . . . 
+. . . . o . # . . . 
+. . . . # # # # # . 
+. o . . . . . . . . 
+. . # # # # # . . . 
+. . . o . . . . o . 
+. . . . . . . . . X 
+
+Tecla [salud(120) energia(84)] pasos 1/160
+accion> Usas botiquin_pequeno.
+. J . . . . . . . . 
+. o . # # # # # . . 
+. . o . o . # . . . 
+. # # # # # # . . . 
+. . . . o . # . . . 
+. . . . # # # # # . 
+. o . . . . . . . . 
+. . # # # # # . . . 
+. . . o . . . . o . 
+. . . . . . . . . X 
+
+Tecla [salud(120) energia(84)] pasos 1/160
+accion> Te mueves a SUR.
+. . . . . . . . . . 
+. J . # # # # # . . 
+. . o . o . # . . . 
+. # # # # # # . . . 
+. . . . o . # . . . 
+. . . . # # # # # . 
+. o . . . . . . . . 
+. . # # # # # . . . 
+. . . o . . . . o . 
+. . . . . . . . . X 
+
+Tecla [salud(120) energia(78)] pasos 2/160
+accion> Te mueves a ESTE.
+. . . . . . . . . . 
+. o J # # # # # . . 
+. . o . o . # . . . 
+. # # # # # # . . . 
+. . . . o . # . . . 
+. . . . # # # # # . 
+. o . . . . . . . . 
+. . # # # # # . . . 
+. . . o . . . . o . 
+. . . . . . . . . X 
+
+Tecla [salud(120) energia(72)] pasos 3/160
+accion> Celda 1,2
+No hay objetos en esta celda.
+. . . . . . . . . . 
+. o J # # # # # . . 
+. . o . o . # . . . 
+. # # # # # # . . . 
+. . . . o . # . . . 
+. . . . # # # # # . 
+. o . . . . . . . . 
+. . # # # # # . . . 
+. . . o . . . . o . 
+. . . . . . . . . X 
+
+Tecla [salud(120) energia(72)] pasos 3/160
+accion> Partida finalizada.
+Recorrido: (0,0) (0,1) (1,1) (1,2) 

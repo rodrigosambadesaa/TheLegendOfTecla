@@ -1,0 +1,8 @@
+# tipo;nombre;fila;columna
+sectoid;Sectoid_G1;5;5
+heavyfloater;Heavy_G1;8;12
+sectoid;Sectoid_G2;11;19
+heavyfloater;Heavy_G2;15;7
+sectoid;Sectoid_G3;19;22
+heavyfloater;Heavy_G3;24;14
+sectoid;Sectoid_G4;27;27

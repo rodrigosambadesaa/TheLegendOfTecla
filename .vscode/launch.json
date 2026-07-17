@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Debug Main (sin Maven)",
+            "request": "launch",
+            "mainClass": "com.legendoftecla.Main",
+            "classPaths": [
+                "${workspaceFolder}/out"
+            ],
+            "modulePaths": [],
+            "preLaunchTask": "Compilar Java (sin Maven)",
+            "console": "integratedTerminal"
+        }
+    ]
+}

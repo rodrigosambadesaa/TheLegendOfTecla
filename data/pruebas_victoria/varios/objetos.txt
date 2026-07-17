@@ -1,0 +1,2 @@
+rifle_1;arma;0;0
+rifle_2;arma;0;0

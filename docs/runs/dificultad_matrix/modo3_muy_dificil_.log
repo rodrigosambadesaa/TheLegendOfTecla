@@ -1,0 +1,38 @@
+[34mBienvenido a The Legend of Tecla[0m
+[36mIntroduce nombre del personaje: [0m[36mElige clase (marine/francotirador/zapador): [0m[36mModo (1=default sin aliados, 2=grande 50x50 con aliados, 3=ficheros): [0m[36mDificultad (muy facil, facil, normal, dificil, muy dificil, pesadilla, demente) [normal]: [0m[36mTamano global del mapa <filas>x<columnas> (ENTER = por defecto): [0m[36mRuta del directorio con mapa.txt, objetos.txt, enemigos.txt: [0m[34mDificultad: muy dificil | enemigos archivo=3 -> 5 | salud x1.4 | danio x1.4[0m
+[34mMapa: Mapa desde fichero[0m
+[34mCargado desde disco[0m
+[34mAliados desplegados: 3[0m
+[34mJ . . . . . . . . . . . . . . . . . . . . . . . 
+. o . . . . . . . . . . . . . . . . . . . . . . 
+. . . o . . . . . . . . . . . . . . . . . . . . 
+. . . . . . . . . . . . . . . . . . . . . . . . 
+. . . . . o . . . . . . . . . . . . . . . . . . 
+. . . . . . . . . . . . . . . . . A . . . . . . 
+. . . . . . . . . . . . . . . . . . . . . . . . 
+. . . . . . . . . . . . . . . . . . . . . . . . 
+. . o . . . . . . . . . . . . . . . . . . . . . 
+. . . . . . . . . . . . . . . . . . A . . . . . 
+. . . . . . . . . . o . . . . . . . . . . . . . 
+. . . . . . . . . . . X . . . . . . . . . . . . 
+. . . . . . . . . . . . . . . . . . . . . . . . 
+. . . . . . . . . . . . . . . . . . . . . . . . 
+. . . . . . . . . . . . . . . . . . . . . . . . 
+. A . . . . . . . . . . . . . . . . . . . . . . 
+. . . . . . . . . . . . . . . . . . . . . . . . 
+. . . . . . . . . . . . . . . . . . . . . . . . 
+. . . . . . . . . . . . . . . . . . . . . . . . 
+. . . . . . . . . . . . . . . . . . . . . . . . 
+. . . . . . . . . . . . . . . . . . . . . . . . 
+. . . . . . . . . . . . . . . . . . . . . . . . 
+[0m
+[36mTester [salud(120) energia(90)] pasos 0/80[0m
+[36maccion> [0m[34mPartida finalizada.[0m
+[34mPuntuacion final: 750[0m
+[34m  - Salud restante: 300[0m
+[34m  - Energia restante: 200[0m
+[34m  - Eficiencia en pasos: 250[0m
+[34m  - Progreso hacia objetivo: 0[0m
+[34m  - Enemigos derrotados (0): 0[0m
+[34m  - Ajuste por resultado final: 0[0m
+[34mRecorrido: (0,0) [0m

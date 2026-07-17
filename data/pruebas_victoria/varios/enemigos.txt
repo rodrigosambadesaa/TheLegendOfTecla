@@ -1,0 +1,4 @@
+sectoid;V1;0;1
+sectoid;V2;0;1
+sectoid;V3;0;1
+sectoid;V4;0;1

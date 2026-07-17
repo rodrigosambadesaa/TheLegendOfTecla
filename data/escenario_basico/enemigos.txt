@@ -1,0 +1,4 @@
+# tipo;nombre;fila;columna
+sectoid;Sectoid_A;3;2
+heavyfloater;Heavy_1;6;6
+sectoid;Sectoid_B;9;9

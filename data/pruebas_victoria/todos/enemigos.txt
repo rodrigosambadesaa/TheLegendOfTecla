@@ -1,0 +1,3 @@
+sectoid;SA1;0;1
+sectoid;SA2;0;1
+heavyfloater;HA1;0;1

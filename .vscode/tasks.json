@@ -1,0 +1,19 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compilar Java (sin Maven)",
+            "type": "shell",
+            "command": "pwsh",
+            "args": [
+                "-NoProfile",
+                "-Command",
+                "$files = Get-ChildItem -Recurse -Filter *.java src/main/java | ForEach-Object { $_.FullName }; if (Test-Path out) { Remove-Item -Recurse -Force out }; javac -encoding UTF-8 -d out $files"
+            ],
+            "group": "build",
+            "problemMatcher": [
+                "$javac"
+            ]
+        }
+    ]
+}

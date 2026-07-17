@@ -1,0 +1,9 @@
+# nombre;tipo;fila;columna
+botiquin_G1;botiquin;2;2
+rifle_G1;arma;4;8
+botiquin_G2;botiquin;7;15
+rifle_G2;arma;10;20
+botiquin_G3;botiquin;14;5
+rifle_G3;arma;18;18
+botiquin_G4;botiquin;22;11
+rifle_G4;arma;26;24

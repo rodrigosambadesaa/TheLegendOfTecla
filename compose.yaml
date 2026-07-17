@@ -1,0 +1,6 @@
+services:
+  juego:
+    build:
+      context: .
+    stdin_open: true
+    tty: true

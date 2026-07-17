@@ -1,0 +1,7 @@
+# Builds
+out/
+target/
+
+# Archivos de enunciado/dumps locales
+/*.pdf
+/*.txt

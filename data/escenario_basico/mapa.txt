@@ -1,0 +1,4 @@
+# filas x columnas
+12x12
+0,0
+11,11

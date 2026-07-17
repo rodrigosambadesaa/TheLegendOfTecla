@@ -10,6 +10,59 @@ Implementacion en Java del proyecto de POO por entregas (P1, P2, P3):
 - Cargador por defecto y cargador por ficheros.
 - Modo de mapa grande (50x50) con aliados y mas enemigos.
 - Bucle principal con captura de excepciones.
+- Interfaz grafica completa en una unica ventana para los tres modos.
+- Mapa grafico con celdas, jugador, objetivo, objetos, aliados y enemigos.
+- Botones contextuales para coger, usar, tirar, equipar, desequipar y atacar.
+- Editor grafico de escenarios completos con persistencia JSON.
+
+## Interfaz grafica
+
+### Con Docker y un solo comando
+
+En Windows PowerShell, este lanzador construye el contenedor, espera a que este
+preparado y abre la GUI en el navegador:
+
+```powershell
+.\run-gui.ps1
+```
+
+Si la politica de ejecucion de PowerShell bloquea scripts locales:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\run-gui.ps1
+```
+
+Tambien puede iniciarse directamente con Docker Compose:
+
+```bash
+docker compose up --build --detach gui
+```
+
+Despues abre `http://localhost:6080/vnc.html?autoconnect=1&resize=scale`. No hace
+falta instalar VcXsrv ni configurar `DISPLAY`: el contenedor incluye su propio
+escritorio virtual y noVNC. Para detenerlo:
+
+```bash
+docker compose stop gui
+```
+
+### Ejecucion local
+
+Despues de compilar, abre el juego completo en una ventana:
+
+```bash
+mvn clean package
+java -jar target/the-legend-of-tecla.jar --gui
+```
+
+Para abrir directamente el editor de mapas:
+
+```bash
+java -jar target/the-legend-of-tecla.jar --editor
+```
+
+La GUI permite seleccionar los modos predeterminado, grande y desde ficheros. La
+version de consola sigue disponible y utiliza el mismo motor de partida.
 
 ## Ejecutar con Docker
 
@@ -26,7 +79,7 @@ docker compose run --rm juego --interactivo
 ```
 
 La documentacion completa, incluyendo Docker, ejecucion local, argumentos y
-escenarios personalizados, esta en [EJECUCION.md](EJECUCION.md).
+el editor grafico, esta en [EJECUCION.md](EJECUCION.md).
 
 ## Ejecutar localmente
 
@@ -79,3 +132,7 @@ heavyfloater;Heavy_1;4;4
 - [data/escenario_grande/enemigos.txt](data/escenario_grande/enemigos.txt)
 
 Nota: al cargar un mapa de ficheros mayor de `20x20`, el juego genera aliados automaticamente para ayudar al jugador.
+
+Tambien se incluye un escenario completo en
+[data/escenario_json/escenario.json](data/escenario_json/escenario.json), compatible
+con el juego y con el editor grafico.

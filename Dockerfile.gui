@@ -1,0 +1,52 @@
+FROM maven:3.9.11-eclipse-temurin-21-alpine AS build
+
+WORKDIR /build
+COPY pom.xml ./
+RUN mvn -B -ntp dependency:go-offline
+COPY src ./src
+RUN mvn -B -ntp package -DskipTests
+
+FROM eclipse-temurin:21-jre-jammy
+
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        curl \
+        feh \
+        fluxbox \
+        fontconfig \
+        fonts-dejavu-core \
+        libxi6 \
+        libxext6 \
+        libxrender1 \
+        libxtst6 \
+        novnc \
+        websockify \
+        x11-utils \
+        x11vnc \
+        xvfb \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN groupadd --system tecla \
+    && useradd --system --gid tecla --create-home --home-dir /home/tecla tecla \
+    && mkdir -p /tmp/.X11-unix \
+    && chmod 1777 /tmp/.X11-unix
+
+WORKDIR /app
+COPY --from=build /build/target/the-legend-of-tecla.jar /app/game.jar
+COPY --chown=tecla:tecla data /app/data
+COPY --chown=tecla:tecla docker/gui-entrypoint.sh /app/gui-entrypoint.sh
+RUN chmod 0755 /app/gui-entrypoint.sh
+
+USER tecla
+ENV DISPLAY=:99 \
+    JAVA_TOOL_OPTIONS=-Djava.awt.headless=false \
+    LANG=C.UTF-8
+
+EXPOSE 6080
+HEALTHCHECK --interval=5s --timeout=3s --start-period=20s --retries=12 \
+    CMD curl --fail --silent --show-error http://127.0.0.1:6080/vnc.html > /dev/null \
+        && DISPLAY=:99 xwininfo -root -tree | grep -q "The Legend of Tecla" || exit 1
+
+ENTRYPOINT ["/app/gui-entrypoint.sh"]
+CMD ["--gui"]

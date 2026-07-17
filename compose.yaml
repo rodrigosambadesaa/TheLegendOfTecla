@@ -4,3 +4,12 @@ services:
       context: .
     stdin_open: true
     tty: true
+
+  gui:
+    build:
+      context: .
+      dockerfile: Dockerfile.gui
+    ports:
+      - "127.0.0.1:6080:6080"
+    shm_size: "256mb"
+    restart: "no"

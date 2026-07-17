@@ -17,6 +17,10 @@ public final class Botiquin extends Objeto {
         this.curacion = curacion;
     }
 
+    public int getCuracion() {
+        return curacion;
+    }
+
     @Override
     /**
      * Ejecuta usar.

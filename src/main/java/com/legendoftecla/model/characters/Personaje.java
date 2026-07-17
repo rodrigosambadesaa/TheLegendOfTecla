@@ -101,6 +101,19 @@ public abstract class Personaje {
         return visionBase + visionTemporal;
     }
 
+    /** Configura las estadisticas base al cargar un escenario creado por el editor. */
+    public void configurarEstadisticas(int nuevaSalud, int nuevaEnergia, int nuevaVision) {
+        if (nuevaSalud <= 0 || nuevaEnergia <= 0 || nuevaVision <= 0) {
+            throw new IllegalArgumentException("Salud, energia y vision deben ser mayores que cero.");
+        }
+        saludMaxima = nuevaSalud;
+        salud = nuevaSalud;
+        energiaMaxima = nuevaEnergia;
+        energia = nuevaEnergia;
+        visionBase = nuevaVision;
+        visionTemporal = 0;
+    }
+
     /**
      * Ejecuta getArmasEquipadas.
      */

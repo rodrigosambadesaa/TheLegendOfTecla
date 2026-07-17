@@ -1,0 +1,87 @@
+package com.legendoftecla.gui;
+
+import com.legendoftecla.engine.ConfiguracionPartida;
+import com.legendoftecla.engine.FabricaJuego;
+import com.legendoftecla.engine.MotorPartida;
+import com.legendoftecla.model.world.Juego;
+
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.UIManager;
+import java.awt.CardLayout;
+import java.awt.Dimension;
+import java.nio.file.Path;
+
+/** Ventana unica que contiene configuracion, juego completo y editor. */
+public final class VentanaPrincipal extends JFrame {
+    private static final String CONFIGURACION = "configuracion";
+    private static final String JUEGO = "juego";
+    private static final String EDITOR = "editor";
+
+    private final CardLayout tarjetas = new CardLayout();
+    private final JPanel contenido = new JPanel(tarjetas);
+    private final PanelConfiguracion configuracion;
+    private PanelJuego panelJuego;
+    private PanelEditorMapa panelEditor;
+
+    public VentanaPrincipal(boolean abrirEditor) {
+        super("The Legend of Tecla");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setMinimumSize(new Dimension(1000, 700));
+        setSize(1280, 820);
+        setLocationRelativeTo(null);
+
+        configuracion = new PanelConfiguracion(this::iniciarPartida, this::mostrarEditor);
+        contenido.add(configuracion, CONFIGURACION);
+        setContentPane(contenido);
+        if (abrirEditor) {
+            mostrarEditor();
+        } else {
+            tarjetas.show(contenido, CONFIGURACION);
+        }
+    }
+
+    public static void iniciar(boolean abrirEditor) {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception ignored) {
+            // Swing conserva su apariencia multiplataforma si el tema del sistema no esta disponible.
+        }
+        new VentanaPrincipal(abrirEditor).setVisible(true);
+    }
+
+    private void iniciarPartida(ConfiguracionPartida datos) {
+        try {
+            ConsolaGrafica consola = new ConsolaGrafica();
+            Juego juego = FabricaJuego.crear(consola, datos);
+            MotorPartida motor = new MotorPartida(juego);
+            if (panelJuego != null) {
+                contenido.remove(panelJuego);
+            }
+            panelJuego = new PanelJuego(motor, consola, this::mostrarConfiguracion);
+            contenido.add(panelJuego, JUEGO);
+            tarjetas.show(contenido, JUEGO);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(),
+                    "No se pudo iniciar la partida", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void mostrarConfiguracion() {
+        tarjetas.show(contenido, CONFIGURACION);
+    }
+
+    private void mostrarEditor() {
+        if (panelEditor != null) {
+            contenido.remove(panelEditor);
+        }
+        panelEditor = new PanelEditorMapa(this::escenarioGuardado, this::mostrarConfiguracion);
+        contenido.add(panelEditor, EDITOR);
+        tarjetas.show(contenido, EDITOR);
+    }
+
+    private void escenarioGuardado(Path directorio) {
+        configuracion.seleccionarDirectorio(directorio);
+    }
+}

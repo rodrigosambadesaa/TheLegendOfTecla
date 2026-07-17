@@ -1,7 +1,101 @@
 # Guia de ejecucion
 
-The Legend of Tecla es un juego de consola. La forma recomendada de ejecutarlo es
-con Docker, porque no requiere instalar Java ni Maven en el equipo.
+The Legend of Tecla se puede jugar tanto en interfaz grafica como en consola.
+Ambas interfaces utilizan el mismo motor de partida y los mismos cargadores.
+
+## Interfaz grafica completa
+
+### Docker: un solo comando
+
+La GUI Docker es autocontenida: ejecuta Swing sobre Xvfb y publica el escritorio
+mediante noVNC. No requiere VcXsrv, XQuartz, WSLg ni configurar `DISPLAY`.
+
+En Windows PowerShell ejecuta:
+
+```powershell
+.\run-gui.ps1
+```
+
+El script construye e inicia el servicio `gui`, espera a que noVNC responda y
+abre automáticamente el navegador. Si PowerShell bloquea scripts locales:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\run-gui.ps1
+```
+
+El comando Docker Compose equivalente, válido en cualquier sistema, es:
+
+```bash
+docker compose up --build --detach gui
+```
+
+Abre después:
+
+```text
+http://localhost:6080/vnc.html?autoconnect=1&resize=scale
+```
+
+La publicación está limitada a `127.0.0.1`, por lo que noVNC no queda expuesto a
+otros equipos de la red. La primera construcción tarda más porque instala el
+escritorio virtual; las siguientes reutilizan la caché de Docker.
+
+Para consultar el estado o detener la GUI:
+
+```bash
+docker compose ps gui
+docker compose logs gui
+docker compose stop gui
+```
+
+### Ejecucion local
+
+Requisitos: JDK 17 o posterior y Maven 3.9 o posterior. Compila y abre la ventana:
+
+```bash
+mvn clean package
+java -jar target/the-legend-of-tecla.jar --gui
+```
+
+Desde la pantalla inicial se puede jugar en cualquiera de los tres modos:
+
+- Mapa predeterminado.
+- Mapa grande con enemigos y aliados.
+- Escenario desde los tres ficheros TXT antiguos o desde `escenario.json`.
+
+Toda la partida se desarrolla en una sola ventana. El mapa utiliza celdas y
+formas graficas para representar muros, jugador, objetivo, objetos, aliados y
+enemigos visibles. Los controles de movimiento, coger, usar, tirar, equipar,
+desequipar, atacar, inventario, estado, ayuda, recorrido y salida estan
+disponibles como botones. Las acciones que necesitan un objeto o enemigo abren
+un selector contextual, por lo que se puede completar la partida sin escribir
+comandos. El campo situado bajo el mapa se mantiene como alternativa.
+
+### Editor grafico de mapas
+
+Abre directamente el editor con:
+
+```bash
+java -jar target/the-legend-of-tecla.jar --editor
+```
+
+Tambien se puede acceder desde el boton `Editor grafico de mapas` de la pantalla
+inicial. El editor permite:
+
+- Crear mapas de 3x3 hasta 60x60 y definir su nombre, descripcion y pasos maximos.
+- Personalizar la descripcion y transitabilidad de cada celda.
+- Colocar y mover el inicio del jugador y el objetivo.
+- Anadir enemigos configurando tipo, nombre, salud, energia y vision.
+- Anadir aliados configurando nombre, salud, energia y vision.
+- Anadir botiquines, armas, armaduras, binoculares, energia y explosivos con
+  peso y atributos especificos.
+- Abrir, editar y guardar escenarios completos en `escenario.json`.
+
+Al guardar, selecciona un directorio. El editor crea dentro el archivo
+`escenario.json`; ese mismo directorio queda seleccionado en el modo de juego
+desde ficheros. Hay un ejemplo listo para abrir en `data/escenario_json`.
+
+El servicio Docker `gui` permite usar también el editor gráfico completo desde
+el navegador. El servicio `juego` conserva la imagen ligera de modo consola.
 
 ## Opcion 1: Docker Compose (recomendada)
 

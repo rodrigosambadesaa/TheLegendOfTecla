@@ -46,6 +46,10 @@ public class CargadorJuegoDeFicheros implements CargadorJuego {
      * Ejecuta cargarJuego.
      */
     public Juego cargarJuego() throws JuegoException {
+        if (Files.exists(directorio.resolve(SerializadorEscenarioJson.NOMBRE_ARCHIVO))) {
+            return new CargadorJuegoJson(consola, nombreJugador, clase, directorio,
+                    dificultad, dimensiones).cargarJuego();
+        }
         try {
             Path mapaPath = directorio.resolve("mapa.txt");
             Path objetosPath = directorio.resolve("objetos.txt");

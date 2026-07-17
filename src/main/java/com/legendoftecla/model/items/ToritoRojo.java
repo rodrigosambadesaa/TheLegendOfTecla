@@ -17,6 +17,10 @@ public final class ToritoRojo extends Objeto {
         this.energiaTurno = energiaTurno;
     }
 
+    public int getEnergiaTurno() {
+        return energiaTurno;
+    }
+
     @Override
     /**
      * Ejecuta usar.

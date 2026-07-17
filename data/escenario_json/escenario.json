@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "nombre": "Laboratorio JSON",
+  "descripcion": "Escenario completo compatible con el editor grafico",
+  "filas": 8,
+  "columnas": 10,
+  "pasosMaximos": 180,
+  "inicio": { "fila": 0, "columna": 0 },
+  "objetivo": { "fila": 7, "columna": 9 },
+  "celdas": [
+    { "fila": 1, "columna": 2, "descripcion": "Muro norte", "transitable": false },
+    { "fila": 2, "columna": 2, "descripcion": "Muro norte", "transitable": false },
+    { "fila": 3, "columna": 2, "descripcion": "Muro norte", "transitable": false },
+    { "fila": 4, "columna": 6, "descripcion": "Contenedor", "transitable": false },
+    { "fila": 5, "columna": 6, "descripcion": "Contenedor", "transitable": false }
+  ],
+  "enemigos": [
+    {
+      "tipo": "sectoid", "nombre": "Vigia", "fila": 2, "columna": 6,
+      "salud": 85, "energia": 75, "vision": 4
+    },
+    {
+      "tipo": "heavyfloater", "nombre": "Guardian", "fila": 6, "columna": 8,
+      "salud": 140, "energia": 60, "vision": 3
+    }
+  ],
+  "aliados": [
+    {
+      "tipo": "aliado", "nombre": "Omega", "fila": 5, "columna": 4,
+      "salud": 110, "energia": 150, "vision": 5
+    }
+  ],
+  "objetos": [
+    {
+      "tipo": "botiquin", "nombre": "botiquin_json", "descripcion": "Cura avanzada",
+      "fila": 0, "columna": 1, "peso": 1.0, "valor": 35
+    },
+    {
+      "tipo": "arma", "nombre": "rifle_json", "descripcion": "Rifle experimental",
+      "fila": 3, "columna": 5, "peso": 3.5, "valor": 18, "dosManos": true
+    },
+    {
+      "tipo": "armadura", "nombre": "blindaje_json", "descripcion": "Blindaje modular",
+      "fila": 6, "columna": 5, "peso": 5.0, "valor": 4,
+      "valorSecundario": 15, "valorTerciario": 10
+    }
+  ]
+}

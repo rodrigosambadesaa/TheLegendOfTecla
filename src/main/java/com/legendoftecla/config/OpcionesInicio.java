@@ -17,7 +17,9 @@ public record OpcionesInicio(
         DimensionesMapa dimensiones,
         Path directorioDatos,
         boolean rapido,
-        boolean mostrarAyuda) {
+        boolean mostrarAyuda,
+        boolean gui,
+        boolean editor) {
 
     public static OpcionesInicio desdeArgumentos(String[] args) {
         String nombre = null;
@@ -28,6 +30,8 @@ public record OpcionesInicio(
         Path directorioDatos = null;
         boolean rapido = false;
         boolean mostrarAyuda = false;
+        boolean gui = false;
+        boolean editor = false;
 
         for (int i = 0; i < args.length; i++) {
             String argumento = args[i];
@@ -35,6 +39,11 @@ public record OpcionesInicio(
                 case "--rapido" -> rapido = true;
                 case "--interactivo" -> rapido = false;
                 case "--help", "-h" -> mostrarAyuda = true;
+                case "--gui" -> gui = true;
+                case "--editor" -> {
+                    gui = true;
+                    editor = true;
+                }
                 case "--nombre" -> nombre = siguienteValor(args, ++i, argumento);
                 case "--clase" -> clase = normalizarClase(siguienteValor(args, ++i, argumento));
                 case "--modo" -> modo = normalizarModo(siguienteValor(args, ++i, argumento));
@@ -56,7 +65,7 @@ public record OpcionesInicio(
         }
 
         return new OpcionesInicio(nombre, clase, modo, dificultad, dimensiones,
-                directorioDatos, rapido, mostrarAyuda);
+                directorioDatos, rapido, mostrarAyuda, gui, editor);
     }
 
     public static String ayuda() {
@@ -65,13 +74,15 @@ public record OpcionesInicio(
 
                   --rapido                 Inicia con valores predeterminados, sin asistente inicial
                   --interactivo            Fuerza el asistente inicial (util en Docker)
+                  --gui                     Abre la interfaz grafica completa
+                  --editor                  Abre directamente el editor grafico de mapas
                   --nombre <nombre>         Nombre del personaje
                   --clase <clase>           marine, francotirador o zapador
                   --modo <modo>             default, grande o ficheros
                   --dificultad <nivel>      muy_facil, facil, normal, dificil,
                                             muy_dificil, pesadilla o demente
                   --dimensiones <FxC>       Tamano del mapa; por ejemplo, 12x20
-                  --datos <directorio>      Directorio con mapa.txt, objetos.txt y enemigos.txt
+                  --datos <directorio>      Directorio con escenario.json o los tres ficheros TXT
                   --help, -h                Muestra esta ayuda
 
                 Las opciones indicadas reemplazan sus preguntas del asistente. Combina

@@ -47,10 +47,6 @@ public final class PanelJuego extends JPanel {
      */
     private final MotorPartida motor;
     /**
-     * Valor publico {@code consola} utilizado por el modelo del juego.
-     */
-    private final ConsolaGrafica consola;
-    /**
      * Valor publico {@code mapaPanel} utilizado por el modelo del juego.
      */
     private final MapaGraficoPanel mapaPanel;
@@ -118,7 +114,6 @@ public final class PanelJuego extends JPanel {
     public PanelJuego(MotorPartida motor, ConsolaGrafica consola, Runnable volver) {
         super(new BorderLayout(8, 8));
         this.motor = motor;
-        this.consola = consola;
         setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
         estado = new JLabel();

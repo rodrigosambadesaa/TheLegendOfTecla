@@ -102,6 +102,7 @@ public final class Main {
                         motor.getEnemigosVisibles(),
                         motor.getAliadosVisibles()));
                 consola.imprimir(motor.getEstadoJugador(), TipoMensaje.ESTADO);
+                consola.imprimir(motor.getEstadoAliados(), TipoMensaje.ESTADO);
                 motor.ejecutarComando(consola.leer("accion>"));
             }
         } catch (JuegoException | IllegalArgumentException e) {

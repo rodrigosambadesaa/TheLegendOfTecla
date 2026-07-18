@@ -20,6 +20,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
@@ -73,6 +74,8 @@ public final class PanelJuego extends JPanel {
      * Valor publico {@code mochila} utilizado por el modelo del juego.
      */
     private final JLabel mochila;
+    /** Panel persistente con el estado completo de todos los aliados. */
+    private final JTextArea estadoAliados;
     /**
      * Valor publico {@code ejecutar} utilizado por el modelo del juego.
      */
@@ -103,6 +106,8 @@ public final class PanelJuego extends JPanel {
     private JButton atacar;
     /** Boton contextual para lanzar un explosivo del zapador. */
     private JButton lanzarExplosivo;
+    /** Boton que activa la orden temporal de asistencia aliada. */
+    private JButton pedirAyuda;
 
     /**
      * Crea una instancia de {@code PanelJuego}.
@@ -137,8 +142,22 @@ public final class PanelJuego extends JPanel {
         scrollRegistro.setPreferredSize(new Dimension(380, 300));
 
         JPanel acciones = crearPanelAcciones(volver);
+        estadoAliados = new JTextArea(6, 32);
+        estadoAliados.setName("estado.aliados");
+        estadoAliados.setEditable(false);
+        estadoAliados.setLineWrap(true);
+        estadoAliados.setWrapStyleWord(true);
+        estadoAliados.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 11));
+        estadoAliados.setBackground(new Color(245, 247, 249));
+        JScrollPane scrollAliados = new JScrollPane(estadoAliados);
+        scrollAliados.setBorder(BorderFactory.createTitledBorder("Estado de aliados"));
+        scrollAliados.setPreferredSize(new Dimension(380, 145));
+
+        JPanel seguimiento = new JPanel(new BorderLayout(6, 6));
+        seguimiento.add(acciones, BorderLayout.NORTH);
+        seguimiento.add(scrollAliados, BorderLayout.CENTER);
         JPanel lateral = new JPanel(new BorderLayout(6, 6));
-        lateral.add(acciones, BorderLayout.NORTH);
+        lateral.add(seguimiento, BorderLayout.NORTH);
         lateral.add(scrollRegistro, BorderLayout.CENTER);
 
         JSplitPane divisor = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scrollMapa, lateral);
@@ -188,6 +207,7 @@ public final class PanelJuego extends JPanel {
         desequipar = botonContextual("Desequipar", this::desequiparObjeto);
         atacar = botonContextual("Atacar", this::atacarEnemigo);
         lanzarExplosivo = botonContextual("Lanzar explosivo", this::lanzarExplosivo);
+        pedirAyuda = boton("Pedir ayuda", "pedir ayuda");
         utilidades.add(coger);
         utilidades.add(usar);
         utilidades.add(tirar);
@@ -195,6 +215,7 @@ public final class PanelJuego extends JPanel {
         utilidades.add(desequipar);
         utilidades.add(atacar);
         utilidades.add(lanzarExplosivo);
+        utilidades.add(pedirAyuda);
         utilidades.add(boton("Inventario", "inventario"));
         utilidades.add(boton("Estado", "mirar"));
         utilidades.add(boton("Ayuda", "ayuda"));
@@ -387,6 +408,8 @@ public final class PanelJuego extends JPanel {
 
     private void actualizarVista() {
         estado.setText(motor.getEstadoJugador());
+        estadoAliados.setText(motor.getEstadoAliados());
+        estadoAliados.setCaretPosition(0);
         Mochila inventario = motor.getJuego().getJugador().getMochila();
         mochila.setText(String.format("Mochila %d/%d  %.1f/%.1f kg",
                 inventario.getObjetos().size(), inventario.getCapacidadMax(),
@@ -408,6 +431,8 @@ public final class PanelJuego extends JPanel {
                 || jugador.getArmaduraEquipada() != null));
         atacar.setEnabled(activa && hayEnemigoAtacable());
         lanzarExplosivo.setEnabled(activa && hayLanzamientoExplosivoDisponible());
+        pedirAyuda.setEnabled(activa && motor.getJuego().getAliados().stream()
+                .anyMatch(aliado -> aliado.getSalud() > 0));
     }
 
     private boolean hayEnemigoAtacable() {

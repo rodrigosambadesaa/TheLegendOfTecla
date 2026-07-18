@@ -4,6 +4,8 @@ import com.legendoftecla.constants.Dificultad;
 import com.legendoftecla.model.characters.Aliado;
 import com.legendoftecla.model.characters.Mochila;
 import com.legendoftecla.model.items.Binocular;
+import com.legendoftecla.model.items.Botiquin;
+import com.legendoftecla.model.items.ToritoRojo;
 import com.legendoftecla.model.world.Juego;
 import com.legendoftecla.model.world.Mapa;
 import com.legendoftecla.model.world.Posicion;
@@ -35,6 +37,10 @@ final class GeneradorAliados {
             Posicion posicion = disponibles.get(indice);
             Aliado aliado = new Aliado(prefijo + "_" + (indice + 1), posicion, new Mochila(4, 12), vision);
             aliado.configurarEstadisticas(salud, energia, vision);
+            aliado.getMochila().guardar(new Botiquin("botiquin_apoyo_" + prefijo + "_" + (indice + 1),
+                    "Botiquin reservado para asistencia prioritaria", 1.0, 25));
+            aliado.getMochila().guardar(new ToritoRojo("torito_apoyo_" + prefijo + "_" + (indice + 1),
+                    "Suministro energetico reservado para asistencia", 0.5, 30));
             if (indice % 2 == 0) {
                 aliado.getMochila().guardar(new Binocular("radar_tactico_" + prefijo + "_" + (indice + 1),
                         "Radar tactico asignado automaticamente", 1.0, 2));

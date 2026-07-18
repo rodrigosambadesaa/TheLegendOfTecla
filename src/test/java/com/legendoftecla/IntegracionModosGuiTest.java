@@ -12,10 +12,16 @@ import com.legendoftecla.gui.PanelJuego;
 import com.legendoftecla.gui.PanelEditorMapa;
 import com.legendoftecla.loader.EscenarioDefinicion;
 import com.legendoftecla.loader.SerializadorEscenarioJson;
+import com.legendoftecla.model.characters.Aliado;
+import com.legendoftecla.model.characters.Marine;
+import com.legendoftecla.model.characters.Mochila;
+import com.legendoftecla.model.characters.Sectoid;
+import com.legendoftecla.model.items.Botiquin;
 import com.legendoftecla.model.items.ToritoRojo;
 import com.legendoftecla.model.items.Explosivo;
 import com.legendoftecla.model.world.Direccion;
 import com.legendoftecla.model.world.DimensionesMapa;
+import com.legendoftecla.model.world.Celda;
 import com.legendoftecla.model.world.Juego;
 import com.legendoftecla.model.world.Mapa;
 import com.legendoftecla.model.world.Posicion;
@@ -28,6 +34,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JSpinner;
+import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import java.awt.Graphics2D;
 import java.awt.Component;
@@ -63,6 +70,9 @@ class IntegracionModosGuiTest {
         MotorPartida motor = new MotorPartida(juego);
 
         assertTrue(motor.ejecutarComando("mirar"));
+        assertTrue(motor.ejecutarComando("ayuda"));
+        assertTrue(consola.salida.toString().contains("lanzar <distancia><direccion>"));
+        assertTrue(consola.salida.toString().contains("pedir ayuda"));
         assertFalse(motor.ejecutarComando("salir"));
         assertEquals(SistemaPuntuacion.EstadoFinalPartida.SALIDA_MANUAL, motor.getEstadoFinal());
         assertTrue(consola.salida.toString().contains("Partida finalizada"));
@@ -146,11 +156,66 @@ class IntegracionModosGuiTest {
             for (String etiqueta : new String[] {
                     "Coger", "Usar", "Tirar", "Equipar", "Desequipar", "Atacar",
                     "Lanzar explosivo",
+                    "Pedir ayuda",
                     "Inventario", "Estado", "Ayuda", "Recorrido", "Salir"
             }) {
                 assertTrue(contieneBoton(panel, etiqueta), "Falta el boton " + etiqueta);
             }
         });
+    }
+
+    @Test
+    void laGuiMuestraPermanentementeElEstadoCompletoDeLosAliados() throws Exception {
+        ConsolaGrafica consola = new ConsolaGrafica();
+        MotorPartida motor = new MotorPartida(FabricaJuego.crear(consola, new ConfiguracionPartida(
+                "EstadoGui", "marine", "default", Dificultad.NORMAL,
+                new DimensionesMapa(8, 8), null, true, 1)));
+
+        SwingUtilities.invokeAndWait(() -> {
+            PanelJuego panel = new PanelJuego(motor, consola, () -> { });
+            JTextArea estadoAliados = (JTextArea) buscarPorNombre(panel, "estado.aliados");
+            assertNotNull(estadoAliados);
+            assertTrue(estadoAliados.getText().contains("ALIADOS"));
+            assertTrue(estadoAliados.getText().contains("Vida"));
+            assertTrue(estadoAliados.getText().contains("Energia"));
+            assertTrue(estadoAliados.getText().contains("Combate FUERA DE COMBATE"));
+            assertTrue(estadoAliados.getText().contains("Objetos:"));
+            assertTrue(estadoAliados.getText().contains("Equipo:"));
+        });
+    }
+
+    @Test
+    void elEstadoAliadoDistingueCombateSalidaDeCombateYEvacuacion() throws Exception {
+        ConsolaSilenciosa consola = new ConsolaSilenciosa();
+        Juego juego = crearJuegoAsistencia(consola);
+        Aliado combatiente = crearAliado(juego, "Combatiente", new Posicion(2, 3));
+        combatiente.getMochila().guardar(new Botiquin("reserva", "Reserva", 1.0, 20));
+        Sectoid enemigo = new Sectoid("Amenaza", new Posicion(2, 4), new Mochila(1, 5), 2);
+        juego.agregarEnemigo(enemigo);
+        juego.getMapa().getCelda(enemigo.getPosicion()).agregarEnemigo(enemigo);
+        MotorPartida motor = new MotorPartida(juego);
+
+        motor.ejecutarComando("mirar");
+        String enCombate = motor.getEstadoAliados();
+        assertTrue(enCombate.contains("Combatiente | Estado EN COMBATE | Combate EN COMBATE"));
+        assertTrue(enCombate.contains("Objetos: reserva"));
+
+        enemigo.recibirDanio(999);
+        motor.ejecutarComando("mirar");
+        assertTrue(motor.getEstadoAliados().contains("Combate FUERA DE COMBATE"),
+                motor.getEstadoAliados());
+
+        Juego evacuacion = crearJuegoAsistencia(consola);
+        Aliado evacuado = crearAliado(evacuacion, "Explorador", evacuacion.getMapa().getObjetivo());
+        evacuado.getMochila().guardar(new ToritoRojo("torito final", "Reserva", 0.5, 20));
+        MotorPartida motorEvacuacion = new MotorPartida(evacuacion);
+        motorEvacuacion.ejecutarComando("mirar");
+        String estadoEvacuado = motorEvacuacion.getEstadoAliados();
+        assertTrue(estadoEvacuado.contains("Estado EVACUADO: LLEGO A LA SALIDA"));
+        assertTrue(estadoEvacuado.contains("Posicion salida"));
+        assertTrue(estadoEvacuado.contains("Objetos: torito final"));
+        assertEquals(1, evacuacion.getAliadosRegistrados().size());
+        assertTrue(evacuacion.getAliados().isEmpty());
     }
 
     @Test
@@ -245,6 +310,128 @@ class IntegracionModosGuiTest {
     }
 
     @Test
+    void laAyudaAliadaPriorizaVidaYEnergiaDelJugador() throws Exception {
+        ConsolaSilenciosa consola = new ConsolaSilenciosa();
+        Juego juego = crearJuegoAsistencia(consola);
+        Aliado donante = crearAliado(juego, "Medico", new Posicion(2, 3));
+        Aliado herido = crearAliado(juego, "Herido", new Posicion(3, 3));
+        donante.getMochila().guardar(new Botiquin("botiquin aliado", "Apoyo", 1.0, 25));
+        donante.getMochila().guardar(new ToritoRojo("torito aliado", "Apoyo", 0.5, 30));
+        juego.getJugador().recibirDanio(40);
+        juego.getJugador().gastarEnergia(20);
+        herido.recibirDanio(40);
+        int saludHerido = herido.getSalud();
+        MotorPartida motor = new MotorPartida(juego);
+
+        motor.ejecutarComando("pedir ayuda");
+        assertEquals(105, juego.getJugador().getSalud());
+        assertEquals(saludHerido, herido.getSalud(), "El jugador debe recibir el primer botiquin");
+        assertTrue(motor.isAyudaAliadaActiva());
+
+        motor.ejecutarComando("socorro");
+        assertEquals(juego.getJugador().getEnergiaMaxima(), juego.getJugador().getEnergia());
+        assertTrue(consola.salida.toString().contains("para dar vida a Jugador"));
+        assertTrue(consola.salida.toString().contains("para dar energia a Jugador"));
+    }
+
+    @Test
+    void losAliadosRecogenObjetosYSeAsistenEntreEllos() throws Exception {
+        ConsolaSilenciosa consola = new ConsolaSilenciosa();
+        Juego juego = crearJuegoAsistencia(consola);
+        Aliado donante = crearAliado(juego, "Recolector", new Posicion(2, 3));
+        Aliado herido = crearAliado(juego, "Companero", new Posicion(3, 3));
+        herido.recibirDanio(50);
+        juego.getMapa().getCelda(donante.getPosicion()).agregarObjeto(
+                new Botiquin("botiquin suelo", "Encontrado", 1.0, 25));
+        int saludAnterior = herido.getSalud();
+
+        new MotorPartida(juego).ejecutarComando("mirar");
+
+        assertEquals(saludAnterior + 25, herido.getSalud());
+        assertTrue(juego.getMapa().getCelda(donante.getPosicion()).getObjetos().isEmpty());
+        assertTrue(consola.salida.toString().contains("recoge botiquin suelo"));
+        assertTrue(consola.salida.toString().contains("para dar vida a Companero"));
+    }
+
+    @Test
+    void laOrdenAcercaAliadosSegurosPeroNoArriesgaAHeridos() throws Exception {
+        ConsolaSilenciosa consola = new ConsolaSilenciosa();
+        Juego juego = crearJuegoAsistencia(consola);
+        Aliado seguro = crearAliado(juego, "Seguro", new Posicion(4, 3));
+        Aliado enPeligro = crearAliado(juego, "EnPeligro", new Posicion(4, 1));
+        enPeligro.recibirDanio(50);
+        int distanciaSegura = seguro.getPosicion().distanciaManhattan(juego.getJugador().getPosicion());
+        Posicion posicionPeligro = enPeligro.getPosicion();
+
+        new MotorPartida(juego).ejecutarComando("asistir");
+
+        assertTrue(seguro.getPosicion().distanciaManhattan(juego.getJugador().getPosicion()) < distanciaSegura);
+        assertEquals(posicionPeligro, enPeligro.getPosicion());
+        assertTrue(consola.salida.toString().contains("su vida correria peligro"));
+    }
+
+    @Test
+    void elAliadoReponeSusRecursosAntesDeAsistirSinSacrificarLaReservaDelJugador() throws Exception {
+        ConsolaSilenciosa consola = new ConsolaSilenciosa();
+        Juego juego = crearJuegoAsistencia(consola);
+        Aliado aliado = crearAliado(juego, "Preparado", new Posicion(2, 3));
+        aliado.recibirDanio(45);
+        aliado.gastarEnergia(125);
+        aliado.getMochila().guardar(new Botiquin("botiquin propio", "Reserva", 1.0, 30));
+        aliado.getMochila().guardar(new Botiquin("botiquin jugador", "Reserva", 1.0, 30));
+        aliado.getMochila().guardar(new ToritoRojo("torito propio", "Reserva", 0.5, 35));
+        aliado.getMochila().guardar(new ToritoRojo("torito jugador", "Reserva", 0.5, 35));
+        juego.getJugador().recibirDanio(30);
+        juego.getJugador().gastarEnergia(20);
+        int vidaJugador = juego.getJugador().getSalud();
+        MotorPartida motor = new MotorPartida(juego);
+
+        motor.ejecutarComando("pedir ayuda");
+        assertEquals(vidaJugador, juego.getJugador().getSalud(),
+                "El aliado debe curarse antes de entregar el botiquin del jugador");
+        assertTrue(aliado.getSalud() > 45);
+        assertTrue(motor.getEstadoAliados().contains("REPONIENDO SU VIDA O ENERGIA"));
+
+        motor.ejecutarComando("pedir ayuda");
+        assertTrue(aliado.getEnergia() > 15, "Debe reponer su energia antes de desplazarse o entregar reservas");
+        assertEquals(vidaJugador, juego.getJugador().getSalud());
+        assertEquals(2, aliado.getMochila().getObjetos().size(),
+                "Debe conservar el Torito reservado para el jugador");
+        assertTrue(aliado.getMochila().getObjetos().stream().anyMatch(ToritoRojo.class::isInstance));
+
+        motor.ejecutarComando("pedir ayuda");
+        assertEquals(vidaJugador + 30, juego.getJugador().getSalud());
+        motor.ejecutarComando("pedir ayuda");
+        assertEquals(juego.getJugador().getEnergiaMaxima(), juego.getJugador().getEnergia());
+        assertTrue(aliado.getMochila().getObjetos().isEmpty());
+    }
+
+    @Test
+    void laEnergiaCeroEsRescatableSoloSiExisteUnToritoEntregable() throws Exception {
+        ConsolaSilenciosa consolaRescate = new ConsolaSilenciosa();
+        Juego rescatable = crearJuegoAsistencia(consolaRescate);
+        Aliado socorrista = crearAliado(rescatable, "Socorrista", new Posicion(2, 3));
+        socorrista.getMochila().guardar(new ToritoRojo("torito rescate", "Emergencia", 0.5, 30));
+        rescatable.getJugador().gastarEnergia(rescatable.getJugador().getEnergia());
+        MotorPartida motorRescate = new MotorPartida(rescatable);
+
+        assertFalse(motorRescate.isFinalizada(), "Debe concederse tiempo si el rescate es realmente posible");
+        motorRescate.ejecutarComando("pedir ayuda");
+        assertEquals(30, rescatable.getJugador().getEnergia());
+        assertFalse(motorRescate.isFinalizada());
+
+        ConsolaSilenciosa consolaSinSuministros = new ConsolaSilenciosa();
+        Juego imposible = crearJuegoAsistencia(consolaSinSuministros);
+        crearAliado(imposible, "SinToritos", new Posicion(2, 3));
+        imposible.getJugador().gastarEnergia(imposible.getJugador().getEnergia());
+        MotorPartida motorImposible = new MotorPartida(imposible);
+
+        assertTrue(motorImposible.isFinalizada());
+        assertEquals(SistemaPuntuacion.EstadoFinalPartida.MUERTE, motorImposible.getEstadoFinal());
+        assertTrue(consolaSinSuministros.salida.toString().contains("Rescate imposible"));
+    }
+
+    @Test
     void lasDimensionesAdmitenNumerosEscritosEnConfiguracionYEditor() throws Exception {
         AtomicReference<ConfiguracionPartida> resultado = new AtomicReference<>();
         Path captura = Path.of("target", "gui-smoke", "configuracion-dimensiones.png");
@@ -310,6 +497,25 @@ class IntegracionModosGuiTest {
         objeto.dosManos = true;
         escenario.objetos.add(objeto);
         return escenario;
+    }
+
+    private Juego crearJuegoAsistencia(Consola consola) {
+        Mapa mapa = new Mapa("Asistencia", "Prueba de aliados", 5, 5,
+                new Posicion(0, 0), new Posicion(4, 4));
+        for (int fila = 0; fila < 5; fila++) {
+            for (int columna = 0; columna < 5; columna++) {
+                mapa.setCelda(fila, columna, new Celda("Celda", true));
+            }
+        }
+        Marine jugador = new Marine("Jugador", new Posicion(2, 2), new Mochila(10, 40), 4);
+        return new Juego(consola, mapa, jugador, 100);
+    }
+
+    private Aliado crearAliado(Juego juego, String nombre, Posicion posicion) {
+        Aliado aliado = new Aliado(nombre, posicion, new Mochila(6, 30), 3);
+        juego.getMapa().getCelda(posicion).agregarAliado(aliado);
+        juego.agregarAliado(aliado);
+        return aliado;
     }
 
     private void renderizarPanel(MotorPartida motor, ConsolaGrafica consola, Path destino) {

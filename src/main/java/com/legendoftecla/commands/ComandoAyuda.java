@@ -46,9 +46,11 @@ public class ComandoAyuda implements Comando {
                 "    Ejemplo: lanzar 3e c4_1 (solo zapador, alcance maximo 5)",
                 "11) recorrido",
                 "    Ejemplo: recorrido",
-                "12) ayuda (alias: comandos)",
+                "12) pedir ayuda (alias: socorro o asistir)",
+                "    Los aliados seguros acuden, combaten y entregan suministros",
+                "13) ayuda (alias: comandos)",
                 "    Ejemplo: ayuda",
-                "13) salir",
+                "14) salir",
                 "    Ejemplo: salir");
         context.getJuego().getConsola().imprimirInfo(ayuda);
     }

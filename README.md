@@ -10,11 +10,15 @@ Implementacion en Java del proyecto de POO por entregas (P1, P2, P3) y con ampli
 - Cargador por defecto y cargador por ficheros.
 - Modo de mapa grande (50x50) con 50 variantes deterministas seleccionables.
 - Aliados opcionales en todos los modos, con cantidad y atributos calculados automaticamente.
+- Aliados capaces de recoger/equipar objetos, asistir primero al jugador y despues entre ellos.
+- Orden `pedir ayuda` y boton equivalente para reunir aliados seguros, combatir y recibir suministros.
+- Seguimiento permanente de cada aliado: vida, energia, posicion, objetos, equipo, combate y evacuacion.
+- Rescate energetico seguro: calculo de ruta/reserva, autoabastecimiento y busqueda de Toritos sin recursos infinitos.
 - Suministros de energia escalados y Toritos distribuidos sobre una ruta transitable en mapas grandes.
 - Bucle principal con captura de excepciones.
 - Interfaz grafica completa en una unica ventana para los tres modos.
 - Mapa grafico con celdas, jugador, objetivo, objetos, aliados y enemigos.
-- Botones contextuales para coger, usar, tirar, equipar, desequipar, atacar y lanzar explosivos.
+- Botones contextuales para coger, usar, tirar, equipar, desequipar, atacar, lanzar explosivos y pedir ayuda.
 - Editor grafico de escenarios completos con persistencia JSON.
 
 ## Interfaz grafica

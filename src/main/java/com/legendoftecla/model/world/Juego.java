@@ -6,6 +6,7 @@ import com.legendoftecla.model.characters.Enemigo;
 import com.legendoftecla.model.characters.Jugador;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -17,10 +18,13 @@ public class Juego {
     private final Jugador jugador;
     private final List<Enemigo> enemigos;
     private final List<Aliado> aliados;
+    private final List<Aliado> aliadosRegistrados;
+    private final List<Aliado> aliadosExtraidosDetalle;
     private final int pasosMaximos;
     private int aliadosIniciales;
     private int aliadosExtraidos;
     private int pasos;
+    private boolean solicitudAyudaAliados;
 
     /**
      * Ejecuta Juego.
@@ -36,9 +40,12 @@ public class Juego {
         this.pasosMaximos = pasosMaximos;
         this.enemigos = new ArrayList<>();
         this.aliados = new ArrayList<>();
+        this.aliadosRegistrados = new ArrayList<>();
+        this.aliadosExtraidosDetalle = new ArrayList<>();
         this.aliadosIniciales = 0;
         this.aliadosExtraidos = 0;
         this.pasos = 0;
+        this.solicitudAyudaAliados = false;
     }
 
     /**
@@ -110,6 +117,7 @@ public class Juego {
      */
     public void agregarAliado(Aliado aliado) {
         aliados.add(aliado);
+        aliadosRegistrados.add(aliado);
         aliadosIniciales++;
     }
 
@@ -119,6 +127,25 @@ public class Juego {
      */
     public List<Aliado> getAliados() {
         return aliados;
+    }
+
+    /**
+     * Obtiene todos los aliados que participaron en la partida, incluidos los evacuados.
+     *
+     * @return vista inmutable del historial completo de aliados
+     */
+    public List<Aliado> getAliadosRegistrados() {
+        return Collections.unmodifiableList(aliadosRegistrados);
+    }
+
+    /**
+     * Indica si un aliado llego con vida a la salida del mapa.
+     *
+     * @param aliado aliado cuyo estado se consulta
+     * @return {@code true} cuando el aliado ya fue evacuado
+     */
+    public boolean estaAliadoExtraido(Aliado aliado) {
+        return aliadosExtraidosDetalle.contains(aliado);
     }
 
     /**
@@ -149,8 +176,25 @@ public class Juego {
         if (!aliados.remove(aliado)) {
             return false;
         }
+        aliadosExtraidosDetalle.add(aliado);
         aliadosExtraidos++;
         return true;
+    }
+
+    /** Registra una orden para que los aliados acudan a ayudar al jugador. */
+    public void solicitarAyudaAliados() {
+        solicitudAyudaAliados = true;
+    }
+
+    /**
+     * Consume la orden de ayuda pendiente para que el motor la active una sola vez.
+     *
+     * @return {@code true} si habia una solicitud pendiente
+     */
+    public boolean consumirSolicitudAyudaAliados() {
+        boolean pendiente = solicitudAyudaAliados;
+        solicitudAyudaAliados = false;
+        return pendiente;
     }
 
     /**

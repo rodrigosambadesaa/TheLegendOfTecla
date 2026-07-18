@@ -319,11 +319,21 @@ public abstract class Personaje {
       * @return resultado de la operacion
      */
     protected int calcularCosteMovimiento() {
+        int coste = estimarCosteMovimiento();
+        penalizacionEnergiaSiguienteTurno = 0.0;
+        return coste;
+    }
+
+    /**
+     * Calcula la energia que consumiria el siguiente movimiento sin realizarlo.
+     *
+     * @return coste estimado teniendo en cuenta peso y penalizaciones temporales
+     */
+    public int estimarCosteMovimiento() {
         int pesoExtra = (int) (mochila.getPesoActual() / 5.0);
         int coste = 5 + pesoExtra;
         if (penalizacionEnergiaSiguienteTurno > 0) {
             coste += (int) Math.ceil(coste * penalizacionEnergiaSiguienteTurno);
-            penalizacionEnergiaSiguienteTurno = 0.0;
         }
         return coste;
     }

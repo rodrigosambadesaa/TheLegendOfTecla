@@ -130,10 +130,31 @@ Desde la pantalla inicial se puede jugar en cualquiera de los tres modos:
 Toda la partida se desarrolla en una sola ventana. El mapa utiliza celdas y
 formas graficas para representar muros, jugador, objetivo, objetos, aliados y
 enemigos visibles. Los controles de movimiento, coger, usar, tirar, equipar,
-desequipar, atacar, lanzar explosivos, inventario, estado, ayuda, recorrido y salida estan
+desequipar, atacar, lanzar explosivos, pedir ayuda, inventario, estado, ayuda, recorrido y salida estan
 disponibles como botones. Las acciones que necesitan un objeto o enemigo abren
 un selector contextual, por lo que se puede completar la partida sin escribir
 comandos. El campo situado bajo el mapa se mantiene como alternativa.
+
+El boton `Pedir ayuda` activa la misma orden que el comando de consola. Los
+aliados con suficiente salud buscan una ruta transitable hasta el jugador,
+combaten cerca de el y entregan botiquines o Toritos cuando detectan que le
+falta vida o energia. Un aliado herido no se expone para responder a la orden.
+Antes de partir calculan la ruta, su coste energetico y el riesgo estimado: si
+no tienen margen, usan primero sus propios suministros o esperan. Cuando el
+jugador necesita energia reservan su ultimo Torito para entregarselo y buscan
+mas Toritos accesibles en el mapa si necesitan reponerse.
+
+Si el jugador llega a cero de energia, la partida solo concede tiempo adicional
+cuando existe un aliado vivo y un Torito que realmente puede entregar sin
+agotarse. Si todos los Toritos se consumieron o ninguna ruta es viable, se
+informa `Rescate imposible` y termina la partida; repetir la orden no crea
+suministros ilimitados.
+
+El panel `Estado de aliados` permanece visible durante toda la partida y se
+actualiza despues de cada accion. Para cada aliado muestra vida, energia,
+posicion, objetos de la mochila, armas/armadura equipadas, si esta en combate y
+su actividad actual. Los aliados que llegan a la salida o quedan fuera de
+combate permanecen en el panel como `EVACUADO` o `CAIDO`; no se pierde su ficha.
 
 La casilla `Incluir aliados automaticos` esta disponible con dimensiones
 predeterminadas o personalizadas y tambien al cargar ficheros. No se solicita
@@ -319,13 +340,36 @@ inventario
 coger botiquin_1
 atacar Sectoid_0
 lanzar 3e c4_1
+pedir ayuda
 recorrido
 salir
 ```
 
+Antes de cada indicador `accion>` la consola imprime el mismo resumen completo
+de aliados que la GUI. Se informa siempre de vida, energia, posicion, objetos,
+equipo, estado operativo y situacion de combate. El resumen conserva tambien a
+los aliados evacuados y vuelve a mostrarse al finalizar la partida.
+
 El comando `lanzar` y el boton `Lanzar explosivo` son exclusivos del zapador.
 Permiten alcanzar una celda situada en linea recta hasta cinco casillas, dañan
 a todos los enemigos de esa celda y consumen la carga utilizada.
+
+`pedir ayuda` (alias `socorro` o `asistir`) ordena a los aliados que puedan
+hacerlo sin poner en peligro su vida que se acerquen al jugador y combatan con
+el. La orden permanece activa suficientes turnos para recorrer el mapa. Cada
+aliado generado lleva un botiquin y un Torito para poder recuperar primero la
+vida y despues la energia del jugador. Fuera y dentro de esta orden, los aliados:
+
+- Recogen objetos de su celda cuando caben en la mochila y equipan armas o
+  armaduras si tienen libre la ranura correspondiente.
+- Priorizan siempre las necesidades del jugador cercano.
+- Despues asisten al aliado cercano con menor proporcion de vida y, a
+  continuacion, al que tenga menor proporcion de energia.
+- Evitan acudir a la llamada si estan heridos o el riesgo enemigo estimado es
+  demasiado alto.
+- Calculan la energia necesaria para la ruta y conservan una reserva antes de
+  moverse; primero reponen su propia vida o energia si hacerlo es necesario para
+  completar la asistencia con seguridad.
 
 Al escribir `salir`, pulsar `Ctrl+C` o cerrar la entrada estandar finaliza la
 sesion. Si la terminal no representa correctamente los colores, ejecuta Docker

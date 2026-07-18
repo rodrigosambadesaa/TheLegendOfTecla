@@ -161,6 +161,13 @@ predeterminadas o personalizadas y tambien al cargar ficheros. No se solicita
 el numero ni las caracteristicas: se calculan a partir del tamano del mapa y la
 dificultad. En el modo grande, `Variante del mapa` permite escoger de 1 a 50.
 
+En mapas cuya ruta minima alcanza 24 pasos, la energia inicial deja de ser una
+cantidad fija. El juego calcula la ruta transitable real hasta la salida y
+asigna energia para aproximadamente el 70 % del recorrido mas una reserva de
+ocho movimientos. Se aplica al jugador y a los aliados; los Toritos siguen
+siendo importantes para completar la ruta y cubrir exploracion o combates. Los
+mapas pequenos conservan las estadisticas originales de cada clase.
+
 ### Editor grafico de mapas
 
 Abre directamente el editor con:

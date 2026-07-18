@@ -38,10 +38,10 @@ public final class Marine extends Jugador {
 
     @Override
     /**
-     * Ejecuta calcularCosteMovimiento.
+     * Estima el coste de movimiento propio del marine.
      */
-    protected int calcularCosteMovimiento() {
-        return (int) Math.ceil(super.calcularCosteMovimiento() * 1.2);
+    public int estimarCosteMovimiento() {
+        return (int) Math.ceil(super.estimarCosteMovimiento() * 1.2);
     }
 
     @Override

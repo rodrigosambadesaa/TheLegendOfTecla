@@ -129,6 +129,20 @@ public abstract class Personaje {
     }
 
     /**
+     * Amplia la energia maxima hasta un minimo sin reducir valores ya superiores.
+     *
+     * @param minimoEnergia nueva energia maxima minima
+     */
+    public void asegurarEnergiaMaxima(int minimoEnergia) {
+        if (minimoEnergia <= energiaMaxima) {
+            return;
+        }
+        int incremento = minimoEnergia - energiaMaxima;
+        energiaMaxima = minimoEnergia;
+        energia += incremento;
+    }
+
+    /**
      * Ejecuta getPosicion.
       * @return resultado de la operacion
      */

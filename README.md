@@ -15,6 +15,7 @@ Implementacion en Java del proyecto de POO por entregas (P1, P2, P3) y con ampli
 - Seguimiento permanente de cada aliado: vida, energia, posicion, objetos, equipo, combate y evacuacion.
 - Rescate energetico seguro: calculo de ruta/reserva, autoabastecimiento y busqueda de Toritos sin recursos infinitos.
 - Suministros de energia escalados y Toritos distribuidos sobre una ruta transitable en mapas grandes.
+- Energia inicial proporcional a la ruta transitable real en mapas grandes, tanto para jugador como aliados.
 - Bucle principal con captura de excepciones.
 - Interfaz grafica completa en una unica ventana para los tres modos.
 - Mapa grafico con celdas, jugador, objetivo, objetos, aliados y enemigos.

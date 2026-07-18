@@ -30,10 +30,10 @@ public final class Francotirador extends Jugador {
 
     @Override
     /**
-     * Ejecuta calcularCosteMovimiento.
+     * Estima el coste de movimiento propio del francotirador.
      */
-    protected int calcularCosteMovimiento() {
-        return Math.max(1, super.calcularCosteMovimiento() - 1);
+    public int estimarCosteMovimiento() {
+        return Math.max(1, super.estimarCosteMovimiento() - 1);
     }
 }
 

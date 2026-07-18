@@ -46,6 +46,8 @@ public final class FabricaJuego {
                     configuracion.dimensiones(),
                     configuracion.conAliados());
         };
-        return cargador.cargarJuego();
+        Juego juego = cargador.cargarJuego();
+        EscaladorEnergiaMapa.aplicar(juego);
+        return juego;
     }
 }

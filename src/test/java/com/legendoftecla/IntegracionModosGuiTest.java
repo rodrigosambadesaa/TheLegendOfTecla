@@ -237,11 +237,28 @@ class IntegracionModosGuiTest {
 
         List<Posicion> ruta = rutaMasCorta(mapa);
         assertFalse(ruta.isEmpty(), "Debe existir una ruta transitable hasta el objetivo");
+        int pasosRuta = ruta.size() - 1;
+        int energiaMinimaJugador = ((int) Math.ceil(pasosRuta * 0.70) + 8)
+                * juego.getJugador().estimarCosteMovimiento();
+        assertTrue(juego.getJugador().getEnergiaMaxima() >= energiaMinimaJugador,
+                "La energia base debe cubrir una parte sustancial de la ruta grande y una reserva");
+        for (Aliado aliado : juego.getAliados()) {
+            int energiaMinimaAliado = ((int) Math.ceil(pasosRuta * 0.70) + 8)
+                    * aliado.estimarCosteMovimiento();
+            assertTrue(aliado.getEnergiaMaxima() >= energiaMinimaAliado,
+                    "Los aliados tambien necesitan energia proporcional al mapa");
+        }
         for (int i = 5; i < ruta.size() - 1; i += 5) {
             boolean tieneTorito = mapa.getCelda(ruta.get(i)).getObjetos().stream()
                     .anyMatch(ToritoRojo.class::isInstance);
             assertTrue(tieneTorito, "Falta un Torito de ruta en el paso " + i);
         }
+
+        Juego pequeno = FabricaJuego.crear(new ConsolaSilenciosa(), new ConfiguracionPartida(
+                "Energia pequena", "marine", "default", Dificultad.NORMAL,
+                new DimensionesMapa(8, 8), null, false, 1));
+        assertEquals(90, pequeno.getJugador().getEnergiaMaxima(),
+                "Los mapas pequenos deben conservar el balance original");
     }
 
     @Test

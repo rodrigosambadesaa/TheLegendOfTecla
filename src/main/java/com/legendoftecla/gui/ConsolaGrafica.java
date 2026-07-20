@@ -19,11 +19,7 @@ public final class ConsolaGrafica implements Consola {
         setReceptor(null);
     }
 
-    /**
-     * Representa {@code Mensaje} dentro del dominio del juego.
-      * @param texto valor de {@code texto}
-      * @param tipo valor de {@code tipo}
-     */
+    /** Representa un mensaje validado emitido en la interfaz grafica. */
     public static final class Mensaje {
         private String texto;
         private TipoMensaje tipo;

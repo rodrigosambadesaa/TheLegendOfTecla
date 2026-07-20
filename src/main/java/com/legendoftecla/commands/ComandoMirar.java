@@ -73,11 +73,18 @@ public class ComandoMirar implements Comando {
     public void ejecutar() throws ComandoException {
         Celda celda = resolverCeldaAMirar();
         context.getJuego().getConsola().imprimir(celda.getDescripcion());
-        if (celda.getObjetos().isEmpty()) {
-            context.getJuego().getConsola().imprimir("No hay objetos en esta celda.");
+        if (direccion == null) {
+            context.getJuego().inspeccionarCeldaActual();
+            if (celda.getObjetos().isEmpty()) {
+                context.getJuego().getConsola().imprimir("No hay objetos en esta celda.");
+            } else {
+                String lista = celda.getObjetos().stream()
+                        .map(o -> o.getNombre()).collect(Collectors.joining(", "));
+                context.getJuego().getConsola().imprimir("Objetos: " + lista);
+            }
         } else {
-            String lista = celda.getObjetos().stream().map(o -> o.getNombre()).collect(Collectors.joining(", "));
-            context.getJuego().getConsola().imprimir("Objetos: " + lista);
+            context.getJuego().getConsola().imprimir(
+                    "Los objetos solo pueden inspeccionarse al llegar a la celda y mirar alli.");
         }
         if (!celda.getEnemigos().isEmpty()) {
             String enemigos = celda.getEnemigos().stream().map(e -> e.getNombre()).collect(Collectors.joining(", "));

@@ -100,7 +100,8 @@ public final class Main {
                 consola.imprimir(juego.getMapa().renderAscii(
                         juego.getJugador().getPosicion(),
                         motor.getEnemigosVisibles(),
-                        motor.getAliadosVisibles()));
+                        motor.getAliadosVisibles(),
+                        juego.getCeldasInspeccionadas()));
                 consola.imprimir(motor.getEstadoJugador(), TipoMensaje.ESTADO);
                 consola.imprimir(motor.getEstadoAliados(), TipoMensaje.ESTADO);
                 motor.ejecutarComando(consola.leer("accion>"));

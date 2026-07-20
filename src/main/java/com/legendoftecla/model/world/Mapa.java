@@ -227,7 +227,7 @@ public class Mapa {
       * @return resultado de la operacion
      */
     public String renderAscii(Posicion jugador) {
-        return renderAscii(jugador, Collections.emptySet(), Collections.emptySet());
+        return renderAscii(jugador, Collections.emptySet(), Collections.emptySet(), Collections.emptySet());
     }
 
     /**
@@ -237,7 +237,7 @@ public class Mapa {
       * @return resultado de la operacion
      */
     public String renderAscii(Posicion jugador, Set<Posicion> enemigosVisibles) {
-        return renderAscii(jugador, enemigosVisibles, Collections.emptySet());
+        return renderAscii(jugador, enemigosVisibles, Collections.emptySet(), Collections.emptySet());
     }
 
     /**
@@ -248,9 +248,24 @@ public class Mapa {
       * @return resultado de la operacion
      */
     public String renderAscii(Posicion jugador, Set<Posicion> enemigosVisibles, Set<Posicion> aliadosVisibles) {
+        return renderAscii(jugador, enemigosVisibles, aliadosVisibles, Collections.emptySet());
+    }
+
+    /**
+     * Renderiza el mapa mostrando objetos exclusivamente en celdas inspeccionadas.
+     *
+     * @param jugador posicion del jugador
+     * @param enemigosVisibles posiciones de enemigos visibles
+     * @param aliadosVisibles posiciones de aliados visibles
+     * @param celdasInspeccionadas posiciones cuyos objetos ya conoce el jugador
+     * @return representacion ASCII sin filtrar objetos ocultos
+     */
+    public String renderAscii(Posicion jugador, Set<Posicion> enemigosVisibles,
+            Set<Posicion> aliadosVisibles, Set<Posicion> celdasInspeccionadas) {
         Validaciones.noNulo(jugador, "Posicion del jugador");
         Validaciones.noNulo(enemigosVisibles, "Enemigos visibles");
         Validaciones.noNulo(aliadosVisibles, "Aliados visibles");
+        Validaciones.noNulo(celdasInspeccionadas, "Celdas inspeccionadas");
         StringBuilder sb = new StringBuilder();
         for (int f = 0; f < getFilas(); f++) {
             for (int c = 0; c < getColumnas(); c++) {
@@ -265,7 +280,8 @@ public class Mapa {
                     sb.append('E');
                 } else if (!celdas[f][c].getAliados().isEmpty() && aliadosVisibles.contains(actual)) {
                     sb.append('A');
-                } else if (!celdas[f][c].getObjetos().isEmpty()) {
+                } else if (!celdas[f][c].getObjetos().isEmpty()
+                        && celdasInspeccionadas.contains(actual)) {
                     sb.append('o');
                 } else {
                     sb.append('.');

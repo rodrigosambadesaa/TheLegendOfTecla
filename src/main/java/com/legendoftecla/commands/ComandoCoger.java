@@ -42,7 +42,11 @@ public class ComandoCoger implements Comando {
      * Ejecuta ejecutar.
      */
     public void ejecutar() throws ComandoException {
-        Celda celda = context.getJuego().getMapa().getCelda(context.getJuego().getJugador().getPosicion());
+        var posicion = context.getJuego().getJugador().getPosicion();
+        if (!context.getJuego().isCeldaInspeccionada(posicion)) {
+            throw new ComandoException("Debes mirar la celda antes de coger objetos.");
+        }
+        Celda celda = context.getJuego().getMapa().getCelda(posicion);
         Objeto objeto = celda.quitarObjetoPorNombre(nombreObjeto);
         if (objeto == null) {
             throw new ComandoException("No existe ese objeto en la celda.");

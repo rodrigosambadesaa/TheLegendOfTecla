@@ -282,7 +282,7 @@ public final class PanelJuego extends JPanel {
     }
 
     private void cogerObjeto() {
-        seleccionarYEjecutar("Coger objeto", "coger", celdaJugador().getObjetos().stream()
+        seleccionarYEjecutar("Coger objeto", "coger", objetosCeldaJugadorVisibles().stream()
                 .map(objeto -> new OpcionAccion(describir(objeto), "coger " + objeto.getNombre()))
                 .toList());
     }
@@ -395,6 +395,13 @@ public final class PanelJuego extends JPanel {
         return motor.getJuego().getJugador().getMochila().getObjetos();
     }
 
+    private List<Objeto> objetosCeldaJugadorVisibles() {
+        Posicion posicion = motor.getJuego().getJugador().getPosicion();
+        return motor.getJuego().isCeldaInspeccionada(posicion)
+                ? celdaJugador().getObjetos()
+                : List.of();
+    }
+
     private String describir(Objeto objeto) {
         return objeto.getNombre() + " (" + objeto.getClass().getSimpleName() + ", "
                 + String.format("%.1f", objeto.getPeso()) + " kg)";
@@ -454,7 +461,7 @@ public final class PanelJuego extends JPanel {
         boolean activa = !motor.isFinalizada();
         comando.setEnabled(activa);
         ejecutar.setEnabled(activa);
-        coger.setEnabled(activa && !celdaJugador().getObjetos().isEmpty());
+        coger.setEnabled(activa && !objetosCeldaJugadorVisibles().isEmpty());
         usar.setEnabled(activa && objetosMochila().stream()
                 .anyMatch(objeto -> !(objeto instanceof Arma)
                         && !(objeto instanceof Armadura)

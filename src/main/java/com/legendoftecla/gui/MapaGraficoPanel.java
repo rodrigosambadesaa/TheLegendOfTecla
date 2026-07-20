@@ -77,7 +77,7 @@ public final class MapaGraficoPanel extends JPanel {
                             10);
                     g.fillPolygon(estrella);
                 }
-                if (!celda.getObjetos().isEmpty()) {
+                if (!celda.getObjetos().isEmpty() && juego.isCeldaInspeccionada(posicion)) {
                     g.setColor(new Color(235, 187, 70));
                     g.fillRoundRect(x + 4, y + 21, 9, 8, 3, 3);
                 }
@@ -115,7 +115,9 @@ public final class MapaGraficoPanel extends JPanel {
                 .append(fila).append(",").append(columna).append("</b> - ")
                 .append(celda.getDescripcion());
         if (!celda.isTransitable()) detalle.append("<br>Muro / no transitable");
-        if (!celda.getObjetos().isEmpty()) detalle.append("<br>Objetos: ").append(celda.getObjetos());
+        if (!celda.getObjetos().isEmpty() && motor.getJuego().isCeldaInspeccionada(posicion)) {
+            detalle.append("<br>Objetos: ").append(celda.getObjetos());
+        }
         if (!celda.getAliados().isEmpty()) detalle.append("<br>Aliados: ").append(celda.getAliados().size());
         if (!celda.getEnemigos().isEmpty() && motor.getEnemigosVisibles().contains(posicion)) {
             detalle.append("<br>Enemigos: ").append(celda.getEnemigos().size());

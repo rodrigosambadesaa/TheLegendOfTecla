@@ -7,6 +7,7 @@ import com.legendoftecla.engine.ConfiguracionPartida;
 import com.legendoftecla.engine.FabricaJuego;
 import com.legendoftecla.engine.MotorPartida;
 import com.legendoftecla.gui.ConsolaGrafica;
+import com.legendoftecla.gui.MapaGraficoPanel;
 import com.legendoftecla.gui.PanelConfiguracion;
 import com.legendoftecla.gui.PanelJuego;
 import com.legendoftecla.gui.PanelEditorMapa;
@@ -40,6 +41,7 @@ import java.awt.Graphics2D;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.image.BufferedImage;
+import java.awt.event.MouseEvent;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
@@ -60,6 +62,52 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class IntegracionModosGuiTest {
     @TempDir
     Path temporal;
+
+    @Test
+    void losObjetosSoloSeRevelanAlLlegarYMirarEnConsolaYGui() {
+        ConsolaSilenciosa consola = new ConsolaSilenciosa();
+        Mapa mapa = new Mapa("Secreto", "Prueba de exploracion", 3, 3,
+                new Posicion(0, 0), new Posicion(2, 2));
+        for (int fila = 0; fila < 3; fila++) {
+            for (int columna = 0; columna < 3; columna++) {
+                mapa.setCelda(fila, columna, new Celda("Celda", true));
+            }
+        }
+        mapa.getCelda(new Posicion(0, 1)).agregarObjeto(
+                new Botiquin("secreto", "Objeto oculto", 1.0, 20));
+        Marine jugador = new Marine("Explorador", new Posicion(0, 0), new Mochila(4, 20), 2);
+        Juego juego = new Juego(consola, mapa, jugador, 30);
+        MotorPartida motor = new MotorPartida(juego);
+
+        String inicial = mapa.renderAscii(jugador.getPosicion(), Set.of(), Set.of(),
+                juego.getCeldasInspeccionadas());
+        assertFalse(inicial.contains("o"));
+
+        consola.salida.setLength(0);
+        motor.ejecutarComando("mirar este 1");
+        assertFalse(consola.salida.toString().contains("secreto"));
+        assertFalse(juego.isCeldaInspeccionada(new Posicion(0, 1)));
+
+        motor.ejecutarComando("mover este");
+        MapaGraficoPanel panelMapa = new MapaGraficoPanel(motor);
+        MouseEvent sobreObjeto = new MouseEvent(panelMapa, MouseEvent.MOUSE_MOVED,
+                System.currentTimeMillis(), 0, 33, 1, 0, false);
+        assertFalse(panelMapa.getToolTipText(sobreObjeto).contains("secreto"));
+
+        motor.ejecutarComando("coger secreto");
+        assertEquals(1, mapa.getCelda(new Posicion(0, 1)).getObjetos().size());
+
+        consola.salida.setLength(0);
+        motor.ejecutarComando("mirar");
+        assertTrue(consola.salida.toString().contains("secreto"));
+        assertTrue(juego.isCeldaInspeccionada(new Posicion(0, 1)));
+        assertTrue(panelMapa.getToolTipText(sobreObjeto).contains("secreto"));
+
+        motor.ejecutarComando("mover oeste");
+        String descubierto = mapa.renderAscii(jugador.getPosicion(), Set.of(), Set.of(),
+                juego.getCeldasInspeccionadas());
+        assertTrue(descubierto.contains("o"));
+    }
 
     @Test
     void consolaYMotorCompartenElFlujoCompleto() throws Exception {

@@ -10,6 +10,8 @@ import com.legendoftecla.validation.Validaciones;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 /**
  * Representa la entidad Juego del juego.
@@ -27,6 +29,7 @@ public class Juego {
     private int aliadosExtraidos;
     private int pasos;
     private boolean solicitudAyudaAliados;
+    private Set<Posicion> celdasInspeccionadas;
 
     /**
      * Ejecuta Juego.
@@ -51,6 +54,7 @@ public class Juego {
         setAliadosExtraidos(0);
         setPasos(0);
         setSolicitudAyudaAliados(false);
+        setCeldasInspeccionadas(Set.of());
     }
 
     /**
@@ -76,7 +80,15 @@ public class Juego {
 
     /** @param mapa mapa no nulo */
     public void setMapa(Mapa mapa) {
-        this.mapa = Validaciones.noNulo(mapa, "Mapa");
+        Mapa validado = Validaciones.noNulo(mapa, "Mapa");
+        if (jugador != null && !validado.estaDentro(jugador.getPosicion())) {
+            throw new IllegalArgumentException("El nuevo mapa dejaria al jugador fuera.");
+        }
+        if (celdasInspeccionadas != null
+                && celdasInspeccionadas.stream().anyMatch(posicion -> !validado.estaDentro(posicion))) {
+            throw new IllegalArgumentException("El nuevo mapa dejaria inspecciones fuera de sus limites.");
+        }
+        this.mapa = validado;
     }
 
     /**
@@ -300,6 +312,53 @@ public class Juego {
     /** @param solicitudAyudaAliados estado solicitado */
     public void setSolicitudAyudaAliados(boolean solicitudAyudaAliados) {
         this.solicitudAyudaAliados = solicitudAyudaAliados;
+    }
+
+    /**
+     * Devuelve copias de las celdas cuyos objetos ya fueron inspeccionados presencialmente.
+     *
+     * @return conjunto defensivo de posiciones inspeccionadas
+     */
+    public Set<Posicion> getCeldasInspeccionadas() {
+        Set<Posicion> copia = new HashSet<>();
+        celdasInspeccionadas.forEach(posicion -> copia.add(
+                new Posicion(posicion.getFila(), posicion.getColumna())));
+        return Collections.unmodifiableSet(copia);
+    }
+
+    /**
+     * Sustituye el registro por posiciones validas pertenecientes al mapa.
+     *
+     * @param celdasInspeccionadas posiciones no nulas y situadas dentro del mapa
+     */
+    public void setCeldasInspeccionadas(Set<Posicion> celdasInspeccionadas) {
+        Validaciones.noNulo(celdasInspeccionadas, "Celdas inspeccionadas");
+        if (celdasInspeccionadas.size() > mapa.getFilas() * mapa.getColumnas()
+                || celdasInspeccionadas.stream().anyMatch(
+                        posicion -> posicion == null || !mapa.estaDentro(posicion))) {
+            throw new IllegalArgumentException("Las celdas inspeccionadas deben pertenecer al mapa.");
+        }
+        Set<Posicion> copia = new HashSet<>();
+        celdasInspeccionadas.forEach(posicion -> copia.add(
+                new Posicion(posicion.getFila(), posicion.getColumna())));
+        this.celdasInspeccionadas = copia;
+    }
+
+    /** Registra que el jugador ha mirado la celda en la que se encuentra. */
+    public void inspeccionarCeldaActual() {
+        Set<Posicion> inspeccionadas = new HashSet<>(celdasInspeccionadas);
+        inspeccionadas.add(jugador.getPosicion());
+        setCeldasInspeccionadas(inspeccionadas);
+    }
+
+    /**
+     * Indica si los objetos de una posicion pueden mostrarse al jugador.
+     *
+     * @param posicion posicion consultada
+     * @return {@code true} si el jugador ya estuvo alli y ejecuto {@code mirar}
+     */
+    public boolean isCeldaInspeccionada(Posicion posicion) {
+        return posicion != null && celdasInspeccionadas.contains(posicion);
     }
 
     /**

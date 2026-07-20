@@ -52,6 +52,9 @@ public enum Direccion {
       * @return resultado de la operacion
      */
     public static Direccion desdeTexto(String texto) {
+        if (texto == null || texto.isBlank()) {
+            return null;
+        }
         return switch (texto.toLowerCase()) {
             case "n", "norte" -> NORTE;
             case "s", "sur" -> SUR;

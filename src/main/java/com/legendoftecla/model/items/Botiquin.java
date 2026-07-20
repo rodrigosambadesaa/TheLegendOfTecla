@@ -1,13 +1,15 @@
 package com.legendoftecla.model.items;
 
 import com.legendoftecla.model.characters.Personaje;
+import com.legendoftecla.validation.Limites;
+import com.legendoftecla.validation.Validaciones;
 
 
 /**
  * Representa la entidad Botiquin del juego.
  */
 public final class Botiquin extends Objeto {
-    private final int curacion;
+    private int curacion;
 
     /**
      * Ejecuta Botiquin.
@@ -18,7 +20,7 @@ public final class Botiquin extends Objeto {
      */
     public Botiquin(String nombre, String descripcion, double peso, int curacion) {
         super(nombre, descripcion, peso);
-        this.curacion = curacion;
+        setCuracion(curacion);
     }
 
     /**
@@ -29,11 +31,18 @@ public final class Botiquin extends Objeto {
         return curacion;
     }
 
+    /** @param curacion curacion positiva y acotada */
+    public void setCuracion(int curacion) {
+        this.curacion = Validaciones.enteroEntre(
+                curacion, 1, Limites.ESTADISTICA, "Curacion");
+    }
+
     @Override
     /**
      * Ejecuta usar.
      */
     public void usar(Personaje personaje) {
+        Validaciones.noNulo(personaje, "Personaje");
         personaje.recuperarSalud(curacion);
     }
 }

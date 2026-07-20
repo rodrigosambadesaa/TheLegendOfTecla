@@ -23,7 +23,7 @@ public final class Zapador extends Jugador {
      * Ejecuta aplicarModificadorDanio.
      */
     protected int aplicarModificadorDanio(int base, Personaje objetivo) {
-        int distancia = posicion.distanciaManhattan(objetivo.getPosicion());
+        int distancia = getPosicion().distanciaManhattan(objetivo.getPosicion());
         if (distancia > 2) {
             return Math.max(1, (int) Math.ceil(base * 0.05));
         }

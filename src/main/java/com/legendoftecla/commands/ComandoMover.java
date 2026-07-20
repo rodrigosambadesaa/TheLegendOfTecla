@@ -3,14 +3,15 @@ package com.legendoftecla.commands;
 import com.legendoftecla.exceptions.AccionInvalidaException;
 import com.legendoftecla.exceptions.ComandoException;
 import com.legendoftecla.model.world.Direccion;
+import com.legendoftecla.validation.Validaciones;
 
 
 /**
  * Representa la entidad ComandoMover del juego.
  */
 public class ComandoMover implements Comando {
-    private final CommandContext context;
-    private final Direccion direccion;
+    private CommandContext context;
+    private Direccion direccion;
 
     /**
      * Ejecuta ComandoMover.
@@ -18,8 +19,21 @@ public class ComandoMover implements Comando {
       * @param direccion valor de {@code direccion}
      */
     public ComandoMover(CommandContext context, Direccion direccion) {
-        this.context = context;
-        this.direccion = direccion;
+        setContext(context);
+        setDireccion(direccion);
+    }
+
+    /** @return contexto de ejecucion */
+    public CommandContext getContext() { return context; }
+    /** @param context contexto no nulo */
+    public void setContext(CommandContext context) {
+        this.context = Validaciones.noNulo(context, "Contexto");
+    }
+    /** @return direccion del movimiento */
+    public Direccion getDireccion() { return direccion; }
+    /** @param direccion direccion no nula */
+    public void setDireccion(Direccion direccion) {
+        this.direccion = Validaciones.noNulo(direccion, "Direccion");
     }
 
     @Override

@@ -19,14 +19,8 @@ import java.util.Random;
 /**
  * Representa la entidad CargadorJuegoDeFicheros del juego.
  */
-public class CargadorJuegoDeFicheros implements CargadorJuego {
-    private final Consola consola;
-    private final String nombreJugador;
-    private final String clase;
-    private final Path directorio;
-    private final Dificultad dificultad;
-    private final DimensionesMapa dimensiones;
-    private final boolean conAliados;
+public class CargadorJuegoDeFicheros extends CargadorJuegoBase {
+    private Path directorio;
 
     /**
      * Ejecuta CargadorJuegoDeFicheros.
@@ -40,13 +34,19 @@ public class CargadorJuegoDeFicheros implements CargadorJuego {
      */
     public CargadorJuegoDeFicheros(Consola consola, String nombreJugador, String clase, Path directorio,
             Dificultad dificultad, DimensionesMapa dimensiones, boolean conAliados) {
-        this.consola = consola;
-        this.nombreJugador = nombreJugador;
-        this.clase = clase;
-        this.directorio = directorio;
-        this.dificultad = dificultad;
-        this.dimensiones = dimensiones;
-        this.conAliados = conAliados;
+        super(consola, nombreJugador, clase, dificultad, dimensiones, conAliados);
+        setDirectorio(directorio);
+    }
+
+    /** @return directorio de datos normalizado */
+    public Path getDirectorio() {
+        return directorio;
+    }
+
+    /** @param directorio directorio no nulo */
+    public void setDirectorio(Path directorio) {
+        this.directorio = com.legendoftecla.validation.Validaciones
+                .noNulo(directorio, "Directorio de datos").normalize();
     }
 
     @Override

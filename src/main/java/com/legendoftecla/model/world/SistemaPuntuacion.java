@@ -1,6 +1,8 @@
 package com.legendoftecla.model.world;
 
 import com.legendoftecla.model.characters.Jugador;
+import com.legendoftecla.validation.Limites;
+import com.legendoftecla.validation.Validaciones;
 
 
 /**
@@ -92,25 +94,25 @@ public final class SistemaPuntuacion {
      * Representa {@code ResultadoPuntuacion} dentro del dominio del juego.
      */
     public static final class ResultadoPuntuacion {
-        private final int total;
-        private final int salud;
-        private final int energia;
-        private final int pasos;
-        private final int progreso;
-        private final int enemigos;
-        private final int resultado;
-        private final long enemigosDerrotados;
+        private int total;
+        private int salud;
+        private int energia;
+        private int pasos;
+        private int progreso;
+        private int enemigos;
+        private int resultado;
+        private long enemigosDerrotados;
 
         private ResultadoPuntuacion(int total, int salud, int energia, int pasos, int progreso, int enemigos,
                 int resultado, long enemigosDerrotados) {
-            this.total = total;
-            this.salud = salud;
-            this.energia = energia;
-            this.pasos = pasos;
-            this.progreso = progreso;
-            this.enemigos = enemigos;
-            this.resultado = resultado;
-            this.enemigosDerrotados = enemigosDerrotados;
+            setTotal(total);
+            setSalud(salud);
+            setEnergia(energia);
+            setPasos(pasos);
+            setProgreso(progreso);
+            setEnemigos(enemigos);
+            setResultado(resultado);
+            setEnemigosDerrotados(enemigosDerrotados);
         }
 
         /**
@@ -119,6 +121,88 @@ public final class SistemaPuntuacion {
          */
         public int getTotal() {
             return total;
+        }
+
+        /** @param total puntuacion total acotada */
+        public void setTotal(int total) {
+            this.total = Validaciones.enteroEntre(
+                    total, -Limites.ESTADISTICA, Limites.ESTADISTICA, "Puntuacion total");
+        }
+
+        /** @return puntos por salud */
+        public int getSalud() {
+            return salud;
+        }
+
+        /** @param salud puntos no negativos */
+        public void setSalud(int salud) {
+            this.salud = Validaciones.enteroEntre(salud, 0, Limites.ESTADISTICA, "Puntos de salud");
+        }
+
+        /** @return puntos por energia */
+        public int getEnergia() {
+            return energia;
+        }
+
+        /** @param energia puntos no negativos */
+        public void setEnergia(int energia) {
+            this.energia = Validaciones.enteroEntre(energia, 0, Limites.ESTADISTICA, "Puntos de energia");
+        }
+
+        /** @return puntos por pasos */
+        public int getPasos() {
+            return pasos;
+        }
+
+        /** @param pasos puntos no negativos */
+        public void setPasos(int pasos) {
+            this.pasos = Validaciones.enteroEntre(pasos, 0, Limites.ESTADISTICA, "Puntos de pasos");
+        }
+
+        /** @return puntos por progreso */
+        public int getProgreso() {
+            return progreso;
+        }
+
+        /** @param progreso puntos no negativos */
+        public void setProgreso(int progreso) {
+            this.progreso = Validaciones.enteroEntre(
+                    progreso, 0, Limites.ESTADISTICA, "Puntos de progreso");
+        }
+
+        /** @return puntos por enemigos */
+        public int getEnemigos() {
+            return enemigos;
+        }
+
+        /** @param enemigos puntos no negativos */
+        public void setEnemigos(int enemigos) {
+            this.enemigos = Validaciones.enteroEntre(
+                    enemigos, 0, Limites.ESTADISTICA, "Puntos de enemigos");
+        }
+
+        /** @return ajuste por resultado */
+        public int getResultado() {
+            return resultado;
+        }
+
+        /** @param resultado ajuste acotado */
+        public void setResultado(int resultado) {
+            this.resultado = Validaciones.enteroEntre(
+                    resultado, -Limites.ESTADISTICA, Limites.ESTADISTICA, "Ajuste de resultado");
+        }
+
+        /** @return enemigos derrotados */
+        public long getEnemigosDerrotados() {
+            return enemigosDerrotados;
+        }
+
+        /** @param enemigosDerrotados cantidad no negativa */
+        public void setEnemigosDerrotados(long enemigosDerrotados) {
+            if (enemigosDerrotados < 0 || enemigosDerrotados > Limites.ESTADISTICA) {
+                throw new IllegalArgumentException("Enemigos derrotados fuera de limites.");
+            }
+            this.enemigosDerrotados = enemigosDerrotados;
         }
 
         /**

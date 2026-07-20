@@ -15,13 +15,7 @@ import java.util.Random;
 /**
  * Representa la entidad CargadorJuegoPorDefecto del juego.
  */
-public class CargadorJuegoPorDefecto implements CargadorJuego {
-    private final Consola consola;
-    private final String nombreJugador;
-    private final String clase;
-    private final Dificultad dificultad;
-    private final DimensionesMapa dimensiones;
-    private final boolean conAliados;
+public class CargadorJuegoPorDefecto extends CargadorJuegoBase {
 
     /**
      * Ejecuta CargadorJuegoPorDefecto.
@@ -34,12 +28,7 @@ public class CargadorJuegoPorDefecto implements CargadorJuego {
      */
     public CargadorJuegoPorDefecto(Consola consola, String nombreJugador, String clase,
             Dificultad dificultad, DimensionesMapa dimensiones, boolean conAliados) {
-        this.consola = consola;
-        this.nombreJugador = nombreJugador;
-        this.clase = clase;
-        this.dificultad = dificultad;
-        this.dimensiones = dimensiones;
-        this.conAliados = conAliados;
+        super(consola, nombreJugador, clase, dificultad, dimensiones, conAliados);
     }
 
     @Override

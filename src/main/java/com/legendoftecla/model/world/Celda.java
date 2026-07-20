@@ -3,6 +3,8 @@ package com.legendoftecla.model.world;
 import com.legendoftecla.model.characters.Enemigo;
 import com.legendoftecla.model.characters.Aliado;
 import com.legendoftecla.model.items.Objeto;
+import com.legendoftecla.validation.Limites;
+import com.legendoftecla.validation.Validaciones;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,11 +15,11 @@ import java.util.List;
  * Representa la entidad Celda del juego.
  */
 public class Celda {
-    private final String descripcion;
-    private final boolean transitable;
-    private final List<Objeto> objetos;
-    private final List<Enemigo> enemigos;
-    private final List<Aliado> aliados;
+    private String descripcion;
+    private boolean transitable;
+    private List<Objeto> objetos;
+    private List<Enemigo> enemigos;
+    private List<Aliado> aliados;
 
     /**
      * Ejecuta Celda.
@@ -25,11 +27,11 @@ public class Celda {
       * @param transitable valor de {@code transitable}
      */
     public Celda(String descripcion, boolean transitable) {
-        this.descripcion = descripcion;
-        this.transitable = transitable;
-        this.objetos = new ArrayList<>();
-        this.enemigos = new ArrayList<>();
-        this.aliados = new ArrayList<>();
+        setDescripcion(descripcion);
+        setTransitable(transitable);
+        setObjetos(List.of());
+        setEnemigos(List.of());
+        setAliados(List.of());
     }
 
     /**
@@ -40,12 +42,23 @@ public class Celda {
         return descripcion;
     }
 
+    /** @param descripcion descripcion no nula y acotada */
+    public void setDescripcion(String descripcion) {
+        this.descripcion = Validaciones.texto(
+                descripcion, "Descripcion de la celda", Limites.DESCRIPCION);
+    }
+
     /**
      * Ejecuta isTransitable.
       * @return resultado de la operacion
      */
     public boolean isTransitable() {
         return transitable;
+    }
+
+    /** @param transitable estado solicitado */
+    public void setTransitable(boolean transitable) {
+        this.transitable = transitable;
     }
 
     /**
@@ -72,12 +85,32 @@ public class Celda {
         return Collections.unmodifiableList(aliados);
     }
 
+    /** @param objetos contenido de objetos no nulo */
+    public void setObjetos(List<Objeto> objetos) {
+        this.objetos = copiarValidada(objetos, "Objetos");
+    }
+
+    /** @param enemigos contenido de enemigos no nulo */
+    public void setEnemigos(List<Enemigo> enemigos) {
+        this.enemigos = copiarValidada(enemigos, "Enemigos");
+    }
+
+    /** @param aliados contenido de aliados no nulo */
+    public void setAliados(List<Aliado> aliados) {
+        this.aliados = copiarValidada(aliados, "Aliados");
+    }
+
     /**
      * Ejecuta agregarObjeto.
       * @param objeto valor de {@code objeto}
      */
     public void agregarObjeto(Objeto objeto) {
-        objetos.add(objeto);
+        Objeto validado = Validaciones.noNulo(objeto, "Objeto");
+        if (!objetos.contains(validado)) {
+            List<Objeto> nuevos = new ArrayList<>(objetos);
+            nuevos.add(validado);
+            setObjetos(nuevos);
+        }
     }
 
     /**
@@ -86,10 +119,15 @@ public class Celda {
       * @return resultado de la operacion
      */
     public Objeto quitarObjetoPorNombre(String nombre) {
+        String nombreValidado = Validaciones.textoObligatorio(
+                nombre, "Nombre del objeto", Limites.TEXTO_CORTO);
         for (int i = 0; i < objetos.size(); i++) {
             Objeto objeto = objetos.get(i);
-            if (objeto.getNombre().equalsIgnoreCase(nombre)) {
-                return objetos.remove(i);
+            if (objeto.getNombre().equalsIgnoreCase(nombreValidado)) {
+                List<Objeto> restantes = new ArrayList<>(objetos);
+                Objeto retirado = restantes.remove(i);
+                setObjetos(restantes);
+                return retirado;
             }
         }
         return null;
@@ -100,7 +138,12 @@ public class Celda {
       * @param enemigo valor de {@code enemigo}
      */
     public void agregarEnemigo(Enemigo enemigo) {
-        enemigos.add(enemigo);
+        Enemigo validado = Validaciones.noNulo(enemigo, "Enemigo");
+        if (!enemigos.contains(validado)) {
+            List<Enemigo> nuevos = new ArrayList<>(enemigos);
+            nuevos.add(validado);
+            setEnemigos(nuevos);
+        }
     }
 
     /**
@@ -108,7 +151,9 @@ public class Celda {
       * @param enemigo valor de {@code enemigo}
      */
     public void quitarEnemigo(Enemigo enemigo) {
-        enemigos.remove(enemigo);
+        List<Enemigo> restantes = new ArrayList<>(enemigos);
+        restantes.remove(Validaciones.noNulo(enemigo, "Enemigo"));
+        setEnemigos(restantes);
     }
 
     /**
@@ -116,7 +161,12 @@ public class Celda {
       * @param aliado valor de {@code aliado}
      */
     public void agregarAliado(Aliado aliado) {
-        aliados.add(aliado);
+        Aliado validado = Validaciones.noNulo(aliado, "Aliado");
+        if (!aliados.contains(validado)) {
+            List<Aliado> nuevos = new ArrayList<>(aliados);
+            nuevos.add(validado);
+            setAliados(nuevos);
+        }
     }
 
     /**
@@ -124,7 +174,17 @@ public class Celda {
       * @param aliado valor de {@code aliado}
      */
     public void quitarAliado(Aliado aliado) {
-        aliados.remove(aliado);
+        List<Aliado> restantes = new ArrayList<>(aliados);
+        restantes.remove(Validaciones.noNulo(aliado, "Aliado"));
+        setAliados(restantes);
+    }
+
+    private <T> List<T> copiarValidada(List<T> valores, String campo) {
+        Validaciones.noNulo(valores, campo);
+        if (valores.stream().anyMatch(java.util.Objects::isNull)) {
+            throw new IllegalArgumentException(campo + " no puede contener valores nulos.");
+        }
+        return new ArrayList<>(valores);
     }
 }
 

@@ -1,14 +1,15 @@
 package com.legendoftecla.commands;
 
 import com.legendoftecla.exceptions.ComandoException;
+import com.legendoftecla.validation.Validaciones;
 
 
 /**
  * Representa la entidad ComandoRepetido del juego.
  */
 public class ComandoRepetido implements Comando {
-    private final Comando comando;
-    private final int repeticiones;
+    private Comando comando;
+    private int repeticiones;
 
     /**
      * Ejecuta ComandoRepetido.
@@ -16,8 +17,19 @@ public class ComandoRepetido implements Comando {
       * @param repeticiones valor de {@code repeticiones}
      */
     public ComandoRepetido(Comando comando, int repeticiones) {
-        this.comando = comando;
-        this.repeticiones = repeticiones;
+        setComando(comando);
+        setRepeticiones(repeticiones);
+    }
+
+    /** @return comando repetido */
+    public Comando getComando() { return comando; }
+    /** @param comando comando no nulo */
+    public void setComando(Comando comando) { this.comando = Validaciones.noNulo(comando, "Comando"); }
+    /** @return numero de repeticiones */
+    public int getRepeticiones() { return repeticiones; }
+    /** @param repeticiones cantidad entre 1 y 1000 */
+    public void setRepeticiones(int repeticiones) {
+        this.repeticiones = Validaciones.enteroEntre(repeticiones, 1, 1_000, "Repeticiones");
     }
 
     @Override

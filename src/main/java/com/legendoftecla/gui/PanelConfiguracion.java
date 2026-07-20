@@ -159,7 +159,7 @@ public final class PanelConfiguracion extends JPanel {
     public void seleccionarDirectorio(Path ruta) {
         boolean aliadosEscenario = false;
         try {
-            aliadosEscenario = SerializadorEscenarioJson.cargar(ruta).conAliados;
+            aliadosEscenario = SerializadorEscenarioJson.cargar(ruta).isConAliados();
         } catch (Exception ignored) {
             // Los escenarios TXT no contienen estos metadatos JSON.
         }

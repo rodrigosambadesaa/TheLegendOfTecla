@@ -52,6 +52,8 @@ public final class VentanaPrincipal extends JFrame {
         setLocationRelativeTo(null);
 
         configuracion = new PanelConfiguracion(this::iniciarPartida, this::mostrarEditor);
+        setPanelJuego(null);
+        setPanelEditor(null);
         contenido.add(configuracion, CONFIGURACION);
         setContentPane(contenido);
         if (abrirEditor) {
@@ -59,6 +61,26 @@ public final class VentanaPrincipal extends JFrame {
         } else {
             tarjetas.show(contenido, CONFIGURACION);
         }
+    }
+
+    /** @return panel de juego actual o {@code null} */
+    public PanelJuego getPanelJuego() {
+        return panelJuego;
+    }
+
+    /** @param panelJuego panel de juego opcional */
+    public void setPanelJuego(PanelJuego panelJuego) {
+        this.panelJuego = panelJuego;
+    }
+
+    /** @return editor actual o {@code null} */
+    public PanelEditorMapa getPanelEditor() {
+        return panelEditor;
+    }
+
+    /** @param panelEditor editor opcional */
+    public void setPanelEditor(PanelEditorMapa panelEditor) {
+        this.panelEditor = panelEditor;
     }
 
     /**
@@ -82,7 +104,7 @@ public final class VentanaPrincipal extends JFrame {
             if (panelJuego != null) {
                 contenido.remove(panelJuego);
             }
-            panelJuego = new PanelJuego(motor, consola, this::mostrarConfiguracion);
+            setPanelJuego(new PanelJuego(motor, consola, this::mostrarConfiguracion));
             contenido.add(panelJuego, JUEGO);
             tarjetas.show(contenido, JUEGO);
         } catch (Exception e) {
@@ -99,7 +121,7 @@ public final class VentanaPrincipal extends JFrame {
         if (panelEditor != null) {
             contenido.remove(panelEditor);
         }
-        panelEditor = new PanelEditorMapa(this::escenarioGuardado, this::mostrarConfiguracion);
+        setPanelEditor(new PanelEditorMapa(this::escenarioGuardado, this::mostrarConfiguracion));
         contenido.add(panelEditor, EDITOR);
         tarjetas.show(contenido, EDITOR);
     }

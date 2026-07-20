@@ -5,13 +5,14 @@ import com.legendoftecla.model.world.Posicion;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import com.legendoftecla.validation.Validaciones;
 
 
 /**
  * Representa la entidad Jugador del juego.
  */
 public abstract class Jugador extends Personaje {
-    private final List<Posicion> recorrido;
+    private List<Posicion> recorrido;
 
     /**
      * Ejecuta Jugador.
@@ -24,15 +25,16 @@ public abstract class Jugador extends Personaje {
      */
     protected Jugador(String nombre, int salud, int energia, Posicion posicion, Mochila mochila, int visionBase) {
         super(nombre, salud, energia, posicion, mochila, visionBase);
-        this.recorrido = new ArrayList<>();
-        this.recorrido.add(posicion);
+        setRecorrido(List.of(posicion));
     }
 
     /**
      * Ejecuta registrarPosicion.
      */
     public void registrarPosicion() {
-        recorrido.add(posicion);
+        List<Posicion> nuevoRecorrido = new ArrayList<>(recorrido);
+        nuevoRecorrido.add(getPosicion());
+        setRecorrido(nuevoRecorrido);
     }
 
     /**
@@ -40,7 +42,24 @@ public abstract class Jugador extends Personaje {
       * @return resultado de la operacion
      */
     public List<Posicion> getRecorrido() {
-        return Collections.unmodifiableList(recorrido);
+        return recorrido.stream()
+                .map(posicion -> new Posicion(posicion.getFila(), posicion.getColumna()))
+                .toList();
+    }
+
+    /**
+     * Sustituye el recorrido por una copia sin posiciones nulas.
+     *
+     * @param recorrido posiciones registradas
+     */
+    public void setRecorrido(List<Posicion> recorrido) {
+        Validaciones.noNulo(recorrido, "Recorrido");
+        if (recorrido.stream().anyMatch(java.util.Objects::isNull)) {
+            throw new IllegalArgumentException("El recorrido no admite posiciones nulas.");
+        }
+        this.recorrido = recorrido.stream()
+                .map(posicion -> new Posicion(posicion.getFila(), posicion.getColumna()))
+                .collect(java.util.stream.Collectors.toCollection(ArrayList::new));
     }
 }
 

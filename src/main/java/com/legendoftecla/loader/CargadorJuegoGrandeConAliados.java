@@ -19,17 +19,11 @@ import java.util.Random;
 /**
  * Representa la entidad CargadorJuegoGrandeConAliados del juego.
  */
-public class CargadorJuegoGrandeConAliados implements CargadorJuego {
+public class CargadorJuegoGrandeConAliados extends CargadorJuegoBase {
     private static final int PASOS_ENTRE_TORITOS_RUTA = 5;
     private static final int ENERGIA_TORITO_GRANDE = 35;
 
-    private final Consola consola;
-    private final String nombreJugador;
-    private final String clase;
-    private final Dificultad dificultad;
-    private final DimensionesMapa dimensiones;
-    private final boolean conAliados;
-    private final int varianteMapa;
+    private int varianteMapa;
 
     /**
      * Ejecuta CargadorJuegoGrandeConAliados.
@@ -43,13 +37,19 @@ public class CargadorJuegoGrandeConAliados implements CargadorJuego {
      */
     public CargadorJuegoGrandeConAliados(Consola consola, String nombreJugador, String clase,
             Dificultad dificultad, DimensionesMapa dimensiones, boolean conAliados, int varianteMapa) {
-        this.consola = consola;
-        this.nombreJugador = nombreJugador;
-        this.clase = clase;
-        this.dificultad = dificultad;
-        this.dimensiones = dimensiones;
-        this.conAliados = conAliados;
-        this.varianteMapa = varianteMapa;
+        super(consola, nombreJugador, clase, dificultad, dimensiones, conAliados);
+        setVarianteMapa(varianteMapa);
+    }
+
+    /** @return variante determinista seleccionada */
+    public int getVarianteMapa() {
+        return varianteMapa;
+    }
+
+    /** @param varianteMapa variante entre 1 y 50 */
+    public void setVarianteMapa(int varianteMapa) {
+        this.varianteMapa = com.legendoftecla.validation.Validaciones.enteroEntre(
+                varianteMapa, 1, 50, "Variante del mapa");
     }
 
     @Override

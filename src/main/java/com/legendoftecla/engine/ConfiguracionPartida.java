@@ -2,52 +2,166 @@ package com.legendoftecla.engine;
 
 import com.legendoftecla.constants.Dificultad;
 import com.legendoftecla.model.world.DimensionesMapa;
+import com.legendoftecla.validation.Limites;
+import com.legendoftecla.validation.Validaciones;
 
 import java.nio.file.Path;
+import java.util.Locale;
 
-/**
- * Datos necesarios para crear una partida desde cualquier interfaz.
- *
- * @param nombreJugador nombre del personaje controlado por el usuario
- * @param clase clase elegida para el jugador
- * @param modo origen y tipo del mapa que se cargara
- * @param dificultad nivel de dificultad de la partida
- * @param dimensiones dimensiones opcionales del mapa
- * @param directorioDatos directorio de un escenario externo, si procede
- * @param conAliados indica si la partida debe incluir aliados generados automaticamente
- * @param varianteMapa variante determinista del mapa generado, entre 1 y 50
- */
-public record ConfiguracionPartida(
-        String nombreJugador,
-        String clase,
-        String modo,
-        Dificultad dificultad,
-        DimensionesMapa dimensiones,
-        Path directorioDatos,
-        boolean conAliados,
-        int varianteMapa) {
+/** Configuracion encapsulada compartida por consola y GUI. */
+public final class ConfiguracionPartida {
+    private String nombreJugador;
+    private String clase;
+    private String modo;
+    private Dificultad dificultad;
+    private DimensionesMapa dimensiones;
+    private Path directorioDatos;
+    private boolean conAliados;
+    private int varianteMapa;
 
     /**
-     * Valida y crea una instancia de {@code ConfiguracionPartida}.
+     * Crea una configuracion completa utilizando exclusivamente setters.
+     *
+     * @param nombreJugador nombre
+     * @param clase clase
+     * @param modo modo
+     * @param dificultad dificultad
+     * @param dimensiones dimensiones opcionales
+     * @param directorioDatos directorio opcional
+     * @param conAliados aliados
+     * @param varianteMapa variante
      */
-    public ConfiguracionPartida {
-        if (nombreJugador == null || nombreJugador.isBlank()) {
-            throw new IllegalArgumentException("El nombre del jugador es obligatorio.");
-        }
-        if (!"marine".equals(clase) && !"francotirador".equals(clase) && !"zapador".equals(clase)) {
+    public ConfiguracionPartida(String nombreJugador, String clase, String modo, Dificultad dificultad,
+            DimensionesMapa dimensiones, Path directorioDatos, boolean conAliados, int varianteMapa) {
+        setNombreJugador(nombreJugador);
+        setClase(clase);
+        setDificultad(dificultad);
+        setDimensiones(dimensiones);
+        setDirectorioDatos(directorioDatos);
+        setModo(modo);
+        setConAliados(conAliados);
+        setVarianteMapa(varianteMapa);
+        validarCoherencia();
+    }
+
+    /** @return nombre del jugador */
+    public String getNombreJugador() {
+        return nombreJugador;
+    }
+
+    /** @param nombreJugador nombre obligatorio y acotado */
+    public void setNombreJugador(String nombreJugador) {
+        this.nombreJugador = Validaciones.textoObligatorio(
+                nombreJugador, "Nombre del jugador", Limites.TEXTO_CORTO);
+    }
+
+    /** @return clase */
+    public String getClase() {
+        return clase;
+    }
+
+    /** @param clase marine, francotirador o zapador */
+    public void setClase(String clase) {
+        String valor = Validaciones.textoObligatorio(clase, "Clase", Limites.TEXTO_CORTO)
+                .toLowerCase(Locale.ROOT);
+        if (!valor.equals("marine") && !valor.equals("francotirador") && !valor.equals("zapador")) {
             throw new IllegalArgumentException("Clase de jugador invalida: " + clase);
         }
-        if (!"default".equals(modo) && !"grande".equals(modo) && !"ficheros".equals(modo)) {
+        this.clase = valor;
+    }
+
+    /** @return modo */
+    public String getModo() {
+        return modo;
+    }
+
+    /** @param modo default, grande o ficheros */
+    public void setModo(String modo) {
+        String valor = Validaciones.textoObligatorio(modo, "Modo", Limites.TEXTO_CORTO)
+                .toLowerCase(Locale.ROOT);
+        if (!valor.equals("default") && !valor.equals("grande") && !valor.equals("ficheros")) {
             throw new IllegalArgumentException("Modo de juego invalido: " + modo);
         }
-        if (dificultad == null) {
-            dificultad = Dificultad.NORMAL;
+        if (valor.equals("ficheros") && directorioDatos == null) {
+            throw new IllegalArgumentException("El modo ficheros requiere un directorio de datos.");
         }
+        this.modo = valor;
+    }
+
+    /** @return dificultad */
+    public Dificultad getDificultad() {
+        return dificultad;
+    }
+
+    /** @param dificultad dificultad; {@code null} se normaliza a normal */
+    public void setDificultad(Dificultad dificultad) {
+        this.dificultad = dificultad == null ? Dificultad.NORMAL : dificultad;
+    }
+
+    /** @return dimensiones opcionales */
+    public DimensionesMapa getDimensiones() {
+        return dimensiones == null ? null
+                : new DimensionesMapa(dimensiones.getFilas(), dimensiones.getColumnas());
+    }
+
+    /** @param dimensiones dimensiones opcionales ya delimitadas */
+    public void setDimensiones(DimensionesMapa dimensiones) {
+        this.dimensiones = dimensiones == null ? null
+                : new DimensionesMapa(dimensiones.getFilas(), dimensiones.getColumnas());
+    }
+
+    /** @return directorio de datos */
+    public Path getDirectorioDatos() {
+        return directorioDatos;
+    }
+
+    /** @param directorioDatos directorio opcional */
+    public void setDirectorioDatos(Path directorioDatos) {
+        if (directorioDatos == null && "ficheros".equals(modo)) {
+            throw new IllegalArgumentException("El modo ficheros requiere un directorio de datos.");
+        }
+        this.directorioDatos = directorioDatos == null ? null : directorioDatos.normalize();
+    }
+
+    /** @return {@code true} si se generan aliados */
+    public boolean isConAliados() {
+        return conAliados;
+    }
+
+    /** @param conAliados estado solicitado */
+    public void setConAliados(boolean conAliados) {
+        this.conAliados = conAliados;
+    }
+
+    /** @return variante */
+    public int getVarianteMapa() {
+        return varianteMapa;
+    }
+
+    /** @param varianteMapa variante entre 1 y 50 */
+    public void setVarianteMapa(int varianteMapa) {
+        this.varianteMapa = Validaciones.enteroEntre(varianteMapa, 1, 50, "Variante del mapa");
+    }
+
+    /** @return nombre, conservando la API anterior */
+    public String nombreJugador() { return getNombreJugador(); }
+    /** @return clase, conservando la API anterior */
+    public String clase() { return getClase(); }
+    /** @return modo, conservando la API anterior */
+    public String modo() { return getModo(); }
+    /** @return dificultad, conservando la API anterior */
+    public Dificultad dificultad() { return getDificultad(); }
+    /** @return dimensiones, conservando la API anterior */
+    public DimensionesMapa dimensiones() { return getDimensiones(); }
+    /** @return directorio, conservando la API anterior */
+    public Path directorioDatos() { return getDirectorioDatos(); }
+    /** @return aliados, conservando la API anterior */
+    public boolean conAliados() { return isConAliados(); }
+    /** @return variante, conservando la API anterior */
+    public int varianteMapa() { return getVarianteMapa(); }
+    private void validarCoherencia() {
         if ("ficheros".equals(modo) && directorioDatos == null) {
             throw new IllegalArgumentException("Selecciona el directorio del escenario.");
-        }
-        if (varianteMapa < 1 || varianteMapa > 50) {
-            throw new IllegalArgumentException("La variante del mapa debe estar entre 1 y 50.");
         }
     }
 }

@@ -1,18 +1,26 @@
 package com.legendoftecla.commands;
 
+import com.legendoftecla.validation.Validaciones;
 
 /**
  * Representa la entidad ComandoRecorrido del juego.
  */
 public class ComandoRecorrido implements Comando {
-    private final CommandContext context;
+    private CommandContext context;
 
     /**
      * Ejecuta ComandoRecorrido.
       * @param context valor de {@code context}
      */
     public ComandoRecorrido(CommandContext context) {
-        this.context = context;
+        setContext(context);
+    }
+
+    /** @return contexto de ejecucion */
+    public CommandContext getContext() { return context; }
+    /** @param context contexto no nulo */
+    public void setContext(CommandContext context) {
+        this.context = Validaciones.noNulo(context, "Contexto");
     }
 
     @Override

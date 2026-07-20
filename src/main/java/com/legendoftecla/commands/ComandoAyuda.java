@@ -1,19 +1,27 @@
 package com.legendoftecla.commands;
 
 import com.legendoftecla.exceptions.ComandoException;
+import com.legendoftecla.validation.Validaciones;
 
 /**
  * Representa la entidad ComandoAyuda del juego.
  */
 public class ComandoAyuda implements Comando {
-    private final CommandContext context;
+    private CommandContext context;
 
     /**
      * Ejecuta ComandoAyuda.
       * @param context valor de {@code context}
      */
     public ComandoAyuda(CommandContext context) {
-        this.context = context;
+        setContext(context);
+    }
+
+    /** @return contexto de ejecucion */
+    public CommandContext getContext() { return context; }
+    /** @param context contexto no nulo */
+    public void setContext(CommandContext context) {
+        this.context = Validaciones.noNulo(context, "Contexto");
     }
 
     @Override

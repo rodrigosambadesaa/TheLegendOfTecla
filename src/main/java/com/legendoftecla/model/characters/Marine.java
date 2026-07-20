@@ -5,6 +5,7 @@ import com.legendoftecla.model.items.Arma;
 import com.legendoftecla.model.items.Objeto;
 import com.legendoftecla.model.world.Posicion;
 
+import java.util.ArrayList;
 
 /**
  * Representa la entidad Marine del juego.
@@ -26,7 +27,7 @@ public final class Marine extends Jugador {
      * Ejecuta aplicarModificadorDanio.
      */
     protected int aplicarModificadorDanio(int base, Personaje objetivo) {
-        int distancia = posicion.distanciaManhattan(objetivo.getPosicion());
+        int distancia = getPosicion().distanciaManhattan(objetivo.getPosicion());
         if (distancia <= 1) {
             return base * 2;
         }
@@ -49,7 +50,7 @@ public final class Marine extends Jugador {
      * Ejecuta equiparArma.
      */
     protected void equiparArma(Arma arma) throws AccionInvalidaException {
-        long dosManos = armasEquipadas.stream().filter(Arma::isDosManos).count();
+        long dosManos = getArmasEquipadas().stream().filter(Arma::isDosManos).count();
         if (arma.isDosManos() && dosManos >= 2) {
             throw new AccionInvalidaException("El marine ya lleva dos armas a dos manos.");
         }
@@ -57,7 +58,9 @@ public final class Marine extends Jugador {
             super.equiparArma(arma);
             return;
         }
-        armasEquipadas.add(arma);
+        var nuevas = new ArrayList<>(getArmasEquipadas());
+        nuevas.add(arma);
+        setArmasEquipadas(nuevas);
     }
 
     @Override

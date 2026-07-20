@@ -1,243 +1,568 @@
 package com.legendoftecla.loader;
 
+import com.legendoftecla.validation.Limites;
+import com.legendoftecla.validation.Validaciones;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-/** Modelo serializable del formato escenario.json utilizado por el editor. */
+/** Modelo encapsulado y serializable del formato {@code escenario.json}. */
 public class EscenarioDefinicion {
-    /**
-     * Crea una definicion de escenario con los valores predeterminados del editor.
-     */
+    private int version;
+    private String nombre;
+    private String descripcion;
+    private int filas;
+    private int columnas;
+    private int pasosMaximos;
+    private boolean conAliados;
+    private Punto inicio;
+    private Punto objetivo;
+    private List<CeldaDef> celdas;
+    private List<PersonajeDef> enemigos;
+    private List<ObjetoDef> objetos;
+
+    /** Crea una definicion con los valores predeterminados del editor. */
     public EscenarioDefinicion() {
-        // Los valores editables se inicializan en sus declaraciones.
+        setVersion(1);
+        setNombre("Nuevo escenario");
+        setDescripcion("Escenario creado con el editor grafico");
+        setFilas(10);
+        setColumnas(10);
+        setPasosMaximos(160);
+        setConAliados(false);
+        setInicio(new Punto(0, 0));
+        setObjetivo(new Punto(9, 9));
+        setCeldas(List.of());
+        setEnemigos(List.of());
+        setObjetos(List.of());
     }
 
     /**
-     * Valor publico {@code version} utilizado por el modelo del juego.
-     */
-    public int version = 1;
-    /**
-     * Valor publico {@code nombre} utilizado por el modelo del juego.
-     */
-    public String nombre = "Nuevo escenario";
-    /**
-     * Valor publico {@code descripcion} utilizado por el modelo del juego.
-     */
-    public String descripcion = "Escenario creado con el editor grafico";
-    /**
-     * Valor publico {@code filas} utilizado por el modelo del juego.
-     */
-    public int filas = 10;
-    /**
-     * Valor publico {@code columnas} utilizado por el modelo del juego.
-     */
-    public int columnas = 10;
-    /**
-     * Valor publico {@code pasosMaximos} utilizado por el modelo del juego.
-     */
-    public int pasosMaximos = 160;
-    /** Indica si el escenario propone activar aliados generados automaticamente. */
-    public boolean conAliados = false;
-    /** Punto inicial del jugador dentro del escenario. */
-    public Punto inicio = new Punto(0, 0);
-    /** Punto que el jugador debe alcanzar para completar el escenario. */
-    public Punto objetivo = new Punto(9, 9);
-    /**
-     * Valor publico {@code celdas} utilizado por el modelo del juego.
-     */
-    public List<CeldaDef> celdas = new ArrayList<>();
-    /**
-     * Valor publico {@code enemigos} utilizado por el modelo del juego.
-     */
-    public List<PersonajeDef> enemigos = new ArrayList<>();
-    /**
-     * Valor publico {@code objetos} utilizado por el modelo del juego.
-     */
-    public List<ObjetoDef> objetos = new ArrayList<>();
-
-    /**
-     * Ejecuta la operacion publica {@code nuevo}.
-      * @param columnas valor de {@code columnas}
-      * @param filas valor de {@code filas}
-      * @return resultado de la operacion
+     * Crea un escenario rectangular inicializado completamente.
+     *
+     * @param filas numero de filas
+     * @param columnas numero de columnas
+     * @return escenario nuevo
      */
     public static EscenarioDefinicion nuevo(int filas, int columnas) {
         EscenarioDefinicion escenario = new EscenarioDefinicion();
-        escenario.filas = filas;
-        escenario.columnas = columnas;
-        escenario.inicio = new Punto(0, 0);
-        escenario.objetivo = new Punto(filas - 1, columnas - 1);
+        escenario.setFilas(filas);
+        escenario.setColumnas(columnas);
+        escenario.setInicio(new Punto(0, 0));
+        escenario.setObjetivo(new Punto(filas - 1, columnas - 1));
         for (int fila = 0; fila < filas; fila++) {
             for (int columna = 0; columna < columnas; columna++) {
-                escenario.celdas.add(new CeldaDef(fila, columna, "Celda " + fila + "," + columna, true));
+                escenario.agregarCelda(new CeldaDef(
+                        fila, columna, "Celda " + fila + "," + columna, true));
             }
         }
         return escenario;
     }
 
-    /**
-     * Ejecuta la operacion publica {@code normalizar}.
-     */
+    /** Reaplica todos los valores cargados por Gson a traves de sus setters. */
     public void normalizar() {
-        if (nombre == null) nombre = "Escenario sin nombre";
-        if (descripcion == null) descripcion = "";
-        if (inicio == null) inicio = new Punto(0, 0);
-        if (objetivo == null) objetivo = new Punto(Math.max(0, filas - 1), Math.max(0, columnas - 1));
-        if (celdas == null) celdas = new ArrayList<>();
-        if (enemigos == null) enemigos = new ArrayList<>();
-        if (objetos == null) objetos = new ArrayList<>();
-        if (pasosMaximos <= 0) pasosMaximos = Math.max(80, filas * columnas * 2);
+        setVersion(version);
+        setNombre(nombre == null ? "Escenario sin nombre" : nombre);
+        setDescripcion(descripcion == null ? "" : descripcion);
+        setFilas(filas);
+        setColumnas(columnas);
+        setPasosMaximos(pasosMaximos);
+        setConAliados(conAliados);
+        setInicio(inicio == null ? new Punto(0, 0) : inicio);
+        setObjetivo(objetivo == null ? new Punto(filas - 1, columnas - 1) : objetivo);
+        setCeldas(celdas == null ? List.of() : celdas);
+        setEnemigos(enemigos == null ? List.of() : enemigos);
+        setObjetos(objetos == null ? List.of() : objetos);
+        this.celdas.forEach(CeldaDef::normalizar);
+        this.enemigos.forEach(PersonajeDef::normalizar);
+        this.objetos.forEach(ObjetoDef::normalizar);
     }
 
     /**
-     * Ejecuta la operacion publica {@code celda}.
-      * @param columna valor de {@code columna}
-      * @param fila valor de {@code fila}
-      * @return resultado de la operacion
+     * Busca una celda por coordenadas.
+     *
+     * @param fila fila buscada
+     * @param columna columna buscada
+     * @return celda encontrada o {@code null}
      */
     public CeldaDef celda(int fila, int columna) {
         return celdas.stream()
-                .filter(c -> c.fila == fila && c.columna == columna)
-                .findFirst()
-                .orElse(null);
+                .filter(celda -> celda.getFila() == fila && celda.getColumna() == columna)
+                .findFirst().orElse(null);
+    }
+
+    /** @return version del formato */
+    public int getVersion() {
+        return version;
+    }
+
+    /** @param version version entre 1 y 100 */
+    public void setVersion(int version) {
+        this.version = Validaciones.enteroEntre(version, 1, 100, "Version del escenario");
+    }
+
+    /** @return nombre del escenario */
+    public String getNombre() {
+        return nombre;
+    }
+
+    /** @param nombre nombre obligatorio */
+    public void setNombre(String nombre) {
+        this.nombre = Validaciones.textoObligatorio(nombre, "Nombre del escenario", Limites.TEXTO_CORTO);
+    }
+
+    /** @return descripcion del escenario */
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    /** @param descripcion descripcion no nula */
+    public void setDescripcion(String descripcion) {
+        this.descripcion = Validaciones.texto(descripcion, "Descripcion del escenario", Limites.DESCRIPCION);
+    }
+
+    /** @return filas del escenario */
+    public int getFilas() {
+        return filas;
+    }
+
+    /** @param filas filas dentro de los limites de mapa */
+    public void setFilas(int filas) {
+        this.filas = Validaciones.enteroEntre(
+                filas, Limites.MAPA_MINIMO, Limites.MAPA_MAXIMO, "Filas");
+    }
+
+    /** @return columnas del escenario */
+    public int getColumnas() {
+        return columnas;
+    }
+
+    /** @param columnas columnas dentro de los limites de mapa */
+    public void setColumnas(int columnas) {
+        this.columnas = Validaciones.enteroEntre(
+                columnas, Limites.MAPA_MINIMO, Limites.MAPA_MAXIMO, "Columnas");
+    }
+
+    /** @return pasos maximos */
+    public int getPasosMaximos() {
+        return pasosMaximos;
+    }
+
+    /** @param pasosMaximos limite positivo de pasos */
+    public void setPasosMaximos(int pasosMaximos) {
+        this.pasosMaximos = Validaciones.enteroEntre(
+                pasosMaximos, 1, Limites.PASOS_MAXIMOS, "Pasos maximos");
+    }
+
+    /** @return {@code true} si se proponen aliados */
+    public boolean isConAliados() {
+        return conAliados;
+    }
+
+    /** @param conAliados estado solicitado */
+    public void setConAliados(boolean conAliados) {
+        this.conAliados = conAliados;
+    }
+
+    /** @return punto de inicio */
+    public Punto getInicio() {
+        return new Punto(inicio.getFila(), inicio.getColumna());
+    }
+
+    /** @param inicio punto inicial no nulo */
+    public void setInicio(Punto inicio) {
+        Punto validado = Validaciones.noNulo(inicio, "Inicio");
+        this.inicio = new Punto(validado.getFila(), validado.getColumna());
+    }
+
+    /** @return punto objetivo */
+    public Punto getObjetivo() {
+        return new Punto(objetivo.getFila(), objetivo.getColumna());
+    }
+
+    /** @param objetivo punto objetivo no nulo */
+    public void setObjetivo(Punto objetivo) {
+        Punto validado = Validaciones.noNulo(objetivo, "Objetivo");
+        this.objetivo = new Punto(validado.getFila(), validado.getColumna());
+    }
+
+    /** @return vista inmutable de las celdas */
+    public List<CeldaDef> getCeldas() {
+        return Collections.unmodifiableList(celdas);
+    }
+
+    /** @param celdas coleccion no nula y sin elementos nulos */
+    public void setCeldas(List<CeldaDef> celdas) {
+        List<CeldaDef> copia = copiarLista(celdas, "Celdas");
+        if (copia.size() > Limites.MAPA_MAXIMO * Limites.MAPA_MAXIMO) {
+            throw new IllegalArgumentException("El escenario contiene demasiadas celdas.");
+        }
+        this.celdas = copia;
+    }
+
+    /** @param celda celda que se incorpora */
+    public void agregarCelda(CeldaDef celda) {
+        if (celdas.size() >= Limites.MAPA_MAXIMO * Limites.MAPA_MAXIMO) {
+            throw new IllegalStateException("No se pueden agregar mas celdas.");
+        }
+        List<CeldaDef> copia = new ArrayList<>(celdas);
+        copia.add(Validaciones.noNulo(celda, "Celda"));
+        setCeldas(copia);
+    }
+
+    /** @return vista inmutable de los enemigos */
+    public List<PersonajeDef> getEnemigos() {
+        return Collections.unmodifiableList(enemigos);
+    }
+
+    /** @param enemigos coleccion no nula y sin elementos nulos */
+    public void setEnemigos(List<PersonajeDef> enemigos) {
+        this.enemigos = copiarLista(enemigos, "Enemigos");
+    }
+
+    /** @param enemigo enemigo que se incorpora */
+    public void agregarEnemigo(PersonajeDef enemigo) {
+        List<PersonajeDef> copia = new ArrayList<>(enemigos);
+        copia.add(Validaciones.noNulo(enemigo, "Enemigo"));
+        setEnemigos(copia);
+    }
+
+    /** @return vista inmutable de los objetos */
+    public List<ObjetoDef> getObjetos() {
+        return Collections.unmodifiableList(objetos);
+    }
+
+    /** @param objetos coleccion no nula y sin elementos nulos */
+    public void setObjetos(List<ObjetoDef> objetos) {
+        this.objetos = copiarLista(objetos, "Objetos");
+    }
+
+    /** @param objeto objeto que se incorpora */
+    public void agregarObjeto(ObjetoDef objeto) {
+        List<ObjetoDef> copia = new ArrayList<>(objetos);
+        copia.add(Validaciones.noNulo(objeto, "Objeto"));
+        setObjetos(copia);
     }
 
     /**
-     * Representa {@code Punto} dentro del dominio del juego.
+     * Elimina personajes y objetos situados en una coordenada.
+     *
+     * @param fila fila limpiada
+     * @param columna columna limpiada
      */
-    public static class Punto {
-        /**
-         * Valor publico {@code fila} utilizado por el modelo del juego.
-         */
-        public int fila;
-        /**
-         * Valor publico {@code columna} utilizado por el modelo del juego.
-         */
-        public int columna;
+    public void eliminarContenido(int fila, int columna) {
+        List<PersonajeDef> enemigosRestantes = new ArrayList<>(enemigos);
+        enemigosRestantes.removeIf(personaje -> personaje.getFila() == fila
+                && personaje.getColumna() == columna);
+        setEnemigos(enemigosRestantes);
+        List<ObjetoDef> objetosRestantes = new ArrayList<>(objetos);
+        objetosRestantes.removeIf(objeto -> objeto.getFila() == fila && objeto.getColumna() == columna);
+        setObjetos(objetosRestantes);
+    }
 
-        /**
-         * Ejecuta la operacion publica {@code Punto}.
-         */
+    private <T> List<T> copiarLista(List<T> valores, String campo) {
+        Validaciones.noNulo(valores, campo);
+        if (valores.stream().anyMatch(java.util.Objects::isNull)) {
+            throw new IllegalArgumentException(campo + " no puede contener elementos nulos.");
+        }
+        return new ArrayList<>(valores);
+    }
+
+    /** Coordenada serializable con setters acotados. */
+    public static class Punto {
+        private int fila;
+        private int columna;
+
+        /** Crea el punto de origen. */
         public Punto() {
+            setFila(0);
+            setColumna(0);
         }
 
         /**
-         * Ejecuta la operacion publica {@code Punto}.
-          * @param columna valor de {@code columna}
-          * @param fila valor de {@code fila}
+         * Crea un punto.
+         *
+         * @param fila fila
+         * @param columna columna
          */
         public Punto(int fila, int columna) {
-            this.fila = fila;
-            this.columna = columna;
+            setFila(fila);
+            setColumna(columna);
+        }
+
+        /** @return fila */
+        public int getFila() {
+            return fila;
+        }
+
+        /** @param fila fila acotada */
+        public void setFila(int fila) {
+            this.fila = Validaciones.enteroEntre(fila, -Limites.COORDENADA_ABSOLUTA,
+                    Limites.COORDENADA_ABSOLUTA, "Fila");
+        }
+
+        /** @return columna */
+        public int getColumna() {
+            return columna;
+        }
+
+        /** @param columna columna acotada */
+        public void setColumna(int columna) {
+            this.columna = Validaciones.enteroEntre(columna, -Limites.COORDENADA_ABSOLUTA,
+                    Limites.COORDENADA_ABSOLUTA, "Columna");
+        }
+
+        void normalizar() {
+            setFila(fila);
+            setColumna(columna);
         }
     }
 
-    /**
-     * Representa {@code CeldaDef} dentro del dominio del juego.
-     */
+    /** Celda serializable encapsulada. */
     public static class CeldaDef extends Punto {
-        /**
-         * Valor publico {@code descripcion} utilizado por el modelo del juego.
-         */
-        public String descripcion = "Celda";
-        /**
-         * Valor publico {@code transitable} utilizado por el modelo del juego.
-         */
-        public boolean transitable = true;
+        private String descripcion;
+        private boolean transitable;
 
-        /**
-         * Ejecuta la operacion publica {@code CeldaDef}.
-         */
+        /** Crea una celda predeterminada. */
         public CeldaDef() {
+            setDescripcion("Celda");
+            setTransitable(true);
         }
 
         /**
-         * Ejecuta la operacion publica {@code CeldaDef}.
-          * @param columna valor de {@code columna}
-          * @param descripcion valor de {@code descripcion}
-          * @param fila valor de {@code fila}
-          * @param transitable valor de {@code transitable}
+         * Crea una celda completa.
+         *
+         * @param fila fila
+         * @param columna columna
+         * @param descripcion descripcion
+         * @param transitable transitabilidad
          */
         public CeldaDef(int fila, int columna, String descripcion, boolean transitable) {
             super(fila, columna);
-            this.descripcion = descripcion;
+            setDescripcion(descripcion);
+            setTransitable(transitable);
+        }
+
+        /** @return descripcion */
+        public String getDescripcion() {
+            return descripcion;
+        }
+
+        /** @param descripcion descripcion no nula */
+        public void setDescripcion(String descripcion) {
+            this.descripcion = Validaciones.texto(descripcion, "Descripcion de celda", Limites.DESCRIPCION);
+        }
+
+        /** @return transitabilidad */
+        public boolean isTransitable() {
+            return transitable;
+        }
+
+        /** @param transitable estado solicitado */
+        public void setTransitable(boolean transitable) {
             this.transitable = transitable;
         }
-    }
 
-    /**
-     * Representa {@code PersonajeDef} dentro del dominio del juego.
-     */
-    public static class PersonajeDef extends Punto {
-        /**
-         * Valor publico {@code tipo} utilizado por el modelo del juego.
-         */
-        public String tipo = "sectoid";
-        /**
-         * Valor publico {@code nombre} utilizado por el modelo del juego.
-         */
-        public String nombre = "Personaje";
-        /**
-         * Valor publico {@code salud} utilizado por el modelo del juego.
-         */
-        public int salud = 70;
-        /**
-         * Valor publico {@code energia} utilizado por el modelo del juego.
-         */
-        public int energia = 70;
-        /**
-         * Valor publico {@code vision} utilizado por el modelo del juego.
-         */
-        public int vision = 2;
-
-        /**
-         * Ejecuta la operacion publica {@code PersonajeDef}.
-         */
-        public PersonajeDef() {
+        void normalizar() {
+            super.normalizar();
+            setDescripcion(descripcion == null ? "" : descripcion);
+            setTransitable(transitable);
         }
     }
 
-    /**
-     * Representa {@code ObjetoDef} dentro del dominio del juego.
-     */
-    public static class ObjetoDef extends Punto {
-        /**
-         * Valor publico {@code tipo} utilizado por el modelo del juego.
-         */
-        public String tipo = "botiquin";
-        /**
-         * Valor publico {@code nombre} utilizado por el modelo del juego.
-         */
-        public String nombre = "Objeto";
-        /**
-         * Valor publico {@code descripcion} utilizado por el modelo del juego.
-         */
-        public String descripcion = "Objeto del escenario";
-        /**
-         * Valor publico {@code peso} utilizado por el modelo del juego.
-         */
-        public double peso = 1.0;
-        /**
-         * Valor publico {@code valor} utilizado por el modelo del juego.
-         */
-        public int valor = 20;
-        /**
-         * Valor publico {@code valorSecundario} utilizado por el modelo del juego.
-         */
-        public int valorSecundario = 0;
-        /**
-         * Valor publico {@code valorTerciario} utilizado por el modelo del juego.
-         */
-        public int valorTerciario = 0;
-        /**
-         * Valor publico {@code dosManos} utilizado por el modelo del juego.
-         */
-        public boolean dosManos = false;
+    /** Personaje serializable encapsulado. */
+    public static class PersonajeDef extends Punto {
+        private String tipo;
+        private String nombre;
+        private int salud;
+        private int energia;
+        private int vision;
 
-        /**
-         * Ejecuta la operacion publica {@code ObjetoDef}.
-         */
+        /** Crea una definicion de personaje predeterminada. */
+        public PersonajeDef() {
+            setTipo("sectoid");
+            setNombre("Personaje");
+            setSalud(70);
+            setEnergia(70);
+            setVision(2);
+        }
+
+        /** @return tipo */
+        public String getTipo() {
+            return tipo;
+        }
+
+        /** @param tipo tipo obligatorio */
+        public void setTipo(String tipo) {
+            this.tipo = Validaciones.textoObligatorio(tipo, "Tipo de personaje", Limites.TEXTO_CORTO);
+        }
+
+        /** @return nombre */
+        public String getNombre() {
+            return nombre;
+        }
+
+        /** @param nombre nombre obligatorio */
+        public void setNombre(String nombre) {
+            this.nombre = Validaciones.textoObligatorio(nombre, "Nombre del personaje", Limites.TEXTO_CORTO);
+        }
+
+        /** @return salud */
+        public int getSalud() {
+            return salud;
+        }
+
+        /** @param salud salud positiva */
+        public void setSalud(int salud) {
+            this.salud = Validaciones.enteroEntre(salud, 1, Limites.ESTADISTICA, "Salud");
+        }
+
+        /** @return energia */
+        public int getEnergia() {
+            return energia;
+        }
+
+        /** @param energia energia positiva */
+        public void setEnergia(int energia) {
+            this.energia = Validaciones.enteroEntre(energia, 1, Limites.ESTADISTICA, "Energia");
+        }
+
+        /** @return vision */
+        public int getVision() {
+            return vision;
+        }
+
+        /** @param vision alcance positivo */
+        public void setVision(int vision) {
+            this.vision = Validaciones.enteroEntre(vision, 1, Limites.ESTADISTICA, "Vision");
+        }
+
+        void normalizar() {
+            super.normalizar();
+            setTipo(tipo);
+            setNombre(nombre);
+            setSalud(salud);
+            setEnergia(energia);
+            setVision(vision);
+        }
+    }
+
+    /** Objeto serializable encapsulado. */
+    public static class ObjetoDef extends Punto {
+        private String tipo;
+        private String nombre;
+        private String descripcion;
+        private double peso;
+        private int valor;
+        private int valorSecundario;
+        private int valorTerciario;
+        private boolean dosManos;
+
+        /** Crea una definicion de objeto predeterminada. */
         public ObjetoDef() {
+            setTipo("botiquin");
+            setNombre("Objeto");
+            setDescripcion("Objeto del escenario");
+            setPeso(1.0);
+            setValor(20);
+            setValorSecundario(0);
+            setValorTerciario(0);
+            setDosManos(false);
+        }
+
+        /** @return tipo */
+        public String getTipo() {
+            return tipo;
+        }
+
+        /** @param tipo tipo obligatorio */
+        public void setTipo(String tipo) {
+            this.tipo = Validaciones.textoObligatorio(tipo, "Tipo de objeto", Limites.TEXTO_CORTO);
+        }
+
+        /** @return nombre */
+        public String getNombre() {
+            return nombre;
+        }
+
+        /** @param nombre nombre obligatorio */
+        public void setNombre(String nombre) {
+            this.nombre = Validaciones.textoObligatorio(nombre, "Nombre del objeto", Limites.TEXTO_CORTO);
+        }
+
+        /** @return descripcion */
+        public String getDescripcion() {
+            return descripcion;
+        }
+
+        /** @param descripcion descripcion no nula */
+        public void setDescripcion(String descripcion) {
+            this.descripcion = Validaciones.texto(descripcion, "Descripcion del objeto", Limites.DESCRIPCION);
+        }
+
+        /** @return peso */
+        public double getPeso() {
+            return peso;
+        }
+
+        /** @param peso peso no negativo */
+        public void setPeso(double peso) {
+            this.peso = Validaciones.decimalEntre(peso, 0.0, Limites.PESO_MAXIMO, "Peso");
+        }
+
+        /** @return valor principal */
+        public int getValor() {
+            return valor;
+        }
+
+        /** @param valor valor principal no negativo */
+        public void setValor(int valor) {
+            this.valor = Validaciones.enteroEntre(valor, 0, Limites.ESTADISTICA, "Valor");
+        }
+
+        /** @return valor secundario */
+        public int getValorSecundario() {
+            return valorSecundario;
+        }
+
+        /** @param valorSecundario valor secundario no negativo */
+        public void setValorSecundario(int valorSecundario) {
+            this.valorSecundario = Validaciones.enteroEntre(
+                    valorSecundario, 0, Limites.ESTADISTICA, "Valor secundario");
+        }
+
+        /** @return valor terciario */
+        public int getValorTerciario() {
+            return valorTerciario;
+        }
+
+        /** @param valorTerciario valor terciario no negativo */
+        public void setValorTerciario(int valorTerciario) {
+            this.valorTerciario = Validaciones.enteroEntre(
+                    valorTerciario, 0, Limites.ESTADISTICA, "Valor terciario");
+        }
+
+        /** @return {@code true} para armas de dos manos */
+        public boolean isDosManos() {
+            return dosManos;
+        }
+
+        /** @param dosManos estado solicitado */
+        public void setDosManos(boolean dosManos) {
+            this.dosManos = dosManos;
+        }
+
+        void normalizar() {
+            super.normalizar();
+            setTipo(tipo);
+            setNombre(nombre);
+            setDescripcion(descripcion == null ? "" : descripcion);
+            setPeso(peso);
+            setValor(valor);
+            setValorSecundario(valorSecundario);
+            setValorTerciario(valorTerciario);
+            setDosManos(dosManos);
         }
     }
 }

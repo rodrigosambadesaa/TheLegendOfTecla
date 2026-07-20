@@ -1,20 +1,28 @@
 package com.legendoftecla.commands;
 
 import com.legendoftecla.model.items.Objeto;
+import com.legendoftecla.validation.Validaciones;
 
 
 /**
  * Representa la entidad ComandoInventario del juego.
  */
 public class ComandoInventario implements Comando {
-    private final CommandContext context;
+    private CommandContext context;
 
     /**
      * Ejecuta ComandoInventario.
       * @param context valor de {@code context}
      */
     public ComandoInventario(CommandContext context) {
-        this.context = context;
+        setContext(context);
+    }
+
+    /** @return contexto de ejecucion */
+    public CommandContext getContext() { return context; }
+    /** @param context contexto no nulo */
+    public void setContext(CommandContext context) {
+        this.context = Validaciones.noNulo(context, "Contexto");
     }
 
     @Override

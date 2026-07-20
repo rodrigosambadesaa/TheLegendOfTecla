@@ -1,10 +1,11 @@
 package com.legendoftecla.commands;
 
 import com.legendoftecla.exceptions.ComandoException;
+import com.legendoftecla.validation.Validaciones;
 
 /** Solicita apoyo, suministros y cobertura a los aliados vivos. */
 public final class ComandoPedirAyuda implements Comando {
-    private final CommandContext context;
+    private CommandContext context;
 
     /**
      * Crea la orden de ayuda aliada.
@@ -12,7 +13,14 @@ public final class ComandoPedirAyuda implements Comando {
      * @param context contexto de la partida
      */
     public ComandoPedirAyuda(CommandContext context) {
-        this.context = context;
+        setContext(context);
+    }
+
+    /** @return contexto de ejecucion */
+    public CommandContext getContext() { return context; }
+    /** @param context contexto no nulo */
+    public void setContext(CommandContext context) {
+        this.context = Validaciones.noNulo(context, "Contexto");
     }
 
     @Override

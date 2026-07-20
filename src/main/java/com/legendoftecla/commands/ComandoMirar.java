@@ -6,6 +6,8 @@ import com.legendoftecla.model.world.Celda;
 import com.legendoftecla.model.world.Direccion;
 import com.legendoftecla.model.world.Mapa;
 import com.legendoftecla.model.world.Posicion;
+import com.legendoftecla.validation.Limites;
+import com.legendoftecla.validation.Validaciones;
 
 import java.util.stream.Collectors;
 
@@ -13,9 +15,9 @@ import java.util.stream.Collectors;
  * Representa la entidad ComandoMirar del juego.
  */
 public class ComandoMirar implements Comando {
-    private final CommandContext context;
-    private final Direccion direccion;
-    private final int pasos;
+    private CommandContext context;
+    private Direccion direccion;
+    private int pasos;
 
     /**
      * Ejecuta ComandoMirar.
@@ -32,9 +34,36 @@ public class ComandoMirar implements Comando {
       * @param pasos valor de {@code pasos}
      */
     public ComandoMirar(CommandContext context, Direccion direccion, int pasos) {
-        this.context = context;
+        setContext(context);
+        setDireccion(direccion);
+        setPasos(pasos);
+    }
+
+    /** @return contexto de ejecucion */
+    public CommandContext getContext() { return context; }
+    /** @param context contexto no nulo */
+    public void setContext(CommandContext context) { this.context = Validaciones.noNulo(context, "Contexto"); }
+    /** @return direccion observada o {@code null} */
+    public Direccion getDireccion() { return direccion; }
+    /** @param direccion direccion opcional coherente con los pasos actuales */
+    public void setDireccion(Direccion direccion) {
+        if (direccion == null && pasos != 0) {
+            throw new IllegalArgumentException("Mirar sin direccion no admite pasos.");
+        }
         this.direccion = direccion;
-        this.pasos = pasos;
+    }
+    /** @return distancia de observacion */
+    public int getPasos() { return pasos; }
+    /** @param pasos cero sin direccion o entre 1 y el limite del mapa */
+    public void setPasos(int pasos) {
+        if (direccion == null) {
+            if (pasos != 0) {
+                throw new IllegalArgumentException("Mirar sin direccion no admite pasos.");
+            }
+            this.pasos = 0;
+            return;
+        }
+        this.pasos = Validaciones.enteroEntre(pasos, 1, Limites.MAPA_MAXIMO, "Pasos de vision");
     }
 
     @Override

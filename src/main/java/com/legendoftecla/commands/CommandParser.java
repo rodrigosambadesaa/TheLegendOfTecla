@@ -2,7 +2,12 @@ package com.legendoftecla.commands;
 
 import com.legendoftecla.exceptions.ComandoException;
 import com.legendoftecla.model.world.Direccion;
+import com.legendoftecla.validation.Limites;
+import com.legendoftecla.validation.Validaciones;
 
+import java.util.HashMap;
+import java.util.Collections;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -11,14 +16,53 @@ import java.util.regex.Pattern;
 public class CommandParser {
     private static final Pattern PATRON_ALCANCE = Pattern.compile("^(\\d+)([nseoNSEO])$");
 
-    private final CommandContext context;
+    private CommandContext context;
+    private Map<String, ConstructorComando> rutas;
 
     /**
      * Ejecuta CommandParser.
       * @param context valor de {@code context}
      */
     public CommandParser(CommandContext context) {
-        this.context = context;
+        setContext(context);
+        setRutas(crearRutas());
+    }
+
+    /** @return contexto de los comandos generados */
+    public CommandContext getContext() {
+        return context;
+    }
+
+    /** @param context contexto no nulo */
+    public void setContext(CommandContext context) {
+        this.context = Validaciones.noNulo(context, "Contexto");
+    }
+
+    /** @return vista de solo lectura de las rutas registradas */
+    public Map<String, ?> getRutas() {
+        return Collections.unmodifiableMap(rutas);
+    }
+
+    /**
+     * Sustituye las rutas por una copia validada.
+     *
+     * @param rutas rutas internas no nulas y acotadas
+     */
+    public void setRutas(Map<String, ?> rutas) {
+        Validaciones.noNulo(rutas, "Rutas de comandos");
+        if (rutas.size() > 1_000 || rutas.entrySet().stream()
+                .anyMatch(entrada -> entrada.getKey() == null || entrada.getValue() == null)) {
+            throw new IllegalArgumentException("Las rutas de comandos no son validas.");
+        }
+        Map<String, ConstructorComando> copia = new HashMap<>();
+        for (Map.Entry<String, ?> entrada : rutas.entrySet()) {
+            if (!(entrada.getValue() instanceof ConstructorComando constructor)) {
+                throw new IllegalArgumentException("La ruta " + entrada.getKey() + " no crea comandos.");
+            }
+            copia.put(Validaciones.textoObligatorio(
+                    entrada.getKey(), "Nombre de ruta", Limites.TEXTO_CORTO), constructor);
+        }
+        this.rutas = Map.copyOf(copia);
     }
 
     /**
@@ -28,29 +72,54 @@ public class CommandParser {
       * @throws com.legendoftecla.exceptions.ComandoException si la operacion no puede completarse
      */
     public Comando parse(String linea) throws ComandoException {
+        if (linea == null) {
+            throw new ComandoException("Comando vacio.");
+        }
+        if (linea.length() > Limites.DESCRIPCION) {
+            throw new ComandoException("El comando es demasiado largo.");
+        }
         String[] partes = linea.trim().split("\\s+");
         if (partes.length == 0 || partes[0].isBlank()) {
             throw new ComandoException("Comando vacio.");
         }
-        String cmd = partes[0].toLowerCase();
-        return switch (cmd) {
-            case "ayuda", "comandos" -> new ComandoAyuda(context);
-            case "mirar" -> parseMirar(partes);
-            case "inventario", "mochila" -> new ComandoInventario(context);
-            case "recorrido" -> new ComandoRecorrido(context);
-            case "mover", "avanzar" -> parseMover(partes);
-            case "coger" -> requiereArg(partes, new ComandoCoger(context, unir(partes, 1)));
-            case "tirar" -> requiereArg(partes, new ComandoTirar(context, unir(partes, 1)));
-            case "usar" -> requiereArg(partes, new ComandoUsar(context, unir(partes, 1)));
-            case "equipar" -> requiereArg(partes, new ComandoEquipar(context, unir(partes, 1)));
-            case "desequipar" -> requiereArg(partes, new ComandoDesequipar(context, unir(partes, 1)));
-            case "atacar" -> parseAtacar(partes);
-            case "lanzar" -> parseLanzarExplosivo(partes);
-            case "pedir" -> parsePedirAyuda(partes);
-            case "socorro", "asistir" -> new ComandoPedirAyuda(context);
-            case "salir" -> new ComandoSalir();
-            default -> throw new ComandoException("Comando desconocido: " + cmd);
-        };
+        String nombre = partes[0].toLowerCase();
+        ConstructorComando constructor = rutas.get(nombre);
+        if (constructor == null) {
+            throw new ComandoException("Comando desconocido: " + nombre);
+        }
+        return constructor.crear(partes);
+    }
+
+    private Map<String, ConstructorComando> crearRutas() {
+        Map<String, ConstructorComando> comandos = new HashMap<>();
+        registrar(comandos, partes -> new ComandoAyuda(context), "ayuda", "comandos");
+        registrar(comandos, this::parseMirar, "mirar");
+        registrar(comandos, partes -> new ComandoInventario(context), "inventario", "mochila");
+        registrar(comandos, partes -> new ComandoRecorrido(context), "recorrido");
+        registrar(comandos, this::parseMover, "mover", "avanzar");
+        registrar(comandos, partes -> requiereArg(partes,
+                new ComandoCoger(context, unir(partes, 1))), "coger");
+        registrar(comandos, partes -> requiereArg(partes,
+                new ComandoTirar(context, unir(partes, 1))), "tirar");
+        registrar(comandos, partes -> requiereArg(partes,
+                new ComandoUsar(context, unir(partes, 1))), "usar");
+        registrar(comandos, partes -> requiereArg(partes,
+                new ComandoEquipar(context, unir(partes, 1))), "equipar");
+        registrar(comandos, partes -> requiereArg(partes,
+                new ComandoDesequipar(context, unir(partes, 1))), "desequipar");
+        registrar(comandos, this::parseAtacar, "atacar");
+        registrar(comandos, this::parseLanzarExplosivo, "lanzar");
+        registrar(comandos, this::parsePedirAyuda, "pedir");
+        registrar(comandos, partes -> new ComandoPedirAyuda(context), "socorro", "asistir");
+        registrar(comandos, partes -> new ComandoSalir(), "salir");
+        return Map.copyOf(comandos);
+    }
+
+    private void registrar(Map<String, ConstructorComando> comandos,
+            ConstructorComando constructor, String... nombres) {
+        for (String nombre : nombres) {
+            comandos.put(nombre, constructor);
+        }
     }
 
     private Comando parseMirar(String[] partes) throws ComandoException {
@@ -142,8 +211,8 @@ public class CommandParser {
     private int parseEntero(String valor) throws ComandoException {
         try {
             int numero = Integer.parseInt(valor);
-            if (numero <= 0) {
-                throw new ComandoException("El numero debe ser mayor que 0.");
+            if (numero <= 0 || numero > 1_000) {
+                throw new ComandoException("El numero debe estar entre 1 y 1000.");
             }
             return numero;
         } catch (NumberFormatException e) {
@@ -175,5 +244,10 @@ public class CommandParser {
             sb.append(partes[i]);
         }
         return sb.toString();
+    }
+
+    @FunctionalInterface
+    private interface ConstructorComando {
+        Comando crear(String[] partes) throws ComandoException;
     }
 }

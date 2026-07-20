@@ -85,10 +85,10 @@ class IntegracionModosGuiTest {
         assertTrue(Files.isRegularFile(archivo));
 
         EscenarioDefinicion recargado = SerializadorEscenarioJson.cargar(temporal);
-        assertEquals(1, recargado.enemigos.size());
-        assertTrue(recargado.conAliados);
-        assertEquals(1, recargado.objetos.size());
-        assertFalse(recargado.celda(1, 1).transitable);
+        assertEquals(1, recargado.getEnemigos().size());
+        assertTrue(recargado.isConAliados());
+        assertEquals(1, recargado.getObjetos().size());
+        assertFalse(recargado.celda(1, 1).isTransitable());
 
         Juego juego = FabricaJuego.crear(new ConsolaSilenciosa(), new ConfiguracionPartida(
                 "Json", "zapador", "ficheros", Dificultad.NORMAL, null, temporal, true, 1));
@@ -300,13 +300,13 @@ class IntegracionModosGuiTest {
     void elZapadorPuedeLanzarUnExplosivoDesdeComandoYEsteSeConsume() throws Exception {
         EscenarioDefinicion escenario = EscenarioDefinicion.nuevo(5, 5);
         EscenarioDefinicion.PersonajeDef enemigo = new EscenarioDefinicion.PersonajeDef();
-        enemigo.fila = 0;
-        enemigo.columna = 2;
-        enemigo.nombre = "ObjetivoExplosivo";
-        enemigo.salud = 70;
-        enemigo.energia = 70;
-        enemigo.vision = 2;
-        escenario.enemigos.add(enemigo);
+        enemigo.setFila(0);
+        enemigo.setColumna(2);
+        enemigo.setNombre("ObjetivoExplosivo");
+        enemigo.setSalud(70);
+        enemigo.setEnergia(70);
+        enemigo.setVision(2);
+        escenario.agregarEnemigo(enemigo);
         SerializadorEscenarioJson.guardar(escenario, temporal);
 
         Juego juego = FabricaJuego.crear(new ConsolaSilenciosa(), new ConfiguracionPartida(
@@ -489,30 +489,30 @@ class IntegracionModosGuiTest {
 
     private EscenarioDefinicion crearEscenarioCompleto() {
         EscenarioDefinicion escenario = EscenarioDefinicion.nuevo(6, 7);
-        escenario.nombre = "Escenario de prueba";
-        escenario.conAliados = true;
-        escenario.celda(1, 1).transitable = false;
+        escenario.setNombre("Escenario de prueba");
+        escenario.setConAliados(true);
+        escenario.celda(1, 1).setTransitable(false);
 
         EscenarioDefinicion.PersonajeDef enemigo = new EscenarioDefinicion.PersonajeDef();
-        enemigo.fila = 2;
-        enemigo.columna = 3;
-        enemigo.tipo = "heavyfloater";
-        enemigo.nombre = "Prueba";
-        enemigo.salud = 95;
-        enemigo.energia = 80;
-        enemigo.vision = 4;
-        escenario.enemigos.add(enemigo);
+        enemigo.setFila(2);
+        enemigo.setColumna(3);
+        enemigo.setTipo("heavyfloater");
+        enemigo.setNombre("Prueba");
+        enemigo.setSalud(95);
+        enemigo.setEnergia(80);
+        enemigo.setVision(4);
+        escenario.agregarEnemigo(enemigo);
 
         EscenarioDefinicion.ObjetoDef objeto = new EscenarioDefinicion.ObjetoDef();
-        objeto.fila = 0;
-        objeto.columna = 1;
-        objeto.tipo = "arma";
-        objeto.nombre = "Arma test";
-        objeto.descripcion = "Objeto completo";
-        objeto.peso = 2.5;
-        objeto.valor = 22;
-        objeto.dosManos = true;
-        escenario.objetos.add(objeto);
+        objeto.setFila(0);
+        objeto.setColumna(1);
+        objeto.setTipo("arma");
+        objeto.setNombre("Arma test");
+        objeto.setDescripcion("Objeto completo");
+        objeto.setPeso(2.5);
+        objeto.setValor(22);
+        objeto.setDosManos(true);
+        escenario.agregarObjeto(objeto);
         return escenario;
     }
 

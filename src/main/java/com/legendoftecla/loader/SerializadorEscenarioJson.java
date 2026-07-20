@@ -39,7 +39,7 @@ public final class SerializadorEscenarioJson {
             escenario.normalizar();
             validar(escenario);
             return escenario;
-        } catch (IOException | JsonParseException e) {
+        } catch (IOException | JsonParseException | IllegalArgumentException e) {
             throw new JuegoException("No se pudo leer " + archivo + ": " + e.getMessage());
         }
     }
@@ -72,33 +72,36 @@ public final class SerializadorEscenarioJson {
       * @throws com.legendoftecla.exceptions.JuegoException si la operacion no puede completarse
      */
     public static void validar(EscenarioDefinicion escenario) throws JuegoException {
-        if (escenario.filas < 3 || escenario.columnas < 3) {
+        if (escenario.getFilas() < 3 || escenario.getColumnas() < 3) {
             throw new JuegoException("El escenario debe medir al menos 3x3.");
         }
-        if (escenario.pasosMaximos <= 0) {
+        if (escenario.getPasosMaximos() <= 0) {
             throw new JuegoException("El numero maximo de pasos debe ser mayor que cero.");
         }
-        validarPunto(escenario, escenario.inicio, "inicio");
-        validarPunto(escenario, escenario.objetivo, "objetivo");
-        if (escenario.inicio.fila == escenario.objetivo.fila
-                && escenario.inicio.columna == escenario.objetivo.columna) {
+        validarPunto(escenario, escenario.getInicio(), "inicio");
+        validarPunto(escenario, escenario.getObjetivo(), "objetivo");
+        if (escenario.getInicio().getFila() == escenario.getObjetivo().getFila()
+                && escenario.getInicio().getColumna() == escenario.getObjetivo().getColumna()) {
             throw new JuegoException("Inicio y objetivo deben estar en celdas diferentes.");
         }
-        for (EscenarioDefinicion.CeldaDef celda : escenario.celdas) {
+        for (EscenarioDefinicion.CeldaDef celda : escenario.getCeldas()) {
             validarPunto(escenario, celda, "celda");
         }
-        for (EscenarioDefinicion.PersonajeDef enemigo : escenario.enemigos) {
+        for (EscenarioDefinicion.PersonajeDef enemigo : escenario.getEnemigos()) {
             validarPersonaje(escenario, enemigo, "enemigo");
         }
-        for (EscenarioDefinicion.ObjetoDef objeto : escenario.objetos) {
+        for (EscenarioDefinicion.ObjetoDef objeto : escenario.getObjetos()) {
             validarPunto(escenario, objeto, "objeto");
-            if (objeto.nombre == null || objeto.nombre.isBlank() || objeto.peso < 0) {
+            if (objeto.getNombre().isBlank() || objeto.getPeso() < 0) {
                 throw new JuegoException("Todos los objetos necesitan nombre y peso no negativo.");
             }
         }
-        EscenarioDefinicion.CeldaDef inicio = escenario.celda(escenario.inicio.fila, escenario.inicio.columna);
-        EscenarioDefinicion.CeldaDef objetivo = escenario.celda(escenario.objetivo.fila, escenario.objetivo.columna);
-        if ((inicio != null && !inicio.transitable) || (objetivo != null && !objetivo.transitable)) {
+        EscenarioDefinicion.CeldaDef inicio = escenario.celda(
+                escenario.getInicio().getFila(), escenario.getInicio().getColumna());
+        EscenarioDefinicion.CeldaDef objetivo = escenario.celda(
+                escenario.getObjetivo().getFila(), escenario.getObjetivo().getColumna());
+        if ((inicio != null && !inicio.isTransitable())
+                || (objetivo != null && !objetivo.isTransitable())) {
             throw new JuegoException("Las celdas de inicio y objetivo deben ser transitables.");
         }
     }
@@ -106,16 +109,17 @@ public final class SerializadorEscenarioJson {
     private static void validarPersonaje(EscenarioDefinicion escenario,
             EscenarioDefinicion.PersonajeDef personaje, String etiqueta) throws JuegoException {
         validarPunto(escenario, personaje, etiqueta);
-        if (personaje.nombre == null || personaje.nombre.isBlank()
-                || personaje.salud <= 0 || personaje.energia <= 0 || personaje.vision <= 0) {
+        if (personaje.getNombre().isBlank()
+                || personaje.getSalud() <= 0 || personaje.getEnergia() <= 0
+                || personaje.getVision() <= 0) {
             throw new JuegoException("El " + etiqueta + " tiene atributos invalidos.");
         }
     }
 
     private static void validarPunto(EscenarioDefinicion escenario,
             EscenarioDefinicion.Punto punto, String etiqueta) throws JuegoException {
-        if (punto == null || punto.fila < 0 || punto.fila >= escenario.filas
-                || punto.columna < 0 || punto.columna >= escenario.columnas) {
+        if (punto == null || punto.getFila() < 0 || punto.getFila() >= escenario.getFilas()
+                || punto.getColumna() < 0 || punto.getColumna() >= escenario.getColumnas()) {
             throw new JuegoException("Posicion de " + etiqueta + " fuera del mapa.");
         }
     }

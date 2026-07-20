@@ -1,5 +1,8 @@
 package com.legendoftecla.model.world;
 
+import com.legendoftecla.validation.Limites;
+import com.legendoftecla.validation.Validaciones;
+
 import java.util.Objects;
 
 
@@ -7,8 +10,8 @@ import java.util.Objects;
  * Representa la entidad Posicion del juego.
  */
 public class Posicion {
-    private final int fila;
-    private final int columna;
+    private int fila;
+    private int columna;
 
     /**
      * Ejecuta Posicion.
@@ -16,8 +19,8 @@ public class Posicion {
       * @param fila valor de {@code fila}
      */
     public Posicion(int fila, int columna) {
-        this.fila = fila;
-        this.columna = columna;
+        setFila(fila);
+        setColumna(columna);
     }
 
     /**
@@ -28,6 +31,12 @@ public class Posicion {
         return fila;
     }
 
+    /** @param fila fila acotada */
+    public void setFila(int fila) {
+        this.fila = Validaciones.enteroEntre(fila, -Limites.COORDENADA_ABSOLUTA,
+                Limites.COORDENADA_ABSOLUTA, "Fila");
+    }
+
     /**
      * Ejecuta getColumna.
       * @return resultado de la operacion
@@ -36,12 +45,19 @@ public class Posicion {
         return columna;
     }
 
+    /** @param columna columna acotada */
+    public void setColumna(int columna) {
+        this.columna = Validaciones.enteroEntre(columna, -Limites.COORDENADA_ABSOLUTA,
+                Limites.COORDENADA_ABSOLUTA, "Columna");
+    }
+
     /**
      * Ejecuta mover.
       * @param direccion valor de {@code direccion}
       * @return resultado de la operacion
      */
     public Posicion mover(Direccion direccion) {
+        Validaciones.noNulo(direccion, "Direccion");
         return new Posicion(fila + direccion.getDeltaFila(), columna + direccion.getDeltaColumna());
     }
 
@@ -51,6 +67,7 @@ public class Posicion {
       * @return resultado de la operacion
      */
     public int distanciaManhattan(Posicion otra) {
+        Validaciones.noNulo(otra, "Posicion de destino");
         return Math.abs(fila - otra.fila) + Math.abs(columna - otra.columna);
     }
 

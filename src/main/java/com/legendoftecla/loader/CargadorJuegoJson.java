@@ -31,14 +31,8 @@ import java.util.Locale;
 import java.util.Random;
 
 /** Carga el formato completo generado por el editor grafico. */
-public final class CargadorJuegoJson implements CargadorJuego {
-    private final Consola consola;
-    private final String nombreJugador;
-    private final String clase;
-    private final Path directorio;
-    private final Dificultad dificultad;
-    private final DimensionesMapa dimensiones;
-    private final boolean conAliados;
+public final class CargadorJuegoJson extends CargadorJuegoBase {
+    private Path directorio;
 
     /**
      * Crea una instancia de {@code CargadorJuegoJson}.
@@ -52,56 +46,63 @@ public final class CargadorJuegoJson implements CargadorJuego {
      */
     public CargadorJuegoJson(Consola consola, String nombreJugador, String clase, Path directorio,
             Dificultad dificultad, DimensionesMapa dimensiones, boolean conAliados) {
-        this.consola = consola;
-        this.nombreJugador = nombreJugador;
-        this.clase = clase;
-        this.directorio = directorio;
-        this.dificultad = dificultad;
-        this.dimensiones = dimensiones;
-        this.conAliados = conAliados;
+        super(consola, nombreJugador, clase, dificultad, dimensiones, conAliados);
+        setDirectorio(directorio);
+    }
+
+    /** @return directorio JSON normalizado */
+    public Path getDirectorio() {
+        return directorio;
+    }
+
+    /** @param directorio directorio no nulo */
+    public void setDirectorio(Path directorio) {
+        this.directorio = com.legendoftecla.validation.Validaciones
+                .noNulo(directorio, "Directorio JSON").normalize();
     }
 
     @Override
     public Juego cargarJuego() throws JuegoException {
         EscenarioDefinicion definicion = SerializadorEscenarioJson.cargar(directorio);
-        int filas = dimensiones == null ? definicion.filas : dimensiones.filas();
-        int columnas = dimensiones == null ? definicion.columnas : dimensiones.columnas();
-        if (filas < definicion.filas || columnas < definicion.columnas) {
+        int filas = dimensiones == null ? definicion.getFilas() : dimensiones.filas();
+        int columnas = dimensiones == null ? definicion.getColumnas() : dimensiones.columnas();
+        if (filas < definicion.getFilas() || columnas < definicion.getColumnas()) {
             throw new JuegoException("Las dimensiones configuradas no pueden recortar el escenario JSON.");
         }
 
-        Posicion inicio = posicion(definicion.inicio);
-        Posicion objetivo = posicion(definicion.objetivo);
-        Mapa mapa = new Mapa(definicion.nombre, definicion.descripcion, filas, columnas, inicio, objetivo);
+        Posicion inicio = posicion(definicion.getInicio());
+        Posicion objetivo = posicion(definicion.getObjetivo());
+        Mapa mapa = new Mapa(definicion.getNombre(), definicion.getDescripcion(),
+                filas, columnas, inicio, objetivo);
         for (int fila = 0; fila < filas; fila++) {
             for (int columna = 0; columna < columnas; columna++) {
                 mapa.setCelda(fila, columna, new Celda("Celda " + fila + "," + columna, true));
             }
         }
-        for (EscenarioDefinicion.CeldaDef celda : definicion.celdas) {
-            mapa.setCelda(celda.fila, celda.columna,
-                    new Celda(celda.descripcion == null ? "Celda" : celda.descripcion, celda.transitable));
+        for (EscenarioDefinicion.CeldaDef celda : definicion.getCeldas()) {
+            mapa.setCelda(celda.getFila(), celda.getColumna(),
+                    new Celda(celda.getDescripcion(), celda.isTransitable()));
         }
 
         Jugador jugador = crearJugador(inicio);
-        Juego juego = new Juego(consola, mapa, jugador, definicion.pasosMaximos);
+        Juego juego = new Juego(consola, mapa, jugador, definicion.getPasosMaximos());
         Enemigo.setMultiplicadorDanioGlobal(dificultad.getMultiplicadorDanioEnemigo());
 
-        for (EscenarioDefinicion.ObjetoDef objetoDef : definicion.objetos) {
+        for (EscenarioDefinicion.ObjetoDef objetoDef : definicion.getObjetos()) {
             Posicion posicion = posicion(objetoDef);
-            exigirTransitable(mapa, posicion, "objeto " + objetoDef.nombre);
+            exigirTransitable(mapa, posicion, "objeto " + objetoDef.getNombre());
             mapa.getCelda(posicion).agregarObjeto(crearObjeto(objetoDef));
         }
 
-        int cantidadEnemigos = dificultad.ajustarCantidadEnemigos(definicion.enemigos.size());
+        int cantidadEnemigos = dificultad.ajustarCantidadEnemigos(definicion.getEnemigos().size());
         for (int indice = 0; indice < cantidadEnemigos; indice++) {
             EscenarioDefinicion.PersonajeDef personajeDef =
-                    definicion.enemigos.get(indice % definicion.enemigos.size());
+                    definicion.getEnemigos().get(indice % definicion.getEnemigos().size());
             Posicion posicion = posicion(personajeDef);
-            exigirTransitable(mapa, posicion, "enemigo " + personajeDef.nombre);
-            String nombre = indice < definicion.enemigos.size()
-                    ? personajeDef.nombre
-                    : personajeDef.nombre + "_extra_" + indice;
+            exigirTransitable(mapa, posicion, "enemigo " + personajeDef.getNombre());
+            String nombre = indice < definicion.getEnemigos().size()
+                    ? personajeDef.getNombre()
+                    : personajeDef.getNombre() + "_extra_" + indice;
             Enemigo enemigo = crearEnemigo(personajeDef, nombre, posicion);
             enemigo.escalarSalud(dificultad.getMultiplicadorSaludEnemigo());
             mapa.getCelda(posicion).agregarEnemigo(enemigo);
@@ -112,7 +113,7 @@ public final class CargadorJuegoJson implements CargadorJuego {
                 ? GeneradorAliados.poblar(juego, mapa, dificultad, new Random(303), "AliadoJson")
                 : 0;
 
-        consola.imprimirInfo("Escenario JSON cargado: " + definicion.nombre
+        consola.imprimirInfo("Escenario JSON cargado: " + definicion.getNombre()
                 + " | dificultad=" + dificultad.getEtiqueta()
                 + " | enemigos=" + cantidadEnemigos
                 + " | aliados=" + cantidadAliados);
@@ -132,36 +133,42 @@ public final class CargadorJuegoJson implements CargadorJuego {
     private Enemigo crearEnemigo(EscenarioDefinicion.PersonajeDef definicion,
             String nombre, Posicion posicion) {
         Mochila mochila = new Mochila(8, 30);
-        Enemigo enemigo = switch (definicion.tipo.toLowerCase(Locale.ROOT)) {
-            case "lightfloater", "light_floater" -> new LightFloater(nombre, posicion, mochila, definicion.vision);
-            case "heavyfloater", "heavy_floater" -> new HeavyFloater(nombre, posicion, mochila, definicion.vision);
-            default -> new Sectoid(nombre, posicion, mochila, definicion.vision);
+        Enemigo enemigo = switch (definicion.getTipo().toLowerCase(Locale.ROOT)) {
+            case "lightfloater", "light_floater" -> new LightFloater(
+                    nombre, posicion, mochila, definicion.getVision());
+            case "heavyfloater", "heavy_floater" -> new HeavyFloater(
+                    nombre, posicion, mochila, definicion.getVision());
+            default -> new Sectoid(nombre, posicion, mochila, definicion.getVision());
         };
-        enemigo.configurarEstadisticas(definicion.salud, definicion.energia, definicion.vision);
+        enemigo.configurarEstadisticas(
+                definicion.getSalud(), definicion.getEnergia(), definicion.getVision());
         return enemigo;
     }
 
     private Objeto crearObjeto(EscenarioDefinicion.ObjetoDef definicion) {
-        String tipo = definicion.tipo == null ? "botiquin" : definicion.tipo.toLowerCase(Locale.ROOT);
-        String descripcion = definicion.descripcion == null ? "" : definicion.descripcion;
+        String tipo = definicion.getTipo().toLowerCase(Locale.ROOT);
+        String descripcion = definicion.getDescripcion();
         return switch (tipo) {
-            case "arma" -> new Arma(definicion.nombre, descripcion, definicion.peso,
-                    Math.max(1, definicion.valor), definicion.dosManos);
-            case "armadura" -> new Armadura(definicion.nombre, descripcion, definicion.peso,
-                    Math.max(0, definicion.valor), Math.max(0, definicion.valorSecundario),
-                    Math.max(0, definicion.valorTerciario));
-            case "binocular", "radar" -> new Binocular(definicion.nombre, descripcion, definicion.peso,
-                    Math.max(1, definicion.valor));
+            case "arma" -> new Arma(definicion.getNombre(), descripcion, definicion.getPeso(),
+                    Math.max(1, definicion.getValor()), definicion.isDosManos());
+            case "armadura" -> new Armadura(definicion.getNombre(), descripcion, definicion.getPeso(),
+                    definicion.getValor(), definicion.getValorSecundario(),
+                    definicion.getValorTerciario());
+            case "binocular", "radar" -> new Binocular(
+                    definicion.getNombre(), descripcion, definicion.getPeso(),
+                    Math.max(1, definicion.getValor()));
             case "torito", "toritorojo", "energia" -> new ToritoRojo(
-                    definicion.nombre, descripcion, definicion.peso, Math.max(1, definicion.valor));
-            case "explosivo" -> new Explosivo(definicion.nombre, descripcion, definicion.peso);
-            default -> new Botiquin(definicion.nombre, descripcion, definicion.peso,
-                    Math.max(1, definicion.valor));
+                    definicion.getNombre(), descripcion, definicion.getPeso(),
+                    Math.max(1, definicion.getValor()));
+            case "explosivo" -> new Explosivo(
+                    definicion.getNombre(), descripcion, definicion.getPeso());
+            default -> new Botiquin(definicion.getNombre(), descripcion, definicion.getPeso(),
+                    Math.max(1, definicion.getValor()));
         };
     }
 
     private Posicion posicion(EscenarioDefinicion.Punto punto) {
-        return new Posicion(punto.fila, punto.columna);
+        return new Posicion(punto.getFila(), punto.getColumna());
     }
 
     private void exigirTransitable(Mapa mapa, Posicion posicion, String elemento) throws JuegoException {

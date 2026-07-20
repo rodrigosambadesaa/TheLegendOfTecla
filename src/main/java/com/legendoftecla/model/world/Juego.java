@@ -4,6 +4,8 @@ import com.legendoftecla.console.Consola;
 import com.legendoftecla.model.characters.Aliado;
 import com.legendoftecla.model.characters.Enemigo;
 import com.legendoftecla.model.characters.Jugador;
+import com.legendoftecla.validation.Limites;
+import com.legendoftecla.validation.Validaciones;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,14 +15,14 @@ import java.util.List;
  * Representa la entidad Juego del juego.
  */
 public class Juego {
-    private final Consola consola;
-    private final Mapa mapa;
-    private final Jugador jugador;
-    private final List<Enemigo> enemigos;
-    private final List<Aliado> aliados;
-    private final List<Aliado> aliadosRegistrados;
-    private final List<Aliado> aliadosExtraidosDetalle;
-    private final int pasosMaximos;
+    private Consola consola;
+    private Mapa mapa;
+    private Jugador jugador;
+    private List<Enemigo> enemigos;
+    private List<Aliado> aliados;
+    private List<Aliado> aliadosRegistrados;
+    private List<Aliado> aliadosExtraidosDetalle;
+    private int pasosMaximos;
     private int aliadosIniciales;
     private int aliadosExtraidos;
     private int pasos;
@@ -34,18 +36,21 @@ public class Juego {
       * @param pasosMaximos valor de {@code pasosMaximos}
      */
     public Juego(Consola consola, Mapa mapa, Jugador jugador, int pasosMaximos) {
-        this.consola = consola;
-        this.mapa = mapa;
-        this.jugador = jugador;
-        this.pasosMaximos = pasosMaximos;
-        this.enemigos = new ArrayList<>();
-        this.aliados = new ArrayList<>();
-        this.aliadosRegistrados = new ArrayList<>();
-        this.aliadosExtraidosDetalle = new ArrayList<>();
-        this.aliadosIniciales = 0;
-        this.aliadosExtraidos = 0;
-        this.pasos = 0;
-        this.solicitudAyudaAliados = false;
+        setConsola(consola);
+        setMapa(mapa);
+        setJugador(jugador);
+        setPasosMaximos(pasosMaximos);
+        if (!mapa.estaDentro(jugador.getPosicion())) {
+            throw new IllegalArgumentException("El jugador debe comenzar dentro del mapa.");
+        }
+        setEnemigos(List.of());
+        setAliados(List.of());
+        setAliadosRegistrados(List.of());
+        setAliadosExtraidosDetalle(List.of());
+        setAliadosIniciales(0);
+        setAliadosExtraidos(0);
+        setPasos(0);
+        setSolicitudAyudaAliados(false);
     }
 
     /**
@@ -56,12 +61,22 @@ public class Juego {
         return consola;
     }
 
+    /** @param consola adaptador de entrada/salida no nulo */
+    public void setConsola(Consola consola) {
+        this.consola = Validaciones.noNulo(consola, "Consola");
+    }
+
     /**
      * Ejecuta getMapa.
       * @return resultado de la operacion
      */
     public Mapa getMapa() {
         return mapa;
+    }
+
+    /** @param mapa mapa no nulo */
+    public void setMapa(Mapa mapa) {
+        this.mapa = Validaciones.noNulo(mapa, "Mapa");
     }
 
     /**
@@ -72,12 +87,27 @@ public class Juego {
         return jugador;
     }
 
+    /** @param jugador jugador no nulo y situado dentro del mapa */
+    public void setJugador(Jugador jugador) {
+        Jugador validado = Validaciones.noNulo(jugador, "Jugador");
+        if (mapa != null && !mapa.estaDentro(validado.getPosicion())) {
+            throw new IllegalArgumentException("El jugador debe estar dentro del mapa.");
+        }
+        this.jugador = validado;
+    }
+
     /**
      * Ejecuta getPasos.
       * @return resultado de la operacion
      */
     public int getPasos() {
         return pasos;
+    }
+
+    /** @param pasos pasos no negativos y acotados */
+    public void setPasos(int pasos) {
+        this.pasos = Validaciones.enteroEntre(
+                pasos, 0, Limites.PASOS_MAXIMOS + 1, "Pasos");
     }
 
     /**
@@ -88,11 +118,20 @@ public class Juego {
         return pasosMaximos;
     }
 
+    /** @param pasosMaximos limite positivo de pasos */
+    public void setPasosMaximos(int pasosMaximos) {
+        this.pasosMaximos = Validaciones.enteroEntre(
+                pasosMaximos, 1, Limites.PASOS_MAXIMOS, "Pasos maximos");
+        if (pasos > Limites.PASOS_MAXIMOS + 1) {
+            setPasos(Limites.PASOS_MAXIMOS + 1);
+        }
+    }
+
     /**
      * Ejecuta registrarPaso.
      */
     public void registrarPaso() {
-        pasos++;
+        setPasos(Math.min(Limites.PASOS_MAXIMOS + 1, pasos + 1));
     }
 
     /**
@@ -100,7 +139,13 @@ public class Juego {
       * @param enemigo valor de {@code enemigo}
      */
     public void agregarEnemigo(Enemigo enemigo) {
-        enemigos.add(enemigo);
+        Enemigo validado = Validaciones.noNulo(enemigo, "Enemigo");
+        validarPosicionPersonaje(validado.getPosicion(), "enemigo");
+        if (!enemigos.contains(validado)) {
+            List<Enemigo> nuevos = new ArrayList<>(enemigos);
+            nuevos.add(validado);
+            setEnemigos(nuevos);
+        }
     }
 
     /**
@@ -108,7 +153,12 @@ public class Juego {
       * @return resultado de la operacion
      */
     public List<Enemigo> getEnemigos() {
-        return enemigos;
+        return Collections.unmodifiableList(enemigos);
+    }
+
+    /** @param enemigos enemigos no nulos situados dentro del mapa */
+    public void setEnemigos(List<Enemigo> enemigos) {
+        this.enemigos = copiarPersonajes(enemigos, "Enemigos");
     }
 
     /**
@@ -116,9 +166,17 @@ public class Juego {
       * @param aliado valor de {@code aliado}
      */
     public void agregarAliado(Aliado aliado) {
-        aliados.add(aliado);
-        aliadosRegistrados.add(aliado);
-        aliadosIniciales++;
+        Aliado validado = Validaciones.noNulo(aliado, "Aliado");
+        validarPosicionPersonaje(validado.getPosicion(), "aliado");
+        if (!aliadosRegistrados.contains(validado)) {
+            List<Aliado> activos = new ArrayList<>(aliados);
+            activos.add(validado);
+            setAliados(activos);
+            List<Aliado> registrados = new ArrayList<>(aliadosRegistrados);
+            registrados.add(validado);
+            setAliadosRegistrados(registrados);
+            setAliadosIniciales(aliadosIniciales + 1);
+        }
     }
 
     /**
@@ -126,7 +184,12 @@ public class Juego {
       * @return resultado de la operacion
      */
     public List<Aliado> getAliados() {
-        return aliados;
+        return Collections.unmodifiableList(aliados);
+    }
+
+    /** @param aliados aliados activos no nulos */
+    public void setAliados(List<Aliado> aliados) {
+        this.aliados = copiarPersonajes(aliados, "Aliados");
     }
 
     /**
@@ -136,6 +199,21 @@ public class Juego {
      */
     public List<Aliado> getAliadosRegistrados() {
         return Collections.unmodifiableList(aliadosRegistrados);
+    }
+
+    /** @param aliadosRegistrados historial completo no nulo */
+    public void setAliadosRegistrados(List<Aliado> aliadosRegistrados) {
+        this.aliadosRegistrados = copiarPersonajes(aliadosRegistrados, "Aliados registrados");
+    }
+
+    /** @return vista inmutable de aliados evacuados */
+    public List<Aliado> getAliadosExtraidosDetalle() {
+        return Collections.unmodifiableList(aliadosExtraidosDetalle);
+    }
+
+    /** @param extraidos aliados evacuados no nulos */
+    public void setAliadosExtraidosDetalle(List<Aliado> extraidos) {
+        this.aliadosExtraidosDetalle = copiarPersonajes(extraidos, "Aliados extraidos");
     }
 
     /**
@@ -156,12 +234,24 @@ public class Juego {
         return aliadosIniciales;
     }
 
+    /** @param aliadosIniciales cantidad inicial no negativa */
+    public void setAliadosIniciales(int aliadosIniciales) {
+        this.aliadosIniciales = Validaciones.enteroEntre(
+                aliadosIniciales, 0, Limites.ESTADISTICA, "Aliados iniciales");
+    }
+
     /**
      * Ejecuta getAliadosExtraidos.
       * @return resultado de la operacion
      */
     public int getAliadosExtraidos() {
         return aliadosExtraidos;
+    }
+
+    /** @param aliadosExtraidos cantidad evacuada entre cero y la inicial */
+    public void setAliadosExtraidos(int aliadosExtraidos) {
+        this.aliadosExtraidos = Validaciones.enteroEntre(
+                aliadosExtraidos, 0, Math.max(0, aliadosIniciales), "Aliados extraidos");
     }
 
     /**
@@ -173,17 +263,22 @@ public class Juego {
         if (aliado == null || aliado.getSalud() <= 0) {
             return false;
         }
-        if (!aliados.remove(aliado)) {
+        if (!aliados.contains(aliado)) {
             return false;
         }
-        aliadosExtraidosDetalle.add(aliado);
-        aliadosExtraidos++;
+        List<Aliado> activos = new ArrayList<>(aliados);
+        activos.remove(aliado);
+        setAliados(activos);
+        List<Aliado> extraidos = new ArrayList<>(aliadosExtraidosDetalle);
+        extraidos.add(aliado);
+        setAliadosExtraidosDetalle(extraidos);
+        setAliadosExtraidos(aliadosExtraidos + 1);
         return true;
     }
 
     /** Registra una orden para que los aliados acudan a ayudar al jugador. */
     public void solicitarAyudaAliados() {
-        solicitudAyudaAliados = true;
+        setSolicitudAyudaAliados(true);
     }
 
     /**
@@ -193,8 +288,18 @@ public class Juego {
      */
     public boolean consumirSolicitudAyudaAliados() {
         boolean pendiente = solicitudAyudaAliados;
-        solicitudAyudaAliados = false;
+        setSolicitudAyudaAliados(false);
         return pendiente;
+    }
+
+    /** @return {@code true} si hay una solicitud pendiente */
+    public boolean isSolicitudAyudaAliados() {
+        return solicitudAyudaAliados;
+    }
+
+    /** @param solicitudAyudaAliados estado solicitado */
+    public void setSolicitudAyudaAliados(boolean solicitudAyudaAliados) {
+        this.solicitudAyudaAliados = solicitudAyudaAliados;
     }
 
     /**
@@ -225,5 +330,23 @@ public class Juego {
      */
     public boolean excedioPasos() {
         return pasos > pasosMaximos;
+    }
+
+    private void validarPosicionPersonaje(Posicion posicion, String tipo) {
+        if (!mapa.estaDentro(posicion)) {
+            throw new IllegalArgumentException("La posicion del " + tipo + " queda fuera del mapa.");
+        }
+    }
+
+    private <T extends com.legendoftecla.model.characters.Personaje> List<T> copiarPersonajes(
+            List<T> personajes, String campo) {
+        Validaciones.noNulo(personajes, campo);
+        if (personajes.stream().anyMatch(java.util.Objects::isNull)) {
+            throw new IllegalArgumentException(campo + " no puede contener valores nulos.");
+        }
+        if (mapa != null) {
+            personajes.forEach(personaje -> validarPosicionPersonaje(personaje.getPosicion(), campo));
+        }
+        return new ArrayList<>(personajes);
     }
 }

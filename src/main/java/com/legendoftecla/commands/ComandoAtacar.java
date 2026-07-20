@@ -6,6 +6,8 @@ import com.legendoftecla.model.world.Celda;
 import com.legendoftecla.model.world.Direccion;
 import com.legendoftecla.model.world.Mapa;
 import com.legendoftecla.model.world.Posicion;
+import com.legendoftecla.validation.Limites;
+import com.legendoftecla.validation.Validaciones;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -17,9 +19,9 @@ import java.util.regex.Pattern;
 public class ComandoAtacar implements Comando {
     private static final Pattern PATRON_ALCANCE = Pattern.compile("^(\\d+)([nseoNSEO])$");
 
-    private final CommandContext context;
-    private final String alcance;
-    private final String nombreObjetivo;
+    private CommandContext context;
+    private String alcance;
+    private String nombreObjetivo;
 
     /**
      * Ejecuta ComandoAtacar.
@@ -28,9 +30,31 @@ public class ComandoAtacar implements Comando {
       * @param nombreObjetivo valor de {@code nombreObjetivo}
      */
     public ComandoAtacar(CommandContext context, String alcance, String nombreObjetivo) {
-        this.context = context;
-        this.alcance = alcance;
-        this.nombreObjetivo = nombreObjetivo;
+        setContext(context);
+        setAlcance(alcance);
+        setNombreObjetivo(nombreObjetivo);
+    }
+
+    /** @return contexto de ejecucion */
+    public CommandContext getContext() { return context; }
+    /** @param context contexto no nulo */
+    public void setContext(CommandContext context) { this.context = Validaciones.noNulo(context, "Contexto"); }
+    /** @return alcance opcional */
+    public String getAlcance() { return alcance; }
+    /** @param alcance alcance opcional con formato como {@code 3e} */
+    public void setAlcance(String alcance) {
+        if (alcance != null && !alcance.isBlank() && !PATRON_ALCANCE.matcher(alcance.trim()).matches()) {
+            throw new IllegalArgumentException("El alcance debe usar un formato como 3e.");
+        }
+        this.alcance = alcance == null ? null
+                : Validaciones.texto(alcance.trim(), "Alcance", Limites.TEXTO_CORTO);
+    }
+    /** @return nombre opcional del objetivo */
+    public String getNombreObjetivo() { return nombreObjetivo; }
+    /** @param nombreObjetivo nombre opcional y acotado */
+    public void setNombreObjetivo(String nombreObjetivo) {
+        this.nombreObjetivo = nombreObjetivo == null ? null
+                : Validaciones.texto(nombreObjetivo.trim(), "Nombre del objetivo", Limites.TEXTO_CORTO);
     }
 
     @Override

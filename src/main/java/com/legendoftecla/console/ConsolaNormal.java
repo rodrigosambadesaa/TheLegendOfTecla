@@ -1,6 +1,7 @@
 package com.legendoftecla.console;
 
 import com.legendoftecla.exceptions.FinEntradaException;
+import com.legendoftecla.validation.Validaciones;
 
 import java.util.Scanner;
 
@@ -12,7 +13,8 @@ public class ConsolaNormal implements Consola {
      * Crea una consola conectada a la entrada y salida estandar del proceso.
      */
     public ConsolaNormal() {
-        // Los recursos de entrada y la configuracion de color se inicializan en los campos.
+        setScanner(new Scanner(System.in));
+        setColorActivo(System.getenv("NO_COLOR") == null);
     }
 
     private static final String RESET = "\u001B[0m";
@@ -22,8 +24,28 @@ public class ConsolaNormal implements Consola {
     private static final String YELLOW = "\u001B[33m";
     private static final String CYAN = "\u001B[36m";
 
-    private final Scanner scanner = new Scanner(System.in);
-    private final boolean colorActivo = System.getenv("NO_COLOR") == null;
+    private Scanner scanner;
+    private boolean colorActivo;
+
+    /** @return lector de entrada asociado */
+    public Scanner getScanner() {
+        return scanner;
+    }
+
+    /** @param scanner lector no nulo */
+    public void setScanner(Scanner scanner) {
+        this.scanner = Validaciones.noNulo(scanner, "Lector de consola");
+    }
+
+    /** @return si la salida usa color ANSI */
+    public boolean isColorActivo() {
+        return colorActivo;
+    }
+
+    /** @param colorActivo activa o desactiva el color */
+    public void setColorActivo(boolean colorActivo) {
+        this.colorActivo = colorActivo;
+    }
 
     @Override
     /**

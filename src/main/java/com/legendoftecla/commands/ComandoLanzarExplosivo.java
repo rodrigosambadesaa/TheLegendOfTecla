@@ -9,6 +9,8 @@ import com.legendoftecla.model.world.Celda;
 import com.legendoftecla.model.world.Direccion;
 import com.legendoftecla.model.world.Mapa;
 import com.legendoftecla.model.world.Posicion;
+import com.legendoftecla.validation.Limites;
+import com.legendoftecla.validation.Validaciones;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -18,9 +20,9 @@ import java.util.regex.Pattern;
 public final class ComandoLanzarExplosivo implements Comando {
     private static final Pattern PATRON_ALCANCE = Pattern.compile("^(\\d+)([nseoNSEO])$");
 
-    private final CommandContext context;
-    private final String alcance;
-    private final String nombreExplosivo;
+    private CommandContext context;
+    private String alcance;
+    private String nombreExplosivo;
 
     /**
      * Crea el comando de lanzamiento.
@@ -30,9 +32,32 @@ public final class ComandoLanzarExplosivo implements Comando {
      * @param nombreExplosivo nombre del explosivo de la mochila
      */
     public ComandoLanzarExplosivo(CommandContext context, String alcance, String nombreExplosivo) {
-        this.context = context;
-        this.alcance = alcance;
-        this.nombreExplosivo = nombreExplosivo;
+        setContext(context);
+        setAlcance(alcance);
+        setNombreExplosivo(nombreExplosivo);
+    }
+
+    /** @return contexto de ejecucion */
+    public CommandContext getContext() { return context; }
+    /** @param context contexto no nulo */
+    public void setContext(CommandContext context) { this.context = Validaciones.noNulo(context, "Contexto"); }
+    /** @return alcance de lanzamiento */
+    public String getAlcance() { return alcance; }
+    /** @param alcance distancia y direccion con formato como {@code 3e} */
+    public void setAlcance(String alcance) {
+        String alcanceValidado = Validaciones.textoObligatorio(
+                alcance, "Alcance", Limites.TEXTO_CORTO);
+        if (!PATRON_ALCANCE.matcher(alcanceValidado).matches()) {
+            throw new IllegalArgumentException("El alcance debe usar un formato como 3e.");
+        }
+        this.alcance = alcanceValidado;
+    }
+    /** @return nombre del explosivo */
+    public String getNombreExplosivo() { return nombreExplosivo; }
+    /** @param nombreExplosivo nombre obligatorio y acotado */
+    public void setNombreExplosivo(String nombreExplosivo) {
+        this.nombreExplosivo = Validaciones.textoObligatorio(
+                nombreExplosivo, "Nombre del explosivo", Limites.TEXTO_CORTO);
     }
 
     @Override

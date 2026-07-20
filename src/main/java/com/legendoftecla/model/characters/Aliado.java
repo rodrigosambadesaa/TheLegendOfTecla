@@ -23,7 +23,7 @@ public final class Aliado extends Personaje {
      * Ejecuta aplicarModificadorDanio.
      */
     protected int aplicarModificadorDanio(int base, Personaje objetivo) {
-        int distancia = Math.max(1, posicion.distanciaManhattan(objetivo.getPosicion()));
+        int distancia = Math.max(1, getPosicion().distanciaManhattan(objetivo.getPosicion()));
         if (distancia <= 1) {
             return (int) Math.ceil(base * 1.4);
         }

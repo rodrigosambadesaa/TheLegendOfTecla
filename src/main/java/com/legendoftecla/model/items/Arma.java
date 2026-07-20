@@ -2,14 +2,16 @@ package com.legendoftecla.model.items;
 
 import com.legendoftecla.exceptions.ObjetoNoUsableException;
 import com.legendoftecla.model.characters.Personaje;
+import com.legendoftecla.validation.Limites;
+import com.legendoftecla.validation.Validaciones;
 
 
 /**
  * Representa la entidad Arma del juego.
  */
 public final class Arma extends Objeto {
-    private final int danio;
-    private final boolean dosManos;
+    private int danio;
+    private boolean dosManos;
 
     /**
      * Ejecuta Arma.
@@ -21,8 +23,8 @@ public final class Arma extends Objeto {
      */
     public Arma(String nombre, String descripcion, double peso, int danio, boolean dosManos) {
         super(nombre, descripcion, peso);
-        this.danio = danio;
-        this.dosManos = dosManos;
+        setDanio(danio);
+        setDosManos(dosManos);
     }
 
     /**
@@ -33,12 +35,22 @@ public final class Arma extends Objeto {
         return danio;
     }
 
+    /** @param danio dano positivo y acotado */
+    public void setDanio(int danio) {
+        this.danio = Validaciones.enteroEntre(danio, 1, Limites.ESTADISTICA, "Dano del arma");
+    }
+
     /**
      * Ejecuta isDosManos.
       * @return resultado de la operacion
      */
     public boolean isDosManos() {
         return dosManos;
+    }
+
+    /** @param dosManos estado solicitado */
+    public void setDosManos(boolean dosManos) {
+        this.dosManos = dosManos;
     }
 
     @Override

@@ -2,6 +2,8 @@ package com.legendoftecla.gui;
 
 import com.legendoftecla.console.Consola;
 import com.legendoftecla.console.TipoMensaje;
+import com.legendoftecla.validation.Limites;
+import com.legendoftecla.validation.Validaciones;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +15,8 @@ public final class ConsolaGrafica implements Consola {
      * Crea un adaptador de consola preparado para almacenar mensajes de la GUI.
      */
     public ConsolaGrafica() {
-        // La coleccion de mensajes se inicializa junto con la instancia.
+        setHistorial(List.of());
+        setReceptor(null);
     }
 
     /**
@@ -21,10 +24,40 @@ public final class ConsolaGrafica implements Consola {
       * @param texto valor de {@code texto}
       * @param tipo valor de {@code tipo}
      */
-    public record Mensaje(String texto, TipoMensaje tipo) {
+    public static final class Mensaje {
+        private String texto;
+        private TipoMensaje tipo;
+
+        /**
+         * Crea un mensaje validado.
+         *
+         * @param texto contenido
+         * @param tipo categoria
+         */
+        public Mensaje(String texto, TipoMensaje tipo) {
+            setTexto(texto);
+            setTipo(tipo);
+        }
+
+        /** @return texto del mensaje */
+        public String getTexto() { return texto; }
+        /** @param texto texto no nulo y acotado */
+        public void setTexto(String texto) {
+            this.texto = Validaciones.texto(texto, "Mensaje", Limites.MENSAJE);
+        }
+        /** @return tipo del mensaje */
+        public TipoMensaje getTipo() { return tipo; }
+        /** @param tipo categoria no nula */
+        public void setTipo(TipoMensaje tipo) {
+            this.tipo = Validaciones.noNulo(tipo, "Tipo de mensaje");
+        }
+        /** @return texto conservando la API anterior */
+        public String texto() { return getTexto(); }
+        /** @return tipo conservando la API anterior */
+        public TipoMensaje tipo() { return getTipo(); }
     }
 
-    private final List<Mensaje> historial = new ArrayList<>();
+    private List<Mensaje> historial;
     private Consumer<Mensaje> receptor;
 
     @Override
@@ -35,7 +68,12 @@ public final class ConsolaGrafica implements Consola {
     @Override
     public void imprimir(String mensaje, TipoMensaje tipo) {
         Mensaje entrada = new Mensaje(mensaje, tipo);
-        historial.add(entrada);
+        List<Mensaje> actualizado = new ArrayList<>(historial);
+        if (actualizado.size() == Limites.HISTORIAL_MENSAJES) {
+            actualizado.remove(0);
+        }
+        actualizado.add(entrada);
+        setHistorial(actualizado);
         if (receptor != null) {
             receptor.accept(entrada);
         }
@@ -52,6 +90,21 @@ public final class ConsolaGrafica implements Consola {
      */
     public List<Mensaje> getHistorial() {
         return List.copyOf(historial);
+    }
+
+    /** @param historial historial no nulo, sin mensajes nulos y acotado */
+    public void setHistorial(List<Mensaje> historial) {
+        Validaciones.noNulo(historial, "Historial");
+        if (historial.size() > Limites.HISTORIAL_MENSAJES
+                || historial.stream().anyMatch(java.util.Objects::isNull)) {
+            throw new IllegalArgumentException("El historial grafico no es valido.");
+        }
+        this.historial = new ArrayList<>(historial);
+    }
+
+    /** @return receptor actual o {@code null} */
+    public Consumer<Mensaje> getReceptor() {
+        return receptor;
     }
 
     /**

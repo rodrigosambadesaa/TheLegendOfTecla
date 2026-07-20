@@ -3,6 +3,7 @@ package com.legendoftecla.gui;
 import com.legendoftecla.exceptions.JuegoException;
 import com.legendoftecla.loader.EscenarioDefinicion;
 import com.legendoftecla.loader.SerializadorEscenarioJson;
+import com.legendoftecla.validation.Validaciones;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -107,7 +108,8 @@ public final class PanelEditorMapa extends JPanel {
         this.escenarioGuardado = escenarioGuardado;
         this.volver = volver;
         setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-        escenario = EscenarioDefinicion.nuevo(10, 10);
+        setEscenario(EscenarioDefinicion.nuevo(10, 10));
+        setDirectorioActual(null);
 
         add(crearCabecera(), BorderLayout.NORTH);
         JScrollPane scroll = new JScrollPane(cuadricula);
@@ -116,6 +118,26 @@ public final class PanelEditorMapa extends JPanel {
         add(crearLeyenda(), BorderLayout.SOUTH);
         cargarCamposDesdeModelo();
         reconstruirCuadricula();
+    }
+
+    /** @return escenario actualmente editado */
+    public EscenarioDefinicion getEscenario() {
+        return escenario;
+    }
+
+    /** @param escenario escenario no nulo */
+    public void setEscenario(EscenarioDefinicion escenario) {
+        this.escenario = Validaciones.noNulo(escenario, "Escenario del editor");
+    }
+
+    /** @return directorio actual o {@code null} */
+    public Path getDirectorioActual() {
+        return directorioActual;
+    }
+
+    /** @param directorioActual directorio opcional normalizado */
+    public void setDirectorioActual(Path directorioActual) {
+        this.directorioActual = directorioActual == null ? null : directorioActual.normalize();
     }
 
     private JPanel crearCabecera() {
@@ -183,17 +205,17 @@ public final class PanelEditorMapa extends JPanel {
         }
         int nuevasFilas = numero(filas);
         int nuevasColumnas = numero(columnas);
-        escenario = EscenarioDefinicion.nuevo(nuevasFilas, nuevasColumnas);
-        directorioActual = null;
+        setEscenario(EscenarioDefinicion.nuevo(nuevasFilas, nuevasColumnas));
+        setDirectorioActual(null);
         cargarCamposDesdeModelo();
         reconstruirCuadricula();
     }
 
     private void reconstruirCuadricula() {
         cuadricula.removeAll();
-        cuadricula.setLayout(new GridLayout(escenario.filas, escenario.columnas, 1, 1));
-        for (int fila = 0; fila < escenario.filas; fila++) {
-            for (int columna = 0; columna < escenario.columnas; columna++) {
+        cuadricula.setLayout(new GridLayout(escenario.getFilas(), escenario.getColumnas(), 1, 1));
+        for (int fila = 0; fila < escenario.getFilas(); fila++) {
+            for (int columna = 0; columna < escenario.getColumnas(); columna++) {
                 int f = fila;
                 int c = columna;
                 JButton celda = new JButton();
@@ -213,15 +235,15 @@ public final class PanelEditorMapa extends JPanel {
         EscenarioDefinicion.CeldaDef celda = asegurarCelda(fila, columna);
         try {
             switch (seleccion) {
-                case SUELO -> celda.transitable = true;
+                case SUELO -> celda.setTransitable(true);
                 case MURO -> convertirEnMuro(fila, columna, celda);
                 case INICIO -> {
-                    celda.transitable = true;
-                    escenario.inicio = new EscenarioDefinicion.Punto(fila, columna);
+                    celda.setTransitable(true);
+                    escenario.setInicio(new EscenarioDefinicion.Punto(fila, columna));
                 }
                 case OBJETIVO -> {
-                    celda.transitable = true;
-                    escenario.objetivo = new EscenarioDefinicion.Punto(fila, columna);
+                    celda.setTransitable(true);
+                    escenario.setObjetivo(new EscenarioDefinicion.Punto(fila, columna));
                 }
                 case ENEMIGO -> anadirPersonaje(fila, columna);
                 case OBJETO -> anadirObjeto(fila, columna);
@@ -235,12 +257,13 @@ public final class PanelEditorMapa extends JPanel {
     }
 
     private void convertirEnMuro(int fila, int columna, EscenarioDefinicion.CeldaDef celda) {
-        if (esPunto(escenario.inicio, fila, columna) || esPunto(escenario.objetivo, fila, columna)) {
+        if (esPunto(escenario.getInicio(), fila, columna)
+                || esPunto(escenario.getObjetivo(), fila, columna)) {
             throw new IllegalArgumentException("Mueve primero el inicio o el objetivo a otra celda.");
         }
         borrarContenido(fila, columna);
-        celda.transitable = false;
-        celda.descripcion = "Muro";
+        celda.setTransitable(false);
+        celda.setDescripcion("Muro");
     }
 
     private void anadirPersonaje(int fila, int columna) {
@@ -266,14 +289,14 @@ public final class PanelEditorMapa extends JPanel {
             throw new IllegalArgumentException("El personaje necesita un nombre.");
         }
         EscenarioDefinicion.PersonajeDef personaje = new EscenarioDefinicion.PersonajeDef();
-        personaje.fila = fila;
-        personaje.columna = columna;
-        personaje.tipo = (String) tipo.getSelectedItem();
-        personaje.nombre = nombrePersonaje.getText().trim();
-        personaje.salud = numero(salud);
-        personaje.energia = numero(energia);
-        personaje.vision = numero(vision);
-        escenario.enemigos.add(personaje);
+        personaje.setFila(fila);
+        personaje.setColumna(columna);
+        personaje.setTipo((String) tipo.getSelectedItem());
+        personaje.setNombre(nombrePersonaje.getText());
+        personaje.setSalud(numero(salud));
+        personaje.setEnergia(numero(energia));
+        personaje.setVision(numero(vision));
+        escenario.agregarEnemigo(personaje);
     }
 
     private void anadirObjeto(int fila, int columna) {
@@ -307,62 +330,63 @@ public final class PanelEditorMapa extends JPanel {
             throw new IllegalArgumentException("El objeto necesita un nombre.");
         }
         EscenarioDefinicion.ObjetoDef objeto = new EscenarioDefinicion.ObjetoDef();
-        objeto.fila = fila;
-        objeto.columna = columna;
-        objeto.tipo = (String) tipo.getSelectedItem();
-        objeto.nombre = nombreObjeto.getText().trim();
-        objeto.descripcion = descripcionObjeto.getText().trim();
-        objeto.peso = ((Number) peso.getValue()).doubleValue();
-        objeto.valor = numero(valor);
-        objeto.valorSecundario = numero(valor2);
-        objeto.valorTerciario = numero(valor3);
-        objeto.dosManos = dosManos.isSelected();
-        escenario.objetos.add(objeto);
+        objeto.setFila(fila);
+        objeto.setColumna(columna);
+        objeto.setTipo((String) tipo.getSelectedItem());
+        objeto.setNombre(nombreObjeto.getText());
+        objeto.setDescripcion(descripcionObjeto.getText());
+        objeto.setPeso(((Number) peso.getValue()).doubleValue());
+        objeto.setValor(numero(valor));
+        objeto.setValorSecundario(numero(valor2));
+        objeto.setValorTerciario(numero(valor3));
+        objeto.setDosManos(dosManos.isSelected());
+        escenario.agregarObjeto(objeto);
     }
 
     private void editarCelda(EscenarioDefinicion.CeldaDef celda) {
-        JTextField texto = new JTextField(celda.descripcion, 25);
-        JCheckBox transitable = new JCheckBox("Transitable", celda.transitable);
+        JTextField texto = new JTextField(celda.getDescripcion(), 25);
+        JCheckBox transitable = new JCheckBox("Transitable", celda.isTransitable());
         JPanel formulario = formulario(new JLabel("Descripcion:"), texto, new JLabel("Tipo:"), transitable);
         if (JOptionPane.showConfirmDialog(this, formulario, "Editar celda",
                 JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
             if (!transitable.isSelected()
-                    && (esPunto(escenario.inicio, celda.fila, celda.columna)
-                    || esPunto(escenario.objetivo, celda.fila, celda.columna))) {
+                    && (esPunto(escenario.getInicio(), celda.getFila(), celda.getColumna())
+                    || esPunto(escenario.getObjetivo(), celda.getFila(), celda.getColumna()))) {
                 throw new IllegalArgumentException("Inicio y objetivo deben ser transitables.");
             }
-            celda.descripcion = texto.getText().trim();
-            celda.transitable = transitable.isSelected();
-            if (!celda.transitable) {
-                borrarContenido(celda.fila, celda.columna);
+            celda.setDescripcion(texto.getText());
+            celda.setTransitable(transitable.isSelected());
+            if (!celda.isTransitable()) {
+                borrarContenido(celda.getFila(), celda.getColumna());
             }
         }
     }
 
     private void borrarContenido(int fila, int columna) {
-        escenario.enemigos.removeIf(p -> p.fila == fila && p.columna == columna);
-        escenario.objetos.removeIf(p -> p.fila == fila && p.columna == columna);
+        escenario.eliminarContenido(fila, columna);
     }
 
     private void actualizarBoton(JButton boton, int fila, int columna) {
         EscenarioDefinicion.CeldaDef celda = asegurarCelda(fila, columna);
         boton.setOpaque(true);
         boton.setForeground(Color.WHITE);
-        boton.setBackground(celda.transitable ? new Color(70, 78, 88) : new Color(35, 38, 43));
+        boton.setBackground(celda.isTransitable() ? new Color(70, 78, 88) : new Color(35, 38, 43));
         String simbolo = "";
-        if (esPunto(escenario.inicio, fila, columna)) {
+        if (esPunto(escenario.getInicio(), fila, columna)) {
             boton.setBackground(new Color(48, 145, 92));
             simbolo += "▶";
         }
-        if (esPunto(escenario.objetivo, fila, columna)) {
+        if (esPunto(escenario.getObjetivo(), fila, columna)) {
             boton.setBackground(new Color(185, 135, 35));
             simbolo += "★";
         }
-        if (escenario.enemigos.stream().anyMatch(p -> p.fila == fila && p.columna == columna)) {
+        if (escenario.getEnemigos().stream()
+                .anyMatch(p -> p.getFila() == fila && p.getColumna() == columna)) {
             boton.setBackground(new Color(170, 55, 60));
             simbolo += "◆";
         }
-        if (escenario.objetos.stream().anyMatch(p -> p.fila == fila && p.columna == columna)) {
+        if (escenario.getObjetos().stream()
+                .anyMatch(p -> p.getFila() == fila && p.getColumna() == columna)) {
             simbolo += "■";
         }
         boton.setText(simbolo);
@@ -370,10 +394,12 @@ public final class PanelEditorMapa extends JPanel {
     }
 
     private String crearTooltip(int fila, int columna, EscenarioDefinicion.CeldaDef celda) {
-        long enemigos = escenario.enemigos.stream().filter(p -> p.fila == fila && p.columna == columna).count();
-        long objetos = escenario.objetos.stream().filter(p -> p.fila == fila && p.columna == columna).count();
-        return "<html><b>" + fila + "," + columna + "</b> " + celda.descripcion
-                + "<br>" + (celda.transitable ? "Transitable" : "Muro")
+        long enemigos = escenario.getEnemigos().stream()
+                .filter(p -> p.getFila() == fila && p.getColumna() == columna).count();
+        long objetos = escenario.getObjetos().stream()
+                .filter(p -> p.getFila() == fila && p.getColumna() == columna).count();
+        return "<html><b>" + fila + "," + columna + "</b> " + celda.getDescripcion()
+                + "<br>" + (celda.isTransitable() ? "Transitable" : "Muro")
                 + "<br>Enemigos: " + enemigos + " | Objetos: " + objetos + "</html>";
     }
 
@@ -387,12 +413,12 @@ public final class PanelEditorMapa extends JPanel {
                 if (selector.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
                     return;
                 }
-                directorioActual = selector.getSelectedFile().toPath();
+                setDirectorioActual(selector.getSelectedFile().toPath());
             }
             Path archivo = SerializadorEscenarioJson.guardar(escenario, directorioActual);
             JOptionPane.showMessageDialog(this, "Escenario guardado en:\n" + archivo,
                     "Guardado correcto", JOptionPane.INFORMATION_MESSAGE);
-            escenarioGuardado.accept(archivo.getParent(), escenario.conAliados);
+            escenarioGuardado.accept(archivo.getParent(), escenario.isConAliados());
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "No se pudo guardar", JOptionPane.ERROR_MESSAGE);
         }
@@ -407,9 +433,9 @@ public final class PanelEditorMapa extends JPanel {
         }
         try {
             Path ruta = selector.getSelectedFile().toPath();
-            escenario = SerializadorEscenarioJson.cargar(ruta);
-            directorioActual = ruta.getFileName().toString().toLowerCase().endsWith(".json")
-                    ? ruta.getParent() : ruta;
+            setEscenario(SerializadorEscenarioJson.cargar(ruta));
+            setDirectorioActual(ruta.getFileName().toString().toLowerCase().endsWith(".json")
+                    ? ruta.getParent() : ruta);
             cargarCamposDesdeModelo();
             reconstruirCuadricula();
         } catch (JuegoException e) {
@@ -418,41 +444,41 @@ public final class PanelEditorMapa extends JPanel {
     }
 
     private void cargarCamposDesdeModelo() {
-        nombre.setText(escenario.nombre);
-        descripcion.setText(escenario.descripcion);
-        pasos.setValue(escenario.pasosMaximos);
-        filas.setValue(escenario.filas);
-        columnas.setValue(escenario.columnas);
-        conAliados.setSelected(escenario.conAliados);
+        nombre.setText(escenario.getNombre());
+        descripcion.setText(escenario.getDescripcion());
+        pasos.setValue(escenario.getPasosMaximos());
+        filas.setValue(escenario.getFilas());
+        columnas.setValue(escenario.getColumnas());
+        conAliados.setSelected(escenario.isConAliados());
     }
 
     private void sincronizarMetadatos() {
         if (nombre.getText().isBlank()) {
             throw new IllegalArgumentException("El escenario necesita un nombre.");
         }
-        escenario.nombre = nombre.getText().trim();
-        escenario.descripcion = descripcion.getText().trim();
-        escenario.pasosMaximos = numero(pasos);
-        escenario.conAliados = conAliados.isSelected();
+        escenario.setNombre(nombre.getText());
+        escenario.setDescripcion(descripcion.getText());
+        escenario.setPasosMaximos(numero(pasos));
+        escenario.setConAliados(conAliados.isSelected());
     }
 
     private EscenarioDefinicion.CeldaDef asegurarCelda(int fila, int columna) {
         EscenarioDefinicion.CeldaDef celda = escenario.celda(fila, columna);
         if (celda == null) {
             celda = new EscenarioDefinicion.CeldaDef(fila, columna, "Celda " + fila + "," + columna, true);
-            escenario.celdas.add(celda);
+            escenario.agregarCelda(celda);
         }
         return celda;
     }
 
     private void exigirSuelo(int fila, int columna) {
-        if (!asegurarCelda(fila, columna).transitable) {
+        if (!asegurarCelda(fila, columna).isTransitable()) {
             throw new IllegalArgumentException("No se pueden colocar elementos sobre un muro.");
         }
     }
 
     private boolean esPunto(EscenarioDefinicion.Punto punto, int fila, int columna) {
-        return punto != null && punto.fila == fila && punto.columna == columna;
+        return punto != null && punto.getFila() == fila && punto.getColumna() == columna;
     }
 
     private int numero(JSpinner spinner) {

@@ -23,7 +23,7 @@ public final class Francotirador extends Jugador {
      * Ejecuta aplicarModificadorDanio.
      */
     protected int aplicarModificadorDanio(int base, Personaje objetivo) {
-        int distancia = Math.max(1, posicion.distanciaManhattan(objetivo.getPosicion()));
+        int distancia = Math.max(1, getPosicion().distanciaManhattan(objetivo.getPosicion()));
         double factor = Math.pow(distancia, 1.2);
         return (int) Math.ceil(base + factor);
     }

@@ -11,7 +11,7 @@ public class ComandoSalir implements Comando {
      * Ejecuta ComandoSalir.
      */
     public ComandoSalir() {
-        this.salir = false;
+        setSalir(false);
     }
 
     @Override
@@ -19,7 +19,7 @@ public class ComandoSalir implements Comando {
      * Ejecuta ejecutar.
      */
     public void ejecutar() {
-        salir = true;
+        setSalir(true);
     }
 
     /**
@@ -28,6 +28,11 @@ public class ComandoSalir implements Comando {
      */
     public boolean isSalir() {
         return salir;
+    }
+
+    /** @param salir estado de salida solicitado */
+    public void setSalir(boolean salir) {
+        this.salir = salir;
     }
 }
 

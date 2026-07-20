@@ -1,6 +1,7 @@
 package com.legendoftecla.model.characters;
 
 import com.legendoftecla.model.world.Posicion;
+import com.legendoftecla.validation.Validaciones;
 
 /**
  * Representa la entidad Enemigo del juego.
@@ -34,6 +35,12 @@ public abstract class Enemigo extends Personaje {
       * @param multiplicador valor de {@code multiplicador}
      */
     public static void setMultiplicadorDanioGlobal(double multiplicador) {
-        multiplicadorDanioGlobal = Math.max(0.1, multiplicador);
+        multiplicadorDanioGlobal = Validaciones.decimalEntre(
+                multiplicador, 0.1, 100.0, "Multiplicador de dano enemigo");
+    }
+
+    /** @return multiplicador global aplicado al dano enemigo */
+    public static double getMultiplicadorDanioGlobal() {
+        return multiplicadorDanioGlobal;
     }
 }

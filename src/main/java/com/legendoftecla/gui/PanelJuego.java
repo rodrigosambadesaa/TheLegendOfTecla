@@ -12,6 +12,7 @@ import com.legendoftecla.model.items.Explosivo;
 import com.legendoftecla.model.items.Objeto;
 import com.legendoftecla.model.world.Celda;
 import com.legendoftecla.model.world.Posicion;
+import com.legendoftecla.validation.Validaciones;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -178,6 +179,46 @@ public final class PanelJuego extends JPanel {
         });
     }
 
+    /** @return boton de coger */
+    public JButton getCoger() { return coger; }
+    /** @param coger boton no nulo */
+    public void setCoger(JButton coger) { this.coger = Validaciones.noNulo(coger, "Boton coger"); }
+    /** @return boton de usar */
+    public JButton getUsar() { return usar; }
+    /** @param usar boton no nulo */
+    public void setUsar(JButton usar) { this.usar = Validaciones.noNulo(usar, "Boton usar"); }
+    /** @return boton de tirar */
+    public JButton getTirar() { return tirar; }
+    /** @param tirar boton no nulo */
+    public void setTirar(JButton tirar) { this.tirar = Validaciones.noNulo(tirar, "Boton tirar"); }
+    /** @return boton de equipar */
+    public JButton getEquipar() { return equipar; }
+    /** @param equipar boton no nulo */
+    public void setEquipar(JButton equipar) {
+        this.equipar = Validaciones.noNulo(equipar, "Boton equipar");
+    }
+    /** @return boton de desequipar */
+    public JButton getDesequipar() { return desequipar; }
+    /** @param desequipar boton no nulo */
+    public void setDesequipar(JButton desequipar) {
+        this.desequipar = Validaciones.noNulo(desequipar, "Boton desequipar");
+    }
+    /** @return boton de atacar */
+    public JButton getAtacar() { return atacar; }
+    /** @param atacar boton no nulo */
+    public void setAtacar(JButton atacar) { this.atacar = Validaciones.noNulo(atacar, "Boton atacar"); }
+    /** @return boton de lanzamiento */
+    public JButton getLanzarExplosivo() { return lanzarExplosivo; }
+    /** @param lanzarExplosivo boton no nulo */
+    public void setLanzarExplosivo(JButton lanzarExplosivo) {
+        this.lanzarExplosivo = Validaciones.noNulo(lanzarExplosivo, "Boton lanzar explosivo");
+    }
+    /** @return boton de ayuda */
+    public JButton getPedirAyuda() { return pedirAyuda; }
+    /** @param pedirAyuda boton no nulo */
+    public void setPedirAyuda(JButton pedirAyuda) {
+        this.pedirAyuda = Validaciones.noNulo(pedirAyuda, "Boton pedir ayuda");
+    }
     private JPanel crearPanelAcciones(Runnable volver) {
         JPanel contenedor = new JPanel(new BorderLayout(5, 5));
         contenedor.setBorder(BorderFactory.createTitledBorder("Acciones rapidas"));
@@ -195,14 +236,14 @@ public final class PanelJuego extends JPanel {
         contenedor.add(movimiento, BorderLayout.NORTH);
 
         JPanel utilidades = new JPanel(new GridLayout(0, 2, 4, 4));
-        coger = botonContextual("Coger", this::cogerObjeto);
-        usar = botonContextual("Usar", this::usarObjeto);
-        tirar = botonContextual("Tirar", this::tirarObjeto);
-        equipar = botonContextual("Equipar", this::equiparObjeto);
-        desequipar = botonContextual("Desequipar", this::desequiparObjeto);
-        atacar = botonContextual("Atacar", this::atacarEnemigo);
-        lanzarExplosivo = botonContextual("Lanzar explosivo", this::lanzarExplosivo);
-        pedirAyuda = boton("Pedir ayuda", "pedir ayuda");
+        setCoger(botonContextual("Coger", this::cogerObjeto));
+        setUsar(botonContextual("Usar", this::usarObjeto));
+        setTirar(botonContextual("Tirar", this::tirarObjeto));
+        setEquipar(botonContextual("Equipar", this::equiparObjeto));
+        setDesequipar(botonContextual("Desequipar", this::desequiparObjeto));
+        setAtacar(botonContextual("Atacar", this::atacarEnemigo));
+        setLanzarExplosivo(botonContextual("Lanzar explosivo", this::lanzarExplosivo));
+        setPedirAyuda(boton("Pedir ayuda", "pedir ayuda"));
         utilidades.add(coger);
         utilidades.add(usar);
         utilidades.add(tirar);

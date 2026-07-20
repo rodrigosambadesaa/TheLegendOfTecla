@@ -8,8 +8,11 @@ import com.legendoftecla.model.items.Objeto;
 import com.legendoftecla.model.world.Direccion;
 import com.legendoftecla.model.world.Juego;
 import com.legendoftecla.model.world.Posicion;
+import com.legendoftecla.validation.Limites;
+import com.legendoftecla.validation.Validaciones;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -19,51 +22,51 @@ public abstract class Personaje {
     /**
      * Valor publico {@code nombre} utilizado por el modelo del juego.
      */
-    protected final String nombre;
+    private String nombre;
     /**
      * Valor publico {@code salud} utilizado por el modelo del juego.
      */
-    protected int salud;
+    private int salud;
     /**
      * Valor publico {@code saludMaxima} utilizado por el modelo del juego.
      */
-    protected int saludMaxima;
+    private int saludMaxima;
     /**
      * Valor publico {@code energia} utilizado por el modelo del juego.
      */
-    protected int energia;
+    private int energia;
     /**
      * Valor publico {@code energiaMaxima} utilizado por el modelo del juego.
      */
-    protected int energiaMaxima;
+    private int energiaMaxima;
     /**
      * Valor publico {@code posicion} utilizado por el modelo del juego.
      */
-    protected Posicion posicion;
+    private Posicion posicion;
     /**
      * Valor publico {@code mochila} utilizado por el modelo del juego.
      */
-    protected final Mochila mochila;
+    private Mochila mochila;
     /**
      * Valor publico {@code armasEquipadas} utilizado por el modelo del juego.
      */
-    protected final List<Arma> armasEquipadas;
+    private List<Arma> armasEquipadas;
     /**
      * Valor publico {@code armaduraEquipada} utilizado por el modelo del juego.
      */
-    protected Armadura armaduraEquipada;
+    private Armadura armaduraEquipada;
     /**
      * Valor publico {@code visionBase} utilizado por el modelo del juego.
      */
-    protected int visionBase;
+    private int visionBase;
     /**
      * Valor publico {@code visionTemporal} utilizado por el modelo del juego.
      */
-    protected int visionTemporal;
+    private int visionTemporal;
     /**
      * Valor publico {@code penalizacionEnergiaSiguienteTurno} utilizado por el modelo del juego.
      */
-    protected double penalizacionEnergiaSiguienteTurno;
+    private double penalizacionEnergiaSiguienteTurno;
 
     /**
      * Ejecuta Personaje.
@@ -75,17 +78,17 @@ public abstract class Personaje {
       * @param visionBase valor de {@code visionBase}
      */
     protected Personaje(String nombre, int salud, int energia, Posicion posicion, Mochila mochila, int visionBase) {
-        this.nombre = nombre;
-        this.salud = salud;
-        this.saludMaxima = salud;
-        this.energia = energia;
-        this.energiaMaxima = energia;
-        this.posicion = posicion;
-        this.mochila = mochila;
-        this.visionBase = visionBase;
-        this.visionTemporal = 0;
-        this.penalizacionEnergiaSiguienteTurno = 0.0;
-        this.armasEquipadas = new ArrayList<>();
+        setNombre(nombre);
+        setMochila(mochila);
+        setArmasEquipadas(List.of());
+        setSaludMaxima(salud);
+        setSalud(salud);
+        setEnergiaMaxima(energia);
+        setEnergia(energia);
+        setPosicion(posicion);
+        setVisionBase(visionBase);
+        setVisionTemporal(0);
+        setPenalizacionEnergiaSiguienteTurno(0.0);
     }
 
     /**
@@ -94,6 +97,12 @@ public abstract class Personaje {
      */
     public String getNombre() {
         return nombre;
+    }
+
+    /** @param nombre nombre obligatorio y acotado */
+    public void setNombre(String nombre) {
+        this.nombre = Validaciones.textoObligatorio(
+                nombre, "Nombre del personaje", Limites.TEXTO_CORTO);
     }
 
     /**
@@ -105,11 +114,31 @@ public abstract class Personaje {
     }
 
     /**
+     * Limita la salud actual al intervalo entre cero y la salud maxima.
+     *
+     * @param nuevaSalud valor solicitado
+     */
+    public void setSalud(int nuevaSalud) {
+        salud = Math.max(0, Math.min(saludMaxima, nuevaSalud));
+    }
+
+    /**
      * Ejecuta getSaludMaxima.
       * @return resultado de la operacion
      */
     public int getSaludMaxima() {
         return saludMaxima;
+    }
+
+    /**
+     * Establece una salud maxima positiva y ajusta la salud actual si es necesario.
+     *
+     * @param nuevaSaludMaxima limite solicitado
+     */
+    public void setSaludMaxima(int nuevaSaludMaxima) {
+        this.saludMaxima = Validaciones.enteroEntre(
+                nuevaSaludMaxima, 1, Limites.ESTADISTICA, "Salud maxima");
+        setSalud(salud);
     }
 
     /**
@@ -121,6 +150,15 @@ public abstract class Personaje {
     }
 
     /**
+     * Limita la energia actual al intervalo entre cero y la energia maxima.
+     *
+     * @param nuevaEnergia valor solicitado
+     */
+    public void setEnergia(int nuevaEnergia) {
+        energia = Math.max(0, Math.min(energiaMaxima, nuevaEnergia));
+    }
+
+    /**
      * Ejecuta getEnergiaMaxima.
       * @return resultado de la operacion
      */
@@ -129,17 +167,29 @@ public abstract class Personaje {
     }
 
     /**
+     * Establece una energia maxima positiva y ajusta la actual si es necesario.
+     *
+     * @param nuevaEnergiaMaxima limite solicitado
+     */
+    public void setEnergiaMaxima(int nuevaEnergiaMaxima) {
+        this.energiaMaxima = Validaciones.enteroEntre(
+                nuevaEnergiaMaxima, 1, Limites.ESTADISTICA, "Energia maxima");
+        setEnergia(energia);
+    }
+
+    /**
      * Amplia la energia maxima hasta un minimo sin reducir valores ya superiores.
      *
      * @param minimoEnergia nueva energia maxima minima
      */
     public void asegurarEnergiaMaxima(int minimoEnergia) {
+        Validaciones.enteroEntre(minimoEnergia, 1, Limites.ESTADISTICA, "Energia minima");
         if (minimoEnergia <= energiaMaxima) {
             return;
         }
         int incremento = minimoEnergia - energiaMaxima;
-        energiaMaxima = minimoEnergia;
-        energia += incremento;
+        setEnergiaMaxima(minimoEnergia);
+        setEnergia(energia + incremento);
     }
 
     /**
@@ -147,7 +197,17 @@ public abstract class Personaje {
       * @return resultado de la operacion
      */
     public Posicion getPosicion() {
-        return posicion;
+        return new Posicion(posicion.getFila(), posicion.getColumna());
+    }
+
+    /**
+     * Establece una posicion valida no nula.
+     *
+     * @param nuevaPosicion posicion solicitada
+     */
+    public void setPosicion(Posicion nuevaPosicion) {
+        Posicion validada = Validaciones.noNulo(nuevaPosicion, "Posicion");
+        posicion = new Posicion(validada.getFila(), validada.getColumna());
     }
 
     /**
@@ -158,12 +218,53 @@ public abstract class Personaje {
         return mochila;
     }
 
+    /** @param mochila mochila no nula */
+    public void setMochila(Mochila mochila) {
+        this.mochila = Validaciones.noNulo(mochila, "Mochila");
+    }
+
     /**
      * Ejecuta getRangoVision.
       * @return resultado de la operacion
      */
     public int getRangoVision() {
         return visionBase + visionTemporal;
+    }
+
+    /** @return alcance visual base sin mejoras temporales */
+    public int getVisionBase() {
+        return visionBase;
+    }
+
+    /** @return vision temporal activa */
+    public int getVisionTemporal() {
+        return visionTemporal;
+    }
+
+    /** @param visionTemporal vision temporal no negativa y acotada */
+    public void setVisionTemporal(int visionTemporal) {
+        this.visionTemporal = Validaciones.enteroEntre(
+                visionTemporal, 0, Limites.ESTADISTICA, "Vision temporal");
+    }
+
+    /** @return penalizacion del siguiente movimiento */
+    public double getPenalizacionEnergiaSiguienteTurno() {
+        return penalizacionEnergiaSiguienteTurno;
+    }
+
+    /** @param penalizacion penalizacion entre cero y uno */
+    public void setPenalizacionEnergiaSiguienteTurno(double penalizacion) {
+        this.penalizacionEnergiaSiguienteTurno = Validaciones.decimalEntre(
+                penalizacion, 0.0, 1.0, "Penalizacion de energia");
+    }
+
+    /**
+     * Establece el alcance visual base dentro de los limites del dominio.
+     *
+     * @param nuevaVision vision base solicitada
+     */
+    public void setVisionBase(int nuevaVision) {
+        visionBase = Validaciones.enteroEntre(nuevaVision, 1, Limites.ESTADISTICA, "Vision base");
     }
 
     /**
@@ -174,15 +275,12 @@ public abstract class Personaje {
      * @param nuevaVision alcance visual base del personaje
      */
     public void configurarEstadisticas(int nuevaSalud, int nuevaEnergia, int nuevaVision) {
-        if (nuevaSalud <= 0 || nuevaEnergia <= 0 || nuevaVision <= 0) {
-            throw new IllegalArgumentException("Salud, energia y vision deben ser mayores que cero.");
-        }
-        saludMaxima = nuevaSalud;
-        salud = nuevaSalud;
-        energiaMaxima = nuevaEnergia;
-        energia = nuevaEnergia;
-        visionBase = nuevaVision;
-        visionTemporal = 0;
+        setSaludMaxima(nuevaSalud);
+        setSalud(nuevaSalud);
+        setEnergiaMaxima(nuevaEnergia);
+        setEnergia(nuevaEnergia);
+        setVisionBase(nuevaVision);
+        setVisionTemporal(0);
     }
 
     /**
@@ -190,7 +288,20 @@ public abstract class Personaje {
       * @return resultado de la operacion
      */
     public List<Arma> getArmasEquipadas() {
-        return armasEquipadas;
+        return Collections.unmodifiableList(armasEquipadas);
+    }
+
+    /**
+     * Sustituye las armas equipadas por una copia validada.
+     *
+     * @param armas nuevas armas, como maximo dos
+     */
+    public void setArmasEquipadas(List<Arma> armas) {
+        Validaciones.noNulo(armas, "Armas equipadas");
+        if (armas.size() > 2 || armas.stream().anyMatch(java.util.Objects::isNull)) {
+            throw new IllegalArgumentException("Solo se admiten dos armas equipadas y ninguna puede ser nula.");
+        }
+        this.armasEquipadas = new ArrayList<>(armas);
     }
 
     /**
@@ -202,19 +313,30 @@ public abstract class Personaje {
     }
 
     /**
+     * Establece la referencia de armadura equipada; {@code null} la elimina.
+     *
+     * @param armadura nueva armadura
+     */
+    public void setArmaduraEquipada(Armadura armadura) {
+        this.armaduraEquipada = armadura;
+    }
+
+    /**
      * Ejecuta mover.
       * @param direccion valor de {@code direccion}
       * @param juego valor de {@code juego}
       * @throws com.legendoftecla.exceptions.AccionInvalidaException si la operacion no puede completarse
      */
     public void mover(Direccion direccion, Juego juego) throws AccionInvalidaException {
+        Validaciones.noNulo(direccion, "Direccion");
+        Validaciones.noNulo(juego, "Juego");
         Posicion destino = posicion.mover(direccion);
         if (!juego.getMapa().esTransitable(destino)) {
             throw new AccionInvalidaException("No puedes moverte a " + direccion + ".");
         }
         int coste = calcularCosteMovimiento();
         gastarEnergia(coste);
-        posicion = destino;
+        setPosicion(destino);
     }
 
     /**
@@ -223,6 +345,7 @@ public abstract class Personaje {
       * @throws com.legendoftecla.exceptions.AccionInvalidaException si la operacion no puede completarse
      */
     public void coger(Objeto objeto) throws AccionInvalidaException {
+        Validaciones.noNulo(objeto, "Objeto");
         if (objeto instanceof Explosivo && !(this instanceof Zapador)) {
             throw new AccionInvalidaException("Solo el zapador puede cargar explosivos.");
         }
@@ -238,6 +361,7 @@ public abstract class Personaje {
       * @throws com.legendoftecla.exceptions.AccionInvalidaException si la operacion no puede completarse
      */
     public Objeto tirar(String nombreObjeto) throws AccionInvalidaException {
+        Validaciones.textoObligatorio(nombreObjeto, "Nombre del objeto", Limites.TEXTO_CORTO);
         Objeto obj = mochila.quitarPorNombre(nombreObjeto);
         if (obj == null) {
             throw new AccionInvalidaException("No tienes ese objeto en la mochila.");
@@ -251,6 +375,7 @@ public abstract class Personaje {
       * @throws com.legendoftecla.exceptions.AccionInvalidaException si la operacion no puede completarse
      */
     public void equipar(Objeto objeto) throws AccionInvalidaException {
+        Validaciones.noNulo(objeto, "Objeto");
         if (objeto instanceof Arma arma) {
             equiparArma(arma);
             return;
@@ -268,17 +393,29 @@ public abstract class Personaje {
       * @throws com.legendoftecla.exceptions.AccionInvalidaException si la operacion no puede completarse
      */
     public void desequipar(String nombreObjeto) throws AccionInvalidaException {
+        String nombreValidado = Validaciones.textoObligatorio(
+                nombreObjeto, "Nombre del objeto", Limites.TEXTO_CORTO);
         for (int i = 0; i < armasEquipadas.size(); i++) {
             Arma arma = armasEquipadas.get(i);
-            if (arma.getNombre().equalsIgnoreCase(nombreObjeto)) {
-                armasEquipadas.remove(i);
+            if (arma.getNombre().equalsIgnoreCase(nombreValidado)) {
+                if (!mochila.puedeGuardar(arma)) {
+                    throw new AccionInvalidaException("La mochila no tiene espacio para desequipar el arma.");
+                }
+                List<Arma> restantes = new ArrayList<>(armasEquipadas);
+                restantes.remove(i);
+                setArmasEquipadas(restantes);
                 mochila.guardar(arma);
                 return;
             }
         }
-        if (armaduraEquipada != null && armaduraEquipada.getNombre().equalsIgnoreCase(nombreObjeto)) {
-            mochila.guardar(armaduraEquipada);
-            armaduraEquipada = null;
+        if (armaduraEquipada != null && armaduraEquipada.getNombre().equalsIgnoreCase(nombreValidado)) {
+            Armadura retirada = armaduraEquipada;
+            if (!mochila.guardar(retirada)) {
+                throw new AccionInvalidaException("La mochila no tiene espacio para desequipar la armadura.");
+            }
+            setArmaduraEquipada(null);
+            setSaludMaxima(Math.max(1, saludMaxima - retirada.getBonusSalud()));
+            setEnergiaMaxima(Math.max(1, energiaMaxima - retirada.getBonusEnergia()));
             return;
         }
         throw new AccionInvalidaException("No tienes ese objeto equipado.");
@@ -289,6 +426,7 @@ public abstract class Personaje {
       * @param objetivo valor de {@code objetivo}
      */
     public void atacar(Personaje objetivo) {
+        Validaciones.noNulo(objetivo, "Objetivo");
         int danio = calcularDanio(objetivo);
         objetivo.recibirDanio(danio);
     }
@@ -298,11 +436,13 @@ public abstract class Personaje {
       * @param objetivos valor de {@code objetivos}
      */
     public void atacar(List<? extends Personaje> objetivos) {
+        Validaciones.noNulo(objetivos, "Objetivos");
         if (objetivos.isEmpty()) {
             return;
         }
         int danio = Math.max(1, calcularDanio(objetivos.get(0)) / objetivos.size());
         for (Personaje personaje : objetivos) {
+            Validaciones.noNulo(personaje, "Objetivo");
             personaje.recibirDanio(danio);
         }
     }
@@ -334,7 +474,7 @@ public abstract class Personaje {
      */
     protected int calcularCosteMovimiento() {
         int coste = estimarCosteMovimiento();
-        penalizacionEnergiaSiguienteTurno = 0.0;
+        setPenalizacionEnergiaSiguienteTurno(0.0);
         return coste;
     }
 
@@ -358,6 +498,7 @@ public abstract class Personaje {
       * @throws com.legendoftecla.exceptions.AccionInvalidaException si la operacion no puede completarse
      */
     protected void equiparArma(Arma arma) throws AccionInvalidaException {
+        Validaciones.noNulo(arma, "Arma");
         int usadas = 0;
         for (Arma equipada : armasEquipadas) {
             usadas += equipada.isDosManos() ? 2 : 1;
@@ -366,7 +507,9 @@ public abstract class Personaje {
         if (nuevas > 2) {
             throw new AccionInvalidaException("No tienes manos suficientes para equipar esa arma.");
         }
-        armasEquipadas.add(arma);
+        List<Arma> nuevasArmas = new ArrayList<>(armasEquipadas);
+        nuevasArmas.add(arma);
+        setArmasEquipadas(nuevasArmas);
     }
 
     /**
@@ -374,11 +517,17 @@ public abstract class Personaje {
       * @param armadura valor de {@code armadura}
      */
     protected void equiparArmadura(Armadura armadura) {
-        this.armaduraEquipada = armadura;
-        this.saludMaxima += armadura.getBonusSalud();
-        this.energiaMaxima += armadura.getBonusEnergia();
-        this.salud = Math.min(salud + armadura.getBonusSalud(), saludMaxima);
-        this.energia = Math.min(energia + armadura.getBonusEnergia(), energiaMaxima);
+        Validaciones.noNulo(armadura, "Armadura");
+        if (armaduraEquipada != null) {
+            throw new IllegalStateException("Ya hay una armadura equipada.");
+        }
+        int nuevaSaludMaxima = sumarEstadistica(saludMaxima, armadura.getBonusSalud(), "Salud maxima");
+        int nuevaEnergiaMaxima = sumarEstadistica(energiaMaxima, armadura.getBonusEnergia(), "Energia maxima");
+        setArmaduraEquipada(armadura);
+        setSaludMaxima(nuevaSaludMaxima);
+        setEnergiaMaxima(nuevaEnergiaMaxima);
+        setSalud(salud + armadura.getBonusSalud());
+        setEnergia(energia + armadura.getBonusEnergia());
     }
 
     /**
@@ -386,11 +535,12 @@ public abstract class Personaje {
       * @param danio valor de {@code danio}
      */
     public void recibirDanio(int danio) {
+        Validaciones.enteroEntre(danio, 0, Limites.ESTADISTICA, "Dano recibido");
         int mitigado = danio;
         if (armaduraEquipada != null) {
             mitigado = Math.max(0, danio - armaduraEquipada.getDefensa());
         }
-        salud = Math.max(0, salud - mitigado);
+        setSalud(salud - mitigado);
     }
 
     /**
@@ -398,7 +548,8 @@ public abstract class Personaje {
       * @param cantidad valor de {@code cantidad}
      */
     public void recuperarSalud(int cantidad) {
-        salud = Math.min(saludMaxima, salud + cantidad);
+        Validaciones.enteroEntre(cantidad, 0, Limites.ESTADISTICA, "Salud recuperada");
+        setSalud(salud + cantidad);
     }
 
     /**
@@ -406,7 +557,8 @@ public abstract class Personaje {
       * @param cantidad valor de {@code cantidad}
      */
     public void recuperarEnergia(int cantidad) {
-        energia = Math.min(energiaMaxima, energia + cantidad);
+        Validaciones.enteroEntre(cantidad, 0, Limites.ESTADISTICA, "Energia recuperada");
+        setEnergia(energia + cantidad);
     }
 
     /**
@@ -414,13 +566,11 @@ public abstract class Personaje {
       * @param factor valor de {@code factor}
      */
     public void escalarSalud(double factor) {
-        if (factor <= 0) {
-            return;
-        }
+        Validaciones.decimalEntre(factor, 0.01, 100.0, "Factor de salud");
         int nuevaSaludMaxima = Math.max(1, (int) Math.round(saludMaxima * factor));
         double proporcionActual = saludMaxima <= 0 ? 1.0 : (double) salud / saludMaxima;
-        saludMaxima = nuevaSaludMaxima;
-        salud = Math.max(1, Math.min(saludMaxima, (int) Math.round(saludMaxima * proporcionActual)));
+        setSaludMaxima(nuevaSaludMaxima);
+        setSalud(Math.max(1, (int) Math.round(saludMaxima * proporcionActual)));
     }
 
     /**
@@ -429,10 +579,11 @@ public abstract class Personaje {
       * @throws com.legendoftecla.exceptions.AccionInvalidaException si la operacion no puede completarse
      */
     public void gastarEnergia(int cantidad) throws AccionInvalidaException {
+        Validaciones.enteroEntre(cantidad, 0, Limites.ESTADISTICA, "Energia gastada");
         if (energia < cantidad) {
             throw new AccionInvalidaException("No tienes energia suficiente.");
         }
-        energia -= cantidad;
+        setEnergia(energia - cantidad);
     }
 
     /**
@@ -440,7 +591,9 @@ public abstract class Personaje {
       * @param incremento valor de {@code incremento}
      */
     public void aumentarVisionTemporal(int incremento) {
-        visionTemporal = Math.max(visionTemporal, incremento);
+        int validado = Validaciones.enteroEntre(
+                incremento, 0, Limites.ESTADISTICA, "Incremento de vision");
+        setVisionTemporal(Math.max(visionTemporal, validado));
     }
 
     /**
@@ -448,13 +601,23 @@ public abstract class Personaje {
       * @param porcentaje valor de {@code porcentaje}
      */
     public void aplicarPenalizacionEnergiaSiguienteTurno(double porcentaje) {
-        penalizacionEnergiaSiguienteTurno = Math.max(penalizacionEnergiaSiguienteTurno, porcentaje);
+        double validado = Validaciones.decimalEntre(porcentaje, 0.0, 1.0, "Penalizacion de energia");
+        setPenalizacionEnergiaSiguienteTurno(
+                Math.max(penalizacionEnergiaSiguienteTurno, validado));
     }
 
     /**
      * Ejecuta resetTurno.
      */
     public void resetTurno() {
-        visionTemporal = 0;
+        setVisionTemporal(0);
+    }
+
+    private int sumarEstadistica(int base, int incremento, String campo) {
+        long resultado = (long) base + incremento;
+        if (resultado > Limites.ESTADISTICA) {
+            throw new IllegalArgumentException(campo + " supera el limite permitido.");
+        }
+        return (int) resultado;
     }
 }

@@ -93,6 +93,7 @@ public final class CargadorJuegoJson extends CargadorJuegoBase {
             exigirTransitable(mapa, posicion, "objeto " + objetoDef.getNombre());
             mapa.getCelda(posicion).agregarObjeto(crearObjeto(objetoDef));
         }
+        GeneradorSuministrosDificultad.poblar(mapa, dificultad, new Random(307));
 
         int cantidadEnemigos = dificultad.ajustarCantidadEnemigos(definicion.getEnemigos().size());
         for (int indice = 0; indice < cantidadEnemigos; indice++) {

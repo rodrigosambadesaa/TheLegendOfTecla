@@ -91,6 +91,24 @@ public enum Dificultad {
     }
 
     /**
+     * Calcula cuantos botiquines y cuantos Toritos adicionales recibe un mapa.
+     * Las dificultades normales y superiores conservan la distribucion original.
+     *
+     * @param cantidadCeldas superficie total del mapa
+     * @return cantidad adicional de cada tipo de suministro
+     */
+    public int calcularSuministrosExtra(int cantidadCeldas) {
+        if (cantidadCeldas <= 0) {
+            return 0;
+        }
+        return switch (this) {
+            case MUY_FACIL -> Math.max(4, (int) Math.ceil(cantidadCeldas / 25.0));
+            case FACIL -> Math.max(2, (int) Math.ceil(cantidadCeldas / 50.0));
+            default -> 0;
+        };
+    }
+
+    /**
      * Ejecuta la operacion publica {@code desdeTexto}.
       * @param texto valor de {@code texto}
       * @return resultado de la operacion

@@ -118,6 +118,7 @@ public class CargadorJuegoDeFicheros extends CargadorJuegoBase {
                         : new Botiquin(nombre, "Botiquin desde fichero", 1.0, 15);
                 mapa.getCelda(pos).agregarObjeto(obj);
             }
+            GeneradorSuministrosDificultad.poblar(mapa, dificultad, new Random(103));
 
             List<String> lineasEnemigos = Files.readAllLines(enemigosPath).stream()
                     .map(String::trim)

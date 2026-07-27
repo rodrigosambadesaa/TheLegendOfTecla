@@ -310,6 +310,15 @@ class IntegracionModosGuiTest {
     }
 
     @Test
+    void lasDificultadesFacilesAgreganBotiquinesYToritosEnTodosLosMapas() throws Exception {
+        SerializadorEscenarioJson.guardar(crearEscenarioCompleto(), temporal);
+
+        verificarSuministrosFaciles("default", new DimensionesMapa(10, 10), null, 1);
+        verificarSuministrosFaciles("grande", new DimensionesMapa(21, 21), null, 17);
+        verificarSuministrosFaciles("ficheros", null, temporal, 1);
+    }
+
+    @Test
     void existenCincuentaVariantesGrandesDistintasYReproducibles() throws Exception {
         Set<String> distribuciones = new HashSet<>();
         for (int variante = 1; variante <= 50; variante++) {
@@ -714,6 +723,42 @@ class IntegracionModosGuiTest {
             }
         }
         return firma.toString();
+    }
+
+    private void verificarSuministrosFaciles(String modo, DimensionesMapa dimensiones,
+            Path directorio, int variante) throws Exception {
+        Juego normal = FabricaJuego.crear(new ConsolaSilenciosa(), new ConfiguracionPartida(
+                "Normal", "marine", modo, Dificultad.NORMAL,
+                dimensiones, directorio, false, variante));
+        Juego facil = FabricaJuego.crear(new ConsolaSilenciosa(), new ConfiguracionPartida(
+                "Facil", "marine", modo, Dificultad.FACIL,
+                dimensiones, directorio, false, variante));
+        Juego muyFacil = FabricaJuego.crear(new ConsolaSilenciosa(), new ConfiguracionPartida(
+                "Muy facil", "marine", modo, Dificultad.MUY_FACIL,
+                dimensiones, directorio, false, variante));
+
+        int celdas = normal.getMapa().getFilas() * normal.getMapa().getColumnas();
+        for (Class<?> tipo : List.of(Botiquin.class, ToritoRojo.class)) {
+            long base = contarObjetos(normal.getMapa(), tipo);
+            assertEquals(base + Dificultad.FACIL.calcularSuministrosExtra(celdas),
+                    contarObjetos(facil.getMapa(), tipo),
+                    "Facil debe agregar suministros " + tipo.getSimpleName() + " en " + modo);
+            assertEquals(base + Dificultad.MUY_FACIL.calcularSuministrosExtra(celdas),
+                    contarObjetos(muyFacil.getMapa(), tipo),
+                    "Muy facil debe agregar suministros " + tipo.getSimpleName() + " en " + modo);
+        }
+    }
+
+    private long contarObjetos(Mapa mapa, Class<?> tipo) {
+        long cantidad = 0;
+        for (int fila = 0; fila < mapa.getFilas(); fila++) {
+            for (int columna = 0; columna < mapa.getColumnas(); columna++) {
+                cantidad += mapa.getCelda(new Posicion(fila, columna)).getObjetos().stream()
+                        .filter(tipo::isInstance)
+                        .count();
+            }
+        }
+        return cantidad;
     }
 
     private static final class ConsolaSilenciosa implements Consola {

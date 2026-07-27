@@ -1,0 +1,17 @@
+FROM maven:3.9.11-eclipse-temurin-21-alpine AS documentation
+
+WORKDIR /build
+COPY pom.xml ./
+RUN mvn -B -ntp dependency:go-offline
+COPY src ./src
+RUN mvn -B -ntp -DskipTests javadoc:javadoc
+
+FROM nginxinc/nginx-unprivileged:1.27-alpine
+
+COPY --chown=101:101 docker/javadoc/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --chown=101:101 docs/javadoc-site/ /usr/share/nginx/html/
+COPY --from=documentation --chown=101:101 /build/target/reports/apidocs/ /usr/share/nginx/html/api/
+
+EXPOSE 8080
+HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=6 \
+    CMD wget --quiet --tries=1 --spider http://127.0.0.1:8080/health || exit 1

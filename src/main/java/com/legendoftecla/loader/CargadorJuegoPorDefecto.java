@@ -66,6 +66,7 @@ public class CargadorJuegoPorDefecto extends CargadorJuegoBase {
 
         Random random = new Random(11);
         poblarObjetos(mapa, random, Math.max(9, (filas * columnas) / 10));
+        GeneradorSuministrosDificultad.poblar(mapa, dificultad, new Random(13));
 
         Enemigo.setMultiplicadorDanioGlobal(dificultad.getMultiplicadorDanioEnemigo());
         int baseEnemigos = Math.max(4, (filas * columnas) / 28);

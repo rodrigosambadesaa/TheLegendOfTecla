@@ -102,6 +102,8 @@ public class CargadorJuegoGrandeConAliados extends CargadorJuegoBase {
         int cantidadObjetos = Math.max(180, (filas * columnas) / 12);
         poblarObjetos(mapa, random, cantidadObjetos);
         poblarToritosEnRuta(mapa);
+        GeneradorSuministrosDificultad.poblar(
+                mapa, dificultad, new Random(6200L + varianteMapa));
         poblarEnemigos(juego, mapa, random);
         int cantidadAliados = conAliados
                 ? GeneradorAliados.poblar(juego, mapa, dificultad,

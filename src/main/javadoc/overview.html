@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>The Legend of Tecla — Arquitectura y API</title>
+</head>
+<body>
+<h1>The Legend of Tecla</h1>
+<p>
+    API publica del juego tactico por turnos construido en Java 17. La aplicacion
+    comparte un unico motor entre la consola, la interfaz Swing y los escenarios
+    generados o importados. Este documento describe las responsabilidades y los
+    contratos publicos de cada paquete; el portal de documentacion que acompana
+    al Javadoc contiene la explicacion funcional, los flujos principales y las
+    recetas de extension.
+</p>
+
+<h2>Recorrido de una partida</h2>
+<ol>
+    <li>{@code OpcionesInicio} o la interfaz grafica recogen la configuracion.</li>
+    <li>{@code FabricaJuego} elige un cargador y construye el mapa, los personajes y los objetos.</li>
+    <li>{@code MotorPartida} interpreta cada accion y coordina reglas, turnos, aliados y finalizacion.</li>
+    <li>El modelo de {@code world}, {@code characters} e {@code items} conserva el estado valido.</li>
+    <li>Una implementacion de {@code Consola} comunica el resultado a texto o a Swing.</li>
+</ol>
+
+<h2>Principios de diseno</h2>
+<ul>
+    <li><strong>Un motor, varias interfaces:</strong> la GUI no duplica reglas de juego.</li>
+    <li><strong>Modelo protegido:</strong> constructores y setters validan sus propios invariantes.</li>
+    <li><strong>Cargadores intercambiables:</strong> mapas por defecto, grandes, TXT y JSON producen el mismo {@code Juego}.</li>
+    <li><strong>Comandos componibles:</strong> el parser crea objetos comando simples, compuestos o repetidos.</li>
+    <li><strong>Determinismo:</strong> las semillas fijas permiten reproducir mapas, enemigos y suministros.</li>
+</ul>
+
+<h2>Mapa de paquetes</h2>
+<p>
+    Empiece por {@code engine} para comprender la orquestacion; continue por
+    {@code model.world}, {@code model.characters} y {@code model.items} para las
+    reglas de dominio; consulte {@code loader} para creacion y persistencia,
+    {@code commands} para la entrada de usuario y {@code gui}/{@code console}
+    para presentacion.
+</p>
+</body>
+</html>

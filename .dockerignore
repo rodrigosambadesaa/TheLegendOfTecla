@@ -2,7 +2,9 @@
 .vscode
 out
 target
-docs
+docs/*
+!docs/javadoc-site/
+!docs/javadoc-site/**
 *.pdf
 /*.txt
 README.md

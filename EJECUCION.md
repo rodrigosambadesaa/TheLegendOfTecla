@@ -314,8 +314,52 @@ java -jar target/the-legend-of-tecla.jar --help
 
 ## Generar Javadoc HTML
 
-La documentacion de todas las clases, constructores y metodos publicos se puede
-generar sin instalar Java ni Maven localmente:
+### Web de documentacion completa
+
+El proyecto incluye una segunda web Docker, independiente de la GUI. Su portada
+explica la arquitectura por capas, los paquetes, el ciclo de una partida, la
+carga de escenarios, la asistencia de aliados, el balance por dificultad y los
+puntos recomendados para extender objetos, comandos, cargadores o reglas. La
+seccion `/api/` contiene el Javadoc completo, con buscador, indices, jerarquia,
+firmas, parametros y relaciones de herencia.
+
+Construye e inicia la web:
+
+```bash
+docker compose up --build --detach javadoc-web
+```
+
+Abre:
+
+```text
+http://localhost:8081
+```
+
+El servidor escucha solo en `127.0.0.1`, incluye una comprobacion de salud y
+sirve contenido estatico de solo lectura. Para consultar su estado o detenerlo:
+
+```bash
+docker compose ps javadoc-web
+docker compose stop javadoc-web
+```
+
+Para cambiar el puerto publicado:
+
+```bash
+TECLA_DOCS_PORT=8090 docker compose up --build --detach javadoc-web
+```
+
+En PowerShell:
+
+```powershell
+$env:TECLA_DOCS_PORT = "8090"
+docker compose up --build --detach javadoc-web
+```
+
+### Generacion de los archivos
+
+La documentacion de todas las clases, constructores y metodos publicos tambien
+se puede generar como archivos sin instalar Java ni Maven localmente:
 
 ```bash
 docker compose run --rm javadoc
@@ -332,8 +376,10 @@ mvn verify
 ```
 
 `mvn verify` ejecuta las pruebas y genera tambien el Javadoc. La configuracion
-valida la sintaxis, referencias y estructura de los comentarios, publica solo
-la API visible y hace fallar la construccion ante errores o avisos de Javadoc.
+valida sintaxis, referencias y estructura, publica solo la API visible y hace
+fallar la construccion ante errores o avisos significativos. Los textos
+generales de cada paquete documentan sus responsabilidades, dependencias y
+contratos principales.
 
 ## Uso de la consola
 

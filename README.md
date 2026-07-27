@@ -117,14 +117,34 @@ el editor grafico, esta en [EJECUCION.md](EJECUCION.md).
 
 ## Javadoc
 
-Genera en Docker la documentacion HTML de toda la API publica:
+La documentacion tecnica dispone de una web Docker independiente. Incluye una
+portada en espanol con arquitectura, responsabilidades, flujos de arranque y
+turno, balance, ayuda aliada y guias de extension; desde ella se accede al
+Javadoc navegable y buscable generado directamente desde el codigo:
+
+```bash
+docker compose up --build --detach javadoc-web
+```
+
+Abre despues `http://localhost:8081`. La publicacion queda limitada al equipo
+local. Puede elegirse otro puerto con
+`TECLA_DOCS_PORT=8090 docker compose up --build --detach javadoc-web`.
+
+Para detener la web:
+
+```bash
+docker compose stop javadoc-web
+```
+
+El servicio independiente `javadoc` conserva la generacion de archivos HTML
+en `target/reports/apidocs/`:
 
 ```bash
 docker compose run --rm javadoc
 ```
 
-Abre despues `target/reports/apidocs/index.html`. La misma documentacion se
-genera localmente con `mvn javadoc:javadoc` y tambien durante `mvn verify`.
+La misma API se genera localmente con `mvn javadoc:javadoc` y durante
+`mvn verify`.
 
 ## Ejecutar localmente
 

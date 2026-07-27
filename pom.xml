@@ -100,11 +100,14 @@
                     <docencoding>${project.build.sourceEncoding}</docencoding>
                     <charset>${project.build.sourceEncoding}</charset>
                     <show>public</show>
-                    <doclint>all</doclint>
+                    <doclint>all,-missing</doclint>
                     <failOnError>true</failOnError>
                     <failOnWarnings>true</failOnWarnings>
+                    <linksource>true</linksource>
+                    <overview>${project.basedir}/src/main/javadoc/overview.html</overview>
                     <windowtitle>The Legend of Tecla - API</windowtitle>
                     <doctitle>The Legend of Tecla - Documentacion de la API</doctitle>
+                    <header><![CDATA[<a href="/">Volver al portal tecnico</a>]]></header>
                     <bottom>Proyecto de Programacion Orientada a Objetos - The Legend of Tecla</bottom>
                 </configuration>
                 <executions>

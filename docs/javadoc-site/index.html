@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Arquitectura, guías técnicas y Javadoc completo de The Legend of Tecla.">
+  <meta name="theme-color" content="#101713">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="The Legend of Tecla — Documentación técnica">
+  <meta property="og:description" content="Arquitectura, flujos, guías de extensión y API Java completa.">
+  <meta property="og:image" content="/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="The Legend of Tecla — Documentación técnica">
+  <meta name="twitter:description" content="Arquitectura, flujos, guías de extensión y API Java completa.">
+  <meta name="twitter:image" content="/og.png">
+  <title>The Legend of Tecla — Documentación técnica</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="The Legend of Tecla, documentación">
+      <span class="brand-mark" aria-hidden="true">T</span>
+      <span>
+        <strong>The Legend of Tecla</strong>
+        <small>Documentación técnica</small>
+      </span>
+    </a>
+    <button class="menu-button" type="button" aria-expanded="false" aria-controls="site-nav">
+      Menú
+    </button>
+    <nav id="site-nav" class="site-nav" aria-label="Navegación principal">
+      <a href="#arquitectura">Arquitectura</a>
+      <a href="#modulos">Módulos</a>
+      <a href="#flujos">Flujos</a>
+      <a href="#extender">Extender</a>
+      <a class="nav-api" href="/api/">Abrir Javadoc</a>
+    </nav>
+  </header>
+
+  <main id="contenido">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow"><span></span> Java 17 · API pública completa</p>
+        <h1>Entiende el juego.<br><em>Entra en el código.</em></h1>
+        <p class="hero-lead">
+          Una guía navegable de la arquitectura, las reglas y los puntos de
+          extensión del proyecto, acompañada del Javadoc generado directamente
+          desde los 82 archivos que implementan la aplicación.
+        </p>
+        <div class="hero-actions">
+          <a class="button primary" href="/api/">Explorar la API</a>
+          <a class="button secondary" href="#arquitectura">Ver arquitectura</a>
+        </div>
+        <ul class="hero-facts" aria-label="Características de la documentación">
+          <li>Firmas y herencia</li>
+          <li>Búsqueda integrada</li>
+          <li>Siempre sincronizada</li>
+        </ul>
+      </div>
+
+      <div class="hero-panel" aria-label="Resumen del flujo principal">
+        <div class="panel-top">
+          <span>flujo/partida.java</span>
+          <span class="status">documentado</span>
+        </div>
+        <ol class="code-flow">
+          <li><span class="line">01</span><code><b>Configuración</b> → OpcionesInicio</code></li>
+          <li><span class="line">02</span><code><b>Creación</b> → FabricaJuego</code></li>
+          <li><span class="line">03</span><code><b>Escenario</b> → CargadorJuego</code></li>
+          <li><span class="line">04</span><code><b>Reglas</b> → MotorPartida</code></li>
+          <li><span class="line">05</span><code><b>Estado</b> → Juego + Mapa</code></li>
+          <li><span class="line">06</span><code><b>Salida</b> → Consola / Swing</code></li>
+        </ol>
+        <div class="panel-result">
+          <span class="pulse" aria-hidden="true"></span>
+          Un motor compartido, dos interfaces
+        </div>
+      </div>
+    </section>
+
+    <section class="metrics" aria-label="Resumen del proyecto">
+      <article><strong>82</strong><span>archivos de lógica</span></article>
+      <article><strong>12</strong><span>áreas documentadas</span></article>
+      <article><strong>3</strong><span>formatos de mapa</span></article>
+      <article><strong>50</strong><span>variantes grandes</span></article>
+    </section>
+
+    <section id="arquitectura" class="section">
+      <div class="section-heading">
+        <p class="eyebrow"><span></span> Arquitectura</p>
+        <h2>Una dirección clara para cada dependencia</h2>
+        <p>
+          La presentación traduce acciones; el motor decide; el modelo protege
+          el estado. Los cargadores solo construyen la partida y no intervienen
+          durante los turnos.
+        </p>
+      </div>
+
+      <div class="architecture" aria-label="Capas desde interfaz hasta modelo">
+        <article class="layer presentation">
+          <span class="layer-number">01</span>
+          <div>
+            <small>Entrada y salida</small>
+            <h3>GUI · Consola · Comandos</h3>
+            <p>Recogen intención y presentan resultados sin duplicar reglas.</p>
+          </div>
+          <a href="/api/com/legendoftecla/gui/package-summary.html">Ver capa</a>
+        </article>
+        <div class="connector" aria-hidden="true"><span>contexto y acciones</span></div>
+        <article class="layer engine">
+          <span class="layer-number">02</span>
+          <div>
+            <small>Orquestación</small>
+            <h3>MotorPartida · FabricaJuego</h3>
+            <p>Coordina turnos, combate, ayuda, energía y estados finales.</p>
+          </div>
+          <a href="/api/com/legendoftecla/engine/package-summary.html">Ver capa</a>
+        </article>
+        <div class="connector" aria-hidden="true"><span>opera sobre</span></div>
+        <article class="layer domain">
+          <span class="layer-number">03</span>
+          <div>
+            <small>Dominio</small>
+            <h3>Juego · Mundo · Personajes · Objetos</h3>
+            <p>Conserva invariantes, relaciones, inventarios y estadísticas.</p>
+          </div>
+          <a href="/api/com/legendoftecla/model/world/package-summary.html">Ver capa</a>
+        </article>
+        <div class="loader-rail">
+          <span>Cargadores</span>
+          <p>Crean el dominio desde generación determinista, TXT o JSON.</p>
+          <a href="/api/com/legendoftecla/loader/package-summary.html">Explorar loader</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="modulos" class="section section-dark">
+      <div class="section-heading">
+        <p class="eyebrow"><span></span> Mapa del código</p>
+        <h2>Empieza por una responsabilidad</h2>
+        <p>Cada tarjeta abre el índice real de clases, constructores y métodos del paquete.</p>
+      </div>
+
+      <div class="module-grid">
+        <a class="module featured" href="/api/com/legendoftecla/engine/package-summary.html">
+          <span class="module-code">engine</span>
+          <h3>Motor de partida</h3>
+          <p>Reglas centrales, creación de partidas y configuración compartida.</p>
+          <strong>MotorPartida · FabricaJuego →</strong>
+        </a>
+        <a class="module" href="/api/com/legendoftecla/model/world/package-summary.html">
+          <span class="module-code">model.world</span>
+          <h3>Mundo</h3>
+          <p>Mapa, celdas, posiciones, partida y sistema de puntuación.</p>
+          <strong>Juego · Mapa · Celda →</strong>
+        </a>
+        <a class="module" href="/api/com/legendoftecla/model/characters/package-summary.html">
+          <span class="module-code">model.characters</span>
+          <h3>Personajes</h3>
+          <p>Jugador, aliados, enemigos, clases especializadas y mochila.</p>
+          <strong>Personaje · Aliado · Enemigo →</strong>
+        </a>
+        <a class="module" href="/api/com/legendoftecla/model/items/package-summary.html">
+          <span class="module-code">model.items</span>
+          <h3>Objetos</h3>
+          <p>Armas, protección, curación, energía, visión y explosivos.</p>
+          <strong>Objeto · Arma · Botiquin →</strong>
+        </a>
+        <a class="module featured" href="/api/com/legendoftecla/loader/package-summary.html">
+          <span class="module-code">loader</span>
+          <h3>Escenarios</h3>
+          <p>Generación de mapas, aliados, suministros y persistencia JSON/TXT.</p>
+          <strong>CargadorJuego · Serializador →</strong>
+        </a>
+        <a class="module" href="/api/com/legendoftecla/commands/package-summary.html">
+          <span class="module-code">commands</span>
+          <h3>Comandos</h3>
+          <p>Parser, contexto y patrón Command para todas las acciones.</p>
+          <strong>Comando · CommandParser →</strong>
+        </a>
+        <a class="module" href="/api/com/legendoftecla/gui/package-summary.html">
+          <span class="module-code">gui</span>
+          <h3>Interfaz gráfica</h3>
+          <p>Configuración, tablero, controles, estado y editor de escenarios.</p>
+          <strong>VentanaPrincipal · PanelJuego →</strong>
+        </a>
+        <a class="module" href="/api/com/legendoftecla/console/package-summary.html">
+          <span class="module-code">console</span>
+          <h3>Consola</h3>
+          <p>Contrato de salida, terminal y adaptación gráfica de mensajes.</p>
+          <strong>Consola · ConsolaNormal →</strong>
+        </a>
+        <a class="module" href="/api/com/legendoftecla/config/package-summary.html">
+          <span class="module-code">config</span>
+          <h3>Arranque</h3>
+          <p>Argumentos, modo rápido, rutas, dificultad y dimensiones.</p>
+          <strong>OpcionesInicio →</strong>
+        </a>
+        <a class="module" href="/api/com/legendoftecla/validation/package-summary.html">
+          <span class="module-code">validation</span>
+          <h3>Validación</h3>
+          <p>Límites globales y precondiciones reutilizadas por el modelo.</p>
+          <strong>Validaciones · Limites →</strong>
+        </a>
+        <a class="module" href="/api/com/legendoftecla/exceptions/package-summary.html">
+          <span class="module-code">exceptions</span>
+          <h3>Errores de dominio</h3>
+          <p>Fallos recuperables de acciones, entrada, uso y comandos.</p>
+          <strong>JuegoException y derivadas →</strong>
+        </a>
+        <a class="module" href="/api/com/legendoftecla/constants/package-summary.html">
+          <span class="module-code">constants</span>
+          <h3>Balance</h3>
+          <p>Dificultades, multiplicadores y constantes base del juego.</p>
+          <strong>Dificultad · GameConstants →</strong>
+        </a>
+      </div>
+    </section>
+
+    <section id="flujos" class="section">
+      <div class="section-heading">
+        <p class="eyebrow"><span></span> Flujos esenciales</p>
+        <h2>Qué ocurre realmente en cada operación</h2>
+      </div>
+
+      <div class="tabs" data-tabs>
+        <div class="tab-list" role="tablist" aria-label="Flujos documentados">
+          <button role="tab" aria-selected="true" aria-controls="flujo-arranque" id="tab-arranque">Arranque</button>
+          <button role="tab" aria-selected="false" aria-controls="flujo-turno" id="tab-turno" tabindex="-1">Turno</button>
+          <button role="tab" aria-selected="false" aria-controls="flujo-ayuda" id="tab-ayuda" tabindex="-1">Ayuda aliada</button>
+          <button role="tab" aria-selected="false" aria-controls="flujo-mapa" id="tab-mapa" tabindex="-1">Carga de mapa</button>
+        </div>
+
+        <article id="flujo-arranque" role="tabpanel" aria-labelledby="tab-arranque">
+          <ol class="timeline">
+            <li><b>OpcionesInicio</b><span>Normaliza argumentos, aplica valores rápidos y valida combinaciones.</span></li>
+            <li><b>ConfiguracionPartida</b><span>Transporta una configuración defensiva común a consola y GUI.</span></li>
+            <li><b>FabricaJuego</b><span>Selecciona el cargador según default, grande o ficheros.</span></li>
+            <li><b>CargadorJuego</b><span>Construye mundo, jugador, objetos, enemigos y aliados.</span></li>
+            <li><b>MotorPartida</b><span>Recibe el Juego terminado y queda listo para ejecutar acciones.</span></li>
+          </ol>
+        </article>
+        <article id="flujo-turno" role="tabpanel" aria-labelledby="tab-turno" hidden>
+          <ol class="timeline">
+            <li><b>CommandParser</b><span>Convierte texto en un comando tipado; puede componer o repetir.</span></li>
+            <li><b>Comando</b><span>Valida parámetros locales y delega la operación al contexto.</span></li>
+            <li><b>MotorPartida</b><span>Aplica coste energético, movimiento, interacción o combate.</span></li>
+            <li><b>IA aliada y enemiga</b><span>Actualiza personajes activos según visibilidad, riesgo y rutas.</span></li>
+            <li><b>Estado final</b><span>Evalúa objetivo, derrota, energía rescatable, salida y puntuación.</span></li>
+          </ol>
+        </article>
+        <article id="flujo-ayuda" role="tabpanel" aria-labelledby="tab-ayuda" hidden>
+          <ol class="timeline">
+            <li><b>Evaluación</b><span>Se descartan aliados caídos, evacuados, heridos o expuestos.</span></li>
+            <li><b>Reserva</b><span>Se calcula ruta, coste de movimiento y energía segura de entrega.</span></li>
+            <li><b>Autoabastecimiento</b><span>El aliado usa o busca botiquines y Toritos si los necesita.</span></li>
+            <li><b>Aproximación</b><span>Avanza por celdas transitables y combate amenazas cercanas.</span></li>
+            <li><b>Asistencia</b><span>Prioriza al jugador y después al aliado más necesitado.</span></li>
+          </ol>
+        </article>
+        <article id="flujo-mapa" role="tabpanel" aria-labelledby="tab-mapa" hidden>
+          <ol class="timeline">
+            <li><b>Origen</b><span>Generador base, variante grande, tres TXT o escenario JSON.</span></li>
+            <li><b>Geometría</b><span>Se crean celdas y se garantizan inicio, objetivo y transitabilidad.</span></li>
+            <li><b>Contenido</b><span>Se colocan objetos, personajes y suministros deterministas.</span></li>
+            <li><b>Dificultad</b><span>Ajusta enemigos y añade apoyo en fácil y muy fácil.</span></li>
+            <li><b>Entrega</b><span>Todos los formatos producen la misma abstracción Juego.</span></li>
+          </ol>
+        </article>
+      </div>
+    </section>
+
+    <section class="section balance-section">
+      <div class="section-heading">
+        <p class="eyebrow"><span></span> Balance por dificultad</p>
+        <h2>Los modos fáciles también cambian el mapa</h2>
+        <p>
+          La cantidad de apoyo escala con la superficie y se distribuye de forma
+          reproducible entre celdas transitables. Normal y niveles superiores
+          conservan el contenido original.
+        </p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Dificultad</th><th>Enemigos</th><th>Salud</th><th>Daño</th><th>Apoyo adicional</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Muy fácil</td><td>×0,50</td><td>×0,70</td><td>×0,65</td><td>1 botiquín + 1 Torito / 25 celdas; mínimo 4</td></tr>
+            <tr><td>Fácil</td><td>×0,75</td><td>×0,85</td><td>×0,85</td><td>1 botiquín + 1 Torito / 50 celdas; mínimo 2</td></tr>
+            <tr><td>Normal</td><td>×1,00</td><td>×1,00</td><td>×1,00</td><td>Distribución original</td></tr>
+            <tr><td>Difícil</td><td>×1,25</td><td>×1,20</td><td>×1,20</td><td>Distribución original</td></tr>
+            <tr><td>Muy difícil</td><td>×1,50</td><td>×1,40</td><td>×1,40</td><td>Distribución original</td></tr>
+            <tr><td>Pesadilla</td><td>×1,80</td><td>×1,65</td><td>×1,70</td><td>Distribución original</td></tr>
+            <tr><td>Demente</td><td>×2,20</td><td>×2,00</td><td>×2,20</td><td>Distribución original</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <a class="text-link" href="/api/com/legendoftecla/constants/Dificultad.html">Consultar Dificultad en la API →</a>
+    </section>
+
+    <section id="extender" class="section section-dark">
+      <div class="section-heading">
+        <p class="eyebrow"><span></span> Guía de extensión</p>
+        <h2>Añade comportamiento sin romper las capas</h2>
+      </div>
+      <div class="extension-grid">
+        <article>
+          <span>01</span>
+          <h3>Nuevo objeto</h3>
+          <p>Extiende <code>Objeto</code>, encapsula sus valores, implementa el uso y registra su creación en los cargadores JSON/editor.</p>
+          <a href="/api/com/legendoftecla/model/items/Objeto.html">Contrato base →</a>
+        </article>
+        <article>
+          <span>02</span>
+          <h3>Nuevo comando</h3>
+          <p>Implementa <code>Comando</code>, conserva el contexto por setter y añade la gramática correspondiente a <code>CommandParser</code>.</p>
+          <a href="/api/com/legendoftecla/commands/Comando.html">Interfaz Command →</a>
+        </article>
+        <article>
+          <span>03</span>
+          <h3>Nuevo cargador</h3>
+          <p>Extiende <code>CargadorJuegoBase</code>, construye un <code>Juego</code> válido y registra el modo en <code>FabricaJuego</code>.</p>
+          <a href="/api/com/legendoftecla/loader/CargadorJuegoBase.html">Base común →</a>
+        </article>
+        <article>
+          <span>04</span>
+          <h3>Nueva regla</h3>
+          <p>Ubica invariantes en el modelo y coordinación temporal en el motor. Expón el resultado mediante <code>Consola</code>.</p>
+          <a href="/api/com/legendoftecla/engine/MotorPartida.html">Motor central →</a>
+        </article>
+      </div>
+
+      <div class="principles">
+        <h3>Lista de comprobación</h3>
+        <ul>
+          <li>El objeto mantiene sus invariantes aunque se use fuera del motor.</li>
+          <li>La consola y Swing recorren exactamente la misma regla.</li>
+          <li>Las colecciones públicas no permiten mutación accidental.</li>
+          <li>La generación aleatoria conserva una semilla reproducible.</li>
+          <li>La nueva API pública incluye propósito, parámetros y resultado.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section run-section">
+      <div>
+        <p class="eyebrow"><span></span> Contenedor independiente</p>
+        <h2>Documentación lista en un comando</h2>
+        <p>
+          La imagen genera el Javadoc desde el código actual y lo empaqueta con
+          este portal en un servidor web de solo lectura.
+        </p>
+      </div>
+      <div class="command-card">
+        <div class="command-top"><span>Docker Compose</span><button type="button" data-copy="#docker-command">Copiar</button></div>
+        <pre id="docker-command"><code>docker compose up --build --detach javadoc-web</code></pre>
+        <p>Después abre <a href="http://localhost:8081">http://localhost:8081</a></p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="brand footer-brand">
+      <span class="brand-mark" aria-hidden="true">T</span>
+      <span><strong>The Legend of Tecla</strong><small>Arquitectura + Javadoc</small></span>
+    </div>
+    <p>Documentación generada desde la fuente. Sin dependencias externas en tiempo de ejecución.</p>
+    <a href="/api/">Índice completo de la API →</a>
+  </footer>
+</body>
+</html>

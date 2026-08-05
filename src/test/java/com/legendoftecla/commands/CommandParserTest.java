@@ -36,7 +36,9 @@ class CommandParserTest {
 
     @Test
     void validaArgumentoObligatorioEnComandosDeInventario() {
-        assertThrows(ComandoException.class, () -> parser.parse("coger"));
+        ComandoException error = assertThrows(ComandoException.class, () -> parser.parse("coger"));
+
+        assertTrue(error.getMessage().contains("Falta argumento"));
         assertThrows(ComandoException.class, () -> parser.parse("tirar"));
         assertThrows(ComandoException.class, () -> parser.parse("usar"));
         assertThrows(ComandoException.class, () -> parser.parse("equipar"));

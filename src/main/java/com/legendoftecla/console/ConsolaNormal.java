@@ -3,6 +3,7 @@ package com.legendoftecla.console;
 import com.legendoftecla.exceptions.FinEntradaException;
 import com.legendoftecla.validation.Validaciones;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 /**
@@ -13,7 +14,7 @@ public class ConsolaNormal implements Consola {
      * Crea una consola conectada a la entrada y salida estandar del proceso.
      */
     public ConsolaNormal() {
-        setScanner(new Scanner(System.in));
+        setScanner(new Scanner(System.in, StandardCharsets.UTF_8));
         setColorActivo(System.getenv("NO_COLOR") == null);
     }
 

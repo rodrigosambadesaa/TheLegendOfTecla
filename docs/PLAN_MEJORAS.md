@@ -229,3 +229,18 @@ subir de forma monotónica; no se excluirán GUI o clases centrales para fabrica
 el porcentaje. La finalización global exige además guardado/reanudación, IA
 explicable, misiones y campaña, por lo que esta auditoría no declara completado
 el programa completo de 25 fases.
+
+## 11. Estado de verificación actualizado
+
+El 5 de agosto de 2026 se repitió la línea base con Temurin 17.0.20 y Maven
+3.9.11. `mvn --batch-mode --no-transfer-progress clean verify` finalizó
+correctamente: 39 pruebas, JAR ejecutable, JaCoCo, Checkstyle, SpotBugs y
+Javadoc. La cobertura medida es 70,39 % de líneas (2 921/4 150) y 50,27 % de
+ramas (926/1 842); por ello, la puerta mínima de JaCoCo queda fijada en 70 %.
+
+También se construyeron las imágenes de consola, GUI y documentación. El JAR
+del contenedor de consola respondió a `--help`; la GUI noVNC y la web de
+Javadoc alcanzaron estado `healthy`, y `/vnc.html`, `/health` y
+`/api/index.html` respondieron HTTP 200. Los servicios se detuvieron tras la
+prueba. Sigue pendiente elevar `commands` del 69,3 % al objetivo del 75 %, así
+como implementar las fases funcionales posteriores sin reducir esta línea base.

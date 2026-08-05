@@ -97,16 +97,26 @@ public class CommandParser {
         registrar(comandos, partes -> new ComandoInventario(context), "inventario", "mochila");
         registrar(comandos, partes -> new ComandoRecorrido(context), "recorrido");
         registrar(comandos, this::parseMover, "mover", "avanzar");
-        registrar(comandos, partes -> requiereArg(partes,
-                new ComandoCoger(context, unir(partes, 1))), "coger");
-        registrar(comandos, partes -> requiereArg(partes,
-                new ComandoTirar(context, unir(partes, 1))), "tirar");
-        registrar(comandos, partes -> requiereArg(partes,
-                new ComandoUsar(context, unir(partes, 1))), "usar");
-        registrar(comandos, partes -> requiereArg(partes,
-                new ComandoEquipar(context, unir(partes, 1))), "equipar");
-        registrar(comandos, partes -> requiereArg(partes,
-                new ComandoDesequipar(context, unir(partes, 1))), "desequipar");
+        registrar(comandos, partes -> {
+            requiereArg(partes);
+            return new ComandoCoger(context, unir(partes, 1));
+        }, "coger");
+        registrar(comandos, partes -> {
+            requiereArg(partes);
+            return new ComandoTirar(context, unir(partes, 1));
+        }, "tirar");
+        registrar(comandos, partes -> {
+            requiereArg(partes);
+            return new ComandoUsar(context, unir(partes, 1));
+        }, "usar");
+        registrar(comandos, partes -> {
+            requiereArg(partes);
+            return new ComandoEquipar(context, unir(partes, 1));
+        }, "equipar");
+        registrar(comandos, partes -> {
+            requiereArg(partes);
+            return new ComandoDesequipar(context, unir(partes, 1));
+        }, "desequipar");
         registrar(comandos, this::parseAtacar, "atacar");
         registrar(comandos, this::parseLanzarExplosivo, "lanzar");
         registrar(comandos, this::parsePedirAyuda, "pedir");
@@ -220,11 +230,10 @@ public class CommandParser {
         }
     }
 
-    private Comando requiereArg(String[] partes, Comando comando) throws ComandoException {
+    private void requiereArg(String[] partes) throws ComandoException {
         if (partes.length < 2) {
             throw new ComandoException("Falta argumento para el comando.");
         }
-        return comando;
     }
 
     private boolean esAlcance(String token) {

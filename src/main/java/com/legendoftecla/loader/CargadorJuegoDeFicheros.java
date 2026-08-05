@@ -141,7 +141,7 @@ public class CargadorJuegoDeFicheros extends CargadorJuegoBase {
             }
 
             while (procesados < cantidadObjetivo) {
-                String tipo = randomEnemigos.nextBoolean() ? "sectoid" : "heavyfloater";
+                String tipo = elegirTipoEnemigo(randomEnemigos);
                 String[] partes = new String[] { tipo, "Auto_" + procesados, "-1", "-1" };
                 Enemigo enemigo = crearEnemigoDesdePartes(mapa, partes, procesados, randomEnemigos);
                 enemigo.escalarSalud(dificultad.getMultiplicadorSaludEnemigo());
@@ -164,6 +164,10 @@ public class CargadorJuegoDeFicheros extends CargadorJuegoBase {
         } catch (IOException | RuntimeException e) {
             throw new JuegoException("No se pudo cargar el juego de ficheros: " + e.getMessage());
         }
+    }
+
+    private String elegirTipoEnemigo(Random random) {
+        return random.nextBoolean() ? "sectoid" : "heavyfloater";
     }
 
     private Enemigo crearEnemigoDesdePartes(Mapa mapa, String[] p, int indice, Random random) {

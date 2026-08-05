@@ -1,5 +1,12 @@
 # The Legend of Tecla (Java)
 
+[![CI](https://github.com/rodrigosambadesaa/TheLegendOfTecla/actions/workflows/ci.yml/badge.svg)](https://github.com/rodrigosambadesaa/TheLegendOfTecla/actions/workflows/ci.yml)
+[![Java 17](https://img.shields.io/badge/Java-17-007396?logo=openjdk)](https://openjdk.org/projects/jdk/17/)
+[![Maven](https://img.shields.io/badge/Maven-3.9%2B-C71A36?logo=apachemaven)](https://maven.apache.org/)
+[![Coverage](https://img.shields.io/badge/coverage-JaCoCo-brightgreen)](https://github.com/rodrigosambadesaa/TheLegendOfTecla/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/rodrigosambadesaa/TheLegendOfTecla)](LICENSE)
+[![Latest release](https://img.shields.io/github/v/release/rodrigosambadesaa/TheLegendOfTecla?display_name=tag)](https://github.com/rodrigosambadesaa/TheLegendOfTecla/releases/latest)
+
 Implementacion en Java del proyecto de POO por entregas (P1, P2, P3) y con ampliaciones voluntarias:
 
 - Mapa ASCII con celdas transitables/no transitables.

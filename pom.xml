@@ -14,8 +14,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.11.4</junit.version>
         <argLine></argLine>
-        <!-- Umbral de arranque: se incrementará con las suites por paquete. -->
-        <jacoco.minimum.line.coverage>0.40</jacoco.minimum.line.coverage>
+        <!-- Linea base medida: debe subir de forma monotona con las suites por paquete. -->
+        <jacoco.minimum.line.coverage>0.70</jacoco.minimum.line.coverage>
     </properties>
 
     <dependencies>

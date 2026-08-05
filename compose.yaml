@@ -16,7 +16,7 @@ services:
     restart: "no"
 
   javadoc:
-    image: maven:3.9.11-eclipse-temurin-21-alpine
+    image: maven:3.9.11-eclipse-temurin-17-alpine
     working_dir: /workspace
     command: mvn -B -ntp javadoc:javadoc
     volumes:

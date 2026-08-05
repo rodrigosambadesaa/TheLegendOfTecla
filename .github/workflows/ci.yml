@@ -35,28 +35,28 @@ jobs:
           fi
 
       - name: Upload executable JAR
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: executable-jar
           path: target/the-legend-of-tecla.jar
           if-no-files-found: error
 
       - name: Upload coverage report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: jacoco-report
           path: target/site/jacoco/
           if-no-files-found: error
 
       - name: Upload Javadoc
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: javadoc
           path: target/reports/apidocs/
           if-no-files-found: error
 
       - name: Upload GUI smoke captures
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: gui-smoke-captures
           path: target/gui-smoke/*.png
@@ -76,7 +76,7 @@ jobs:
         run: mvn --batch-mode --no-transfer-progress -Dsecurity dependency-check:check
       - name: Upload dependency audit
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dependency-check
           path: target/dependency-check-report.*

@@ -553,14 +553,32 @@ public final class MotorPartida {
 
     private boolean buscarSuministroNecesarioParaJugador(Aliado aliado) {
         Personaje jugador = juego.getJugador();
-        if (jugador.getSalud() < jugador.getSaludMaxima()
-                && aliado.getMochila().getObjetos().stream().noneMatch(Botiquin.class::isInstance)
-                && moverAliadoHaciaSuministro(aliado, Botiquin.class)) {
+        boolean necesitaBotiquin = jugador.getSalud() < jugador.getSaludMaxima()
+                && aliado.getMochila().getObjetos().stream().noneMatch(Botiquin.class::isInstance);
+        boolean necesitaTorito = jugador.getEnergia() < jugador.getEnergiaMaxima()
+                && aliado.getMochila().getObjetos().stream().noneMatch(ToritoRojo.class::isInstance);
+        if (!necesitaBotiquin && !necesitaTorito) {
+            return false;
+        }
+        if (necesitaBotiquin && moverAliadoHaciaSuministro(aliado, Botiquin.class)) {
             return true;
         }
-        return jugador.getEnergia() < jugador.getEnergiaMaxima()
-                && aliado.getMochila().getObjetos().stream().noneMatch(ToritoRojo.class::isInstance)
-                && moverAliadoHaciaSuministro(aliado, ToritoRojo.class);
+        if (necesitaTorito && moverAliadoHaciaSuministro(aliado, ToritoRojo.class)) {
+            return true;
+        }
+        return explorarSuministrosDesconocidos(aliado);
+    }
+
+    private boolean explorarSuministrosDesconocidos(Aliado aliado) {
+        Posicion destino = buscarCeldaSinInspeccionarMasCercana(aliado);
+        if (destino == null || aliado.getEnergia() < aliado.estimarCosteMovimiento() * 2) {
+            return false;
+        }
+        cambiarSituacion(aliado, SituacionAliado.BUSCANDO_SUMINISTROS);
+        moverAliadoHaciaObjetivo(aliado, destino);
+        juego.getConsola().imprimirInfo(aliado.getNombre()
+                + " explora una celda desconocida para buscar suministros para el jugador.");
+        return true;
     }
 
     private boolean moverAliadoHaciaSuministro(Aliado aliado, Class<? extends Objeto> tipo) {
@@ -1002,6 +1020,33 @@ public final class MotorPartida {
             boolean contiene = juego.isCeldaInspeccionada(aliado, actual)
                     && juego.getMapa().getCelda(actual).getObjetos().stream().anyMatch(tipo::isInstance);
             if (contiene) {
+                return actual;
+            }
+            for (Direccion direccion : Direccion.values()) {
+                Posicion candidata = actual.mover(direccion);
+                if (visitadas.contains(candidata) || !juego.getMapa().esTransitable(candidata)) {
+                    continue;
+                }
+                boolean ocupada = !juego.getMapa().getCelda(candidata).getAliados().isEmpty();
+                if (ocupada) {
+                    continue;
+                }
+                visitadas.add(candidata);
+                pendientes.addLast(candidata);
+            }
+        }
+        return null;
+    }
+
+    private Posicion buscarCeldaSinInspeccionarMasCercana(Aliado aliado) {
+        Posicion origen = aliado.getPosicion();
+        ArrayDeque<Posicion> pendientes = new ArrayDeque<>();
+        Set<Posicion> visitadas = new HashSet<>();
+        pendientes.add(origen);
+        visitadas.add(origen);
+        while (!pendientes.isEmpty()) {
+            Posicion actual = pendientes.removeFirst();
+            if (!actual.equals(origen) && !juego.isCeldaInspeccionada(aliado, actual)) {
                 return actual;
             }
             for (Direccion direccion : Direccion.values()) {

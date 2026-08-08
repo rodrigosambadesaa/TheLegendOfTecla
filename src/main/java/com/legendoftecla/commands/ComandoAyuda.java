@@ -55,7 +55,7 @@ public class ComandoAyuda implements Comando {
                 "11) recorrido",
                 "    Ejemplo: recorrido",
                 "12) pedir ayuda (alias: socorro o asistir)",
-                "    Los aliados seguros acuden, combaten y entregan suministros",
+                "    Los aliados seguros buscan suministros, acuden y combaten",
                 "13) descansar (alias: reposar)",
                 "    Recupera un 10 % de salud y energia sin moverse; los enemigos se acercan",
                 "14) ayuda (alias: comandos)",

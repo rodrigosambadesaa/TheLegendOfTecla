@@ -436,7 +436,10 @@ aliado generado lleva un botiquin y un Torito para poder recuperar primero la
 vida y despues la energia del jugador. Fuera y dentro de esta orden, los aliados:
 
 - Inspeccionan presencialmente cada celda antes de conocer sus objetos; nunca
-  buscan suministros en celdas que ese aliado aun no haya inspeccionado.
+  conocen de antemano los suministros de celdas que aun no hayan inspeccionado.
+- Al recibir una orden de ayuda, si no llevan el suministro que necesita el
+  jugador, recorren e inspeccionan celdas desconocidas antes de acudir con las
+  manos vacias. Si ya conocen un suministro adecuado, se dirigen hacia el.
 - Tras inspeccionar deciden si recoger o equipar. Sustituyen armas y armaduras
   por alternativas mejores, desequipan las anteriores y las tiran en esa misma
   celda. Las armas aumentan su dano real y las armaduras aportan salud, energia

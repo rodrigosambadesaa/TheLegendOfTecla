@@ -20,7 +20,7 @@ Implementacion en Java del proyecto de POO por entregas (P1, P2, P3) y con ampli
 - Aliados que inspeccionan cada celda antes de descubrir, recoger, sustituir, equipar o tirar objetos.
 - Binoculares reutilizables sin limite de usos para el jugador y los aliados.
 - Accion `descansar`: recupera salud y energia a cambio de atraer a los enemigos durante su turno.
-- Orden `pedir ayuda` y boton equivalente para reunir aliados seguros, combatir y recibir suministros.
+- Orden `pedir ayuda` y boton equivalente: los aliados sin suministros exploran antes de acudir.
 - Seguimiento permanente de cada aliado: vida, energia, posicion, objetos, equipo, combate y evacuacion.
 - Rescate energetico seguro: calculo de ruta/reserva, autoabastecimiento y busqueda de Toritos sin recursos infinitos.
 - Suministros de energia escalados y Toritos distribuidos sobre una ruta transitable en mapas grandes.

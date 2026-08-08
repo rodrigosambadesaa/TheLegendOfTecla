@@ -435,6 +435,39 @@ class IntegracionModosGuiTest {
     }
 
     @Test
+    void elAliadoSinSuministrosExploraAntesDeAcudirAlJugador() throws Exception {
+        ConsolaSilenciosa consola = new ConsolaSilenciosa();
+        Juego juego = crearJuegoAsistencia(consola);
+        Aliado aliado = crearAliado(juego, "Explorador", new Posicion(4, 3));
+        Posicion celdaSuministro = new Posicion(3, 3);
+        juego.getMapa().getCelda(celdaSuministro).agregarObjeto(
+                new Botiquin("botiquin encontrado", "Apoyo localizado", 1.0, 25));
+        juego.getJugador().recibirDanio(40);
+        int saludInicial = juego.getJugador().getSalud();
+        MotorPartida motor = new MotorPartida(juego);
+
+        motor.ejecutarComando("pedir ayuda");
+
+        assertEquals(celdaSuministro, aliado.getPosicion());
+        assertFalse(juego.isCeldaInspeccionada(aliado, celdaSuministro),
+                "El objeto no debe revelarse hasta inspeccionar la celda en el siguiente turno");
+        assertTrue(aliado.getMochila().getObjetos().isEmpty());
+
+        motor.ejecutarComando("mirar");
+
+        assertTrue(juego.isCeldaInspeccionada(aliado, celdaSuministro));
+        assertTrue(aliado.getMochila().getObjetos().stream().anyMatch(Botiquin.class::isInstance));
+
+        motor.ejecutarComando("mirar");
+
+        assertEquals(saludInicial + 25, juego.getJugador().getSalud());
+        assertTrue(aliado.getMochila().getObjetos().isEmpty());
+        assertTrue(consola.salida.toString().contains(
+                "explora una celda desconocida para buscar suministros para el jugador"));
+        assertTrue(consola.salida.toString().contains("para dar vida a Jugador"));
+    }
+
+    @Test
     void losAliadosRecogenObjetosYSeAsistenEntreEllos() throws Exception {
         ConsolaSilenciosa consola = new ConsolaSilenciosa();
         Juego juego = crearJuegoAsistencia(consola);

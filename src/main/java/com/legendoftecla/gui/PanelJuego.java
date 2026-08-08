@@ -8,6 +8,7 @@ import com.legendoftecla.model.characters.Personaje;
 import com.legendoftecla.model.characters.Zapador;
 import com.legendoftecla.model.items.Arma;
 import com.legendoftecla.model.items.Armadura;
+import com.legendoftecla.model.items.Binocular;
 import com.legendoftecla.model.items.Explosivo;
 import com.legendoftecla.model.items.Objeto;
 import com.legendoftecla.model.world.Celda;
@@ -306,7 +307,8 @@ public final class PanelJuego extends JPanel {
 
     private void equiparObjeto() {
         seleccionarYEjecutar("Equipar objeto", "equipar", objetosMochila().stream()
-                .filter(objeto -> objeto instanceof Arma || objeto instanceof Armadura)
+                .filter(objeto -> objeto instanceof Arma
+                        || objeto instanceof Armadura || objeto instanceof Binocular)
                 .map(objeto -> new OpcionAccion(describir(objeto), "equipar " + objeto.getNombre()))
                 .toList());
     }
@@ -319,6 +321,10 @@ public final class PanelJuego extends JPanel {
         if (jugador.getArmaduraEquipada() != null) {
             Armadura armadura = jugador.getArmaduraEquipada();
             opciones.add(new OpcionAccion(describir(armadura), "desequipar " + armadura.getNombre()));
+        }
+        if (jugador.getBinocularEquipado() != null) {
+            Binocular binocular = jugador.getBinocularEquipado();
+            opciones.add(new OpcionAccion(describir(binocular), "desequipar " + binocular.getNombre()));
         }
         seleccionarYEjecutar("Desequipar objeto", "desequipar", opciones);
     }
@@ -477,10 +483,11 @@ public final class PanelJuego extends JPanel {
                         && !(objeto instanceof Explosivo)));
         tirar.setEnabled(activa && !objetosMochila().isEmpty());
         equipar.setEnabled(activa && objetosMochila().stream()
-                .anyMatch(objeto -> objeto instanceof Arma || objeto instanceof Armadura));
+                .anyMatch(objeto -> objeto instanceof Arma
+                        || objeto instanceof Armadura || objeto instanceof Binocular));
         Personaje jugador = motor.getJuego().getJugador();
         desequipar.setEnabled(activa && (!jugador.getArmasEquipadas().isEmpty()
-                || jugador.getArmaduraEquipada() != null));
+                || jugador.getArmaduraEquipada() != null || jugador.getBinocularEquipado() != null));
         atacar.setEnabled(activa && hayEnemigoAtacable());
         lanzarExplosivo.setEnabled(activa && hayLanzamientoExplosivoDisponible());
         pedirAyuda.setEnabled(activa && motor.getJuego().getAliados().stream()

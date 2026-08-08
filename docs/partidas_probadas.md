@@ -1,73 +1,36 @@
-# Partidas Probadas
+# Pruebas reproducibles de consola y GUI
 
-Este archivo resume partidas ejecutadas de forma simulada, incluyendo acciones del jugador y outcome observado para cada accion.
+Última regeneración: 8 de agosto de 2026.
 
-## Referencias de logs completos
+Las evidencias de esta carpeta proceden de la versión actual del juego. Se regeneran con:
 
-- [docs/runs/partida_normal.log](docs/runs/partida_normal.log)
-- [docs/runs/partida_con_aliados.log](docs/runs/partida_con_aliados.log)
-- [docs/runs/dificultad_matrix/](docs/runs/dificultad_matrix)
+```powershell
+powershell -ExecutionPolicy Bypass -File .\tools\regenerar-pruebas-docs.ps1
+```
 
-## Partida 1: Modo normal (sin aliados)
+El script ejecuta la suite completa antes de crear los registros. Si una prueba o una partida falla, termina con error y no presenta el proceso como válido.
 
-Configuracion:
-- Nombre: Tecla
-- Clase: marine
-- Modo: `1` (default sin aliados)
-- Resultado final: partida finalizada por comando `salir`
+## Resultado verificado
 
-Secuencia accion -> outcome:
+- Suite Maven completa: sin fallos, con Checkstyle, SpotBugs, JaCoCo y Javadoc.
+- Comandos compuestos: movimiento repetido, ataque repetido con y sin nombre, sustitución de equipo y árboles de comandos anidados.
+- Consola y GUI: ambas entradas llaman al mismo `MotorPartida`; los escenarios controlados verifican los mismos efectos sobre el modelo.
+- Ataque múltiple: nombrar un enemigo identifica la celda, pero el golpe afecta a todos los enemigos vivos que contiene.
+- Objetos: inspección previa, coger, usar, equipar, desequipar y tirar sobre la celda actual.
+- Aliados: inspeccionan antes de descubrir objetos; comparan y sustituyen armas, armaduras y binoculares; todo descarte queda en su celda.
+- Binoculares: no se consumen y pueden usarse en turnos sucesivos; también pueden permanecer equipados.
+- Carga durante la partida: `cargar <directorio>` sustituye el escenario activo tanto desde consola como desde el campo de comandos de la GUI.
+- Descanso: recupera salud y energía sin movimiento y permite que los enemigos se acerquen en su turno.
+- Victoria con aliados: se prueban `solo_jugador` y `jugador_y_aliados`, incluido cualquier orden de llegada.
 
-1. `ayuda` -> `Comandos: mover <dir>, mirar [obj], coger <obj>, tirar <obj>, inventario, usar <obj>, equipar <obj>, desequipar <obj>, atacar <objetivo>, recorrido, ayuda, salir`
-2. `mirar` -> `Celda 0,0` + `No hay objetos en esta celda.`
-3. `mover este` -> `Te mueves a ESTE.`
-4. `coger botiquin_pequeno` -> `Recoges botiquin_pequeno.`
-5. `inventario` -> `Mochila: peso 1,00/40.0 kg, espacio restante 9` + `- botiquin_pequeno (Cura 20 de salud, 1.0 kg)`
-6. `usar botiquin_pequeno` -> `Usas botiquin_pequeno.`
-7. `mover sur` -> `Te mueves a SUR.`
-8. `mover este` -> `Te mueves a ESTE.`
-9. `mirar` -> `Celda 1,2` + `No hay objetos en esta celda.`
-10. `salir` -> `Partida finalizada.`
+## Evidencias
 
-## Partida 2: Modo grande con aliados
+- [Suite completa](runs/suite_completa.log)
+- [Comandos compuestos en consola y GUI](runs/comandos_compuestos_consola_gui.log)
+- [Partida de consola sin aliados](runs/partida_normal.log)
+- [Partida de consola con aliados](runs/partida_con_aliados.log)
+- [Matriz de dificultades y modos](runs/dificultad_matrix/)
 
-Configuracion:
-- Nombre: Tecla
-- Clase: marine
-- Modo: `2` (mapa 50x50 con aliados)
-- Estado inicial observado: `Aliados desplegados: 10`
-- Resultado final: partida finalizada por comando `salir`
+La matriz contiene 42 arranques reales: tres modos (`default`, `grande`, `ficheros`), siete dificultades y dos perfiles de dimensiones (10x10 y 22x24). Todos llegan al bucle principal y terminan limpiamente con `salir`.
 
-Secuencia accion -> outcome:
-
-1. `ayuda` -> `Comandos: mover <dir>, mirar [obj], coger <obj>, tirar <obj>, inventario, usar <obj>, equipar <obj>, desequipar <obj>, atacar <objetivo>, recorrido, ayuda, salir`
-2. `mirar` -> `Punto de despliegue` + `No hay objetos en esta celda.`
-3. `mover este` -> `Te mueves a ESTE.`
-4. `mover este` -> `Te mueves a ESTE.`
-5. `inventario` -> `Mochila: peso 0,00/40.0 kg, espacio restante 10` + `(vacia)`
-6. `mover sur` -> `Te mueves a SUR.`
-7. `mirar` -> `Sector 1,2` + `No hay objetos en esta celda.`
-8. `mover este` -> `Te mueves a ESTE.`
-9. `mover sur` -> `Te mueves a SUR.`
-10. `salir` -> `Partida finalizada.`
-
-## Notas
-
-- Los outcomes se tomaron de la salida real de ejecucion (logs enlazados arriba).
-- En el modo con aliados se mantiene el comportamiento por turnos y render de mapa grande.
-
-## Matriz de dificultad y tamano global de mapa
-
-Se ejecutaron 42 partidas automatizadas (2 por combinacion):
-
-- Modos: `1`, `2`, `3`
-- Dificultades: `muy facil`, `facil`, `normal`, `dificil`, `muy dificil`, `pesadilla`, `demente`
-- Perfiles de tamano de mapa:
-	- `default` (ENTER)
-	- `rectangular` (`22x24`)
-
-Resultados observados:
-
-- 42/42 partidas inician correctamente y finalizan con `salir`.
-- En todas aparece el resumen de dificultad aplicada (enemigos/salud/danio) en el arranque.
-- El perfil rectangular confirma que el tamano global no tiene que ser cuadrado.
+Las pruebas GUI se ejecutan de forma determinista y sin pantalla mediante Swing en el EDT. Además generan capturas de humo en `target/gui-smoke/`; `target` no se versiona porque es un resultado reproducible.

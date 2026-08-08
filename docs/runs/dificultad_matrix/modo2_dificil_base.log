@@ -1,0 +1,47 @@
+[34mBienvenido a The Legend of Tecla[0m
+[34mDificultad: dificil | variante=1 | aliados=0 | salud x1.2 | danio x1.2[0m
+[34mMapa: Megabase Atlas - Variante 1[0m
+[34mComplejo militar de gran escala, distribucion 1[0m
+[34mJ E . . . . . . . .
+E . . . . . . . . .
+. . . . . . . . # .
+. . . . . . . . # .
+. . . . . . . . # .
+. . . # # # # . . .
+. . . . . . . . # .
+. . . . . . . . # .
+. . . . . . . . . .
+. . . . . . . . . X
+[0m
+[36mMatriz  Salud 120/120  Energia 90/90  Pasos 0/2200[0m
+[36mAliados: ninguno.[0m
+[36maccion> [0m[31mError de comando: Comando desconocido: ?salir[0m
+[34mJ E . . . . . . . .
+E . . . . . . . . .
+. . . . . . . . # .
+. . . . . . . . # .
+. . . . . . . . # .
+. . . # # # # . . .
+. . . . . . . . # .
+. . . . . . . . # .
+. . . . . . . . . .
+. . . . . . . . . X
+[0m
+[36mMatriz  Salud 120/120  Energia 90/90  Pasos 0/2200[0m
+[36mAliados: ninguno.[0m
+[36maccion> [0m[31mError de comando: Comando vacio.[0m
+[34mJ E . . . . . . . .
+E . . . . . . . . .
+. . . . . . . . # .
+. . . . . . . . # .
+. . . . . . . . # .
+. . . # # # # . . .
+. . . . . . . . # .
+. . . . . . . . # .
+. . . . . . . . . .
+. . . . . . . . . X
+[0m
+[36mMatriz  Salud 120/120  Energia 90/90  Pasos 0/2200[0m
+[36mAliados: ninguno.[0m
+[36maccion> [0m
+Entrada cerrada. Partida finalizada.

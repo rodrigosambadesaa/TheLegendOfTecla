@@ -1,137 +1,88 @@
-Bienvenido a The Legend of Tecla
-Introduce nombre del personaje: Elige clase (marine/francotirador/zapador): Modo (1=default sin aliados, 2=grande 50x50 con aliados, 3=ficheros): Mapa: Base Lambda
-Instalacion abandonada de la resistencia
-J o . . . . . . . . 
-. o . # # # # # . . 
-. . o . o . # . . . 
-. # # # # # # . . . 
-. . . . o . # . . . 
-. . . . # # # # # . 
-. o . . . . . . . . 
-. . # # # # # . . . 
-. . . o . . . . o . 
-. . . . . . . . . X 
-
-Tecla [salud(120) energia(90)] pasos 0/160
-accion> Comandos: mover <dir>, mirar [obj], coger <obj>, tirar <obj>, inventario, usar <obj>, equipar <obj>, desequipar <obj>, atacar <objetivo>, recorrido, ayuda, salir
-J o . . . . . . . . 
-. o . # # # # # . . 
-. . o . o . # . . . 
-. # # # # # # . . . 
-. . . . o . # . . . 
-. . . . # # # # # . 
-. o . . . . . . . . 
-. . # # # # # . . . 
-. . . o . . . . o . 
-. . . . . . . . . X 
-
-Tecla [salud(120) energia(90)] pasos 0/160
-accion> Celda 0,0
-No hay objetos en esta celda.
-J o . . . . . . . . 
-. o . # # # # # . . 
-. . o . o . # . . . 
-. # # # # # # . . . 
-. . . . o . # . . . 
-. . . . # # # # # . 
-. o . . . . . . . . 
-. . # # # # # . . . 
-. . . o . . . . o . 
-. . . . . . . . . X 
-
-Tecla [salud(120) energia(90)] pasos 0/160
-accion> Te mueves a ESTE.
-. J . . . . . . . . 
-. o . # # # # # . . 
-. . o . o . # . . . 
-. # # # # # # . . . 
-. . . . o . # . . . 
-. . . . # # # # # . 
-. o . . . . . . . . 
-. . # # # # # . . . 
-. . . o . . . . o . 
-. . . . . . . . . X 
-
-Tecla [salud(120) energia(84)] pasos 1/160
-accion> Recoges botiquin_pequeno.
-. J . . . . . . . . 
-. o . # # # # # . . 
-. . o . o . # . . . 
-. # # # # # # . . . 
-. . . . o . # . . . 
-. . . . # # # # # . 
-. o . . . . . . . . 
-. . # # # # # . . . 
-. . . o . . . . o . 
-. . . . . . . . . X 
-
-Tecla [salud(120) energia(84)] pasos 1/160
-accion> Mochila: peso 1,00/40.0 kg, espacio restante 9
-- botiquin_pequeno (Cura 20 de salud, 1.0 kg)
-. J . . . . . . . . 
-. o . # # # # # . . 
-. . o . o . # . . . 
-. # # # # # # . . . 
-. . . . o . # . . . 
-. . . . # # # # # . 
-. o . . . . . . . . 
-. . # # # # # . . . 
-. . . o . . . . o . 
-. . . . . . . . . X 
-
-Tecla [salud(120) energia(84)] pasos 1/160
-accion> Usas botiquin_pequeno.
-. J . . . . . . . . 
-. o . # # # # # . . 
-. . o . o . # . . . 
-. # # # # # # . . . 
-. . . . o . # . . . 
-. . . . # # # # # . 
-. o . . . . . . . . 
-. . # # # # # . . . 
-. . . o . . . . o . 
-. . . . . . . . . X 
-
-Tecla [salud(120) energia(84)] pasos 1/160
-accion> Te mueves a SUR.
-. . . . . . . . . . 
-. J . # # # # # . . 
-. . o . o . # . . . 
-. # # # # # # . . . 
-. . . . o . # . . . 
-. . . . # # # # # . 
-. o . . . . . . . . 
-. . # # # # # . . . 
-. . . o . . . . o . 
-. . . . . . . . . X 
-
-Tecla [salud(120) energia(78)] pasos 2/160
-accion> Te mueves a ESTE.
-. . . . . . . . . . 
-. o J # # # # # . . 
-. . o . o . # . . . 
-. # # # # # # . . . 
-. . . . o . # . . . 
-. . . . # # # # # . 
-. o . . . . . . . . 
-. . # # # # # . . . 
-. . . o . . . . o . 
-. . . . . . . . . X 
-
-Tecla [salud(120) energia(72)] pasos 3/160
-accion> Celda 1,2
-No hay objetos en esta celda.
-. . . . . . . . . . 
-. o J # # # # # . . 
-. . o . o . # . . . 
-. # # # # # # . . . 
-. . . . o . # . . . 
-. . . . # # # # # . 
-. o . . . . . . . . 
-. . # # # # # . . . 
-. . . o . . . . o . 
-. . . . . . . . . X 
-
-Tecla [salud(120) energia(72)] pasos 3/160
-accion> Partida finalizada.
-Recorrido: (0,0) (0,1) (1,1) (1,2) 
+[34mBienvenido a The Legend of Tecla[0m
+[34mDificultad: normal | enemigos=4 | aliados=0 | salud x1.0 | danio x1.0[0m
+[34mMapa: Base Lambda[0m
+[34mInstalacion abandonada de la resistencia[0m
+[34mJ . . . . . . . . .
+. . # # # # # # . .
+. . . . . . . . . .
+. . # . . . . # . .
+. . # . . . . # . .
+. . # # # # # # . .
+. . # . . . . # . .
+. . # . . . . # . .
+. . . . . . . . . .
+. . # # # # # # . X
+[0m
+[36mTecla  Salud 120/120  Energia 90/90  Pasos 0/160[0m
+[36mAliados: ninguno.[0m
+[36maccion> [0m[31mError de comando: Comando desconocido: ?ayuda[0m
+[34mJ . . . . . . . . .
+. . # # # # # # . .
+. . . . . . . . . .
+. . # . . . . # . .
+. . # . . . . # . .
+. . # # # # # # . .
+. . # . . . . # . .
+. . # . . . . # . .
+. . . . . . . . . .
+. . # # # # # # . X
+[0m
+[36mTecla  Salud 120/120  Energia 90/90  Pasos 0/160[0m
+[36mAliados: ninguno.[0m
+[36maccion> [0m[34mPunto de despliegue[0m
+[34mNo hay objetos en esta celda.[0m
+[34mJ . . . . . . . . .
+. . # # # # # # . .
+. . . . . . . . . .
+. . # . . . . # . .
+. . # . . . . # . .
+. . # # # # # # . .
+. . # . . . . # . .
+. . # . . . . # . .
+. . . . . . . . . .
+. . # # # # # # . X
+[0m
+[36mTecla  Salud 120/120  Energia 90/90  Pasos 0/160[0m
+[36mAliados: ninguno.[0m
+[36maccion> [0m[34mMochila: peso 0,00/40.0 kg, espacio restante 10[0m
+[33m(vacia)[0m
+[34mJ . . . . . . . . .
+. . # # # # # # . .
+. . . . . . . . . .
+. . # . . . . # . .
+. . # . . . . # . .
+. . # # # # # # . .
+. . # . . . . # . .
+. . # . . . . # . .
+. . . . . . . . . .
+. . # # # # # # . X
+[0m
+[36mTecla  Salud 120/120  Energia 90/90  Pasos 0/160[0m
+[36mAliados: ninguno.[0m
+[36maccion> [0m[34mDescansas sin moverte: recuperas 0 de salud y 0 de energia. Los enemigos aprovechan para acercarse.[0m
+[34mHeavyFloater_0 se acerca mientras descansas.[0m
+[34mSectoid_1 se acerca mientras descansas.[0m
+[34mSectoid_2 se acerca mientras descansas.[0m
+[34mLightFloater_3 se acerca mientras descansas.[0m
+[34mJ . . . . . . . . .
+. . # # # # # # . .
+. . . . . . . . . .
+. . # . . . . # . .
+. . # . . . . # . .
+. . # # # # # # . .
+. . # . . . . # . .
+. . # . . . . # . .
+. . . . . . . . . .
+. . # # # # # # . X
+[0m
+[36mTecla  Salud 120/120  Energia 90/90  Pasos 0/160[0m
+[36mAliados: ninguno.[0m
+[36maccion> [0m[34mPartida finalizada.[0m
+[34mPuntuacion final: 750[0m
+[34m  - Salud restante: 300[0m
+[34m  - Energia restante: 200[0m
+[34m  - Eficiencia en pasos: 250[0m
+[34m  - Progreso hacia objetivo: 0[0m
+[34m  - Enemigos derrotados (0): 0[0m
+[34m  - Ajuste por resultado final: 0[0m
+[34mRecorrido: (0,0) [0m

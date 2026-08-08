@@ -30,7 +30,7 @@ class CommandParserTest {
     void validaArgumentosDeMovimientoMiradaLanzamientoPeticionDeAyudaYDescanso() throws ComandoException {
         assertThrows(ComandoException.class, () -> parser.parse("mover arriba"));
         assertThrows(ComandoException.class, () -> parser.parse("mover norte 0"));
-        assertThrows(ComandoException.class, () -> parser.parse("mirar norte 1 extra"));
+        assertThrows(ComandoException.class, () -> parser.parse("mirar norte cero"));
         assertThrows(ComandoException.class, () -> parser.parse("lanzar norte granada"));
         assertThrows(ComandoException.class, () -> parser.parse("pedir auxilio"));
         assertThrows(ComandoException.class, () -> parser.parse("descansar ahora"));
@@ -46,5 +46,6 @@ class CommandParserTest {
         assertThrows(ComandoException.class, () -> parser.parse("usar"));
         assertThrows(ComandoException.class, () -> parser.parse("equipar"));
         assertThrows(ComandoException.class, () -> parser.parse("desequipar"));
+        assertThrows(ComandoException.class, () -> parser.parse("cargar"));
     }
 }

@@ -1,0 +1,47 @@
+[34mBienvenido a The Legend of Tecla[0m
+[34mDificultad: muy facil | enemigos=2 | aliados=0 | salud x0.7 | danio x0.65[0m
+[34mMapa: Base Lambda[0m
+[34mInstalacion abandonada de la resistencia[0m
+[34mJ . . . . . . . . .
+. . # # # # # # . .
+. . . . . . . . . .
+. . # . . . . # . .
+. . # . . . . # . .
+. . # # # # # # . .
+. . # . . . . # . .
+. . # . . . . # . .
+. . . . . . . . . .
+. . # # # # # # . X
+[0m
+[36mMatriz  Salud 120/120  Energia 90/90  Pasos 0/160[0m
+[36mAliados: ninguno.[0m
+[36maccion> [0m[31mError de comando: Comando desconocido: ?salir[0m
+[34mJ . . . . . . . . .
+. . # # # # # # . .
+. . . . . . . . . .
+. . # . . . . # . .
+. . # . . . . # . .
+. . # # # # # # . .
+. . # . . . . # . .
+. . # . . . . # . .
+. . . . . . . . . .
+. . # # # # # # . X
+[0m
+[36mMatriz  Salud 120/120  Energia 90/90  Pasos 0/160[0m
+[36mAliados: ninguno.[0m
+[36maccion> [0m[31mError de comando: Comando vacio.[0m
+[34mJ . . . . . . . . .
+. . # # # # # # . .
+. . . . . . . . . .
+. . # . . . . # . .
+. . # . . . . # . .
+. . # # # # # # . .
+. . # . . . . # . .
+. . # . . . . # . .
+. . . . . . . . . .
+. . # # # # # # . X
+[0m
+[36mMatriz  Salud 120/120  Energia 90/90  Pasos 0/160[0m
+[36mAliados: ninguno.[0m
+[36maccion> [0m
+Entrada cerrada. Partida finalizada.

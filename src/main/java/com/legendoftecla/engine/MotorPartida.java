@@ -231,6 +231,12 @@ public final class MotorPartida {
                 finalizar(SistemaPuntuacion.EstadoFinalPartida.SALIDA_MANUAL);
                 return false;
             }
+            if (contexto.getJuego() != juego) {
+                reemplazarJuegoCargado(contexto.getJuego());
+                anunciarPartida();
+                evaluarFinNatural();
+                return !finalizada;
+            }
             if (juego.consumirSolicitudAyudaAliados()) {
                 setTurnosAyudaAliados(Math.max(TURNOS_AYUDA_MINIMOS,
                         juego.getMapa().getFilas() + juego.getMapa().getColumnas()));
@@ -245,6 +251,22 @@ public final class MotorPartida {
         }
         evaluarFinNatural();
         return !finalizada;
+    }
+
+    private void reemplazarJuegoCargado(Juego cargado) {
+        setJuego(cargado);
+        Map<Aliado, SituacionAliado> situaciones = new HashMap<>();
+        Map<Aliado, Boolean> combates = new HashMap<>();
+        cargado.getAliadosRegistrados().forEach(aliado -> {
+            situaciones.put(aliado, SituacionAliado.ACTIVO);
+            combates.put(aliado, false);
+        });
+        setSituacionesAliados(situaciones);
+        setAliadosEnCombate(combates);
+        setTurnosAyudaAliados(0);
+        setAvisoRescateEnergia(false);
+        setEstadoFinal(null);
+        setFinalizada(false);
     }
 
     /**
@@ -616,6 +638,8 @@ public final class MotorPartida {
                 gestionarArmaInspeccionada(aliado, arma, celda);
             } else if (objeto instanceof Armadura armadura) {
                 gestionarArmaduraInspeccionada(aliado, armadura, celda);
+            } else if (objeto instanceof Binocular binocular) {
+                gestionarBinocularInspeccionado(aliado, binocular, celda);
             } else {
                 recogerObjetoAliado(aliado, objeto, celda);
             }
@@ -682,6 +706,19 @@ public final class MotorPartida {
 
     private int valorArmadura(Armadura armadura) {
         return armadura.getDefensa() * 10 + armadura.getBonusSalud() + armadura.getBonusEnergia() / 2;
+    }
+
+    private void gestionarBinocularInspeccionado(Aliado aliado, Binocular candidato, Celda celda) {
+        Binocular actual = aliado.getBinocularEquipado();
+        if (actual == null) {
+            equiparDesdeCelda(aliado, candidato, celda);
+            return;
+        }
+        if (candidato.getRango() <= actual.getRango()
+                || !desequiparYTirar(aliado, List.of(actual), celda)) {
+            return;
+        }
+        equiparDesdeCelda(aliado, candidato, celda);
     }
 
     private void equiparDesdeCelda(Aliado aliado, Objeto objeto, Celda celda) {
@@ -903,6 +940,9 @@ public final class MotorPartida {
     }
 
     private boolean tieneRadar(Aliado aliado) {
+        if (aliado.getBinocularEquipado() != null) {
+            return true;
+        }
         for (Objeto objeto : aliado.getMochila().getObjetos()) {
             if (objeto instanceof Binocular || objeto.getNombre().toLowerCase().contains("radar")) {
                 return true;
@@ -912,11 +952,15 @@ public final class MotorPartida {
     }
 
     private void activarBinocularAliado(Aliado aliado) {
-        aliado.getMochila().getObjetos().stream()
+        int rangoEquipado = aliado.getBinocularEquipado() == null
+                ? 0 : aliado.getBinocularEquipado().getRango();
+        int rangoMochila = aliado.getMochila().getObjetos().stream()
                 .filter(Binocular.class::isInstance)
                 .map(Binocular.class::cast)
-                .findFirst()
-                .ifPresent(binocular -> binocular.usar(aliado));
+                .mapToInt(Binocular::getRango)
+                .max()
+                .orElse(0);
+        aliado.aumentarVisionTemporal(Math.max(rangoEquipado, rangoMochila));
     }
 
     private int estimarRiesgoRecibido(Aliado aliado) {
@@ -1206,6 +1250,9 @@ public final class MotorPartida {
         aliado.getArmasEquipadas().forEach(arma -> equipo.add("arma " + arma.getNombre()));
         if (aliado.getArmaduraEquipada() != null) {
             equipo.add("armadura " + aliado.getArmaduraEquipada().getNombre());
+        }
+        if (aliado.getBinocularEquipado() != null) {
+            equipo.add("binocular " + aliado.getBinocularEquipado().getNombre());
         }
         return equipo.isEmpty() ? "ninguno" : String.join(", ", equipo);
     }

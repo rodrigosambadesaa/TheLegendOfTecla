@@ -153,6 +153,31 @@ class IntegracionModosGuiTest {
     }
 
     @Test
+    void cargarSustituyeLaPartidaActivaDesdeConsolaYGui() throws Exception {
+        SerializadorEscenarioJson.guardar(crearEscenarioCompleto(), temporal);
+
+        ConsolaSilenciosa consola = new ConsolaSilenciosa();
+        MotorPartida motorConsola = new MotorPartida(FabricaJuego.crear(consola,
+                new ConfiguracionPartida("Carga consola", "marine", "default",
+                        Dificultad.NORMAL, new DimensionesMapa(8, 8), null, false, 1)));
+        assertTrue(motorConsola.ejecutarComando("cargar " + temporal));
+        assertEquals("Escenario de prueba", motorConsola.getJuego().getMapa().getNombre());
+
+        ConsolaGrafica consolaGrafica = new ConsolaGrafica();
+        MotorPartida motorGui = new MotorPartida(FabricaJuego.crear(consolaGrafica,
+                new ConfiguracionPartida("Carga GUI", "marine", "default",
+                        Dificultad.NORMAL, new DimensionesMapa(8, 8), null, false, 1)));
+        SwingUtilities.invokeAndWait(() -> {
+            PanelJuego panel = new PanelJuego(motorGui, consolaGrafica, () -> { });
+            JTextField entrada = (JTextField) buscarPorNombre(panel, "comando.entrada");
+            assertNotNull(entrada);
+            entrada.setText("cargar " + temporal);
+            entrada.postActionEvent();
+        });
+        assertEquals("Escenario de prueba", motorGui.getJuego().getMapa().getNombre());
+    }
+
+    @Test
     void laVistaGraficaRenderizaLosTresModosSinConsolaDeTexto() throws Exception {
         SerializadorEscenarioJson.guardar(crearEscenarioCompleto(), temporal);
         ConfiguracionPartida[] configuraciones = {

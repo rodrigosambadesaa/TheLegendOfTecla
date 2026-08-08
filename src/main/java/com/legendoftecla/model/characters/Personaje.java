@@ -3,6 +3,7 @@ package com.legendoftecla.model.characters;
 import com.legendoftecla.exceptions.AccionInvalidaException;
 import com.legendoftecla.model.items.Arma;
 import com.legendoftecla.model.items.Armadura;
+import com.legendoftecla.model.items.Binocular;
 import com.legendoftecla.model.items.Explosivo;
 import com.legendoftecla.model.items.Objeto;
 import com.legendoftecla.model.world.Direccion;
@@ -55,6 +56,8 @@ public abstract class Personaje {
      * Valor publico {@code armaduraEquipada} utilizado por el modelo del juego.
      */
     private Armadura armaduraEquipada;
+    /** Binocular equipado, como maximo uno. */
+    private Binocular binocularEquipado;
     /**
      * Valor publico {@code visionBase} utilizado por el modelo del juego.
      */
@@ -81,6 +84,7 @@ public abstract class Personaje {
         setNombre(nombre);
         setMochila(mochila);
         setArmasEquipadas(List.of());
+        setBinocularEquipado(null);
         setSaludMaxima(salud);
         setSalud(salud);
         setEnergiaMaxima(energia);
@@ -228,7 +232,9 @@ public abstract class Personaje {
       * @return resultado de la operacion
      */
     public int getRangoVision() {
-        return visionBase + visionTemporal;
+        int mejora = binocularEquipado == null ? visionTemporal
+                : Math.max(visionTemporal, binocularEquipado.getRango());
+        return visionBase + mejora;
     }
 
     /** @return alcance visual base sin mejoras temporales */
@@ -321,6 +327,11 @@ public abstract class Personaje {
         this.armaduraEquipada = armadura;
     }
 
+    /** @return binocular equipado o {@code null} */
+    public Binocular getBinocularEquipado() { return binocularEquipado; }
+    /** @param binocular binocular equipado opcional */
+    public void setBinocularEquipado(Binocular binocular) { this.binocularEquipado = binocular; }
+
     /**
      * Ejecuta mover.
       * @param direccion valor de {@code direccion}
@@ -384,7 +395,11 @@ public abstract class Personaje {
             equiparArmadura(armadura);
             return;
         }
-        throw new AccionInvalidaException("Solo puedes equipar armas o armaduras.");
+        if (objeto instanceof Binocular binocular) {
+            equiparBinocular(binocular);
+            return;
+        }
+        throw new AccionInvalidaException("Solo puedes equipar armas, armaduras o binoculares.");
     }
 
     /**
@@ -416,6 +431,14 @@ public abstract class Personaje {
             setArmaduraEquipada(null);
             setSaludMaxima(Math.max(1, saludMaxima - retirada.getBonusSalud()));
             setEnergiaMaxima(Math.max(1, energiaMaxima - retirada.getBonusEnergia()));
+            return;
+        }
+        if (binocularEquipado != null && binocularEquipado.getNombre().equalsIgnoreCase(nombreValidado)) {
+            Binocular retirado = binocularEquipado;
+            if (!mochila.guardar(retirado)) {
+                throw new AccionInvalidaException("La mochila no tiene espacio para desequipar el binocular.");
+            }
+            setBinocularEquipado(null);
             return;
         }
         throw new AccionInvalidaException("No tienes ese objeto equipado.");
@@ -516,10 +539,10 @@ public abstract class Personaje {
      * Ejecuta equiparArmadura.
       * @param armadura valor de {@code armadura}
      */
-    protected void equiparArmadura(Armadura armadura) {
+    protected void equiparArmadura(Armadura armadura) throws AccionInvalidaException {
         Validaciones.noNulo(armadura, "Armadura");
         if (armaduraEquipada != null) {
-            throw new IllegalStateException("Ya hay una armadura equipada.");
+            throw new AccionInvalidaException("Ya hay una armadura equipada.");
         }
         int nuevaSaludMaxima = sumarEstadistica(saludMaxima, armadura.getBonusSalud(), "Salud maxima");
         int nuevaEnergiaMaxima = sumarEstadistica(energiaMaxima, armadura.getBonusEnergia(), "Energia maxima");
@@ -528,6 +551,15 @@ public abstract class Personaje {
         setEnergiaMaxima(nuevaEnergiaMaxima);
         setSalud(salud + armadura.getBonusSalud());
         setEnergia(energia + armadura.getBonusEnergia());
+    }
+
+    /** Equipa un único binocular como mejora visual permanente. */
+    protected void equiparBinocular(Binocular binocular) throws AccionInvalidaException {
+        Validaciones.noNulo(binocular, "Binocular");
+        if (binocularEquipado != null) {
+            throw new AccionInvalidaException("Ya hay un binocular equipado.");
+        }
+        setBinocularEquipado(binocular);
     }
 
     /**

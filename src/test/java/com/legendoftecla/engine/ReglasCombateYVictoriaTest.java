@@ -111,9 +111,11 @@ class ReglasCombateYVictoriaTest {
         Armadura armaduraAntigua = new Armadura("armadura antigua", "Debil", 3, 1, 2, 2);
         Arma armaNueva = new Arma("arma nueva", "Potente", 2, 18, true);
         Armadura armaduraNueva = new Armadura("armadura nueva", "Resistente", 3, 5, 15, 10);
+        Binocular binocularAntiguo = new Binocular("binocular antiguo", "Corto", 1, 1);
         Binocular binocular = new Binocular("binocular aliado", "Reutilizable", 1, 2);
         aliado.equipar(armaAntigua);
         aliado.equipar(armaduraAntigua);
+        aliado.equipar(binocularAntiguo);
         Celda celda = juego.getMapa().getCelda(celdaInspeccionada);
         celda.agregarObjeto(armaNueva);
         celda.agregarObjeto(armaduraNueva);
@@ -131,12 +133,13 @@ class ReglasCombateYVictoriaTest {
         assertFalse(juego.isCeldaInspeccionada(aliado, celdaOculta));
         assertTrue(aliado.getArmasEquipadas().contains(armaNueva));
         assertEquals(armaduraNueva, aliado.getArmaduraEquipada());
-        assertTrue(aliado.getMochila().getObjetos().contains(binocular));
+        assertEquals(binocular, aliado.getBinocularEquipado());
         motor.ejecutarComando("mirar");
-        assertTrue(aliado.getMochila().getObjetos().contains(binocular));
+        assertEquals(binocular, aliado.getBinocularEquipado());
         assertEquals(binocular.getRango(), aliado.getVisionTemporal());
         assertTrue(celda.getObjetos().contains(armaAntigua));
         assertTrue(celda.getObjetos().contains(armaduraAntigua));
+        assertTrue(celda.getObjetos().contains(binocularAntiguo));
         assertTrue(juego.getMapa().getCelda(celdaOculta).getObjetos().contains(oculto));
         assertTrue(consola.salida().contains("inspecciona la celda"));
         assertTrue(consola.salida().contains("tira arma antigua en la celda " + celdaInspeccionada));

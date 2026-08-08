@@ -5,3 +5,8 @@ target/
 # Archivos de enunciado/dumps locales
 /*.pdf
 /*.txt
+/*.zip
+
+# Temporales de revisión local
+/tmp/
+/legacy/

@@ -45,7 +45,7 @@
                         <goals><goal>enforce</goal></goals>
                         <configuration>
                             <rules>
-                                <requireJavaVersion><version>[17,18)</version></requireJavaVersion>
+                                <requireJavaVersion><version>[17,)</version></requireJavaVersion>
                                 <requireMavenVersion><version>[3.9,)</version></requireMavenVersion>
                                 <dependencyConvergence />
                             </rules>
@@ -63,6 +63,7 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.4.2</version>
                 <configuration>
+                    <forceCreation>true</forceCreation>
                     <archive>
                         <manifest>
                             <mainClass>com.legendoftecla.Main</mainClass>

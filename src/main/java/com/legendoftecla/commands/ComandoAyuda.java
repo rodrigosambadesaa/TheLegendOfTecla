@@ -34,8 +34,8 @@ public class ComandoAyuda implements Comando {
                 "",
                 "1) mover <norte|sur|este|oeste> [repeticiones]",
                 "   Ejemplos: mover norte | mover este 3",
-                "2) mirar [norte|sur|este|oeste] [pasos]",
-                "   Ejemplos: mirar | mirar este 3",
+                "2) mirar [objeto|<distancia><direccion> [enemigo]]",
+                "   Ejemplos: mirar | mirar rifle | mirar 3e | mirar 3e Sectoid_A",
                 "3) coger <objeto>",
                 "   Ejemplo: coger rifle",
                 "4) tirar <objeto>",
@@ -44,8 +44,8 @@ public class ComandoAyuda implements Comando {
                 "   Ejemplo: inventario",
                 "6) usar <objeto>",
                 "   Ejemplo: usar botiquin",
-                "7) equipar <arma|armadura>",
-                "   Ejemplo: equipar rifle | equipar chaleco",
+                "7) equipar <arma|armadura|binocular> [equipado]",
+                "   Ejemplo compuesto: equipar lanzacohetes ametralladora",
                 "8) desequipar <arma|armadura>",
                 "   Ejemplo: desequipar rifle | desequipar chaleco",
                 "9) atacar [<distancia><direccion>] [objetivo|todos] [repeticiones]",
@@ -60,7 +60,9 @@ public class ComandoAyuda implements Comando {
                 "    Recupera un 10 % de salud y energia sin moverse; los enemigos se acercan",
                 "14) ayuda (alias: comandos)",
                 "    Ejemplo: ayuda",
-                "15) salir",
+                "15) cargar <directorio>",
+                "    Carga escenario.json o mapa.txt, objetos.txt y enemigos.txt",
+                "16) salir",
                 "    Ejemplo: salir");
         context.getJuego().getConsola().imprimirInfo(ayuda);
     }

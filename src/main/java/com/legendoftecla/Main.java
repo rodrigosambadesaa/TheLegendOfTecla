@@ -102,11 +102,12 @@ public final class Main {
             MotorPartida motor = new MotorPartida(juego);
 
             while (!motor.isFinalizada()) {
-                consola.imprimir(juego.getMapa().renderAscii(
-                        juego.getJugador().getPosicion(),
+                Juego juegoActual = motor.getJuego();
+                consola.imprimir(juegoActual.getMapa().renderAscii(
+                        juegoActual.getJugador().getPosicion(),
                         motor.getEnemigosVisibles(),
                         motor.getAliadosVisibles(),
-                        juego.getCeldasInspeccionadas()));
+                        juegoActual.getCeldasInspeccionadas()));
                 consola.imprimir(motor.getEstadoJugador(), TipoMensaje.ESTADO);
                 consola.imprimir(motor.getEstadoAliados(), TipoMensaje.ESTADO);
                 motor.ejecutarComando(consola.leer("accion>"));

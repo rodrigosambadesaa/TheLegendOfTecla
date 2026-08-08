@@ -130,7 +130,7 @@ Desde la pantalla inicial se puede jugar en cualquiera de los tres modos:
 Toda la partida se desarrolla en una sola ventana. El mapa utiliza celdas y
 formas graficas para representar muros, jugador, objetivo, objetos, aliados y
 enemigos visibles. Los controles de movimiento, coger, usar, tirar, equipar,
-desequipar, atacar, lanzar explosivos, pedir ayuda, inventario, estado, ayuda, recorrido y salida estan
+desequipar, atacar, descansar, lanzar explosivos, pedir ayuda, inventario, estado, ayuda, recorrido y salida estan
 disponibles como botones. Las acciones que necesitan un objeto o enemigo abren
 un selector contextual, por lo que se puede completar la partida sin escribir
 comandos. El campo situado bajo el mapa se mantiene como alternativa.
@@ -159,7 +159,9 @@ combate permanecen en el panel como `EVACUADO` o `CAIDO`; no se pierde su ficha.
 La casilla `Incluir aliados automaticos` esta disponible con dimensiones
 predeterminadas o personalizadas y tambien al cargar ficheros. No se solicita
 el numero ni las caracteristicas: se calculan a partir del tamano del mapa y la
-dificultad. En el modo grande, `Variante del mapa` permite escoger de 1 a 50.
+dificultad. Al activarla, `Condicion de victoria` permite elegir si basta con que
+llegue el jugador o si deben llegar el jugador y todos los aliados, en cualquier
+orden. En el modo grande, `Variante del mapa` permite escoger de 1 a 50.
 
 En mapas cuya ruta minima alcanza 24 pasos, la energia inicial deja de ser una
 cantidad fija. El juego calcula la ruta transitable real hasta la salida y
@@ -259,13 +261,15 @@ Valores admitidos:
   `muy_dificil`, `pesadilla` o `demente`.
 - `--dimensiones`: filas y columnas en formato `12x20`, con un minimo de `3x3`.
 - `--aliados`: `si` o `no`; nunca admite cantidades ni atributos manuales.
+- `--victoria`: `solo_jugador` o `jugador_y_aliados`.
 - `--variante`: numero de `1` a `50` para el mapa grande.
 
 Ejemplo con la variante 37 y aliados automaticos:
 
 ```bash
 docker run --rm -it the-legend-of-tecla \
-  --rapido --modo grande --variante 37 --aliados si
+  --rapido --modo grande --variante 37 --aliados si \
+  --victoria jugador_y_aliados
 ```
 
 Para jugar con el escenario basico incluido en la imagen:
@@ -394,6 +398,7 @@ coger botiquin_1
 atacar Sectoid_0
 lanzar 3e c4_1
 pedir ayuda
+descansar
 recorrido
 salir
 ```
@@ -407,14 +412,35 @@ El comando `lanzar` y el boton `Lanzar explosivo` son exclusivos del zapador.
 Permiten alcanzar una celda situada en linea recta hasta cinco casillas, dañan
 a todos los enemigos de esa celda y consumen la carga utilizada.
 
+El comando y el boton `Atacar` tambien golpean siempre a todos los enemigos que
+compartan la celda objetivo. En consola, un nombre concreto identifica la celda,
+pero no limita el ataque a ese unico enemigo.
+
+`tirar <objeto>` y el boton `Tirar` retiran el objeto de la mochila y lo dejan en
+la celda exacta que ocupa el personaje. Los aliados aplican la misma regla al
+descartar equipo sustituido o liberar espacio.
+
+Los binoculares no se consumen: permanecen en la mochila y pueden usarse de
+nuevo en cualquier turno. Su ampliacion de vision dura hasta el comienzo de la
+siguiente accion. Los aliados conservan igualmente sus radares/binoculares.
+
+`descansar` (alias `reposar`) mantiene al jugador en su celda y recupera un 10 %
+de su salud y energia maximas. Consume el turno y alerta a los enemigos: cada
+enemigo realiza al menos un intento de aproximacion hacia el jugador antes de
+que comience la siguiente accion.
+
 `pedir ayuda` (alias `socorro` o `asistir`) ordena a los aliados que puedan
 hacerlo sin poner en peligro su vida que se acerquen al jugador y combatan con
 el. La orden permanece activa suficientes turnos para recorrer el mapa. Cada
 aliado generado lleva un botiquin y un Torito para poder recuperar primero la
 vida y despues la energia del jugador. Fuera y dentro de esta orden, los aliados:
 
-- Recogen objetos de su celda cuando caben en la mochila y equipan armas o
-  armaduras si tienen libre la ranura correspondiente.
+- Inspeccionan presencialmente cada celda antes de conocer sus objetos; nunca
+  buscan suministros en celdas que ese aliado aun no haya inspeccionado.
+- Tras inspeccionar deciden si recoger o equipar. Sustituyen armas y armaduras
+  por alternativas mejores, desequipan las anteriores y las tiran en esa misma
+  celda. Las armas aumentan su dano real y las armaduras aportan salud, energia
+  y mitigacion de dano.
 - Priorizan siempre las necesidades del jugador cercano.
 - Despues asisten al aliado cercano con menor proporcion de vida y, a
   continuacion, al que tenga menor proporcion de energia.

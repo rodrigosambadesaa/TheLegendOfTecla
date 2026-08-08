@@ -3,6 +3,7 @@ package com.legendoftecla;
 import com.legendoftecla.console.Consola;
 import com.legendoftecla.console.TipoMensaje;
 import com.legendoftecla.constants.Dificultad;
+import com.legendoftecla.constants.CondicionVictoria;
 import com.legendoftecla.engine.ConfiguracionPartida;
 import com.legendoftecla.engine.FabricaJuego;
 import com.legendoftecla.engine.MotorPartida;
@@ -33,9 +34,11 @@ import org.junit.jupiter.api.io.TempDir;
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JSpinner;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import java.awt.Graphics2D;
 import java.awt.Component;
@@ -121,6 +124,7 @@ class IntegracionModosGuiTest {
         assertTrue(motor.ejecutarComando("ayuda"));
         assertTrue(consola.salida.toString().contains("lanzar <distancia><direccion>"));
         assertTrue(consola.salida.toString().contains("pedir ayuda"));
+        assertTrue(consola.salida.toString().contains("descansar"));
         assertFalse(motor.ejecutarComando("salir"));
         assertEquals(SistemaPuntuacion.EstadoFinalPartida.SALIDA_MANUAL, motor.getEstadoFinal());
         assertTrue(consola.salida.toString().contains("Partida finalizada"));
@@ -205,7 +209,7 @@ class IntegracionModosGuiTest {
                     "Coger", "Usar", "Tirar", "Equipar", "Desequipar", "Atacar",
                     "Lanzar explosivo",
                     "Pedir ayuda",
-                    "Inventario", "Estado", "Ayuda", "Recorrido", "Salir"
+                    "Inventario", "Estado", "Ayuda", "Recorrido", "Descansar", "Salir"
             }) {
                 assertTrue(contieneBoton(panel, etiqueta), "Falta el boton " + etiqueta);
             }
@@ -307,6 +311,28 @@ class IntegracionModosGuiTest {
                 new DimensionesMapa(8, 8), null, false, 1));
         assertEquals(90, pequeno.getJugador().getEnergiaMaxima(),
                 "Los mapas pequenos deben conservar el balance original");
+    }
+
+    @Test
+    void tirarDesdeLaEntradaGuiDejaElObjetoEnLaCeldaDelJugador() throws Exception {
+        ConsolaGrafica consola = new ConsolaGrafica();
+        Juego juego = FabricaJuego.crear(consola, new ConfiguracionPartida(
+                "TirarGui", "marine", "default", Dificultad.NORMAL,
+                new DimensionesMapa(8, 8), null, false, 1));
+        Botiquin objeto = new Botiquin("objeto gui", "Prueba", 1, 10);
+        juego.getJugador().getMochila().guardar(objeto);
+        MotorPartida motor = new MotorPartida(juego);
+
+        SwingUtilities.invokeAndWait(() -> {
+            PanelJuego panel = new PanelJuego(motor, consola, () -> { });
+            JTextField entrada = (JTextField) buscarPorNombre(panel, "comando.entrada");
+            assertNotNull(entrada);
+            entrada.setText("tirar objeto gui");
+            entrada.postActionEvent();
+        });
+
+        assertFalse(juego.getJugador().getMochila().getObjetos().contains(objeto));
+        assertTrue(juego.getMapa().getCelda(juego.getJugador().getPosicion()).getObjetos().contains(objeto));
     }
 
     @Test
@@ -421,6 +447,7 @@ class IntegracionModosGuiTest {
 
         new MotorPartida(juego).ejecutarComando("mirar");
 
+        assertTrue(juego.isCeldaInspeccionada(donante, donante.getPosicion()));
         assertEquals(saludAnterior + 25, herido.getSalud());
         assertTrue(juego.getMapa().getCelda(donante.getPosicion()).getObjetos().isEmpty());
         assertTrue(consola.salida.toString().contains("recoge botiquin suelo"));
@@ -515,12 +542,17 @@ class IntegracionModosGuiTest {
             JSpinner filasConfiguracion = (JSpinner) buscarPorNombre(panel, "dimensiones.filas");
             JSpinner columnasConfiguracion = (JSpinner) buscarPorNombre(panel, "dimensiones.columnas");
             JCheckBox aliadosConfiguracion = (JCheckBox) buscarPorNombre(panel, "aliados.activados");
+            JComboBox<?> victoriaConfiguracion = (JComboBox<?>) buscarPorNombre(panel, "victoria.condicion");
             assertNotNull(filasConfiguracion);
             assertNotNull(columnasConfiguracion);
             assertNotNull(aliadosConfiguracion);
+            assertNotNull(victoriaConfiguracion);
+            assertFalse(victoriaConfiguracion.isEnabled());
             escribirNumero(filasConfiguracion, "37");
             escribirNumero(columnasConfiguracion, "42");
-            aliadosConfiguracion.setSelected(true);
+            aliadosConfiguracion.doClick();
+            assertTrue(victoriaConfiguracion.isEnabled());
+            victoriaConfiguracion.setSelectedItem(CondicionVictoria.SOLO_JUGADOR);
             renderizarComponente(panel, captura, 1100, 720);
             JButton iniciar = buscarBoton(panel, "Iniciar partida en GUI");
             assertNotNull(iniciar);
@@ -541,6 +573,7 @@ class IntegracionModosGuiTest {
         assertEquals(37, resultado.get().dimensiones().filas());
         assertEquals(42, resultado.get().dimensiones().columnas());
         assertTrue(resultado.get().conAliados());
+        assertEquals(CondicionVictoria.SOLO_JUGADOR, resultado.get().condicionVictoria());
         assertTrue(Files.size(captura) > 1000);
     }
 

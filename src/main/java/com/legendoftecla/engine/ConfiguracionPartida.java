@@ -1,6 +1,7 @@
 package com.legendoftecla.engine;
 
 import com.legendoftecla.constants.Dificultad;
+import com.legendoftecla.constants.CondicionVictoria;
 import com.legendoftecla.model.world.DimensionesMapa;
 import com.legendoftecla.validation.Limites;
 import com.legendoftecla.validation.Validaciones;
@@ -17,6 +18,7 @@ public final class ConfiguracionPartida {
     private DimensionesMapa dimensiones;
     private Path directorioDatos;
     private boolean conAliados;
+    private CondicionVictoria condicionVictoria;
     private int varianteMapa;
 
     /**
@@ -33,6 +35,26 @@ public final class ConfiguracionPartida {
      */
     public ConfiguracionPartida(String nombreJugador, String clase, String modo, Dificultad dificultad,
             DimensionesMapa dimensiones, Path directorioDatos, boolean conAliados, int varianteMapa) {
+        this(nombreJugador, clase, modo, dificultad, dimensiones, directorioDatos, conAliados,
+                CondicionVictoria.JUGADOR_Y_ALIADOS, varianteMapa);
+    }
+
+    /**
+     * Crea una configuracion completa con una condicion de victoria explicita.
+     *
+     * @param nombreJugador nombre
+     * @param clase clase
+     * @param modo modo
+     * @param dificultad dificultad
+     * @param dimensiones dimensiones opcionales
+     * @param directorioDatos directorio opcional
+     * @param conAliados aliados
+     * @param condicionVictoria condicion de llegada
+     * @param varianteMapa variante
+     */
+    public ConfiguracionPartida(String nombreJugador, String clase, String modo, Dificultad dificultad,
+            DimensionesMapa dimensiones, Path directorioDatos, boolean conAliados,
+            CondicionVictoria condicionVictoria, int varianteMapa) {
         setNombreJugador(nombreJugador);
         setClase(clase);
         setDificultad(dificultad);
@@ -40,6 +62,7 @@ public final class ConfiguracionPartida {
         setDirectorioDatos(directorioDatos);
         setModo(modo);
         setConAliados(conAliados);
+        setCondicionVictoria(condicionVictoria);
         setVarianteMapa(varianteMapa);
         validarCoherencia();
     }
@@ -133,6 +156,18 @@ public final class ConfiguracionPartida {
         this.conAliados = conAliados;
     }
 
+    /** @return condicion de llegada necesaria para ganar */
+    public CondicionVictoria getCondicionVictoria() {
+        return condicionVictoria;
+    }
+
+    /** @param condicionVictoria condicion; {@code null} conserva la regla historica */
+    public void setCondicionVictoria(CondicionVictoria condicionVictoria) {
+        this.condicionVictoria = condicionVictoria == null
+                ? CondicionVictoria.JUGADOR_Y_ALIADOS
+                : condicionVictoria;
+    }
+
     /** @return variante */
     public int getVarianteMapa() {
         return varianteMapa;
@@ -157,6 +192,8 @@ public final class ConfiguracionPartida {
     public Path directorioDatos() { return getDirectorioDatos(); }
     /** @return aliados, conservando la API anterior */
     public boolean conAliados() { return isConAliados(); }
+    /** @return condicion de victoria, conservando el estilo de acceso compacto */
+    public CondicionVictoria condicionVictoria() { return getCondicionVictoria(); }
     /** @return variante, conservando la API anterior */
     public int varianteMapa() { return getVarianteMapa(); }
     private void validarCoherencia() {

@@ -60,6 +60,7 @@ class ValidacionInternaTest {
                 com.legendoftecla.commands.ComandoCoger.class,
                 com.legendoftecla.commands.ComandoCompuesto.class,
                 com.legendoftecla.commands.ComandoDesequipar.class,
+                com.legendoftecla.commands.ComandoDescansar.class,
                 com.legendoftecla.commands.ComandoEquipar.class,
                 com.legendoftecla.commands.ComandoInventario.class,
                 com.legendoftecla.commands.ComandoLanzarExplosivo.class,

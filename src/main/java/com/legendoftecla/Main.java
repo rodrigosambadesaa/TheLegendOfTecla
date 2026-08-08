@@ -5,6 +5,7 @@ import com.legendoftecla.console.Consola;
 import com.legendoftecla.console.ConsolaNormal;
 import com.legendoftecla.console.TipoMensaje;
 import com.legendoftecla.constants.Dificultad;
+import com.legendoftecla.constants.CondicionVictoria;
 import com.legendoftecla.engine.ConfiguracionPartida;
 import com.legendoftecla.engine.FabricaJuego;
 import com.legendoftecla.engine.MotorPartida;
@@ -86,13 +87,17 @@ public final class Main {
         boolean conAliados = opciones.conAliados() != null
                 ? opciones.conAliados()
                 : leerAliados(consola);
+        CondicionVictoria condicionVictoria = opciones.condicionVictoria() != null
+                ? opciones.condicionVictoria()
+                : (conAliados ? leerCondicionVictoria(consola) : CondicionVictoria.JUGADOR_Y_ALIADOS);
         int varianteMapa = opciones.varianteMapa() != null
                 ? opciones.varianteMapa()
                 : ("grande".equals(modo) ? leerVariante(consola) : 1);
 
         try {
             ConfiguracionPartida configuracion = new ConfiguracionPartida(
-                    nombre, clase, modo, dificultad, dimensiones, directorio, conAliados, varianteMapa);
+                    nombre, clase, modo, dificultad, dimensiones, directorio, conAliados,
+                    condicionVictoria, varianteMapa);
             Juego juego = FabricaJuego.crear(consola, configuracion);
             MotorPartida motor = new MotorPartida(juego);
 
@@ -197,6 +202,21 @@ public final class Main {
                 return true;
             }
             consola.imprimir("Respuesta invalida. Escribe si o no.", TipoMensaje.ERROR);
+        }
+    }
+
+    private static CondicionVictoria leerCondicionVictoria(Consola consola) {
+        while (true) {
+            String entrada = consola.leer(
+                    "Condicion de victoria (1=solo jugador, 2=jugador y todos los aliados) [2]:");
+            if (entrada == null || entrada.isBlank()) {
+                return CondicionVictoria.JUGADOR_Y_ALIADOS;
+            }
+            CondicionVictoria condicion = CondicionVictoria.desdeTexto(entrada);
+            if (condicion != null) {
+                return condicion;
+            }
+            consola.imprimir("Condicion invalida. Escribe 1 o 2.", TipoMensaje.ERROR);
         }
     }
 

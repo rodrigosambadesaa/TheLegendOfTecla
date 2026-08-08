@@ -96,6 +96,12 @@ public class CommandParser {
         registrar(comandos, this::parseMirar, "mirar");
         registrar(comandos, partes -> new ComandoInventario(context), "inventario", "mochila");
         registrar(comandos, partes -> new ComandoRecorrido(context), "recorrido");
+        registrar(comandos, partes -> {
+            if (partes.length != 1) {
+                throw new ComandoException("Uso: descansar");
+            }
+            return new ComandoDescansar(context);
+        }, "descansar", "reposar");
         registrar(comandos, this::parseMover, "mover", "avanzar");
         registrar(comandos, partes -> {
             requiereArg(partes);

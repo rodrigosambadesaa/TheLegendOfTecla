@@ -4,7 +4,9 @@ import com.legendoftecla.TestFixtures;
 import com.legendoftecla.exceptions.ComandoException;
 import com.legendoftecla.model.items.Arma;
 import com.legendoftecla.model.items.Botiquin;
+import com.legendoftecla.model.items.Binocular;
 import com.legendoftecla.model.world.Juego;
+import com.legendoftecla.engine.MotorPartida;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -64,6 +66,23 @@ class ComandosInventarioTest {
         assertTrue(juego.getJugador().getArmasEquipadas().isEmpty());
         assertTrue(juego.getJugador().getMochila().getObjetos().contains(rifle));
         assertThrows(ComandoException.class, () -> parser.parse("desequipar laser").ejecutar());
+    }
+
+    @Test
+    void elBinocularNoSeConsumeYPuedeUsarseEnTurnosDistintos() {
+        Binocular binocular = new Binocular("binocular", "Vision reutilizable", 1, 3);
+        juego.getJugador().getMochila().guardar(binocular);
+        MotorPartida motor = new MotorPartida(juego);
+
+        motor.ejecutarComando("usar binocular");
+        assertTrue(juego.getJugador().getMochila().getObjetos().contains(binocular));
+        assertEquals(3, juego.getJugador().getVisionTemporal());
+
+        motor.ejecutarComando("mirar");
+        assertEquals(0, juego.getJugador().getVisionTemporal());
+        motor.ejecutarComando("usar binocular");
+        assertTrue(juego.getJugador().getMochila().getObjetos().contains(binocular));
+        assertEquals(3, juego.getJugador().getVisionTemporal());
     }
 
     @Test

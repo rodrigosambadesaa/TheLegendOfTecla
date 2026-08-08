@@ -5,6 +5,7 @@ import com.legendoftecla.commands.CommandParser;
 import com.legendoftecla.commands.Comando;
 import com.legendoftecla.commands.ComandoRecorrido;
 import com.legendoftecla.commands.ComandoSalir;
+import com.legendoftecla.commands.ComandoDescansar;
 import com.legendoftecla.console.TipoMensaje;
 import com.legendoftecla.exceptions.ComandoException;
 import com.legendoftecla.model.characters.Aliado;
@@ -18,6 +19,7 @@ import com.legendoftecla.model.items.Explosivo;
 import com.legendoftecla.model.items.Objeto;
 import com.legendoftecla.model.items.ToritoRojo;
 import com.legendoftecla.model.world.Direccion;
+import com.legendoftecla.model.world.Celda;
 import com.legendoftecla.model.world.Juego;
 import com.legendoftecla.model.world.Posicion;
 import com.legendoftecla.model.world.SistemaPuntuacion;
@@ -221,6 +223,7 @@ public final class MotorPartida {
         if (finalizada) {
             return false;
         }
+        juego.getJugador().resetTurno();
         try {
             Comando comando = parser.parse(linea == null ? "" : linea);
             comando.ejecutar();
@@ -233,14 +236,12 @@ public final class MotorPartida {
                         juego.getMapa().getFilas() + juego.getMapa().getColumnas()));
             }
             ejecutarTurnoAliados();
-            ejecutarTurnoNPC();
+            ejecutarTurnoNPC(comando instanceof ComandoDescansar);
             avanzarOrdenAyuda();
         } catch (ComandoException e) {
             juego.getConsola().imprimir("Error de comando: " + e.getMessage(), TipoMensaje.ERROR);
         } catch (Exception e) {
             juego.getConsola().imprimir("Error inesperado: " + e.getMessage(), TipoMensaje.ERROR);
-        } finally {
-            juego.getJugador().resetTurno();
         }
         evaluarFinNatural();
         return !finalizada;
@@ -291,6 +292,9 @@ public final class MotorPartida {
         juego.getConsola().imprimir(juego.getMapa().getDescripcion(), TipoMensaje.INFO);
         if (!juego.getAliados().isEmpty()) {
             juego.getConsola().imprimir("Aliados desplegados: " + juego.getAliados().size(), TipoMensaje.INFO);
+            juego.getConsola().imprimir(
+                    "Condicion de victoria: " + juego.getCondicionVictoria().getEtiqueta() + ".",
+                    TipoMensaje.INFO);
         }
     }
 
@@ -352,13 +356,13 @@ public final class MotorPartida {
         new ComandoRecorrido(contexto).ejecutar();
     }
 
-    private void ejecutarTurnoNPC() {
+    private void ejecutarTurnoNPC(boolean jugadorDescansando) {
         List<Enemigo> snapshot = List.copyOf(juego.getEnemigos());
         for (Enemigo enemigo : snapshot) {
             if (enemigo.getSalud() <= 0) {
                 continue;
             }
-            int movimientos = random.nextInt(3);
+            int movimientos = jugadorDescansando ? Math.max(1, random.nextInt(3)) : random.nextInt(3);
             for (int i = 0; i < movimientos; i++) {
                 int distancia = enemigo.getPosicion().distanciaManhattan(juego.getJugador().getPosicion());
                 if (distancia <= enemigo.getRangoVision()
@@ -367,7 +371,12 @@ public final class MotorPartida {
                     juego.getConsola().imprimir(enemigo.getNombre() + " te ataca.");
                     break;
                 }
-                Direccion direccion = Direccion.values()[random.nextInt(Direccion.values().length)];
+                Direccion direccion = jugadorDescansando
+                        ? buscarPrimerPasoEnemigo(enemigo.getPosicion(), juego.getJugador().getPosicion())
+                        : Direccion.values()[random.nextInt(Direccion.values().length)];
+                if (direccion == null) {
+                    break;
+                }
                 Posicion origen = enemigo.getPosicion();
                 Posicion destino = origen.mover(direccion);
                 if (juego.getMapa().esTransitable(destino)) {
@@ -375,6 +384,10 @@ public final class MotorPartida {
                     try {
                         enemigo.mover(direccion, juego);
                         juego.getMapa().getCelda(enemigo.getPosicion()).agregarEnemigo(enemigo);
+                        if (jugadorDescansando) {
+                            juego.getConsola().imprimirInfo(
+                                    enemigo.getNombre() + " se acerca mientras descansas.");
+                        }
                     } catch (Exception ignored) {
                         juego.getMapa().getCelda(origen).agregarEnemigo(enemigo);
                     }
@@ -391,6 +404,8 @@ public final class MotorPartida {
                 marcarCombate(aliado, false);
                 continue;
             }
+            aliado.resetTurno();
+            activarBinocularAliado(aliado);
             marcarCombate(aliado, false);
             SituacionAliado anterior = situacionesAliados.getOrDefault(aliado, SituacionAliado.ACTIVO);
             cambiarSituacion(aliado, anterior == SituacionAliado.EN_COMBATE
@@ -564,41 +579,168 @@ public final class MotorPartida {
     }
 
     private void interactuarConObjetos(Aliado aliado) {
-        List<Objeto> objetos = List.copyOf(juego.getMapa().getCelda(aliado.getPosicion()).getObjetos());
+        Posicion posicion = aliado.getPosicion();
+        boolean primeraInspeccion = juego.inspeccionarCeldaAliado(aliado);
+        Celda celda = juego.getMapa().getCelda(posicion);
+        if (primeraInspeccion) {
+            juego.getConsola().imprimirInfo(aliado.getNombre() + " inspecciona la celda " + posicion
+                    + " y encuentra " + celda.getObjetos().size() + " objeto(s).");
+        }
+        if (!juego.isCeldaInspeccionada(aliado, posicion)) {
+            return;
+        }
+        List<Objeto> objetos = List.copyOf(celda.getObjetos());
         for (Objeto objeto : objetos) {
-            if (objeto instanceof Explosivo || !aliado.getMochila().puedeGuardar(objeto)) {
+            if (objeto instanceof Explosivo) {
                 continue;
             }
-            Objeto recogido = juego.getMapa().getCelda(aliado.getPosicion())
-                    .quitarObjetoPorNombre(objeto.getNombre());
-            if (recogido == null) {
-                continue;
-            }
-            try {
-                aliado.coger(recogido);
-                juego.getConsola().imprimirInfo(aliado.getNombre() + " recoge " + recogido.getNombre() + ".");
-                equiparSiConviene(aliado, recogido);
-            } catch (Exception e) {
-                juego.getMapa().getCelda(aliado.getPosicion()).agregarObjeto(recogido);
+            if (objeto instanceof Arma arma) {
+                gestionarArmaInspeccionada(aliado, arma, celda);
+            } else if (objeto instanceof Armadura armadura) {
+                gestionarArmaduraInspeccionada(aliado, armadura, celda);
+            } else {
+                recogerObjetoAliado(aliado, objeto, celda);
             }
         }
     }
 
-    private void equiparSiConviene(Aliado aliado, Objeto objeto) {
-        boolean necesitaEquipo = objeto instanceof Arma && aliado.getArmasEquipadas().isEmpty()
-                || objeto instanceof Armadura && aliado.getArmaduraEquipada() == null;
-        if (!necesitaEquipo) {
+    private void recogerObjetoAliado(Aliado aliado, Objeto objeto, Celda celda) {
+        if (!aliado.getMochila().puedeGuardar(objeto)) {
             return;
         }
-        Objeto retirado = aliado.getMochila().quitarPorNombre(objeto.getNombre());
+        Objeto recogido = celda.quitarObjetoPorNombre(objeto.getNombre());
+        if (recogido == null) {
+            return;
+        }
+        try {
+            aliado.coger(recogido);
+            juego.getConsola().imprimirInfo(aliado.getNombre() + " recoge " + recogido.getNombre() + ".");
+        } catch (Exception e) {
+            celda.agregarObjeto(recogido);
+        }
+    }
+
+    private void gestionarArmaInspeccionada(Aliado aliado, Arma candidata, Celda celda) {
+        List<Arma> equipadas = aliado.getArmasEquipadas();
+        int manosUsadas = equipadas.stream().mapToInt(arma -> arma.isDosManos() ? 2 : 1).sum();
+        int manosCandidata = candidata.isDosManos() ? 2 : 1;
+        if (manosUsadas + manosCandidata <= 2) {
+            equiparDesdeCelda(aliado, candidata, celda);
+            return;
+        }
+
+        List<Arma> aSustituir = new ArrayList<>();
+        if (candidata.isDosManos()) {
+            int danioActual = equipadas.stream().mapToInt(Arma::getDanio).sum();
+            if (candidata.getDanio() > danioActual) {
+                aSustituir.addAll(equipadas);
+            }
+        } else {
+            Arma peor = equipadas.stream().min((primera, segunda) ->
+                    Integer.compare(primera.getDanio(), segunda.getDanio())).orElse(null);
+            if (peor != null && !peor.isDosManos() && candidata.getDanio() > peor.getDanio()) {
+                aSustituir.add(peor);
+            } else if (peor != null && peor.isDosManos() && candidata.getDanio() > peor.getDanio()) {
+                aSustituir.add(peor);
+            }
+        }
+        if (!aSustituir.isEmpty() && desequiparYTirar(aliado, aSustituir, celda)) {
+            equiparDesdeCelda(aliado, candidata, celda);
+        }
+    }
+
+    private void gestionarArmaduraInspeccionada(Aliado aliado, Armadura candidata, Celda celda) {
+        Armadura actual = aliado.getArmaduraEquipada();
+        if (actual == null) {
+            equiparDesdeCelda(aliado, candidata, celda);
+            return;
+        }
+        if (valorArmadura(candidata) <= valorArmadura(actual)
+                || !desequiparYTirar(aliado, List.of(actual), celda)) {
+            return;
+        }
+        equiparDesdeCelda(aliado, candidata, celda);
+    }
+
+    private int valorArmadura(Armadura armadura) {
+        return armadura.getDefensa() * 10 + armadura.getBonusSalud() + armadura.getBonusEnergia() / 2;
+    }
+
+    private void equiparDesdeCelda(Aliado aliado, Objeto objeto, Celda celda) {
+        Objeto retirado = celda.quitarObjetoPorNombre(objeto.getNombre());
         if (retirado == null) {
             return;
         }
         try {
             aliado.equipar(retirado);
-            juego.getConsola().imprimirInfo(aliado.getNombre() + " equipa " + objeto.getNombre() + ".");
+            juego.getConsola().imprimirInfo(
+                    aliado.getNombre() + " recoge y equipa " + objeto.getNombre() + ".");
         } catch (Exception e) {
-            aliado.getMochila().guardar(retirado);
+            celda.agregarObjeto(retirado);
+        }
+    }
+
+    private boolean desequiparYTirar(Aliado aliado, List<? extends Objeto> objetos, Celda celda) {
+        for (Objeto objeto : objetos) {
+            if (!liberarEspacioParaDesequipar(aliado, objeto, celda)) {
+                return false;
+            }
+            try {
+                aliado.desequipar(objeto.getNombre());
+                if (!tirarObjetoAliado(aliado, objeto.getNombre(), celda,
+                        " para sustituirlo por una opcion mejor")) {
+                    return false;
+                }
+            } catch (Exception e) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean liberarEspacioParaDesequipar(Aliado aliado, Objeto objeto, Celda celda) {
+        while (!aliado.getMochila().puedeGuardar(objeto)) {
+            Objeto descarte = aliado.getMochila().getObjetos().stream()
+                    .min((primero, segundo) -> Integer.compare(
+                            valorConservacion(primero), valorConservacion(segundo)))
+                    .orElse(null);
+            if (descarte == null) {
+                return false;
+            }
+            if (!tirarObjetoAliado(aliado, descarte.getNombre(), celda, " para liberar espacio")) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private int valorConservacion(Objeto objeto) {
+        if (objeto instanceof Botiquin || objeto instanceof ToritoRojo) {
+            return 100;
+        }
+        if (objeto instanceof Binocular) {
+            return 80;
+        }
+        if (objeto instanceof Arma arma) {
+            return arma.getDanio();
+        }
+        if (objeto instanceof Armadura armadura) {
+            return valorArmadura(armadura);
+        }
+        return 1;
+    }
+
+    private boolean tirarObjetoAliado(Aliado aliado, String nombre, Celda celda, String motivo) {
+        try {
+            Objeto descartado = aliado.tirar(nombre);
+            celda.agregarObjeto(descartado);
+            juego.getConsola().imprimirInfo(
+                    aliado.getNombre() + " tira " + descartado.getNombre()
+                            + " en la celda " + aliado.getPosicion() + motivo + ".");
+            return true;
+        } catch (Exception ignored) {
+            // El objeto permanece donde estaba si no puede retirarse.
+            return false;
         }
     }
 
@@ -751,6 +893,14 @@ public final class MotorPartida {
         return false;
     }
 
+    private void activarBinocularAliado(Aliado aliado) {
+        aliado.getMochila().getObjetos().stream()
+                .filter(Binocular.class::isInstance)
+                .map(Binocular.class::cast)
+                .findFirst()
+                .ifPresent(binocular -> binocular.usar(aliado));
+    }
+
     private int estimarRiesgoRecibido(Aliado aliado) {
         int defensa = aliado.getArmaduraEquipada() != null ? aliado.getArmaduraEquipada().getDefensa() : 0;
         int golpeEstimado = Math.max(1, 4 - defensa);
@@ -849,7 +999,8 @@ public final class MotorPartida {
         visitadas.add(origen);
         while (!pendientes.isEmpty()) {
             Posicion actual = pendientes.removeFirst();
-            boolean contiene = juego.getMapa().getCelda(actual).getObjetos().stream().anyMatch(tipo::isInstance);
+            boolean contiene = juego.isCeldaInspeccionada(aliado, actual)
+                    && juego.getMapa().getCelda(actual).getObjetos().stream().anyMatch(tipo::isInstance);
             if (contiene) {
                 return actual;
             }
@@ -918,6 +1069,38 @@ public final class MotorPartida {
                 }
                 boolean ocupadaPorAliado = !juego.getMapa().getCelda(candidata).getAliados().isEmpty();
                 if (ocupadaPorAliado && !candidata.equals(objetivo)) {
+                    continue;
+                }
+                anterior.put(candidata, actual);
+                direccionEntrada.put(candidata, direccion);
+                pendientes.addLast(candidata);
+            }
+        }
+        if (!anterior.containsKey(objetivo)) {
+            return null;
+        }
+        Posicion paso = objetivo;
+        while (anterior.get(paso) != null && !anterior.get(paso).equals(origen)) {
+            paso = anterior.get(paso);
+        }
+        return direccionEntrada.get(paso);
+    }
+
+    private Direccion buscarPrimerPasoEnemigo(Posicion origen, Posicion objetivo) {
+        if (origen.equals(objetivo)) {
+            return null;
+        }
+        ArrayDeque<Posicion> pendientes = new ArrayDeque<>();
+        Map<Posicion, Posicion> anterior = new HashMap<>();
+        Map<Posicion, Direccion> direccionEntrada = new HashMap<>();
+        pendientes.add(origen);
+        anterior.put(origen, null);
+
+        while (!pendientes.isEmpty() && !anterior.containsKey(objetivo)) {
+            Posicion actual = pendientes.removeFirst();
+            for (Direccion direccion : Direccion.values()) {
+                Posicion candidata = actual.mover(direccion);
+                if (anterior.containsKey(candidata) || !juego.getMapa().esTransitable(candidata)) {
                     continue;
                 }
                 anterior.put(candidata, actual);

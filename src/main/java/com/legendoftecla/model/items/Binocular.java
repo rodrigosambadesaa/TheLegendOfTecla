@@ -45,5 +45,10 @@ public final class Binocular extends Objeto {
         Validaciones.noNulo(personaje, "Personaje");
         personaje.aumentarVisionTemporal(rango);
     }
+
+    @Override
+    public boolean isConsumible() {
+        return false;
+    }
 }
 

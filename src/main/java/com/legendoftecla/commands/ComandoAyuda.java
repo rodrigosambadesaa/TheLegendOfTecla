@@ -44,10 +44,10 @@ public class ComandoAyuda implements Comando {
                 "   Ejemplo: inventario",
                 "6) usar <objeto>",
                 "   Ejemplo: usar botiquin",
-                "7) equipar <arma>",
-                "   Ejemplo: equipar rifle",
-                "8) desequipar <arma>",
-                "   Ejemplo: desequipar rifle",
+                "7) equipar <arma|armadura>",
+                "   Ejemplo: equipar rifle | equipar chaleco",
+                "8) desequipar <arma|armadura>",
+                "   Ejemplo: desequipar rifle | desequipar chaleco",
                 "9) atacar [<distancia><direccion>] [objetivo|todos] [repeticiones]",
                 "   Ejemplos: atacar | atacar todos | atacar 2e Sectoid_A 2",
                 "10) lanzar <distancia><direccion> <explosivo>",
@@ -56,9 +56,11 @@ public class ComandoAyuda implements Comando {
                 "    Ejemplo: recorrido",
                 "12) pedir ayuda (alias: socorro o asistir)",
                 "    Los aliados seguros acuden, combaten y entregan suministros",
-                "13) ayuda (alias: comandos)",
+                "13) descansar (alias: reposar)",
+                "    Recupera un 10 % de salud y energia sin moverse; los enemigos se acercan",
+                "14) ayuda (alias: comandos)",
                 "    Ejemplo: ayuda",
-                "14) salir",
+                "15) salir",
                 "    Ejemplo: salir");
         context.getJuego().getConsola().imprimirInfo(ayuda);
     }

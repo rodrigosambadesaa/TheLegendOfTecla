@@ -161,6 +161,7 @@ public final class PanelJuego extends JPanel {
         add(divisor, BorderLayout.CENTER);
 
         comando = new JTextField();
+        comando.setName("comando.entrada");
         comando.addActionListener(e -> ejecutarTexto());
         ejecutar = new JButton("Ejecutar comando");
         ejecutar.addActionListener(e -> ejecutarTexto());
@@ -256,6 +257,7 @@ public final class PanelJuego extends JPanel {
         utilidades.add(boton("Estado", "mirar"));
         utilidades.add(boton("Ayuda", "ayuda"));
         utilidades.add(boton("Recorrido", "recorrido"));
+        utilidades.add(boton("Descansar", "descansar"));
         utilidades.add(boton("Salir", "salir"));
         contenedor.add(utilidades, BorderLayout.CENTER);
 
@@ -324,16 +326,23 @@ public final class PanelJuego extends JPanel {
     private void atacarEnemigo() {
         Posicion origen = motor.getJuego().getJugador().getPosicion();
         List<OpcionAccion> opciones = new ArrayList<>();
+        Set<Posicion> destinosIncluidos = new HashSet<>();
         for (Enemigo enemigo : motor.getJuego().getEnemigos()) {
-            if (enemigo.getSalud() <= 0) {
+            Posicion destino = enemigo.getPosicion();
+            if (enemigo.getSalud() <= 0 || !destinosIncluidos.add(destino)) {
                 continue;
             }
-            String alcance = alcanceAtaque(origen, enemigo.getPosicion());
-            if (alcance != null && motor.getJuego().getMapa().hayLineaAtaque(origen, enemigo.getPosicion())) {
-                String comandoAtaque = "atacar " + (alcance.isBlank() ? "" : alcance + " ") + enemigo.getNombre();
+            String alcance = alcanceAtaque(origen, destino);
+            if (alcance != null && motor.getJuego().getMapa().hayLineaAtaque(origen, destino)) {
+                List<Enemigo> enemigosCelda = motor.getJuego().getMapa().getCelda(destino).getEnemigos().stream()
+                        .filter(objetivo -> objetivo.getSalud() > 0)
+                        .toList();
+                String nombres = enemigosCelda.stream().map(Enemigo::getNombre)
+                        .collect(java.util.stream.Collectors.joining(", "));
+                String comandoAtaque = "atacar " + (alcance.isBlank() ? "" : alcance + " ") + "todos";
                 opciones.add(new OpcionAccion(
-                        enemigo.getNombre() + " - salud " + enemigo.getSalud() + " - "
-                                + describirDistancia(origen, enemigo.getPosicion()),
+                        nombres + " - " + enemigosCelda.size() + " enemigo(s) - "
+                                + describirDistancia(origen, destino),
                         comandoAtaque));
             }
         }

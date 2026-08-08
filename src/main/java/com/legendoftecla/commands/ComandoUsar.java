@@ -47,6 +47,9 @@ public class ComandoUsar implements Comando {
         }
         try {
             obj.usar(context.getJuego().getJugador());
+            if (!obj.isConsumible()) {
+                context.getJuego().getJugador().getMochila().guardar(obj);
+            }
             context.getJuego().getConsola().imprimir("Usas " + obj.getNombre() + ".");
         } catch (JuegoException e) {
             context.getJuego().getJugador().getMochila().guardar(obj);

@@ -1,6 +1,7 @@
 package com.legendoftecla.gui;
 
 import com.legendoftecla.constants.Dificultad;
+import com.legendoftecla.constants.CondicionVictoria;
 import com.legendoftecla.engine.ConfiguracionPartida;
 import com.legendoftecla.loader.SerializadorEscenarioJson;
 import com.legendoftecla.model.world.DimensionesMapa;
@@ -64,6 +65,9 @@ public final class PanelConfiguracion extends JPanel {
     private final JSpinner columnas = ControlesNumericos.entero("dimensiones.columnas", 10, 3, 100, 1);
     /** Selector para activar aliados calculados automaticamente. */
     private final JCheckBox conAliados = new JCheckBox("Incluir aliados automaticos");
+    /** Selector de los participantes que deben alcanzar la salida. */
+    private final JComboBox<CondicionVictoria> condicionVictoria =
+            new JComboBox<>(CondicionVictoria.values());
     /** Variante determinista del mapa grande. */
     private final JSpinner varianteMapa = ControlesNumericos.entero("mapa.variante", 1, 1, 50, 1);
     /**
@@ -83,6 +87,7 @@ public final class PanelConfiguracion extends JPanel {
     public PanelConfiguracion(Consumer<ConfiguracionPartida> iniciar, Runnable abrirEditor) {
         super(new BorderLayout());
         conAliados.setName("aliados.activados");
+        condicionVictoria.setName("victoria.condicion");
         setBorder(BorderFactory.createEmptyBorder(30, 50, 30, 50));
 
         JLabel titulo = new JLabel("THE LEGEND OF TECLA", SwingConstants.CENTER);
@@ -114,6 +119,8 @@ public final class PanelConfiguracion extends JPanel {
             return etiqueta;
         });
         agregarFila(formulario, fila++, "Dificultad", dificultad);
+        condicionVictoria.setSelectedItem(CondicionVictoria.JUGADOR_Y_ALIADOS);
+        agregarFila(formulario, fila++, "Condicion de victoria", condicionVictoria);
 
         JPanel dimensiones = new JPanel();
         dimensiones.add(filas);
@@ -131,8 +138,10 @@ public final class PanelConfiguracion extends JPanel {
         add(formulario, BorderLayout.CENTER);
 
         examinar.addActionListener(e -> seleccionarDirectorioConDialogo());
+        conAliados.addActionListener(e -> actualizarAliados());
         modo.addActionListener(e -> actualizarModo());
         actualizarModo();
+        actualizarAliados();
 
         JButton jugar = new JButton("Iniciar partida en GUI");
         jugar.setFont(jugar.getFont().deriveFont(Font.BOLD, 15f));
@@ -175,6 +184,7 @@ public final class PanelConfiguracion extends JPanel {
     public void seleccionarDirectorio(Path ruta, boolean usarAliados) {
         directorio.setText(ruta.toAbsolutePath().toString());
         conAliados.setSelected(usarAliados);
+        actualizarAliados();
         modo.setSelectedIndex(2);
     }
 
@@ -193,6 +203,7 @@ public final class PanelConfiguracion extends JPanel {
                 dimensiones,
                 ruta,
                 conAliados.isSelected(),
+                (CondicionVictoria) condicionVictoria.getSelectedItem(),
                 ControlesNumericos.valorEntero(varianteMapa));
     }
 
@@ -219,6 +230,10 @@ public final class PanelConfiguracion extends JPanel {
             filas.setValue(10);
             columnas.setValue(10);
         }
+    }
+
+    private void actualizarAliados() {
+        condicionVictoria.setEnabled(conAliados.isSelected());
     }
 
     private void agregarFila(JPanel panel, int fila, String etiqueta, Component componente) {

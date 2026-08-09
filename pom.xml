@@ -229,6 +229,7 @@
                         <version>12.1.3</version>
                         <configuration>
                             <failBuildOnCVSS>7.0</failBuildOnCVSS>
+                            <ossIndexAnalyzerEnabled>false</ossIndexAnalyzerEnabled>
                             <formats>
                                 <format>HTML</format>
                                 <format>JSON</format>

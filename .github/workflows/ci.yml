@@ -79,14 +79,17 @@ jobs:
         shell: bash
         run: echo "week=$(date -u +%G-%V)" >> "$GITHUB_OUTPUT"
       - name: Restore dependency-check database
-        uses: actions/cache@v6
+        id: dependency-check-database
+        uses: actions/cache/restore@v6
         with:
           path: ~/.cache/dependency-check
           key: ${{ runner.os }}-dependency-check-v12-${{ steps.dependency-check-cache.outputs.week }}
           restore-keys: |
             ${{ runner.os }}-dependency-check-v12-
       - name: Audit dependencies (CVSS 7+ fails)
-        run: mvn --batch-mode --no-transfer-progress -Dsecurity -DdataDirectory="$HOME/.cache/dependency-check" -DossIndexAnalyzerEnabled=false dependency-check:check
+        id: dependency-audit
+        continue-on-error: true
+        run: mvn --batch-mode --no-transfer-progress -Dsecurity -DdataDirectory="$HOME/.cache/dependency-check" dependency-check:check
       - name: Upload dependency audit
         if: always()
         uses: actions/upload-artifact@v7
@@ -94,3 +97,12 @@ jobs:
           name: dependency-check
           path: target/dependency-check-report.*
           if-no-files-found: warn
+      - name: Save dependency-check database
+        if: always() && steps.dependency-check-database.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: ~/.cache/dependency-check
+          key: ${{ runner.os }}-dependency-check-v12-${{ steps.dependency-check-cache.outputs.week }}
+      - name: Enforce dependency audit result
+        if: steps.dependency-audit.outcome != 'success'
+        run: exit 1

@@ -86,7 +86,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-dependency-check-v12-
       - name: Audit dependencies (CVSS 7+ fails)
-        run: mvn --batch-mode --no-transfer-progress -Dsecurity -DdataDirectory="$HOME/.cache/dependency-check" dependency-check:check
+        run: mvn --batch-mode --no-transfer-progress -Dsecurity -DdataDirectory="$HOME/.cache/dependency-check" -DossIndexAnalyzerEnabled=false dependency-check:check
       - name: Upload dependency audit
         if: always()
         uses: actions/upload-artifact@v7

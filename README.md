@@ -17,8 +17,12 @@ Implementacion en Java del proyecto de POO por entregas (P1, P2, P3) y con ampli
 - Cargador por defecto y cargador por ficheros.
 - Modo de mapa grande (50x50) con 50 variantes deterministas seleccionables.
 - Aliados opcionales en todos los modos, con cantidad y atributos calculados automaticamente.
-- Aliados capaces de recoger/equipar objetos, asistir primero al jugador y despues entre ellos.
-- Orden `pedir ayuda` y boton equivalente para reunir aliados seguros, combatir y recibir suministros.
+- Aliados que inspeccionan cada celda antes de descubrir, recoger, sustituir, equipar o tirar objetos.
+- Binoculares de un solo uso para el jugador y los aliados, también cuando están equipados.
+- Accion `descansar`: recupera salud y energia a cambio de atraer a los enemigos durante su turno.
+- Orden `pedir ayuda` y boton equivalente: los aliados sin suministros exploran antes de acudir.
+- Formaciones defensiva y ofensiva en consola y GUI: los aliados acompañan al jugador,
+  el miembro en mejor estado busca suministros cerca del grupo y los enemigos adaptan sus objetivos.
 - Seguimiento permanente de cada aliado: vida, energia, posicion, objetos, equipo, combate y evacuacion.
 - Rescate energetico seguro: calculo de ruta/reserva, autoabastecimiento y busqueda de Toritos sin recursos infinitos.
 - Suministros de energia escalados y Toritos distribuidos sobre una ruta transitable en mapas grandes.
@@ -26,8 +30,17 @@ Implementacion en Java del proyecto de POO por entregas (P1, P2, P3) y con ampli
 - Bucle principal con captura de excepciones.
 - Interfaz grafica completa en una unica ventana para los tres modos.
 - Mapa grafico con celdas, jugador, objetivo, objetos, aliados y enemigos.
-- Botones contextuales para coger, usar, tirar, equipar, desequipar, atacar, lanzar explosivos y pedir ayuda.
+- Botones para coger, usar, tirar, equipar, desequipar, atacar, descansar, lanzar explosivos y pedir ayuda.
 - Editor grafico de escenarios completos con persistencia JSON.
+
+## Especificaciones y validación
+
+- [P1 (2014)](2014_POO_Proyecto_P1.pdf)
+- [P2 (2015)](2015_POO_Proyecto_P2.pdf)
+- [P3 (2015)](2015_POO_Proyecto_P3.pdf)
+- [P4 opcional (2015)](2015_POO_Proyecto_OPT.pdf)
+- [Matriz de cumplimiento](docs/CUMPLIMIENTO_ESPECIFICACIONES.md)
+- [Pruebas reproducibles de consola y GUI](docs/partidas_probadas.md)
 
 ## Interfaz grafica
 
@@ -102,8 +115,13 @@ java -jar target/the-legend-of-tecla.jar --editor
 ```
 
 La GUI permite seleccionar los modos predeterminado, grande y desde ficheros,
-activar aliados mediante una casilla y elegir una de las 50 variantes del mapa
-grande. La version de consola ofrece las mismas opciones y utiliza el mismo motor.
+activar aliados mediante una casilla, decidir si basta con que llegue el jugador
+o deben llegar tambien todos los aliados, y elegir una de las 50 variantes del
+mapa grande. La version de consola ofrece las mismas opciones y utiliza el mismo motor.
+
+El campo de comandos acepta también las formas históricas compuestas, entre ellas
+`mover este 3`, `atacar 4e 2`, `atacar 4e alien_azul 2` y
+`equipar lanzacohetes ametralladora`. Los mismos comandos funcionan en consola.
 
 ## Ejecutar con Docker
 
@@ -170,7 +188,8 @@ Al iniciar el juego, el modo se elige con:
 
 En los tres modos se pregunta si se desean aliados. Solo se elige `si` o `no`:
 el juego calcula su cantidad, posiciones, salud, energia, vision y equipo segun
-el mapa y la dificultad.
+el mapa y la dificultad. Si se activan, se elige tambien entre victoria de
+`solo_jugador` o de `jugador_y_aliados`, sin importar el orden de llegada.
 
 ## Formato basico de ficheros (modo ficheros)
 

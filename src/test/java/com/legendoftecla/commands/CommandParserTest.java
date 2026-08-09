@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 class CommandParserTest {
     private final CommandParser parser = new CommandParser(
@@ -26,12 +27,17 @@ class CommandParserTest {
     }
 
     @Test
-    void validaArgumentosDeMovimientoMiradaLanzamientoYPeticionDeAyuda() {
+    void validaArgumentosDeMovimientoMiradaLanzamientoPeticionDeAyudaYDescanso() throws ComandoException {
         assertThrows(ComandoException.class, () -> parser.parse("mover arriba"));
         assertThrows(ComandoException.class, () -> parser.parse("mover norte 0"));
-        assertThrows(ComandoException.class, () -> parser.parse("mirar norte 1 extra"));
+        assertThrows(ComandoException.class, () -> parser.parse("mirar norte cero"));
         assertThrows(ComandoException.class, () -> parser.parse("lanzar norte granada"));
         assertThrows(ComandoException.class, () -> parser.parse("pedir auxilio"));
+        assertThrows(ComandoException.class, () -> parser.parse("descansar ahora"));
+        assertInstanceOf(ComandoDescansar.class, parser.parse("reposar"));
+        assertInstanceOf(ComandoReagrupar.class, parser.parse("reagrupar defensiva"));
+        assertInstanceOf(ComandoReagrupar.class, parser.parse("formacion ofensiva"));
+        assertThrows(ComandoException.class, () -> parser.parse("reagrupar dispersa"));
     }
 
     @Test
@@ -43,5 +49,6 @@ class CommandParserTest {
         assertThrows(ComandoException.class, () -> parser.parse("usar"));
         assertThrows(ComandoException.class, () -> parser.parse("equipar"));
         assertThrows(ComandoException.class, () -> parser.parse("desequipar"));
+        assertThrows(ComandoException.class, () -> parser.parse("cargar"));
     }
 }

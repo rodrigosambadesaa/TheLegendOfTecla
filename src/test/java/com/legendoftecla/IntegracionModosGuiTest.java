@@ -3,6 +3,7 @@ package com.legendoftecla;
 import com.legendoftecla.console.Consola;
 import com.legendoftecla.console.TipoMensaje;
 import com.legendoftecla.constants.Dificultad;
+import com.legendoftecla.constants.CondicionVictoria;
 import com.legendoftecla.engine.ConfiguracionPartida;
 import com.legendoftecla.engine.FabricaJuego;
 import com.legendoftecla.engine.MotorPartida;
@@ -33,9 +34,11 @@ import org.junit.jupiter.api.io.TempDir;
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JSpinner;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import java.awt.Graphics2D;
 import java.awt.Component;
@@ -121,6 +124,7 @@ class IntegracionModosGuiTest {
         assertTrue(motor.ejecutarComando("ayuda"));
         assertTrue(consola.salida.toString().contains("lanzar <distancia><direccion>"));
         assertTrue(consola.salida.toString().contains("pedir ayuda"));
+        assertTrue(consola.salida.toString().contains("descansar"));
         assertFalse(motor.ejecutarComando("salir"));
         assertEquals(SistemaPuntuacion.EstadoFinalPartida.SALIDA_MANUAL, motor.getEstadoFinal());
         assertTrue(consola.salida.toString().contains("Partida finalizada"));
@@ -146,6 +150,31 @@ class IntegracionModosGuiTest {
         assertEquals(1, juego.getAliados().size());
         assertEquals(1, juego.getMapa().getCelda(new com.legendoftecla.model.world.Posicion(0, 1))
                 .getObjetos().size());
+    }
+
+    @Test
+    void cargarSustituyeLaPartidaActivaDesdeConsolaYGui() throws Exception {
+        SerializadorEscenarioJson.guardar(crearEscenarioCompleto(), temporal);
+
+        ConsolaSilenciosa consola = new ConsolaSilenciosa();
+        MotorPartida motorConsola = new MotorPartida(FabricaJuego.crear(consola,
+                new ConfiguracionPartida("Carga consola", "marine", "default",
+                        Dificultad.NORMAL, new DimensionesMapa(8, 8), null, false, 1)));
+        assertTrue(motorConsola.ejecutarComando("cargar " + temporal));
+        assertEquals("Escenario de prueba", motorConsola.getJuego().getMapa().getNombre());
+
+        ConsolaGrafica consolaGrafica = new ConsolaGrafica();
+        MotorPartida motorGui = new MotorPartida(FabricaJuego.crear(consolaGrafica,
+                new ConfiguracionPartida("Carga GUI", "marine", "default",
+                        Dificultad.NORMAL, new DimensionesMapa(8, 8), null, false, 1)));
+        SwingUtilities.invokeAndWait(() -> {
+            PanelJuego panel = new PanelJuego(motorGui, consolaGrafica, () -> { });
+            JTextField entrada = (JTextField) buscarPorNombre(panel, "comando.entrada");
+            assertNotNull(entrada);
+            entrada.setText("cargar " + temporal);
+            entrada.postActionEvent();
+        });
+        assertEquals("Escenario de prueba", motorGui.getJuego().getMapa().getNombre());
     }
 
     @Test
@@ -205,7 +234,8 @@ class IntegracionModosGuiTest {
                     "Coger", "Usar", "Tirar", "Equipar", "Desequipar", "Atacar",
                     "Lanzar explosivo",
                     "Pedir ayuda",
-                    "Inventario", "Estado", "Ayuda", "Recorrido", "Salir"
+                    "Formacion defensiva", "Formacion ofensiva",
+                    "Inventario", "Estado", "Ayuda", "Recorrido", "Descansar", "Salir"
             }) {
                 assertTrue(contieneBoton(panel, etiqueta), "Falta el boton " + etiqueta);
             }
@@ -310,6 +340,28 @@ class IntegracionModosGuiTest {
     }
 
     @Test
+    void tirarDesdeLaEntradaGuiDejaElObjetoEnLaCeldaDelJugador() throws Exception {
+        ConsolaGrafica consola = new ConsolaGrafica();
+        Juego juego = FabricaJuego.crear(consola, new ConfiguracionPartida(
+                "TirarGui", "marine", "default", Dificultad.NORMAL,
+                new DimensionesMapa(8, 8), null, false, 1));
+        Botiquin objeto = new Botiquin("objeto gui", "Prueba", 1, 10);
+        juego.getJugador().getMochila().guardar(objeto);
+        MotorPartida motor = new MotorPartida(juego);
+
+        SwingUtilities.invokeAndWait(() -> {
+            PanelJuego panel = new PanelJuego(motor, consola, () -> { });
+            JTextField entrada = (JTextField) buscarPorNombre(panel, "comando.entrada");
+            assertNotNull(entrada);
+            entrada.setText("tirar objeto gui");
+            entrada.postActionEvent();
+        });
+
+        assertFalse(juego.getJugador().getMochila().getObjetos().contains(objeto));
+        assertTrue(juego.getMapa().getCelda(juego.getJugador().getPosicion()).getObjetos().contains(objeto));
+    }
+
+    @Test
     void lasDificultadesFacilesAgreganBotiquinesYToritosEnTodosLosMapas() throws Exception {
         SerializadorEscenarioJson.guardar(crearEscenarioCompleto(), temporal);
 
@@ -409,6 +461,39 @@ class IntegracionModosGuiTest {
     }
 
     @Test
+    void elAliadoSinSuministrosExploraAntesDeAcudirAlJugador() throws Exception {
+        ConsolaSilenciosa consola = new ConsolaSilenciosa();
+        Juego juego = crearJuegoAsistencia(consola);
+        Aliado aliado = crearAliado(juego, "Explorador", new Posicion(4, 3));
+        Posicion celdaSuministro = new Posicion(3, 3);
+        juego.getMapa().getCelda(celdaSuministro).agregarObjeto(
+                new Botiquin("botiquin encontrado", "Apoyo localizado", 1.0, 25));
+        juego.getJugador().recibirDanio(40);
+        int saludInicial = juego.getJugador().getSalud();
+        MotorPartida motor = new MotorPartida(juego);
+
+        motor.ejecutarComando("pedir ayuda");
+
+        assertEquals(celdaSuministro, aliado.getPosicion());
+        assertFalse(juego.isCeldaInspeccionada(aliado, celdaSuministro),
+                "El objeto no debe revelarse hasta inspeccionar la celda en el siguiente turno");
+        assertTrue(aliado.getMochila().getObjetos().isEmpty());
+
+        motor.ejecutarComando("mirar");
+
+        assertTrue(juego.isCeldaInspeccionada(aliado, celdaSuministro));
+        assertTrue(aliado.getMochila().getObjetos().stream().anyMatch(Botiquin.class::isInstance));
+
+        motor.ejecutarComando("mirar");
+
+        assertEquals(saludInicial + 25, juego.getJugador().getSalud());
+        assertTrue(aliado.getMochila().getObjetos().isEmpty());
+        assertTrue(consola.salida.toString().contains(
+                "explora una celda desconocida para buscar suministros para el jugador"));
+        assertTrue(consola.salida.toString().contains("para dar vida a Jugador"));
+    }
+
+    @Test
     void losAliadosRecogenObjetosYSeAsistenEntreEllos() throws Exception {
         ConsolaSilenciosa consola = new ConsolaSilenciosa();
         Juego juego = crearJuegoAsistencia(consola);
@@ -421,6 +506,7 @@ class IntegracionModosGuiTest {
 
         new MotorPartida(juego).ejecutarComando("mirar");
 
+        assertTrue(juego.isCeldaInspeccionada(donante, donante.getPosicion()));
         assertEquals(saludAnterior + 25, herido.getSalud());
         assertTrue(juego.getMapa().getCelda(donante.getPosicion()).getObjetos().isEmpty());
         assertTrue(consola.salida.toString().contains("recoge botiquin suelo"));
@@ -515,12 +601,17 @@ class IntegracionModosGuiTest {
             JSpinner filasConfiguracion = (JSpinner) buscarPorNombre(panel, "dimensiones.filas");
             JSpinner columnasConfiguracion = (JSpinner) buscarPorNombre(panel, "dimensiones.columnas");
             JCheckBox aliadosConfiguracion = (JCheckBox) buscarPorNombre(panel, "aliados.activados");
+            JComboBox<?> victoriaConfiguracion = (JComboBox<?>) buscarPorNombre(panel, "victoria.condicion");
             assertNotNull(filasConfiguracion);
             assertNotNull(columnasConfiguracion);
             assertNotNull(aliadosConfiguracion);
+            assertNotNull(victoriaConfiguracion);
+            assertFalse(victoriaConfiguracion.isEnabled());
             escribirNumero(filasConfiguracion, "37");
             escribirNumero(columnasConfiguracion, "42");
-            aliadosConfiguracion.setSelected(true);
+            aliadosConfiguracion.doClick();
+            assertTrue(victoriaConfiguracion.isEnabled());
+            victoriaConfiguracion.setSelectedItem(CondicionVictoria.SOLO_JUGADOR);
             renderizarComponente(panel, captura, 1100, 720);
             JButton iniciar = buscarBoton(panel, "Iniciar partida en GUI");
             assertNotNull(iniciar);
@@ -541,6 +632,7 @@ class IntegracionModosGuiTest {
         assertEquals(37, resultado.get().dimensiones().filas());
         assertEquals(42, resultado.get().dimensiones().columnas());
         assertTrue(resultado.get().conAliados());
+        assertEquals(CondicionVictoria.SOLO_JUGADOR, resultado.get().condicionVictoria());
         assertTrue(Files.size(captura) > 1000);
     }
 

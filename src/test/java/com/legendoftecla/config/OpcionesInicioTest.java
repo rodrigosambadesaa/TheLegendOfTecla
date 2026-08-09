@@ -1,6 +1,7 @@
 package com.legendoftecla.config;
 
 import com.legendoftecla.constants.Dificultad;
+import com.legendoftecla.constants.CondicionVictoria;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
@@ -21,6 +22,7 @@ class OpcionesInicioTest {
         assertEquals("default", opciones.modo());
         assertEquals(Dificultad.NORMAL, opciones.dificultad());
         assertEquals(Boolean.FALSE, opciones.conAliados());
+        assertEquals(CondicionVictoria.JUGADOR_Y_ALIADOS, opciones.condicionVictoria());
         assertEquals(1, opciones.varianteMapa());
         assertTrue(opciones.rapido());
         assertNull(opciones.dimensiones());
@@ -32,7 +34,7 @@ class OpcionesInicioTest {
             "--rapido", "--nombre", "Ada", "--clase", "ZAPADOR",
             "--modo", "3", "--dificultad", "muy_dificil",
             "--dimensiones", "12x20", "--datos", "data/../data/escenario_json",
-            "--aliados", "sí", "--variante", "50", "--editor"
+            "--aliados", "sí", "--victoria", "solo_jugador", "--variante", "50", "--editor"
         });
 
         assertEquals("Ada", opciones.getNombre());
@@ -43,6 +45,7 @@ class OpcionesInicioTest {
         assertEquals(20, opciones.getDimensiones().getColumnas());
         assertEquals(Path.of("data", "escenario_json"), opciones.getDirectorioDatos());
         assertEquals(Boolean.TRUE, opciones.getConAliados());
+        assertEquals(CondicionVictoria.SOLO_JUGADOR, opciones.getCondicionVictoria());
         assertEquals(50, opciones.getVarianteMapa());
         assertTrue(opciones.isEditor());
         assertTrue(opciones.isGui());
@@ -87,6 +90,8 @@ class OpcionesInicioTest {
                 () -> OpcionesInicio.desdeArgumentos(new String[] { "--dimensiones", "axb" }));
         assertThrows(IllegalArgumentException.class,
                 () -> OpcionesInicio.desdeArgumentos(new String[] { "--aliados", "quizas" }));
+        assertThrows(IllegalArgumentException.class,
+                () -> OpcionesInicio.desdeArgumentos(new String[] { "--victoria", "el_primero" }));
         assertThrows(IllegalArgumentException.class,
                 () -> OpcionesInicio.desdeArgumentos(new String[] { "--variante", "cincuenta" }));
         assertThrows(IllegalArgumentException.class,

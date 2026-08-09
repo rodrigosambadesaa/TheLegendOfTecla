@@ -4,7 +4,9 @@ import com.legendoftecla.TestFixtures;
 import com.legendoftecla.exceptions.ComandoException;
 import com.legendoftecla.model.items.Arma;
 import com.legendoftecla.model.items.Botiquin;
+import com.legendoftecla.model.items.Binocular;
 import com.legendoftecla.model.world.Juego;
+import com.legendoftecla.engine.MotorPartida;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -67,6 +69,50 @@ class ComandosInventarioTest {
     }
 
     @Test
+    void elBinocularSeConsumeYNoPuedeUsarseDosVeces() {
+        Binocular binocular = new Binocular("binocular", "Vision de un solo uso", 1, 3);
+        juego.getJugador().getMochila().guardar(binocular);
+        MotorPartida motor = new MotorPartida(juego);
+
+        motor.ejecutarComando("usar binocular");
+        assertFalse(juego.getJugador().getMochila().getObjetos().contains(binocular));
+        assertEquals(3, juego.getJugador().getVisionTemporal());
+
+        motor.ejecutarComando("mirar");
+        assertEquals(0, juego.getJugador().getVisionTemporal());
+        motor.ejecutarComando("usar binocular");
+        assertFalse(juego.getJugador().getMochila().getObjetos().contains(binocular));
+        assertEquals(0, juego.getJugador().getVisionTemporal());
+        assertTrue(consola.salida().contains("No tienes ese objeto"));
+    }
+
+    @Test
+    void elBinocularTambienPuedeEquiparseYDesequiparseComoExigeLaP2() throws ComandoException {
+        Binocular binocular = new Binocular("binocular equipado", "Vision", 1, 3);
+        juego.getJugador().getMochila().guardar(binocular);
+        int visionBase = juego.getJugador().getRangoVision();
+
+        parser.parse("equipar binocular equipado").ejecutar();
+
+        assertEquals(binocular, juego.getJugador().getBinocularEquipado());
+        assertEquals(visionBase, juego.getJugador().getRangoVision());
+        assertFalse(juego.getJugador().getMochila().getObjetos().contains(binocular));
+
+        parser.parse("desequipar binocular equipado").ejecutar();
+
+        assertEquals(null, juego.getJugador().getBinocularEquipado());
+        assertEquals(visionBase, juego.getJugador().getRangoVision());
+        assertTrue(juego.getJugador().getMochila().getObjetos().contains(binocular));
+
+        parser.parse("equipar binocular equipado").ejecutar();
+        parser.parse("usar binocular equipado").ejecutar();
+        assertEquals(null, juego.getJugador().getBinocularEquipado());
+        assertEquals(3, juego.getJugador().getVisionTemporal());
+        assertFalse(juego.getJugador().getMochila().getObjetos().contains(binocular));
+        assertThrows(ComandoException.class, () -> parser.parse("usar binocular equipado").ejecutar());
+    }
+
+    @Test
     void informaInventarioRecorridoYFaltaDeAliados() throws ComandoException {
         parser.parse("inventario").ejecutar();
         parser.parse("recorrido").ejecutar();
@@ -95,5 +141,20 @@ class ComandosInventarioTest {
         assertThrows(IllegalArgumentException.class,
                 () -> compuesto.setComandos(Arrays.asList(primero, null)));
         assertThrows(IllegalArgumentException.class, () -> new ComandoRepetido(primero, 0));
+    }
+
+    @Test
+    void losCompuestosFormanArbolesConOtrosCompuestosYRepetidos() throws ComandoException {
+        AtomicInteger contador = new AtomicInteger();
+        ComandoCompuesto rama = new ComandoCompuesto();
+        rama.agregar(() -> contador.set(contador.get() * 10 + 2));
+        rama.agregar(() -> contador.set(contador.get() * 10 + 3));
+        ComandoCompuesto raiz = new ComandoCompuesto();
+        raiz.agregar(() -> contador.set(1));
+        raiz.agregar(new ComandoRepetido(rama, 2));
+
+        raiz.ejecutar();
+
+        assertEquals(12323, contador.get());
     }
 }

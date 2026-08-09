@@ -2,6 +2,8 @@ package com.legendoftecla.commands;
 
 import com.legendoftecla.exceptions.ComandoException;
 import com.legendoftecla.exceptions.JuegoException;
+import com.legendoftecla.model.characters.Jugador;
+import com.legendoftecla.model.items.Binocular;
 import com.legendoftecla.model.items.Objeto;
 import com.legendoftecla.validation.Limites;
 import com.legendoftecla.validation.Validaciones;
@@ -41,16 +43,35 @@ public class ComandoUsar implements Comando {
      * Ejecuta ejecutar.
      */
     public void ejecutar() throws ComandoException {
-        Objeto obj = context.getJuego().getJugador().getMochila().quitarPorNombre(nombreObjeto);
+        Jugador jugador = context.getJuego().getJugador();
+        Objeto obj = jugador.getMochila().quitarPorNombre(nombreObjeto);
+        boolean estabaEquipado = false;
+        Binocular equipado = jugador.getBinocularEquipado();
+        if (obj == null && equipado != null && equipado.getNombre().equalsIgnoreCase(nombreObjeto)) {
+            obj = equipado;
+            jugador.setBinocularEquipado(null);
+            estabaEquipado = true;
+        }
         if (obj == null) {
             throw new ComandoException("No tienes ese objeto en la mochila.");
         }
         try {
-            obj.usar(context.getJuego().getJugador());
+            obj.usar(jugador);
+            if (!obj.isConsumible()) {
+                devolverObjeto(jugador, obj, estabaEquipado);
+            }
             context.getJuego().getConsola().imprimir("Usas " + obj.getNombre() + ".");
         } catch (JuegoException e) {
-            context.getJuego().getJugador().getMochila().guardar(obj);
+            devolverObjeto(jugador, obj, estabaEquipado);
             throw new ComandoException(e.getMessage());
+        }
+    }
+
+    private void devolverObjeto(Jugador jugador, Objeto objeto, boolean estabaEquipado) {
+        if (estabaEquipado && objeto instanceof Binocular binocular) {
+            jugador.setBinocularEquipado(binocular);
+        } else {
+            jugador.getMochila().guardar(objeto);
         }
     }
 }

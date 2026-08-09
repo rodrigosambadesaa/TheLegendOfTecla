@@ -75,6 +75,15 @@ public abstract class Objeto {
      */
     public abstract void usar(Personaje personaje) throws JuegoException;
 
+    /**
+     * Indica si el objeto desaparece de la mochila despues de usarse.
+     *
+     * @return {@code true} para consumibles de un solo uso
+     */
+    public boolean isConsumible() {
+        return true;
+    }
+
     @Override
     /**
      * Ejecuta toString.

@@ -1,137 +1,126 @@
-Bienvenido a The Legend of Tecla
-Introduce nombre del personaje: Elige clase (marine/francotirador/zapador): Modo (1=default sin aliados, 2=grande 50x50 con aliados, 3=ficheros): Mapa: Base Lambda
-Instalacion abandonada de la resistencia
-J o . . . . . . . . 
-. o . # # # # # . . 
-. . o . o . # . . . 
-. # # # # # # . . . 
-. . . . o . # . . . 
-. . . . # # # # # . 
-. o . . . . . . . . 
-. . # # # # # . . . 
-. . . o . . . . o . 
-. . . . . . . . . X 
+[34mBienvenido a The Legend of Tecla[0m
+[34mDificultad: normal | enemigos=4 | aliados=0 | salud x1.0 | danio x1.0[0m
+[34mMapa: Base Lambda[0m
+[34mInstalacion abandonada de la resistencia[0m
+[34mJ . . . . . . . . .
+. . # # # # # # . .
+. . . . . . . . . .
+. . # . . . . # . .
+. . # . . . . # . .
+. . # # # # # # . .
+. . # . . . . # . .
+. . # . . . . # . .
+. . . . . . . . . .
+. . # # # # # # . X
+[0m
+[36mTecla  Salud 120/120  Energia 90/90  Pasos 0/160  Formacion sin formacion[0m
+[36mAliados: ninguno.[0m
+[36maccion> [0m[34mCOMANDOS DISPONIBLES
 
-Tecla [salud(120) energia(90)] pasos 0/160
-accion> Comandos: mover <dir>, mirar [obj], coger <obj>, tirar <obj>, inventario, usar <obj>, equipar <obj>, desequipar <obj>, atacar <objetivo>, recorrido, ayuda, salir
-J o . . . . . . . . 
-. o . # # # # # . . 
-. . o . o . # . . . 
-. # # # # # # . . . 
-. . . . o . # . . . 
-. . . . # # # # # . 
-. o . . . . . . . . 
-. . # # # # # . . . 
-. . . o . . . . o . 
-. . . . . . . . . X 
-
-Tecla [salud(120) energia(90)] pasos 0/160
-accion> Celda 0,0
-No hay objetos en esta celda.
-J o . . . . . . . . 
-. o . # # # # # . . 
-. . o . o . # . . . 
-. # # # # # # . . . 
-. . . . o . # . . . 
-. . . . # # # # # . 
-. o . . . . . . . . 
-. . # # # # # . . . 
-. . . o . . . . o . 
-. . . . . . . . . X 
-
-Tecla [salud(120) energia(90)] pasos 0/160
-accion> Te mueves a ESTE.
-. J . . . . . . . . 
-. o . # # # # # . . 
-. . o . o . # . . . 
-. # # # # # # . . . 
-. . . . o . # . . . 
-. . . . # # # # # . 
-. o . . . . . . . . 
-. . # # # # # . . . 
-. . . o . . . . o . 
-. . . . . . . . . X 
-
-Tecla [salud(120) energia(84)] pasos 1/160
-accion> Recoges botiquin_pequeno.
-. J . . . . . . . . 
-. o . # # # # # . . 
-. . o . o . # . . . 
-. # # # # # # . . . 
-. . . . o . # . . . 
-. . . . # # # # # . 
-. o . . . . . . . . 
-. . # # # # # . . . 
-. . . o . . . . o . 
-. . . . . . . . . X 
-
-Tecla [salud(120) energia(84)] pasos 1/160
-accion> Mochila: peso 1,00/40.0 kg, espacio restante 9
-- botiquin_pequeno (Cura 20 de salud, 1.0 kg)
-. J . . . . . . . . 
-. o . # # # # # . . 
-. . o . o . # . . . 
-. # # # # # # . . . 
-. . . . o . # . . . 
-. . . . # # # # # . 
-. o . . . . . . . . 
-. . # # # # # . . . 
-. . . o . . . . o . 
-. . . . . . . . . X 
-
-Tecla [salud(120) energia(84)] pasos 1/160
-accion> Usas botiquin_pequeno.
-. J . . . . . . . . 
-. o . # # # # # . . 
-. . o . o . # . . . 
-. # # # # # # . . . 
-. . . . o . # . . . 
-. . . . # # # # # . 
-. o . . . . . . . . 
-. . # # # # # . . . 
-. . . o . . . . o . 
-. . . . . . . . . X 
-
-Tecla [salud(120) energia(84)] pasos 1/160
-accion> Te mueves a SUR.
-. . . . . . . . . . 
-. J . # # # # # . . 
-. . o . o . # . . . 
-. # # # # # # . . . 
-. . . . o . # . . . 
-. . . . # # # # # . 
-. o . . . . . . . . 
-. . # # # # # . . . 
-. . . o . . . . o . 
-. . . . . . . . . X 
-
-Tecla [salud(120) energia(78)] pasos 2/160
-accion> Te mueves a ESTE.
-. . . . . . . . . . 
-. o J # # # # # . . 
-. . o . o . # . . . 
-. # # # # # # . . . 
-. . . . o . # . . . 
-. . . . # # # # # . 
-. o . . . . . . . . 
-. . # # # # # . . . 
-. . . o . . . . o . 
-. . . . . . . . . X 
-
-Tecla [salud(120) energia(72)] pasos 3/160
-accion> Celda 1,2
-No hay objetos en esta celda.
-. . . . . . . . . . 
-. o J # # # # # . . 
-. . o . o . # . . . 
-. # # # # # # . . . 
-. . . . o . # . . . 
-. . . . # # # # # . 
-. o . . . . . . . . 
-. . # # # # # . . . 
-. . . o . . . . o . 
-. . . . . . . . . X 
-
-Tecla [salud(120) energia(72)] pasos 3/160
-accion> Partida finalizada.
-Recorrido: (0,0) (0,1) (1,1) (1,2) 
+1) mover <norte|sur|este|oeste> [repeticiones]
+   Ejemplos: mover norte | mover este 3
+2) mirar [objeto|<distancia><direccion> [enemigo]]
+   Ejemplos: mirar | mirar rifle | mirar 3e | mirar 3e Sectoid_A
+3) coger <objeto>
+   Ejemplo: coger rifle
+4) tirar <objeto>
+   Ejemplo: tirar botiquin
+5) inventario (alias: mochila)
+   Ejemplo: inventario
+6) usar <objeto>
+   Ejemplo: usar botiquin
+7) equipar <arma|armadura|binocular> [equipado]
+   Ejemplo compuesto: equipar lanzacohetes ametralladora
+8) desequipar <arma|armadura>
+   Ejemplo: desequipar rifle | desequipar chaleco
+9) atacar [<distancia><direccion>] [objetivo|todos] [repeticiones]
+   Ejemplos: atacar | atacar todos | atacar 2e Sectoid_A 2
+10) lanzar <distancia><direccion> <explosivo>
+    Ejemplo: lanzar 3e c4_1 (solo zapador, alcance maximo 5)
+11) recorrido
+    Ejemplo: recorrido
+12) pedir ayuda (alias: socorro o asistir)
+    Los aliados seguros buscan suministros, acuden y combaten
+13) reagrupar <defensiva|ofensiva> (alias: formacion)
+    Los aliados acompa�an al jugador; los enemigos reaccionan si la detectan
+    Si escasean suministros, el aliado en mejor estado explora cerca del grupo
+14) descansar (alias: reposar)
+    Recupera un 10 % de salud y energia sin moverse; los enemigos se acercan
+15) ayuda (alias: comandos)
+    Ejemplo: ayuda
+16) cargar <directorio>
+    Carga escenario.json o mapa.txt, objetos.txt y enemigos.txt
+17) salir
+    Ejemplo: salir[0m
+[34mJ . . . . . . . . .
+. . # # # # # # . .
+. . . . . . . . . .
+. . # . . . . # . .
+. . # . . . . # . .
+. . # # # # # # . .
+. . # . . . . # . .
+. . # . . . . # . .
+. . . . . . . . . .
+. . # # # # # # . X
+[0m
+[36mTecla  Salud 120/120  Energia 90/90  Pasos 0/160  Formacion sin formacion[0m
+[36mAliados: ninguno.[0m
+[36maccion> [0m[34mPunto de despliegue[0m
+[34mNo hay objetos en esta celda.[0m
+[34mJ . E . . . . . . .
+. . # # # # # # . .
+. . . . . . . . . .
+. . # . . . . # . .
+. . # . . . . # . .
+. . # # # # # # . .
+. . # . . . . # . .
+. . # . . . . # . .
+. . . . . . . . . .
+. . # # # # # # . X
+[0m
+[36mTecla  Salud 120/120  Energia 90/90  Pasos 0/160  Formacion sin formacion[0m
+[36mAliados: ninguno.[0m
+[36maccion> [0m[34mMochila: peso 0,00/40.0 kg, espacio restante 10[0m
+[33m(vacia)[0m
+[34mSectoid_2 ataca a Tecla.[0m
+[34mJ . E . . . . . . .
+. . # # # # # # . .
+. . . . . . . . . .
+. . # . . . . # . .
+. . # . . . . # . .
+. . # # # # # # . .
+. . # . . . . # . .
+. . # . . . . # . .
+. . . . . . . . . .
+. . # # # # # # . X
+[0m
+[36mTecla  Salud 116/120  Energia 90/90  Pasos 0/160  Formacion sin formacion[0m
+[36mAliados: ninguno.[0m
+[36maccion> [0m[34mDescansas sin moverte: recuperas 4 de salud y 0 de energia. Los enemigos aprovechan para acercarse.[0m
+[34mHeavyFloater_0 se acerca mientras descansas.[0m
+[34mHeavyFloater_0 se acerca mientras descansas.[0m
+[34mSectoid_1 se acerca mientras descansas.[0m
+[34mSectoid_2 ataca a Tecla.[0m
+[34mLightFloater_3 se acerca mientras descansas.[0m
+[34mJ . E . . . . . . .
+. . # # # # # # . .
+E . . . . . . . . .
+. . # . . . . # . .
+. . # . . . . # . .
+. . # # # # # # . .
+. . # . . . . # . .
+. . # . . . . # . .
+. . . . . . . . . .
+. . # # # # # # . X
+[0m
+[36mTecla  Salud 116/120  Energia 90/90  Pasos 0/160  Formacion sin formacion[0m
+[36mAliados: ninguno.[0m
+[36maccion> [0m[34mPartida finalizada.[0m
+[34mPuntuacion final: 740[0m
+[34m  - Salud restante: 290[0m
+[34m  - Energia restante: 200[0m
+[34m  - Eficiencia en pasos: 250[0m
+[34m  - Progreso hacia objetivo: 0[0m
+[34m  - Enemigos derrotados (0): 0[0m
+[34m  - Ajuste por resultado final: 0[0m
+[34mRecorrido: (0,0) [0m

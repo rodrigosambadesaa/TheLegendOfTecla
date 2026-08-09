@@ -69,23 +69,19 @@ public class ComandoAtacar implements Comando {
             throw new ComandoException("Ataque bloqueado: hay celdas no transitables en la trayectoria.");
         }
         Celda celda = mapa.getCelda(destino);
-        List<Enemigo> enemigos = celda.getEnemigos();
+        List<Enemigo> enemigos = celda.getEnemigos().stream()
+                .filter(enemigo -> enemigo.getSalud() > 0)
+                .toList();
         if (enemigos.isEmpty()) {
             throw new ComandoException("No hay enemigos en la celda objetivo.");
         }
-        if (debeAtacarATodos()) {
-            context.getJuego().getJugador().atacar(enemigos);
-            context.getJuego().getConsola()
-                    .imprimir("Atacas a todos los enemigos de la celda objetivo " + destino + ".");
-        } else {
-            Enemigo objetivo = enemigos.stream().filter(e -> e.getNombre().equalsIgnoreCase(nombreObjetivo)).findFirst()
-                    .orElse(null);
-            if (objetivo == null) {
-                throw new ComandoException("No existe ese enemigo en la celda.");
-            }
-            context.getJuego().getJugador().atacar(objetivo);
-            context.getJuego().getConsola().imprimir("Atacas a " + objetivo.getNombre() + " en " + destino + ".");
+        if (!debeAtacarATodos() && enemigos.stream()
+                .noneMatch(enemigo -> enemigo.getNombre().equalsIgnoreCase(nombreObjetivo))) {
+            throw new ComandoException("No existe ese enemigo en la celda.");
         }
+        context.getJuego().getJugador().atacar(enemigos);
+        context.getJuego().getConsola()
+                .imprimir("Atacas a todos los enemigos de la celda objetivo " + destino + ".");
         celda.getEnemigos().stream().filter(e -> e.getSalud() <= 0).toList().forEach(e -> {
             celda.quitarEnemigo(e);
             e.getMochila().getObjetos().forEach(celda::agregarObjeto);

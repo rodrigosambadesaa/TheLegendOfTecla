@@ -42,7 +42,9 @@ public final class Marine extends Jugador {
      * Estima el coste de movimiento propio del marine.
      */
     public int estimarCosteMovimiento() {
-        return (int) Math.ceil(super.estimarCosteMovimiento() * 1.2);
+        int costeMarine = (int) Math.ceil(super.estimarCosteMovimiento() * 1.2);
+        long armasDosManos = getArmasEquipadas().stream().filter(Arma::isDosManos).count();
+        return armasDosManos >= 2 ? (int) Math.ceil(costeMarine * 1.5) : costeMarine;
     }
 
     @Override

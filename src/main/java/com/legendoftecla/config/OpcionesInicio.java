@@ -1,6 +1,7 @@
 package com.legendoftecla.config;
 
 import com.legendoftecla.constants.Dificultad;
+import com.legendoftecla.constants.CondicionVictoria;
 import com.legendoftecla.model.world.DimensionesMapa;
 import com.legendoftecla.validation.Limites;
 import com.legendoftecla.validation.Validaciones;
@@ -17,6 +18,7 @@ public final class OpcionesInicio {
     private DimensionesMapa dimensiones;
     private Path directorioDatos;
     private Boolean conAliados;
+    private CondicionVictoria condicionVictoria;
     private Integer varianteMapa;
     private boolean rapido;
     private boolean mostrarAyuda;
@@ -43,6 +45,15 @@ public final class OpcionesInicio {
             DimensionesMapa dimensiones, Path directorioDatos, Boolean conAliados,
             Integer varianteMapa, boolean rapido,
             boolean mostrarAyuda, boolean gui, boolean editor) {
+        this(nombre, clase, modo, dificultad, dimensiones, directorioDatos, conAliados,
+                null, varianteMapa, rapido, mostrarAyuda, gui, editor);
+    }
+
+    /** Crea las opciones incluyendo una condicion de victoria opcional. */
+    public OpcionesInicio(String nombre, String clase, String modo, Dificultad dificultad,
+            DimensionesMapa dimensiones, Path directorioDatos, Boolean conAliados,
+            CondicionVictoria condicionVictoria, Integer varianteMapa, boolean rapido,
+            boolean mostrarAyuda, boolean gui, boolean editor) {
         setNombre(nombre);
         setClase(clase);
         setModo(modo);
@@ -50,6 +61,7 @@ public final class OpcionesInicio {
         setDimensiones(dimensiones);
         setDirectorioDatos(directorioDatos);
         setConAliados(conAliados);
+        setCondicionVictoria(condicionVictoria);
         setVarianteMapa(varianteMapa);
         setRapido(rapido);
         setMostrarAyuda(mostrarAyuda);
@@ -99,6 +111,12 @@ public final class OpcionesInicio {
     public Boolean getConAliados() { return conAliados; }
     /** @param conAliados seleccion opcional */
     public void setConAliados(Boolean conAliados) { this.conAliados = conAliados; }
+    /** @return condicion de victoria opcional */
+    public CondicionVictoria getCondicionVictoria() { return condicionVictoria; }
+    /** @param condicionVictoria condicion opcional */
+    public void setCondicionVictoria(CondicionVictoria condicionVictoria) {
+        this.condicionVictoria = condicionVictoria;
+    }
     /** @return variante opcional */
     public Integer getVarianteMapa() { return varianteMapa; }
     /** @param varianteMapa variante opcional entre 1 y 50 */
@@ -142,6 +160,8 @@ public final class OpcionesInicio {
     public Path directorioDatos() { return getDirectorioDatos(); }
     /** @return aliados conservando la API anterior */
     public Boolean conAliados() { return getConAliados(); }
+    /** @return condicion de victoria conservando el estilo de acceso compacto */
+    public CondicionVictoria condicionVictoria() { return getCondicionVictoria(); }
     /** @return variante conservando la API anterior */
     public Integer varianteMapa() { return getVarianteMapa(); }
     /** @return inicio rapido conservando la API anterior */
@@ -168,6 +188,7 @@ public final class OpcionesInicio {
         DimensionesMapa dimensiones = null;
         Path directorioDatos = null;
         Boolean conAliados = null;
+        CondicionVictoria condicionVictoria = null;
         Integer varianteMapa = null;
         boolean rapido = false;
         boolean mostrarAyuda = false;
@@ -189,6 +210,8 @@ public final class OpcionesInicio {
                 case "--dimensiones" -> dimensiones = parsearDimensiones(siguienteValor(args, ++i, argumento));
                 case "--datos" -> directorioDatos = Path.of(siguienteValor(args, ++i, argumento));
                 case "--aliados" -> conAliados = parsearSiNo(siguienteValor(args, ++i, argumento));
+                case "--victoria" -> condicionVictoria = parsearCondicionVictoria(
+                        siguienteValor(args, ++i, argumento));
                 case "--variante" -> varianteMapa = parsearVariante(siguienteValor(args, ++i, argumento));
                 default -> throw new IllegalArgumentException("Opcion desconocida: " + argumento);
             }
@@ -200,6 +223,9 @@ public final class OpcionesInicio {
             modo = modo == null ? "default" : modo;
             dificultad = dificultad == null ? Dificultad.NORMAL : dificultad;
             conAliados = conAliados == null ? Boolean.FALSE : conAliados;
+            condicionVictoria = condicionVictoria == null
+                    ? CondicionVictoria.JUGADOR_Y_ALIADOS
+                    : condicionVictoria;
             varianteMapa = varianteMapa == null ? 1 : varianteMapa;
             if ("ficheros".equals(modo) && directorioDatos == null) {
                 directorioDatos = Path.of("data", "escenario_basico");
@@ -207,7 +233,7 @@ public final class OpcionesInicio {
         }
 
         return new OpcionesInicio(nombre, clase, modo, dificultad, dimensiones,
-                directorioDatos, conAliados, varianteMapa,
+                directorioDatos, conAliados, condicionVictoria, varianteMapa,
                 rapido, mostrarAyuda, gui, editor);
     }
 
@@ -228,6 +254,7 @@ public final class OpcionesInicio {
                   --dimensiones <FxC>       Tamano del mapa; por ejemplo, 12x20
                   --datos <directorio>      Directorio con escenario.json o los tres ficheros TXT
                   --aliados <si|no>         Activa o desactiva aliados calculados automaticamente
+                  --victoria <condicion>    solo_jugador o jugador_y_aliados
                   --variante <1-50>         Variante determinista del mapa grande
                   --help, -h                Muestra esta ayuda
 
@@ -289,6 +316,15 @@ public final class OpcionesInicio {
             case "no", "n", "false", "0" -> Boolean.FALSE;
             default -> throw new IllegalArgumentException("Valor de aliados invalido: usa si o no.");
         };
+    }
+
+    private static CondicionVictoria parsearCondicionVictoria(String valor) {
+        CondicionVictoria resultado = CondicionVictoria.desdeTexto(valor);
+        if (resultado == null) {
+            throw new IllegalArgumentException(
+                    "Condicion de victoria invalida: usa solo_jugador o jugador_y_aliados.");
+        }
+        return resultado;
     }
 
     private static int parsearVariante(String valor) {

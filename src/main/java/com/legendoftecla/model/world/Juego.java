@@ -1,6 +1,8 @@
 package com.legendoftecla.model.world;
 
 import com.legendoftecla.console.Consola;
+import com.legendoftecla.constants.CondicionVictoria;
+import com.legendoftecla.constants.FormacionAliada;
 import com.legendoftecla.model.characters.Aliado;
 import com.legendoftecla.model.characters.Enemigo;
 import com.legendoftecla.model.characters.Jugador;
@@ -12,6 +14,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Representa la entidad Juego del juego.
@@ -30,6 +34,9 @@ public class Juego {
     private int pasos;
     private boolean solicitudAyudaAliados;
     private Set<Posicion> celdasInspeccionadas;
+    private Map<Aliado, Set<Posicion>> celdasInspeccionadasAliados;
+    private CondicionVictoria condicionVictoria;
+    private FormacionAliada formacionAliada;
 
     /**
      * Ejecuta Juego.
@@ -55,6 +62,9 @@ public class Juego {
         setPasos(0);
         setSolicitudAyudaAliados(false);
         setCeldasInspeccionadas(Set.of());
+        setCeldasInspeccionadasAliados(Map.of());
+        setCondicionVictoria(CondicionVictoria.JUGADOR_Y_ALIADOS);
+        setFormacionAliada(FormacionAliada.SIN_FORMACION);
     }
 
     /**
@@ -87,6 +97,10 @@ public class Juego {
         if (celdasInspeccionadas != null
                 && celdasInspeccionadas.stream().anyMatch(posicion -> !validado.estaDentro(posicion))) {
             throw new IllegalArgumentException("El nuevo mapa dejaria inspecciones fuera de sus limites.");
+        }
+        if (celdasInspeccionadasAliados != null && celdasInspeccionadasAliados.values().stream()
+                .flatMap(Set::stream).anyMatch(posicion -> !validado.estaDentro(posicion))) {
+            throw new IllegalArgumentException("El nuevo mapa dejaria inspecciones aliadas fuera de sus limites.");
         }
         this.mapa = validado;
     }
@@ -188,6 +202,9 @@ public class Juego {
             registrados.add(validado);
             setAliadosRegistrados(registrados);
             setAliadosIniciales(aliadosIniciales + 1);
+            Map<Aliado, Set<Posicion>> inspecciones = getCeldasInspeccionadasAliados();
+            inspecciones.put(validado, Set.of());
+            setCeldasInspeccionadasAliados(inspecciones);
         }
     }
 
@@ -361,6 +378,51 @@ public class Juego {
         return posicion != null && celdasInspeccionadas.contains(posicion);
     }
 
+    /** @return copia defensiva de las celdas inspeccionadas por cada aliado */
+    public Map<Aliado, Set<Posicion>> getCeldasInspeccionadasAliados() {
+        Map<Aliado, Set<Posicion>> copia = new HashMap<>();
+        celdasInspeccionadasAliados.forEach((aliado, posiciones) ->
+                copia.put(aliado, new HashSet<>(posiciones)));
+        return copia;
+    }
+
+    /** @param inspecciones registro completo de exploracion aliada */
+    public void setCeldasInspeccionadasAliados(Map<Aliado, Set<Posicion>> inspecciones) {
+        Validaciones.noNulo(inspecciones, "Inspecciones aliadas");
+        if (inspecciones.size() > Limites.ESTADISTICA || inspecciones.entrySet().stream().anyMatch(entrada ->
+                entrada.getKey() == null || entrada.getValue() == null
+                        || entrada.getValue().size() > mapa.getFilas() * mapa.getColumnas()
+                        || entrada.getValue().stream().anyMatch(
+                                posicion -> posicion == null || !mapa.estaDentro(posicion)))) {
+            throw new IllegalArgumentException("Las inspecciones aliadas no son validas.");
+        }
+        Map<Aliado, Set<Posicion>> copia = new HashMap<>();
+        inspecciones.forEach((aliado, posiciones) -> copia.put(aliado, new HashSet<>(posiciones)));
+        this.celdasInspeccionadasAliados = copia;
+    }
+
+    /**
+     * Registra la inspeccion presencial de la celda actual de un aliado.
+     *
+     * @param aliado aliado que inspecciona
+     * @return {@code true} si es la primera inspeccion de esa celda
+     */
+    public boolean inspeccionarCeldaAliado(Aliado aliado) {
+        Aliado validado = Validaciones.noNulo(aliado, "Aliado");
+        validarPosicionPersonaje(validado.getPosicion(), "aliado");
+        Map<Aliado, Set<Posicion>> inspecciones = getCeldasInspeccionadasAliados();
+        Set<Posicion> posiciones = inspecciones.computeIfAbsent(validado, clave -> new HashSet<>());
+        boolean nueva = posiciones.add(validado.getPosicion());
+        setCeldasInspeccionadasAliados(inspecciones);
+        return nueva;
+    }
+
+    /** @return si el aliado ya inspecciono presencialmente la posicion */
+    public boolean isCeldaInspeccionada(Aliado aliado, Posicion posicion) {
+        return aliado != null && posicion != null
+                && celdasInspeccionadasAliados.getOrDefault(aliado, Set.of()).contains(posicion);
+    }
+
     /**
      * Ejecuta jugadorGano.
       * @return resultado de la operacion
@@ -369,10 +431,30 @@ public class Juego {
         if (!jugador.getPosicion().equals(mapa.getObjetivo())) {
             return false;
         }
-        if (aliadosIniciales <= 0) {
+        if (condicionVictoria == CondicionVictoria.SOLO_JUGADOR || aliadosIniciales <= 0) {
             return true;
         }
         return aliadosExtraidos == aliadosIniciales;
+    }
+
+    /** @return condicion que determina quien debe llegar a la salida */
+    public CondicionVictoria getCondicionVictoria() {
+        return condicionVictoria;
+    }
+
+    /** @param condicionVictoria condicion no nula */
+    public void setCondicionVictoria(CondicionVictoria condicionVictoria) {
+        this.condicionVictoria = Validaciones.noNulo(condicionVictoria, "Condicion de victoria");
+    }
+
+    /** @return estrategia activa del grupo aliado */
+    public FormacionAliada getFormacionAliada() {
+        return formacionAliada;
+    }
+
+    /** @param formacionAliada estrategia no nula */
+    public void setFormacionAliada(FormacionAliada formacionAliada) {
+        this.formacionAliada = Validaciones.noNulo(formacionAliada, "Formacion aliada");
     }
 
     /**

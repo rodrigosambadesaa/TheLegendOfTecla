@@ -2,12 +2,14 @@ package com.legendoftecla.commands;
 
 import com.legendoftecla.exceptions.ComandoException;
 import com.legendoftecla.model.world.Direccion;
+import com.legendoftecla.constants.FormacionAliada;
 import com.legendoftecla.validation.Limites;
 import com.legendoftecla.validation.Validaciones;
 
 import java.util.HashMap;
 import java.util.Collections;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -96,6 +98,12 @@ public class CommandParser {
         registrar(comandos, this::parseMirar, "mirar");
         registrar(comandos, partes -> new ComandoInventario(context), "inventario", "mochila");
         registrar(comandos, partes -> new ComandoRecorrido(context), "recorrido");
+        registrar(comandos, partes -> {
+            if (partes.length != 1) {
+                throw new ComandoException("Uso: descansar");
+            }
+            return new ComandoDescansar(context);
+        }, "descansar", "reposar");
         registrar(comandos, this::parseMover, "mover", "avanzar");
         registrar(comandos, partes -> {
             requiereArg(partes);
@@ -109,18 +117,20 @@ public class CommandParser {
             requiereArg(partes);
             return new ComandoUsar(context, unir(partes, 1));
         }, "usar");
-        registrar(comandos, partes -> {
-            requiereArg(partes);
-            return new ComandoEquipar(context, unir(partes, 1));
-        }, "equipar");
+        registrar(comandos, this::parseEquipar, "equipar");
         registrar(comandos, partes -> {
             requiereArg(partes);
             return new ComandoDesequipar(context, unir(partes, 1));
         }, "desequipar");
         registrar(comandos, this::parseAtacar, "atacar");
         registrar(comandos, this::parseLanzarExplosivo, "lanzar");
+        registrar(comandos, partes -> {
+            requiereArg(partes);
+            return new ComandoCargar(context, unir(partes, 1));
+        }, "cargar");
         registrar(comandos, this::parsePedirAyuda, "pedir");
         registrar(comandos, partes -> new ComandoPedirAyuda(context), "socorro", "asistir");
+        registrar(comandos, this::parseReagrupar, "reagrupar", "formacion");
         registrar(comandos, partes -> new ComandoSalir(), "salir");
         return Map.copyOf(comandos);
     }
@@ -137,24 +147,31 @@ public class CommandParser {
             return new ComandoMirar(context);
         }
 
+        if (esAlcance(partes[1])) {
+            Alcance alcance = parseAlcance(partes[1]);
+            String detalle = partes.length > 2 ? unir(partes, 2) : null;
+            return new ComandoMirar(context, alcance.direccion(), alcance.pasos(), detalle);
+        }
+
         Direccion direccion = Direccion.desdeTexto(partes[1]);
         if (direccion == null) {
-            throw new ComandoException("Uso: mirar [norte|sur|este|oeste] [pasos]");
+            return new ComandoMirar(context, null, 0, unir(partes, 1));
         }
 
         int pasos = 1;
+        String detalle = null;
         if (partes.length >= 3) {
             pasos = parseEntero(partes[2]);
         }
         if (partes.length > 3) {
-            throw new ComandoException("Uso: mirar [norte|sur|este|oeste] [pasos]");
+            detalle = unir(partes, 3);
         }
 
-        return new ComandoMirar(context, direccion, pasos);
+        return new ComandoMirar(context, direccion, pasos, detalle);
     }
 
     private Comando parseMover(String[] partes) throws ComandoException {
-        if (partes.length < 2) {
+        if (partes.length < 2 || partes.length > 3) {
             throw new ComandoException("Uso: mover <norte|sur|este|oeste> [repeticiones]");
         }
         Direccion direccion = Direccion.desdeTexto(partes[1]);
@@ -167,6 +184,31 @@ public class CommandParser {
             return new ComandoRepetido(base, repeticiones);
         }
         return base;
+    }
+
+    private Comando parseEquipar(String[] partes) throws ComandoException {
+        requiereArg(partes);
+        for (int separador = 2; separador < partes.length; separador++) {
+            String nuevo = unir(partes, 1, separador);
+            String anterior = unir(partes, separador, partes.length);
+            boolean nuevoEnMochila = context.getJuego().getJugador().getMochila().getObjetos().stream()
+                    .anyMatch(objeto -> objeto.getNombre().equalsIgnoreCase(nuevo));
+            boolean anteriorEquipado = context.getJuego().getJugador().getArmasEquipadas().stream()
+                    .anyMatch(arma -> arma.getNombre().equalsIgnoreCase(anterior))
+                    || context.getJuego().getJugador().getArmaduraEquipada() != null
+                    && context.getJuego().getJugador().getArmaduraEquipada().getNombre()
+                            .equalsIgnoreCase(anterior)
+                    || context.getJuego().getJugador().getBinocularEquipado() != null
+                    && context.getJuego().getJugador().getBinocularEquipado().getNombre()
+                            .equalsIgnoreCase(anterior);
+            if (nuevoEnMochila && anteriorEquipado) {
+                ComandoCompuesto compuesto = new ComandoCompuesto();
+                compuesto.agregar(new ComandoDesequipar(context, anterior));
+                compuesto.agregar(new ComandoEquipar(context, nuevo));
+                return compuesto;
+            }
+        }
+        return new ComandoEquipar(context, unir(partes, 1));
     }
 
     private Comando parseAtacar(String[] partes) throws ComandoException {
@@ -218,6 +260,18 @@ public class CommandParser {
         return new ComandoPedirAyuda(context);
     }
 
+    private Comando parseReagrupar(String[] partes) throws ComandoException {
+        if (partes.length != 2) {
+            throw new ComandoException("Uso: reagrupar <defensiva|ofensiva>");
+        }
+        FormacionAliada formacion = switch (partes[1].toLowerCase()) {
+            case "defensiva" -> FormacionAliada.DEFENSIVA;
+            case "ofensiva" -> FormacionAliada.OFENSIVA;
+            default -> throw new ComandoException("Formacion invalida: " + partes[1]);
+        };
+        return new ComandoReagrupar(context, formacion);
+    }
+
     private int parseEntero(String valor) throws ComandoException {
         try {
             int numero = Integer.parseInt(valor);
@@ -240,6 +294,14 @@ public class CommandParser {
         return PATRON_ALCANCE.matcher(token).matches();
     }
 
+    private Alcance parseAlcance(String token) throws ComandoException {
+        Matcher matcher = PATRON_ALCANCE.matcher(token);
+        if (!matcher.matches()) {
+            throw new ComandoException("Alcance invalido: " + token);
+        }
+        return new Alcance(parseEntero(matcher.group(1)), Direccion.desdeTexto(matcher.group(2)));
+    }
+
     private String unir(String[] partes, int inicio) {
         return unir(partes, inicio, partes.length);
     }
@@ -259,4 +321,6 @@ public class CommandParser {
     private interface ConstructorComando {
         Comando crear(String[] partes) throws ComandoException;
     }
+
+    private record Alcance(int pasos, Direccion direccion) { }
 }

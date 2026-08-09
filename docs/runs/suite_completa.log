@@ -1,0 +1,112 @@
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ---------------< com.legendoftecla:the-legend-of-tecla >----------------
+[INFO] Building The Legend of Tecla 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- enforcer:3.5.0:enforce (enforce-build-environment) @ the-legend-of-tecla ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.version.RequireJavaVersion passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.version.RequireMavenVersion passed
+[INFO] Rule 2: org.apache.maven.enforcer.rules.dependency.DependencyConvergence passed
+[INFO]
+[INFO] --- jacoco:0.8.12:prepare-agent (prepare-coverage-agent) @ the-legend-of-tecla ---
+[INFO] argLine set to -javaagent:C:\\Users\\rodri\\.m2\\repository\\org\\jacoco\\org.jacoco.agent\\0.8.12\\org.jacoco.agent-0.8.12-runtime.jar=destfile=C:\\Users\\rodri\\OneDrive\\Documentos\\GitHub\\TheLegendOfTecla\\target\\jacoco.exec
+[INFO]
+[INFO] --- resources:3.3.1:resources (default-resources) @ the-legend-of-tecla ---
+[INFO] skip non existing resourceDirectory C:\Users\rodri\OneDrive\Documentos\GitHub\TheLegendOfTecla\src\main\resources
+[INFO]
+[INFO] --- compiler:3.14.1:compile (default-compile) @ the-legend-of-tecla ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 98 source files with javac [debug release 17] to target\classes
+[INFO]
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ the-legend-of-tecla ---
+[INFO] skip non existing resourceDirectory C:\Users\rodri\OneDrive\Documentos\GitHub\TheLegendOfTecla\src\test\resources
+[INFO]
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ the-legend-of-tecla ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 10 source files with javac [debug release 17] to target\test-classes
+[INFO]
+[INFO] --- surefire:3.5.2:test (default-test) @ the-legend-of-tecla ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO]
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.legendoftecla.commands.ComandosCompuestosConsolaGuiTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.638 s -- in com.legendoftecla.commands.ComandosCompuestosConsolaGuiTest
+[INFO] Running com.legendoftecla.commands.ComandosInventarioTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.033 s -- in com.legendoftecla.commands.ComandosInventarioTest
+[INFO] Running com.legendoftecla.commands.CommandParserTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.009 s -- in com.legendoftecla.commands.CommandParserTest
+[INFO] Running com.legendoftecla.config.OpcionesInicioTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.017 s -- in com.legendoftecla.config.OpcionesInicioTest
+[INFO] Running com.legendoftecla.engine.MotorMovimientoTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.legendoftecla.engine.MotorMovimientoTest
+[INFO] Running com.legendoftecla.engine.ReglasCombateYVictoriaTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.033 s -- in com.legendoftecla.engine.ReglasCombateYVictoriaTest
+[INFO] Running com.legendoftecla.IntegracionModosGuiTest
+[INFO] Tests run: 22, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 8.287 s -- in com.legendoftecla.IntegracionModosGuiTest
+[INFO] Running com.legendoftecla.model.MochilaTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.163 s -- in com.legendoftecla.model.MochilaTest
+[INFO] Running com.legendoftecla.ValidacionInternaTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.420 s -- in com.legendoftecla.ValidacionInternaTest
+[INFO]
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 59, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO]
+[INFO] --- jar:3.4.2:jar (default-jar) @ the-legend-of-tecla ---
+[INFO] Building jar: C:\Users\rodri\OneDrive\Documentos\GitHub\TheLegendOfTecla\target\the-legend-of-tecla.jar
+[INFO]
+[INFO] --- shade:3.6.0:shade (default) @ the-legend-of-tecla ---
+[INFO] Including com.google.code.gson:gson:jar:2.11.0 in the shaded jar.
+[INFO] Including com.google.errorprone:error_prone_annotations:jar:2.27.0 in the shaded jar.
+[INFO] Replacing original artifact with shaded artifact.
+[INFO] Replacing C:\Users\rodri\OneDrive\Documentos\GitHub\TheLegendOfTecla\target\the-legend-of-tecla.jar with C:\Users\rodri\OneDrive\Documentos\GitHub\TheLegendOfTecla\target\the-legend-of-tecla-1.0.0-shaded.jar
+[INFO]
+[INFO] --- jacoco:0.8.12:report (create-coverage-report) @ the-legend-of-tecla ---
+[INFO] Loading execution data file C:\Users\rodri\OneDrive\Documentos\GitHub\TheLegendOfTecla\target\jacoco.exec
+[INFO] Analyzed bundle 'The Legend of Tecla' with 94 classes
+[INFO]
+[INFO] --- jacoco:0.8.12:check (check-coverage) @ the-legend-of-tecla ---
+[INFO] Loading execution data file C:\Users\rodri\OneDrive\Documentos\GitHub\TheLegendOfTecla\target\jacoco.exec
+[INFO] Analyzed bundle 'the-legend-of-tecla' with 94 classes
+[INFO] All coverage checks have been met.
+[INFO]
+[INFO] --- checkstyle:3.6.0:check (check-style) @ the-legend-of-tecla ---
+[INFO] You have 0 Checkstyle violations.
+[INFO]
+[INFO] >>> spotbugs:4.8.6.6:check (spotbugs-check) > :spotbugs @ the-legend-of-tecla >>>
+[INFO]
+[INFO] --- spotbugs:4.8.6.6:spotbugs (spotbugs) @ the-legend-of-tecla ---
+[INFO] Fork Value is true
+[INFO] Done SpotBugs Analysis....
+[INFO]
+[INFO] <<< spotbugs:4.8.6.6:check (spotbugs-check) < :spotbugs @ the-legend-of-tecla <<<
+[INFO]
+[INFO]
+[INFO] --- spotbugs:4.8.6.6:check (spotbugs-check) @ the-legend-of-tecla ---
+[INFO] BugInstance size is 0
+[INFO] Error size is 0
+[INFO] No errors/warnings found
+[INFO]
+[INFO] >>> javadoc:3.12.0:javadoc (generar-javadoc) > generate-sources @ the-legend-of-tecla >>>
+[INFO]
+[INFO] --- enforcer:3.5.0:enforce (enforce-build-environment) @ the-legend-of-tecla ---
+[INFO] Rule 2: org.apache.maven.enforcer.rules.dependency.DependencyConvergence passed
+[INFO]
+[INFO] --- jacoco:0.8.12:prepare-agent (prepare-coverage-agent) @ the-legend-of-tecla ---
+[INFO] argLine set to -javaagent:C:\\Users\\rodri\\.m2\\repository\\org\\jacoco\\org.jacoco.agent\\0.8.12\\org.jacoco.agent-0.8.12-runtime.jar=destfile=C:\\Users\\rodri\\OneDrive\\Documentos\\GitHub\\TheLegendOfTecla\\target\\jacoco.exec
+[INFO]
+[INFO] <<< javadoc:3.12.0:javadoc (generar-javadoc) < generate-sources @ the-legend-of-tecla <<<
+[INFO]
+[INFO]
+[INFO] --- javadoc:3.12.0:javadoc (generar-javadoc) @ the-legend-of-tecla ---
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  02:00 min
+[INFO] Finished at: 2026-08-08T20:15:59+02:00
+[INFO] ------------------------------------------------------------------------

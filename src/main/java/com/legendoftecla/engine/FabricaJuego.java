@@ -47,6 +47,7 @@ public final class FabricaJuego {
                     configuracion.conAliados());
         };
         Juego juego = cargador.cargarJuego();
+        juego.setCondicionVictoria(configuracion.condicionVictoria());
         EscaladorEnergiaMapa.aplicar(juego);
         return juego;
     }

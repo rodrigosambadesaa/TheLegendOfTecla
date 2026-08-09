@@ -1,0 +1,50 @@
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ---------------< com.legendoftecla:the-legend-of-tecla >----------------
+[INFO] Building The Legend of Tecla 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- enforcer:3.5.0:enforce (enforce-build-environment) @ the-legend-of-tecla ---
+[INFO] Skipping Rule Enforcement.
+[INFO]
+[INFO] --- jacoco:0.8.12:prepare-agent (prepare-coverage-agent) @ the-legend-of-tecla ---
+[INFO] argLine set to -javaagent:C:\\Users\\rodri\\.m2\\repository\\org\\jacoco\\org.jacoco.agent\\0.8.12\\org.jacoco.agent-0.8.12-runtime.jar=destfile=C:\\Users\\rodri\\OneDrive\\Documentos\\GitHub\\TheLegendOfTecla\\target\\jacoco.exec
+[INFO]
+[INFO] --- resources:3.3.1:resources (default-resources) @ the-legend-of-tecla ---
+[INFO] skip non existing resourceDirectory C:\Users\rodri\OneDrive\Documentos\GitHub\TheLegendOfTecla\src\main\resources
+[INFO]
+[INFO] --- compiler:3.14.1:compile (default-compile) @ the-legend-of-tecla ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO]
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ the-legend-of-tecla ---
+[INFO] skip non existing resourceDirectory C:\Users\rodri\OneDrive\Documentos\GitHub\TheLegendOfTecla\src\test\resources
+[INFO]
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ the-legend-of-tecla ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO]
+[INFO] --- surefire:3.5.2:test (default-test) @ the-legend-of-tecla ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO]
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.legendoftecla.commands.ComandosCompuestosConsolaGuiTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.002 s -- in com.legendoftecla.commands.ComandosCompuestosConsolaGuiTest
+[INFO] Running com.legendoftecla.engine.FormacionesAliadasTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.079 s -- in com.legendoftecla.engine.FormacionesAliadasTest
+[INFO] Running com.legendoftecla.engine.ReglasCombateYVictoriaTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.060 s -- in com.legendoftecla.engine.ReglasCombateYVictoriaTest
+[INFO] Running com.legendoftecla.IntegracionModosGuiTest
+[INFO] Tests run: 22, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.645 s -- in com.legendoftecla.IntegracionModosGuiTest
+[INFO]
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 41, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  10.237 s
+[INFO] Finished at: 2026-08-09T12:02:29+02:00
+[INFO] ------------------------------------------------------------------------

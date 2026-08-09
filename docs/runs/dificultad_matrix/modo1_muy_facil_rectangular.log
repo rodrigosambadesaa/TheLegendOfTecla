@@ -1,31 +1,33 @@
 [34mBienvenido a The Legend of Tecla[0m
-[36mIntroduce nombre del personaje: [0m[36mElige clase (marine/francotirador/zapador): [0m[36mModo (1=default sin aliados, 2=grande 50x50 con aliados, 3=ficheros): [0m[36mDificultad (muy facil, facil, normal, dificil, muy dificil, pesadilla, demente) [normal]: [0m[36mTamano global del mapa <filas>x<columnas> (ENTER = por defecto): [0m[34mDificultad: muy facil | enemigos=9 | salud x0.7 | danio x0.65[0m
+[34mDificultad: muy facil | enemigos=9 | aliados=0 | salud x0.7 | danio x0.65[0m
+[34mEnergia inicial adaptada al mapa: ruta minima=44 pasos | jugador=234.[0m
 [34mMapa: Base Lambda[0m
 [34mInstalacion abandonada de la resistencia[0m
-[34mJ o . . . o . . . . o . . . . . . . . . . o o . 
-. . # # # # # # # # # # # # # # # # # # # # o . 
-. . . . . o o . . o . . . . . o . . . . o . . . 
-. . # . . . . # . . . o # . . . . # o . o . # . 
-. . # . . o . # . . . . # . . . . # . o . . # . 
-. . # # # # # # # # # # # # # # # # # # # # # . 
-. . # . . . . # . . . . # . . . . # . . . . # . 
-. . # . . . o # . . . . # . o . . # . . . . # o 
-. . # . . . . # . . . . # . . . . # . . . o # o 
-o . # # # # # # # # # # # # # # # # # # # # # . 
-. . # . . o . # . . . o # . . . . # o . . . # . 
-. . # . . . . # . . . . # . . . . # o . . . # . 
-. . # . . . . # . o . o # . . . . # . . . . # . 
-. . # # # # # # # # # # # # # # # # # # # # # . 
-. o # . . . . # o . . . # o . . . # . o o o # . 
-. . # . o . . # . o . . # . . o . # . . . o # . 
-. . # o . . . # . . . . # . . . . # . . . . # o 
-o o # # # # # # # # # # # # # # # # # # # # # . 
-. . # . . . . # o . o . # o . . . # . . . . # . 
-. . # . o . . # o o . . # o . . . # . . . . # . 
-. . . o . . . . . . . o . . . . . . . . o . . . 
-. . # # # # # # # # # # # # # # # # # # # # . X 
+[34mJ . . . . . . . . . . . . . . . . . . . . . . .
+. . # # # # # # # # # # # # # # # # # # # # . .
+. . . . . . . . . . . . . . . . . . . . . . . .
+. . # . . . . # . . . . # . . . . # . . . . # .
+. . # . . . . # . . . . # . . . . # . . . . # .
+. . # # # # # # # # # # # # # # # # # # # # # .
+. . # . . . . # . . . . # . . . . # . . . . # .
+. . # . . . . # . . . . # . . . . # . . . . # .
+. . # . . . . # . . . . # . . . . # . . . . # .
+. . # # # # # # # # # # # # # # # # # # # # # .
+. . # . . . . # . . . . # . . . . # . . . . # .
+. . # . . . . # . . . . # . . . . # . . . . # .
+. . # . . . . # . . . . # . . . . # . . . . # .
+. . # # # # # # # # # # # # # # # # # # # # # .
+. . # . . . . # . . . . # . . . . # . . . . # .
+. . # . . . . # . . . . # . . . . # . . . . # .
+. . # . . . . # . . . . # . . . . # . . . . # .
+. . # # # # # # # # # # # # # # # # # # # # # .
+. . # . . . . # . . . . # . . . . # . . . . # .
+. . # . . . . # . . . . # . . . . # . . . . # .
+. . . . . . . . . . . . . . . . . . . . . . . .
+. . # # # # # # # # # # # # # # # # # # # # . X
 [0m
-[36mTester [salud(120) energia(90)] pasos 0/160[0m
+[36mMatriz  Salud 120/120  Energia 234/234  Pasos 0/160  Formacion sin formacion[0m
+[36mAliados: ninguno.[0m
 [36maccion> [0m[34mPartida finalizada.[0m
 [34mPuntuacion final: 750[0m
 [34m  - Salud restante: 300[0m

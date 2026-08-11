@@ -471,6 +471,9 @@ public final class MotorPartida {
                 continue;
             }
             interactuarConObjetos(aliado);
+            if (evacuarAliadoSiTieneLaSalidaAlAlcance(aliado)) {
+                continue;
+            }
             if (juego.getFormacionAliada() != FormacionAliada.SIN_FORMACION) {
                 ejecutarFormacion(aliado);
                 extraerAliadoSiProcede(aliado);
@@ -1168,6 +1171,21 @@ public final class MotorPartida {
         return true;
     }
 
+    private boolean evacuarAliadoSiTieneLaSalidaAlAlcance(Aliado aliado) {
+        Posicion salida = juego.getMapa().getObjetivo();
+        if (calcularDistanciaRutaAliado(aliado.getPosicion(), salida) != 1) {
+            return false;
+        }
+        Posicion origen = aliado.getPosicion();
+        moverAliadoHaciaObjetivo(aliado, salida);
+        if (aliado.getPosicion().equals(origen)) {
+            return false;
+        }
+        juego.getConsola().imprimirInfo(
+                aliado.getNombre() + " prioriza la salida y alcanza la casilla final.");
+        return extraerAliadoSiProcede(aliado);
+    }
+
     private Posicion buscarCeldaDeSuministrosEnFormacion(Aliado aliado) {
         Posicion jugador = juego.getJugador().getPosicion();
         ArrayDeque<Posicion> pendientes = new ArrayDeque<>();
@@ -1342,10 +1360,6 @@ public final class MotorPartida {
                 if (visitadas.contains(candidata) || !juego.getMapa().esTransitable(candidata)) {
                     continue;
                 }
-                boolean ocupada = !juego.getMapa().getCelda(candidata).getAliados().isEmpty();
-                if (ocupada) {
-                    continue;
-                }
                 visitadas.add(candidata);
                 pendientes.addLast(candidata);
             }
@@ -1369,10 +1383,6 @@ public final class MotorPartida {
                 if (visitadas.contains(candidata) || !juego.getMapa().esTransitable(candidata)) {
                     continue;
                 }
-                boolean ocupada = !juego.getMapa().getCelda(candidata).getAliados().isEmpty();
-                if (ocupada) {
-                    continue;
-                }
                 visitadas.add(candidata);
                 pendientes.addLast(candidata);
             }
@@ -1394,10 +1404,6 @@ public final class MotorPartida {
             for (Direccion direccion : Direccion.values()) {
                 Posicion candidata = actual.mover(direccion);
                 if (distancias.containsKey(candidata) || !juego.getMapa().esTransitable(candidata)) {
-                    continue;
-                }
-                boolean ocupada = !juego.getMapa().getCelda(candidata).getAliados().isEmpty();
-                if (ocupada && !candidata.equals(objetivo)) {
                     continue;
                 }
                 if (candidata.equals(objetivo)) {
@@ -1425,10 +1431,6 @@ public final class MotorPartida {
             for (Direccion direccion : Direccion.values()) {
                 Posicion candidata = actual.mover(direccion);
                 if (anterior.containsKey(candidata) || !juego.getMapa().esTransitable(candidata)) {
-                    continue;
-                }
-                boolean ocupadaPorAliado = !juego.getMapa().getCelda(candidata).getAliados().isEmpty();
-                if (ocupadaPorAliado && !candidata.equals(objetivo)) {
                     continue;
                 }
                 anterior.put(candidata, actual);

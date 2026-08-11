@@ -133,6 +133,71 @@ class FormacionesAliadasTest {
         }
     }
 
+    @Test
+    void unAliadoAdyacenteSaleAunqueElJugadorDescanseEnLaEstrella() throws Exception {
+        for (FormacionAliada formacion : FormacionAliada.values()) {
+            Escenario escenario = crearEscenario(new Posicion(6, 5));
+            escenario.juego().getJugador().setPosicion(escenario.juego().getMapa().getObjetivo());
+            escenario.juego().getJugador().gastarEnergia(10);
+            MotorPartida motor = new MotorPartida(escenario.juego());
+            activarConductaAliada(motor, formacion);
+
+            motor.ejecutarComando("descansar");
+
+            assertTrue(escenario.juego().estaAliadoExtraido(escenario.aliado()), formacion.name());
+            assertTrue(escenario.juego().jugadorGano(), formacion.name());
+            assertTrue(escenario.consola().salida().contains(
+                    "prioriza la salida y alcanza la casilla final"), formacion.name());
+        }
+    }
+
+    @Test
+    void unAliadoAdyacenteSaleAunqueElJugadorTodaviaNoHayaLlegado() {
+        for (FormacionAliada formacion : FormacionAliada.values()) {
+            Escenario escenario = crearEscenario(new Posicion(6, 5));
+            MotorPartida motor = new MotorPartida(escenario.juego());
+            activarConductaAliada(motor, formacion);
+
+            motor.ejecutarComando("mirar");
+
+            assertTrue(escenario.juego().estaAliadoExtraido(escenario.aliado()), formacion.name());
+            assertFalse(escenario.juego().jugadorGano(), formacion.name());
+        }
+    }
+
+    @Test
+    void variosPersonajesPuedenCompartirCeldaDuranteElMovimiento() throws Exception {
+        Escenario escenario = crearEscenario(new Posicion(0, 2));
+        escenario.juego().getJugador().getMochila().guardar(
+                new Botiquin("botiquin reserva", "Evita buscar suministros", 1, 10));
+        escenario.juego().getJugador().getMochila().guardar(
+                new ToritoRojo("energia reserva", "Evita buscar suministros", 1, 10));
+        Aliado segundo = new Aliado("Retaguardia", new Posicion(1, 1), new Mochila(8, 40), 3);
+        agregarAliado(escenario.juego(), segundo);
+        MotorPartida motor = new MotorPartida(escenario.juego());
+
+        motor.ejecutarComando("reagrupar defensiva");
+
+        Posicion compartida = new Posicion(0, 1);
+        assertEquals(compartida, escenario.aliado().getPosicion());
+        assertEquals(compartida, segundo.getPosicion());
+        escenario.juego().getJugador().setPosicion(compartida);
+        agregarEnemigo(escenario.juego(),
+                new Sectoid("Intruso", compartida, new Mochila(2, 10), 1));
+
+        assertEquals(compartida, escenario.juego().getJugador().getPosicion());
+        assertEquals(2, escenario.juego().getMapa().getCelda(compartida).getAliados().size());
+        assertEquals(1, escenario.juego().getMapa().getCelda(compartida).getEnemigos().size());
+    }
+
+    private void activarConductaAliada(MotorPartida motor, FormacionAliada formacion) {
+        if (formacion == FormacionAliada.SIN_FORMACION) {
+            motor.setTurnosAyudaAliados(3);
+        } else {
+            motor.getJuego().setFormacionAliada(formacion);
+        }
+    }
+
     private Escenario crearEscenario(Posicion posicionAliado) {
         TestFixtures.CapturingConsole consola = TestFixtures.consola();
         Mapa mapa = new Mapa("Formaciones", "Prueba tactica", 7, 7,

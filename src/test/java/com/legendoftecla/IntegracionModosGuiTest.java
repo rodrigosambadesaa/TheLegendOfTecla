@@ -464,8 +464,8 @@ class IntegracionModosGuiTest {
     void elAliadoSinSuministrosExploraAntesDeAcudirAlJugador() throws Exception {
         ConsolaSilenciosa consola = new ConsolaSilenciosa();
         Juego juego = crearJuegoAsistencia(consola);
-        Aliado aliado = crearAliado(juego, "Explorador", new Posicion(4, 3));
-        Posicion celdaSuministro = new Posicion(3, 3);
+        Aliado aliado = crearAliado(juego, "Explorador", new Posicion(2, 3));
+        Posicion celdaSuministro = new Posicion(1, 3);
         juego.getMapa().getCelda(celdaSuministro).agregarObjeto(
                 new Botiquin("botiquin encontrado", "Apoyo localizado", 1.0, 25));
         juego.getJugador().recibirDanio(40);
@@ -517,7 +517,7 @@ class IntegracionModosGuiTest {
     void laOrdenAcercaAliadosSegurosPeroNoArriesgaAHeridos() throws Exception {
         ConsolaSilenciosa consola = new ConsolaSilenciosa();
         Juego juego = crearJuegoAsistencia(consola);
-        Aliado seguro = crearAliado(juego, "Seguro", new Posicion(4, 3));
+        Aliado seguro = crearAliado(juego, "Seguro", new Posicion(4, 2));
         Aliado enPeligro = crearAliado(juego, "EnPeligro", new Posicion(4, 1));
         enPeligro.recibirDanio(50);
         int distanciaSegura = seguro.getPosicion().distanciaManhattan(juego.getJugador().getPosicion());

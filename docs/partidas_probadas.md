@@ -1,6 +1,6 @@
 # Pruebas reproducibles de consola y GUI
 
-Última regeneración: 8 de agosto de 2026.
+Última regeneración: 11 de agosto de 2026.
 
 Las evidencias de esta carpeta proceden de la versión actual del juego. Se regeneran con:
 
@@ -20,6 +20,12 @@ El script ejecuta la suite completa antes de crear los registros. Si una prueba 
 - Aliados: inspeccionan antes de descubrir objetos; comparan y sustituyen armas, armaduras y binoculares; todo descarte queda en su celda.
 - Formaciones: se comprueban órdenes defensiva/ofensiva, acompañamiento, explorador sano dentro
   del radio del grupo, consumo táctico del binocular y reacción de enemigos con visión directa.
+- Combate trazable: jugador, aliados y enemigos registran atacante, objetivo, vida quitada,
+  vida restante y muerte; las dos formaciones siguen atacando amenazas cercanas al grupo.
+- Entorno: oscuridad fija/aleatoria, linterna reutilizable, antorcha derribada, ignición y
+  propagación sobre madera, daño por fuego a los tres bandos, cubo, fuente y extinción.
+- Presentación: símbolos ASCII y formas, colores y tooltips Swing para todo el entorno;
+  efectos sonoros CC0 con distancia audible respecto del jugador.
 - Binoculares: cada unidad solo puede activarse una vez y desaparece de la mochila o del equipo al usarla.
 - Carga durante la partida: `cargar <directorio>` sustituye el escenario activo tanto desde consola como desde el campo de comandos de la GUI.
 - Descanso: recupera salud y energía sin movimiento y permite que los enemigos se acerquen en su turno.

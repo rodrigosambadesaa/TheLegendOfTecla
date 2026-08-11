@@ -23,6 +23,12 @@ Implementacion en Java del proyecto de POO por entregas (P1, P2, P3) y con ampli
 - Orden `pedir ayuda` y boton equivalente: los aliados sin suministros exploran antes de acudir.
 - Formaciones defensiva y ofensiva en consola y GUI: los aliados acompañan al jugador,
   el miembro en mejor estado busca suministros cerca del grupo y los enemigos adaptan sus objetivos.
+- Registro de combate completo para jugador, aliados y enemigos: atacante, objetivo, vida quitada,
+  vida restante y muerte, compartido por consola y GUI.
+- Zonas oscuras aleatorias o fijas, linternas reutilizables, antorchas murales derribables,
+  suelos de madera, incendios propagables y daño ambiental para todos los personajes.
+- Fuentes y cubos de agua reutilizables; los aliados también recogen, rellenan y usan cubos.
+- Representación ambiental ASCII y gráfica, tooltips y efectos de sonido posicionales CC0.
 - Seguimiento permanente de cada aliado: vida, energia, posicion, objetos, equipo, combate y evacuacion.
 - Rescate energetico seguro: calculo de ruta/reserva, autoabastecimiento y busqueda de Toritos sin recursos infinitos.
 - Suministros de energia escalados y Toritos distribuidos sobre una ruta transitable en mapas grandes.
@@ -199,6 +205,11 @@ el mapa y la dificultad. Si se activan, se elige tambien entre victoria de
 6x6
 0,0
 5,5
+# Directivas opcionales: tipo;fila;columna
+oscura;2;2
+madera;2;2
+antorcha;2;2
+fuente;3;1
 ```
 
 ### objetos.txt
@@ -207,7 +218,14 @@ el mapa y la dificultad. Si se activan, se elige tambien entre victoria de
 # nombre;tipo;fila;columna
 botiquin_A;botiquin;1;1
 rifle_A;arma;2;3
+linterna_A;linterna;0;1
+cubo_A;cuboagua;1;0
 ```
+
+Las celdas `oscura` declaradas en TXT permanecen oscuras durante toda la partida.
+En `escenario.json`, cada celda admite los booleanos `oscura`, `sueloMadera`,
+`antorchaMural` y `fuenteAgua`. Los objetos JSON admiten además los tipos
+`linterna` (`valor` es su alcance) y `cuboagua` (`valor > 0` significa lleno).
 
 ### enemigos.txt
 

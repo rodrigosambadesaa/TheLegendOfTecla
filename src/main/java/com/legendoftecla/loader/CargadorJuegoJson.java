@@ -20,11 +20,14 @@ import com.legendoftecla.model.items.Botiquin;
 import com.legendoftecla.model.items.Explosivo;
 import com.legendoftecla.model.items.Objeto;
 import com.legendoftecla.model.items.ToritoRojo;
+import com.legendoftecla.model.items.CuboAgua;
+import com.legendoftecla.model.items.Linterna;
 import com.legendoftecla.model.world.Celda;
 import com.legendoftecla.model.world.DimensionesMapa;
 import com.legendoftecla.model.world.Juego;
 import com.legendoftecla.model.world.Mapa;
 import com.legendoftecla.model.world.Posicion;
+import com.legendoftecla.model.world.TipoSuelo;
 
 import java.nio.file.Path;
 import java.util.Locale;
@@ -80,8 +83,12 @@ public final class CargadorJuegoJson extends CargadorJuegoBase {
             }
         }
         for (EscenarioDefinicion.CeldaDef celda : definicion.getCeldas()) {
-            mapa.setCelda(celda.getFila(), celda.getColumna(),
-                    new Celda(celda.getDescripcion(), celda.isTransitable()));
+            Celda cargada = new Celda(celda.getDescripcion(), celda.isTransitable());
+            cargada.setOscuridadPermanente(celda.isOscura());
+            cargada.setTipoSuelo(celda.isSueloMadera() ? TipoSuelo.MADERA : TipoSuelo.PIEDRA);
+            cargada.setAntorchaMural(celda.hasAntorchaMural());
+            cargada.setFuenteAgua(celda.hasFuenteAgua());
+            mapa.setCelda(celda.getFila(), celda.getColumna(), cargada);
         }
 
         Jugador jugador = crearJugador(inicio);
@@ -93,6 +100,7 @@ public final class CargadorJuegoJson extends CargadorJuegoBase {
             exigirTransitable(mapa, posicion, "objeto " + objetoDef.getNombre());
             mapa.getCelda(posicion).agregarObjeto(crearObjeto(objetoDef));
         }
+        GeneradorAmbiente.completar(mapa, new Random(311));
         GeneradorSuministrosDificultad.poblar(mapa, dificultad, new Random(307));
 
         int cantidadEnemigos = dificultad.ajustarCantidadEnemigos(definicion.getEnemigos().size());
@@ -163,6 +171,10 @@ public final class CargadorJuegoJson extends CargadorJuegoBase {
                     Math.max(1, definicion.getValor()));
             case "explosivo" -> new Explosivo(
                     definicion.getNombre(), descripcion, definicion.getPeso());
+            case "linterna" -> new Linterna(definicion.getNombre(), descripcion,
+                    definicion.getPeso(), Math.max(1, definicion.getValor()));
+            case "cubo", "cuboagua", "cubo_agua" -> new CuboAgua(definicion.getNombre(), descripcion,
+                    definicion.getPeso(), definicion.getValor() > 0);
             default -> new Botiquin(definicion.getNombre(), descripcion, definicion.getPeso(),
                     Math.max(1, definicion.getValor()));
         };

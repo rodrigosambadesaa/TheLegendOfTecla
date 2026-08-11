@@ -8,6 +8,8 @@ import com.legendoftecla.commands.ComandoSalir;
 import com.legendoftecla.commands.ComandoDescansar;
 import com.legendoftecla.constants.FormacionAliada;
 import com.legendoftecla.console.TipoMensaje;
+import com.legendoftecla.audio.EventoSonido;
+import com.legendoftecla.audio.GestorSonido;
 import com.legendoftecla.exceptions.ComandoException;
 import com.legendoftecla.model.characters.Aliado;
 import com.legendoftecla.model.characters.Enemigo;
@@ -19,6 +21,8 @@ import com.legendoftecla.model.items.Botiquin;
 import com.legendoftecla.model.items.Explosivo;
 import com.legendoftecla.model.items.Objeto;
 import com.legendoftecla.model.items.ToritoRojo;
+import com.legendoftecla.model.items.Linterna;
+import com.legendoftecla.model.items.CuboAgua;
 import com.legendoftecla.model.world.Direccion;
 import com.legendoftecla.model.world.Celda;
 import com.legendoftecla.model.world.Juego;
@@ -246,6 +250,7 @@ public final class MotorPartida {
             ejecutarTurnoAliados();
             ejecutarTurnoNPC(comando instanceof ComandoDescansar);
             avanzarOrdenAyuda();
+            SistemaIncendios.avanzarTurno(juego, random);
         } catch (ComandoException e) {
             juego.getConsola().imprimir("Error de comando: " + e.getMessage(), TipoMensaje.ERROR);
         } catch (Exception e) {
@@ -287,7 +292,7 @@ public final class MotorPartida {
     public Set<Posicion> getAliadosVisibles() {
         Set<Posicion> visibles = new HashSet<>();
         for (Aliado aliado : juego.getAliados()) {
-            if (aliado.getSalud() > 0) {
+            if (aliado.getSalud() > 0 && SistemaIluminacion.hayLuz(juego, aliado.getPosicion())) {
                 visibles.add(aliado.getPosicion());
             }
         }
@@ -304,12 +309,28 @@ public final class MotorPartida {
         int vision = juego.getJugador().getRangoVision();
         for (Enemigo enemigo : juego.getEnemigos()) {
             if (enemigo.getSalud() > 0
-                    && jugadorPos.distanciaManhattan(enemigo.getPosicion()) <= vision) {
+                    && jugadorPos.distanciaManhattan(enemigo.getPosicion()) <= vision
+                    && SistemaIluminacion.hayLuz(juego, enemigo.getPosicion())) {
                 visibles.add(enemigo.getPosicion());
             }
         }
         return visibles;
     }
+
+    /** @return todas las celdas que pueden representarse con detalle pese a la oscuridad */
+    public Set<Posicion> getCeldasIluminadas() {
+        Set<Posicion> iluminadas = new HashSet<>();
+        for (int f = 0; f < juego.getMapa().getFilas(); f++) {
+            for (int c = 0; c < juego.getMapa().getColumnas(); c++) {
+                Posicion posicion = new Posicion(f, c);
+                if (SistemaIluminacion.hayLuz(juego, posicion)) iluminadas.add(posicion);
+            }
+        }
+        return iluminadas;
+    }
+
+    /** Indica si una celda tiene luz suficiente para mostrar su contenido. */
+    public boolean hayLuzEn(Posicion posicion) { return SistemaIluminacion.hayLuz(juego, posicion); }
 
     private void anunciarPartida() {
         juego.getConsola().imprimir("Mapa: " + juego.getMapa().getNombre(), TipoMensaje.INFO);
@@ -399,8 +420,7 @@ public final class MotorPartida {
                 int distancia = enemigo.getPosicion().distanciaManhattan(objetivo.getPosicion());
                 if (distancia <= enemigo.getRangoVision()
                         && juego.getMapa().hayLineaAtaque(enemigo.getPosicion(), objetivo.getPosicion())) {
-                    enemigo.atacar(objetivo);
-                    juego.getConsola().imprimir(enemigo.getNombre() + " ataca a " + objetivo.getNombre() + ".");
+                    SistemaCombate.atacar(juego, enemigo, objetivo, random);
                     break;
                 }
                 Direccion direccion = jugadorDescansando || formacionDetectada
@@ -416,6 +436,8 @@ public final class MotorPartida {
                     try {
                         enemigo.mover(direccion, juego);
                         juego.getMapa().getCelda(enemigo.getPosicion()).agregarEnemigo(enemigo);
+                        GestorSonido.reproducir(EventoSonido.MOVIMIENTO,
+                                enemigo.getPosicion(), juego.getJugador().getPosicion());
                         if (jugadorDescansando && !formacionDetectada) {
                             juego.getConsola().imprimirInfo(
                                     enemigo.getNombre() + " se acerca mientras descansas.");
@@ -437,6 +459,7 @@ public final class MotorPartida {
                 continue;
             }
             aliado.resetTurno();
+            gestionarLinternaAliada(aliado);
             usarBinocularSiConviene(aliado);
             marcarCombate(aliado, false);
             SituacionAliado anterior = situacionesAliados.getOrDefault(aliado, SituacionAliado.ACTIVO);
@@ -485,7 +508,7 @@ public final class MotorPartida {
                 if (!debeAliadoAtacarConRadar(aliado, objetivo)) {
                     continue;
                 }
-                aliado.atacar(objetivo);
+                SistemaCombate.atacar(juego, aliado, objetivo, random);
                 if (objetivo.getSalud() <= 0) {
                     juego.getMapa().getCelda(objetivo.getPosicion()).quitarEnemigo(objetivo);
                     juego.getConsola().imprimirExito(
@@ -520,7 +543,7 @@ public final class MotorPartida {
         int distancia = aliado.getPosicion().distanciaManhattan(objetivo.getPosicion());
         if (distancia <= 1) {
             if (debeAliadoAtacarConRadar(aliado, objetivo)) {
-                aliado.atacar(objetivo);
+                SistemaCombate.atacar(juego, aliado, objetivo, random);
                 eliminarEnemigoDerrotado(aliado, objetivo);
             }
         } else {
@@ -637,6 +660,7 @@ public final class MotorPartida {
         Posicion posicion = aliado.getPosicion();
         boolean primeraInspeccion = juego.inspeccionarCeldaAliado(aliado);
         Celda celda = juego.getMapa().getCelda(posicion);
+        gestionarAguaAliada(aliado, celda);
         if (primeraInspeccion) {
             juego.getConsola().imprimirInfo(aliado.getNombre() + " inspecciona la celda " + posicion
                     + " y encuentra " + celda.getObjetos().size() + " objeto(s).");
@@ -745,6 +769,8 @@ public final class MotorPartida {
             aliado.equipar(retirado);
             juego.getConsola().imprimirInfo(
                     aliado.getNombre() + " recoge y equipa " + objeto.getNombre() + ".");
+            GestorSonido.reproducir(EventoSonido.EQUIPAR,
+                    aliado.getPosicion(), juego.getJugador().getPosicion());
         } catch (Exception e) {
             celda.agregarObjeto(retirado);
         }
@@ -757,6 +783,8 @@ public final class MotorPartida {
             }
             try {
                 aliado.desequipar(objeto.getNombre());
+                GestorSonido.reproducir(EventoSonido.DESEQUIPAR,
+                        aliado.getPosicion(), juego.getJugador().getPosicion());
                 if (!tirarObjetoAliado(aliado, objeto.getNombre(), celda,
                         " para sustituirlo por una opcion mejor")) {
                     return false;
@@ -807,6 +835,8 @@ public final class MotorPartida {
             juego.getConsola().imprimirInfo(
                     aliado.getNombre() + " tira " + descartado.getNombre()
                             + " en la celda " + aliado.getPosicion() + motivo + ".");
+            GestorSonido.reproducir(EventoSonido.TIRAR,
+                    aliado.getPosicion(), juego.getJugador().getPosicion());
             return true;
         } catch (Exception ignored) {
             // El objeto permanece donde estaba si no puede retirarse.
@@ -989,6 +1019,46 @@ public final class MotorPartida {
                 + " porque permite detectar una amenaza nueva este turno.");
     }
 
+    private void gestionarLinternaAliada(Aliado aliado) {
+        Linterna linterna = aliado.getMochila().getObjetos().stream()
+                .filter(Linterna.class::isInstance).map(Linterna.class::cast).findFirst().orElse(null);
+        if (linterna == null) return;
+        boolean necesitaLuz = juego.getMapa().getCelda(aliado.getPosicion()).isOscura();
+        if (necesitaLuz != aliado.isLinternaActiva()) {
+            aliado.setLinternaActiva(necesitaLuz);
+            aliado.setAlcanceLinterna(linterna.getAlcance());
+            juego.getConsola().imprimirInfo(aliado.getNombre()
+                    + (necesitaLuz ? " enciende " : " apaga ") + linterna.getNombre() + ".");
+        }
+    }
+
+    private void gestionarAguaAliada(Aliado aliado, Celda celda) {
+        CuboAgua cubo = aliado.getMochila().getObjetos().stream()
+                .filter(CuboAgua.class::isInstance).map(CuboAgua.class::cast).findFirst().orElse(null);
+        if (cubo == null) return;
+        if (!cubo.isLleno() && celda.hasFuenteAgua()) {
+            cubo.llenar();
+            juego.getConsola().imprimirInfo(aliado.getNombre() + " llena " + cubo.getNombre() + ".");
+            return;
+        }
+        if (!cubo.isLleno()) return;
+        Posicion fuego = celda.estaArdiendo() ? aliado.getPosicion() : null;
+        if (fuego == null) {
+            for (Direccion direccion : Direccion.values()) {
+                Posicion candidata = aliado.getPosicion().mover(direccion);
+                if (juego.getMapa().estaDentro(candidata)
+                        && juego.getMapa().getCelda(candidata).estaArdiendo()) {
+                    fuego = candidata;
+                    break;
+                }
+            }
+        }
+        if (fuego != null && SistemaIncendios.apagar(juego, fuego)) {
+            cubo.consumirAgua();
+            juego.getConsola().imprimirExito(aliado.getNombre() + " usa " + cubo.getNombre() + ".");
+        }
+    }
+
     private boolean revelaNuevaAmenaza(Aliado aliado, Binocular binocular) {
         int visionActual = aliado.getRangoVision();
         int visionAmpliada = visionActual + binocular.getRango();
@@ -1039,13 +1109,14 @@ public final class MotorPartida {
         if (!debeAliadoAtacarConRadar(aliado, enemigo)) {
             return;
         }
-        aliado.atacar(enemigo);
+        SistemaCombate.atacar(juego, aliado, enemigo, random);
         eliminarEnemigoDerrotado(aliado, enemigo);
     }
 
     private Enemigo buscarAmenazaDeFormacion(Aliado aliado) {
         Posicion jugador = juego.getJugador().getPosicion();
         return juego.getEnemigos().stream().filter(enemigo -> enemigo.getSalud() > 0)
+                .filter(enemigo -> SistemaIluminacion.hayLuz(juego, enemigo.getPosicion()))
                 .filter(enemigo -> juego.getFormacionAliada() == FormacionAliada.OFENSIVA
                         || enemigo.getPosicion().distanciaManhattan(jugador) <= 3
                         || enemigo.getPosicion().distanciaManhattan(aliado.getPosicion()) <= 2)
@@ -1201,6 +1272,8 @@ public final class MotorPartida {
             juego.getMapa().getCelda(origen).quitarAliado(aliado);
             aliado.mover(siguiente, juego);
             juego.getMapa().getCelda(aliado.getPosicion()).agregarAliado(aliado);
+            GestorSonido.reproducir(EventoSonido.MOVIMIENTO,
+                    aliado.getPosicion(), juego.getJugador().getPosicion());
         } catch (Exception e) {
             juego.getMapa().getCelda(origen).agregarAliado(aliado);
         }

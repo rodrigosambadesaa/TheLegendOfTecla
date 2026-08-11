@@ -262,16 +262,36 @@ public class Mapa {
      */
     public String renderAscii(Posicion jugador, Set<Posicion> enemigosVisibles,
             Set<Posicion> aliadosVisibles, Set<Posicion> celdasInspeccionadas) {
+        Set<Posicion> iluminadas = new java.util.HashSet<>();
+        for (int f = 0; f < getFilas(); f++) {
+            for (int c = 0; c < getColumnas(); c++) {
+                Posicion p = new Posicion(f, c);
+                Celda celda = getCelda(p);
+                if (!celda.isOscura() || celda.estaArdiendo() || celda.hasAntorchaMural()) iluminadas.add(p);
+            }
+        }
+        return renderAscii(jugador, enemigosVisibles, aliadosVisibles, celdasInspeccionadas, iluminadas);
+    }
+
+    /** Renderiza tambien el estado ambiental y las zonas iluminadas dinamicamente. */
+    public String renderAscii(Posicion jugador, Set<Posicion> enemigosVisibles,
+            Set<Posicion> aliadosVisibles, Set<Posicion> celdasInspeccionadas,
+            Set<Posicion> celdasIluminadas) {
         Validaciones.noNulo(jugador, "Posicion del jugador");
         Validaciones.noNulo(enemigosVisibles, "Enemigos visibles");
         Validaciones.noNulo(aliadosVisibles, "Aliados visibles");
         Validaciones.noNulo(celdasInspeccionadas, "Celdas inspeccionadas");
+        Validaciones.noNulo(celdasIluminadas, "Celdas iluminadas");
         StringBuilder sb = new StringBuilder();
         for (int f = 0; f < getFilas(); f++) {
             for (int c = 0; c < getColumnas(); c++) {
                 Posicion actual = new Posicion(f, c);
                 if (actual.equals(jugador)) {
                     sb.append('J');
+                } else if (celdas[f][c].estaArdiendo()) {
+                    sb.append('F');
+                } else if (!celdasIluminadas.contains(actual)) {
+                    sb.append('?');
                 } else if (actual.equals(objetivo)) {
                     sb.append('X');
                 } else if (!celdas[f][c].isTransitable()) {
@@ -283,6 +303,12 @@ public class Mapa {
                 } else if (!celdas[f][c].getObjetos().isEmpty()
                         && celdasInspeccionadas.contains(actual)) {
                     sb.append('o');
+                } else if (celdas[f][c].hasFuenteAgua()) {
+                    sb.append('U');
+                } else if (celdas[f][c].hasAntorchaMural()) {
+                    sb.append('T');
+                } else if (celdas[f][c].getTipoSuelo() == TipoSuelo.MADERA) {
+                    sb.append('=');
                 } else {
                     sb.append('.');
                 }

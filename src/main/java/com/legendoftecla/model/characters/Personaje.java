@@ -6,6 +6,7 @@ import com.legendoftecla.model.items.Armadura;
 import com.legendoftecla.model.items.Binocular;
 import com.legendoftecla.model.items.Explosivo;
 import com.legendoftecla.model.items.Objeto;
+import com.legendoftecla.model.items.Linterna;
 import com.legendoftecla.model.world.Direccion;
 import com.legendoftecla.model.world.Juego;
 import com.legendoftecla.model.world.Posicion;
@@ -70,6 +71,8 @@ public abstract class Personaje {
      * Valor publico {@code penalizacionEnergiaSiguienteTurno} utilizado por el modelo del juego.
      */
     private double penalizacionEnergiaSiguienteTurno;
+    private boolean linternaActiva;
+    private int alcanceLinterna;
 
     /**
      * Ejecuta Personaje.
@@ -93,6 +96,8 @@ public abstract class Personaje {
         setVisionBase(visionBase);
         setVisionTemporal(0);
         setPenalizacionEnergiaSiguienteTurno(0.0);
+        setLinternaActiva(false);
+        setAlcanceLinterna(0);
     }
 
     /**
@@ -329,6 +334,18 @@ public abstract class Personaje {
     public Binocular getBinocularEquipado() { return binocularEquipado; }
     /** @param binocular binocular equipado opcional */
     public void setBinocularEquipado(Binocular binocular) { this.binocularEquipado = binocular; }
+
+    public boolean isLinternaActiva() { return linternaActiva; }
+    public void setLinternaActiva(boolean linternaActiva) { this.linternaActiva = linternaActiva; }
+    public int getAlcanceLinterna() { return alcanceLinterna; }
+    public void setAlcanceLinterna(int alcanceLinterna) {
+        this.alcanceLinterna = Validaciones.enteroEntre(
+                alcanceLinterna, 0, Limites.ESTADISTICA, "Alcance de linterna");
+    }
+
+    public boolean tieneLinterna() {
+        return mochila.getObjetos().stream().anyMatch(Linterna.class::isInstance);
+    }
 
     /**
      * Ejecuta mover.

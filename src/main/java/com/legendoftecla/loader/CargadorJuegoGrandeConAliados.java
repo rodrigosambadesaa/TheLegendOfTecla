@@ -95,6 +95,7 @@ public class CargadorJuegoGrandeConAliados extends CargadorJuegoBase {
                     GameConstants.MAX_VISION_BASE);
         };
 
+        GeneradorAmbiente.completar(mapa, new java.util.Random(223));
         Juego juego = new Juego(consola, mapa, jugador, 2200);
 
         Random random = new Random(4200L + varianteMapa);

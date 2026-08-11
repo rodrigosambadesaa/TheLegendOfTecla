@@ -35,6 +35,8 @@ Este documento separa los requisitos evaluables de los PDF originales de las amp
 - Formaciones defensiva y ofensiva: acompañamiento permanente, exploración limitada por el aliado
   en mejor estado cuando escasean suministros y respuesta táctica de los enemigos que las detectan.
 - Editor JSON, Docker, GUI accesible por navegador con noVNC, CI, cobertura, análisis estático y pruebas GUI headless.
+- Ampliación ambiental voluntaria: iluminación y oscuridad, incendios propagables, agua,
+  nuevos objetos, registro completo de combate y audio CC0 posicional en el motor común.
 
 ## Criterio de máxima calidad
 

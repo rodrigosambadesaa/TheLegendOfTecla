@@ -4,6 +4,8 @@ import com.legendoftecla.exceptions.AccionInvalidaException;
 import com.legendoftecla.exceptions.ComandoException;
 import com.legendoftecla.validation.Limites;
 import com.legendoftecla.validation.Validaciones;
+import com.legendoftecla.audio.EventoSonido;
+import com.legendoftecla.audio.GestorSonido;
 
 
 /**
@@ -43,6 +45,7 @@ public class ComandoDesequipar implements Comando {
         try {
             context.getJuego().getJugador().desequipar(nombreObjeto);
             context.getJuego().getConsola().imprimir("Desequipado: " + nombreObjeto);
+            GestorSonido.reproducir(EventoSonido.DESEQUIPAR);
         } catch (AccionInvalidaException e) {
             throw new ComandoException(e.getMessage());
         }

@@ -20,6 +20,12 @@ public class Celda {
     private List<Objeto> objetos;
     private List<Enemigo> enemigos;
     private List<Aliado> aliados;
+    private TipoSuelo tipoSuelo;
+    private boolean oscura;
+    private boolean oscuridadPermanente;
+    private boolean antorchaMural;
+    private boolean fuenteAgua;
+    private int nivelFuego;
 
     /**
      * Ejecuta Celda.
@@ -32,7 +38,36 @@ public class Celda {
         setObjetos(List.of());
         setEnemigos(List.of());
         setAliados(List.of());
+        setTipoSuelo(TipoSuelo.PIEDRA);
+        setOscura(false);
+        setOscuridadPermanente(false);
+        setAntorchaMural(false);
+        setFuenteAgua(false);
+        setNivelFuego(0);
     }
+
+    public TipoSuelo getTipoSuelo() { return tipoSuelo; }
+    public void setTipoSuelo(TipoSuelo tipoSuelo) {
+        this.tipoSuelo = Validaciones.noNulo(tipoSuelo, "Tipo de suelo");
+    }
+    public boolean isOscura() { return oscura; }
+    public void setOscura(boolean oscura) { this.oscura = oscura; }
+    public boolean isOscuridadPermanente() { return oscuridadPermanente; }
+    public void setOscuridadPermanente(boolean oscuridadPermanente) {
+        this.oscuridadPermanente = oscuridadPermanente;
+        if (oscuridadPermanente) setOscura(true);
+    }
+    public boolean hasAntorchaMural() { return antorchaMural; }
+    public boolean isAntorchaMural() { return antorchaMural; }
+    public void setAntorchaMural(boolean antorchaMural) { this.antorchaMural = antorchaMural; }
+    public boolean hasFuenteAgua() { return fuenteAgua; }
+    public boolean isFuenteAgua() { return fuenteAgua; }
+    public void setFuenteAgua(boolean fuenteAgua) { this.fuenteAgua = fuenteAgua; }
+    public int getNivelFuego() { return nivelFuego; }
+    public void setNivelFuego(int nivelFuego) {
+        this.nivelFuego = Validaciones.enteroEntre(nivelFuego, 0, 3, "Nivel de fuego");
+    }
+    public boolean estaArdiendo() { return nivelFuego > 0; }
 
     /**
      * Ejecuta getDescripcion.

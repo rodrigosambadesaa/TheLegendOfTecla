@@ -2,122 +2,92 @@
 [34mDificultad: normal | enemigos=4 | aliados=0 | salud x1.0 | danio x1.0[0m
 [34mMapa: Base Lambda[0m
 [34mInstalacion abandonada de la resistencia[0m
-[34mJ . . . . . . . . .
+[34mJ . T . . . . . ? ?
 . . # # # # # # . .
-. . . . . . . . . .
-. . # . . . . # . .
-. . # . . . . # . .
+. . . . . . U . . ?
+. . # . = . = # . =
+. = # . . . = # ? .
 . . # # # # # # . .
-. . # . . . . # . .
-. . # . . . . # . .
-. . . . . . . . . .
+= . # . . . = # . .
+. . # . . . . # . =
+. = . . . . . . . .
 . . # # # # # # . X
 [0m
+[34mLeyenda: J=jugador E=enemigo A=aliado F=fuego ?=oscuridad T=antorcha U=fuente ==madera o=objeto X=objetivo[0m
 [36mTecla  Salud 120/120  Energia 90/90  Pasos 0/160  Formacion sin formacion[0m
 [36mAliados: ninguno.[0m
-[36maccion> [0m[34mCOMANDOS DISPONIBLES
-
-1) mover <norte|sur|este|oeste> [repeticiones]
-   Ejemplos: mover norte | mover este 3
-2) mirar [objeto|<distancia><direccion> [enemigo]]
-   Ejemplos: mirar | mirar rifle | mirar 3e | mirar 3e Sectoid_A
-3) coger <objeto>
-   Ejemplo: coger rifle
-4) tirar <objeto>
-   Ejemplo: tirar botiquin
-5) inventario (alias: mochila)
-   Ejemplo: inventario
-6) usar <objeto>
-   Ejemplo: usar botiquin
-7) equipar <arma|armadura|binocular> [equipado]
-   Ejemplo compuesto: equipar lanzacohetes ametralladora
-8) desequipar <arma|armadura>
-   Ejemplo: desequipar rifle | desequipar chaleco
-9) atacar [<distancia><direccion>] [objetivo|todos] [repeticiones]
-   Ejemplos: atacar | atacar todos | atacar 2e Sectoid_A 2
-10) lanzar <distancia><direccion> <explosivo>
-    Ejemplo: lanzar 3e c4_1 (solo zapador, alcance maximo 5)
-11) recorrido
-    Ejemplo: recorrido
-12) pedir ayuda (alias: socorro o asistir)
-    Los aliados seguros buscan suministros, acuden y combaten
-13) reagrupar <defensiva|ofensiva> (alias: formacion)
-    Los aliados acompa�an al jugador; los enemigos reaccionan si la detectan
-    Si escasean suministros, el aliado en mejor estado explora cerca del grupo
-14) descansar (alias: reposar)
-    Recupera un 10 % de salud y energia sin moverse; los enemigos se acercan
-15) ayuda (alias: comandos)
-    Ejemplo: ayuda
-16) cargar <directorio>
-    Carga escenario.json o mapa.txt, objetos.txt y enemigos.txt
-17) salir
-    Ejemplo: salir[0m
-[34mJ . . . . . . . . .
+[36maccion> [0m[31mError de comando: Comando desconocido: ?ayuda[0m
+[34mJ . T . . . . . ? ?
 . . # # # # # # . .
-. . . . . . . . . .
-. . # . . . . # . .
-. . # . . . . # . .
+. . . . . . U . . ?
+. . # . = . = # . =
+. = # . . . = # ? .
 . . # # # # # # . .
-. . # . . . . # . .
-. . # . . . . # . .
-. . . . . . . . . .
+= . # . . . = # . .
+. . # . . . . # . =
+. = . . . . . . . .
 . . # # # # # # . X
 [0m
+[34mLeyenda: J=jugador E=enemigo A=aliado F=fuego ?=oscuridad T=antorcha U=fuente ==madera o=objeto X=objetivo[0m
 [36mTecla  Salud 120/120  Energia 90/90  Pasos 0/160  Formacion sin formacion[0m
 [36mAliados: ninguno.[0m
 [36maccion> [0m[34mPunto de despliegue[0m
-[34mNo hay objetos en esta celda.[0m
-[34mJ . E . . . . . . .
+[34mObjetos: Linterna, Cubo de agua[0m
+[34mJ . T . . . . . ? ?
 . . # # # # # # . .
-. . . . . . . . . .
-. . # . . . . # . .
-. . # . . . . # . .
+. . . . . . U . . ?
+. . # . = . = # . =
+. = # . . . = # ? .
 . . # # # # # # . .
-. . # . . . . # . .
-. . # . . . . # . .
-. . . . . . . . . .
+= . # . . . = # . .
+. . # . . . . # . =
+. = . . . . . . . .
 . . # # # # # # . X
 [0m
+[34mLeyenda: J=jugador E=enemigo A=aliado F=fuego ?=oscuridad T=antorcha U=fuente ==madera o=objeto X=objetivo[0m
 [36mTecla  Salud 120/120  Energia 90/90  Pasos 0/160  Formacion sin formacion[0m
 [36mAliados: ninguno.[0m
 [36maccion> [0m[34mMochila: peso 0,00/40.0 kg, espacio restante 10[0m
 [33m(vacia)[0m
-[34mSectoid_2 ataca a Tecla.[0m
-[34mJ . E . . . . . . .
+[34mJ . T . . . . . ? ?
 . . # # # # # # . .
-. . . . . . . . . .
-. . # . . . . # . .
-. . # . . . . # . .
+. . . . . . U . . ?
+. . # . = . = # . =
+. = # . . . = # ? .
 . . # # # # # # . .
-. . # . . . . # . .
-. . # . . . . # . .
-. . . . . . . . . .
+= . # . . . = # . .
+. . # . . . . # . =
+. = . . . . . . . .
 . . # # # # # # . X
 [0m
-[36mTecla  Salud 116/120  Energia 90/90  Pasos 0/160  Formacion sin formacion[0m
+[34mLeyenda: J=jugador E=enemigo A=aliado F=fuego ?=oscuridad T=antorcha U=fuente ==madera o=objeto X=objetivo[0m
+[36mTecla  Salud 120/120  Energia 90/90  Pasos 0/160  Formacion sin formacion[0m
 [36mAliados: ninguno.[0m
-[36maccion> [0m[34mDescansas sin moverte: recuperas 4 de salud y 0 de energia. Los enemigos aprovechan para acercarse.[0m
+[36maccion> [0m[34mDescansas sin moverte: recuperas 0 de salud y 0 de energia. Los enemigos aprovechan para acercarse.[0m
 [34mHeavyFloater_0 se acerca mientras descansas.[0m
 [34mHeavyFloater_0 se acerca mientras descansas.[0m
 [34mSectoid_1 se acerca mientras descansas.[0m
-[34mSectoid_2 ataca a Tecla.[0m
+[34mSectoid_1 se acerca mientras descansas.[0m
+[34mSectoid_2 se acerca mientras descansas.[0m
 [34mLightFloater_3 se acerca mientras descansas.[0m
-[34mJ . E . . . . . . .
+[34mLightFloater_3 se acerca mientras descansas.[0m
+[34mJ . T . . . . . ? ?
 . . # # # # # # . .
-E . . . . . . . . .
-. . # . . . . # . .
-. . # . . . . # . .
+. . . . . . U . . ?
+. . # . = . = # . =
+. = # . . . = # ? .
 . . # # # # # # . .
-. . # . . . . # . .
-. . # . . . . # . .
-. . . . . . . . . .
+= . # . . . = # . .
+. . # . . . . # . =
+. = . . . . . . . .
 . . # # # # # # . X
 [0m
-[36mTecla  Salud 116/120  Energia 90/90  Pasos 0/160  Formacion sin formacion[0m
+[34mLeyenda: J=jugador E=enemigo A=aliado F=fuego ?=oscuridad T=antorcha U=fuente ==madera o=objeto X=objetivo[0m
+[36mTecla  Salud 120/120  Energia 90/90  Pasos 0/160  Formacion sin formacion[0m
 [36mAliados: ninguno.[0m
 [36maccion> [0m[34mPartida finalizada.[0m
-[34mPuntuacion final: 740[0m
-[34m  - Salud restante: 290[0m
+[34mPuntuacion final: 750[0m
+[34m  - Salud restante: 300[0m
 [34m  - Energia restante: 200[0m
 [34m  - Eficiencia en pasos: 250[0m
 [34m  - Progreso hacia objetivo: 0[0m

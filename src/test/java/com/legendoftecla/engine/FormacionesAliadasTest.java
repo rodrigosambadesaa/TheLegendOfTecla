@@ -110,6 +110,29 @@ class FormacionesAliadasTest {
                 escenario.juego().getJugador().getPosicion()) <= 2);
     }
 
+    @Test
+    void ambasFormacionesMantienenElAtaqueContraAmenazasDelAliadoYDelJugador() {
+        for (String orden : new String[] {"reagrupar defensiva", "reagrupar ofensiva"}) {
+            Escenario escenario = crearEscenario(new Posicion(0, 1));
+            escenario.juego().getJugador().getMochila().guardar(
+                    new Botiquin("reserva", "Evita desvio por suministros", 1, 10));
+            escenario.juego().getJugador().getMochila().guardar(
+                    new ToritoRojo("energia", "Evita desvio por suministros", 1, 10));
+            Sectoid enemigo = new Sectoid("Amenaza", new Posicion(0, 0), new Mochila(2, 10), 1);
+            agregarEnemigo(escenario.juego(), enemigo);
+            int saludInicial = enemigo.getSalud();
+            MotorPartida motor = new MotorPartida(escenario.juego());
+            motor.setRandom(new java.util.Random(4));
+
+            motor.ejecutarComando(orden);
+
+            assertTrue(enemigo.getSalud() < saludInicial, orden);
+            assertTrue(escenario.consola().salida().contains(
+                    "Vanguardia ataca a Amenaza: quita"), orden);
+            assertTrue(escenario.consola().salida().contains("de vida; quedan"), orden);
+        }
+    }
+
     private Escenario crearEscenario(Posicion posicionAliado) {
         TestFixtures.CapturingConsole consola = TestFixtures.consola();
         Mapa mapa = new Mapa("Formaciones", "Prueba tactica", 7, 7,

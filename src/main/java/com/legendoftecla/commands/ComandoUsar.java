@@ -5,6 +5,12 @@ import com.legendoftecla.exceptions.JuegoException;
 import com.legendoftecla.model.characters.Jugador;
 import com.legendoftecla.model.items.Binocular;
 import com.legendoftecla.model.items.Objeto;
+import com.legendoftecla.model.items.CuboAgua;
+import com.legendoftecla.model.items.Linterna;
+import com.legendoftecla.engine.SistemaIncendios;
+import com.legendoftecla.model.world.Celda;
+import com.legendoftecla.model.world.Direccion;
+import com.legendoftecla.model.world.Posicion;
 import com.legendoftecla.validation.Limites;
 import com.legendoftecla.validation.Validaciones;
 
@@ -56,15 +62,51 @@ public class ComandoUsar implements Comando {
             throw new ComandoException("No tienes ese objeto en la mochila.");
         }
         try {
-            obj.usar(jugador);
+            if (obj instanceof CuboAgua cubo) {
+                usarCubo(jugador, cubo);
+            } else {
+                obj.usar(jugador);
+            }
             if (!obj.isConsumible()) {
                 devolverObjeto(jugador, obj, estabaEquipado);
             }
-            context.getJuego().getConsola().imprimir("Usas " + obj.getNombre() + ".");
+            String detalle = obj instanceof Linterna
+                    ? (jugador.isLinternaActiva() ? " encendida." : " apagada.") : ".";
+            context.getJuego().getConsola().imprimir("Usas " + obj.getNombre() + detalle);
+        } catch (ComandoException e) {
+            devolverObjeto(jugador, obj, estabaEquipado);
+            throw e;
         } catch (JuegoException e) {
             devolverObjeto(jugador, obj, estabaEquipado);
             throw new ComandoException(e.getMessage());
         }
+    }
+
+    private void usarCubo(Jugador jugador, CuboAgua cubo) throws ComandoException {
+        Posicion actual = jugador.getPosicion();
+        Celda celda = context.getJuego().getMapa().getCelda(actual);
+        if (!cubo.isLleno()) {
+            if (!celda.hasFuenteAgua()) {
+                throw new ComandoException("El cubo esta vacio; debes usarlo junto a una fuente.");
+            }
+            cubo.llenar();
+            context.getJuego().getConsola().imprimirExito("Llenas el cubo en la fuente.");
+            return;
+        }
+        Posicion fuego = celda.estaArdiendo() ? actual : null;
+        if (fuego == null) {
+            for (Direccion direccion : Direccion.values()) {
+                Posicion candidata = actual.mover(direccion);
+                if (context.getJuego().getMapa().estaDentro(candidata)
+                        && context.getJuego().getMapa().getCelda(candidata).estaArdiendo()) {
+                    fuego = candidata;
+                    break;
+                }
+            }
+        }
+        if (fuego == null) throw new ComandoException("No hay fuego que apagar en esta celda ni al lado.");
+        SistemaIncendios.apagar(context.getJuego(), fuego);
+        cubo.consumirAgua();
     }
 
     private void devolverObjeto(Jugador jugador, Objeto objeto, boolean estabaEquipado) {

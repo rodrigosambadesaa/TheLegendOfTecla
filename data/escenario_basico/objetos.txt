@@ -4,3 +4,5 @@ rifle_A;arma;2;3
 botiquin_B;botiquin;4;5
 rifle_B;arma;8;2
 botiquin_C;botiquin;10;10
+linterna_base;linterna;0;1
+cubo_base;cuboagua;1;0

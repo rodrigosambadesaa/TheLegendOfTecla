@@ -323,11 +323,19 @@ public class EscenarioDefinicion {
     public static class CeldaDef extends Punto {
         private String descripcion;
         private boolean transitable;
+        private boolean oscura;
+        private boolean sueloMadera;
+        private boolean antorchaMural;
+        private boolean fuenteAgua;
 
         /** Crea una celda predeterminada. */
         public CeldaDef() {
             setDescripcion("Celda");
             setTransitable(true);
+            setOscura(false);
+            setSueloMadera(false);
+            setAntorchaMural(false);
+            setFuenteAgua(false);
         }
 
         /**
@@ -364,10 +372,25 @@ public class EscenarioDefinicion {
             this.transitable = transitable;
         }
 
+        public boolean isOscura() { return oscura; }
+        public void setOscura(boolean oscura) { this.oscura = oscura; }
+        public boolean isSueloMadera() { return sueloMadera; }
+        public void setSueloMadera(boolean sueloMadera) { this.sueloMadera = sueloMadera; }
+        public boolean hasAntorchaMural() { return antorchaMural; }
+        public boolean isAntorchaMural() { return antorchaMural; }
+        public void setAntorchaMural(boolean antorchaMural) { this.antorchaMural = antorchaMural; }
+        public boolean hasFuenteAgua() { return fuenteAgua; }
+        public boolean isFuenteAgua() { return fuenteAgua; }
+        public void setFuenteAgua(boolean fuenteAgua) { this.fuenteAgua = fuenteAgua; }
+
         void normalizar() {
             super.normalizar();
             setDescripcion(descripcion == null ? "" : descripcion);
             setTransitable(transitable);
+            setOscura(oscura);
+            setSueloMadera(sueloMadera);
+            setAntorchaMural(antorchaMural);
+            setFuenteAgua(fuenteAgua);
         }
     }
 

@@ -62,6 +62,7 @@ public class CargadorJuegoPorDefecto extends CargadorJuegoBase {
                     GameConstants.MAX_VISION_BASE);
         };
 
+        GeneradorAmbiente.completar(mapa, new java.util.Random(211));
         Juego juego = new Juego(consola, mapa, jugador, 160);
 
         Random random = new Random(11);

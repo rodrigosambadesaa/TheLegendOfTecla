@@ -2,3 +2,10 @@
 12x12
 0,0
 11,11
+# Entorno fijo opcional: tipo;fila;columna
+oscura;4;4
+oscura;4;5
+madera;4;4
+madera;4;5
+antorcha;4;4
+fuente;3;3

@@ -5,6 +5,8 @@ import com.legendoftecla.exceptions.ComandoException;
 import com.legendoftecla.model.items.Objeto;
 import com.legendoftecla.validation.Limites;
 import com.legendoftecla.validation.Validaciones;
+import com.legendoftecla.audio.EventoSonido;
+import com.legendoftecla.audio.GestorSonido;
 
 
 /**
@@ -48,6 +50,7 @@ public class ComandoEquipar implements Comando {
         try {
             context.getJuego().getJugador().equipar(obj);
             context.getJuego().getConsola().imprimir("Equipado: " + obj.getNombre());
+            GestorSonido.reproducir(EventoSonido.EQUIPAR);
         } catch (AccionInvalidaException e) {
             context.getJuego().getJugador().getMochila().guardar(obj);
             throw new ComandoException(e.getMessage());

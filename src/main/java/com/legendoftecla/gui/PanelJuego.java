@@ -157,7 +157,13 @@ public final class PanelJuego extends JPanel {
         lateral.add(seguimiento, BorderLayout.NORTH);
         lateral.add(scrollRegistro, BorderLayout.CENTER);
 
-        JSplitPane divisor = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scrollMapa, lateral);
+        JLabel leyendaMapa = new JLabel("J jugador · △ aliado · ◆ enemigo · 🔥 fuego · ? oscuridad · "
+                + "antorcha naranja · fuente azul · suelo marrón madera");
+        leyendaMapa.setBorder(BorderFactory.createEmptyBorder(3, 5, 3, 5));
+        JPanel mapaConLeyenda = new JPanel(new BorderLayout());
+        mapaConLeyenda.add(scrollMapa, BorderLayout.CENTER);
+        mapaConLeyenda.add(leyendaMapa, BorderLayout.SOUTH);
+        JSplitPane divisor = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, mapaConLeyenda, lateral);
         divisor.setResizeWeight(0.72);
         add(divisor, BorderLayout.CENTER);
 

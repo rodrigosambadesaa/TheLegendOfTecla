@@ -6,6 +6,8 @@ import com.legendoftecla.model.items.Objeto;
 import com.legendoftecla.model.world.Celda;
 import com.legendoftecla.validation.Limites;
 import com.legendoftecla.validation.Validaciones;
+import com.legendoftecla.audio.EventoSonido;
+import com.legendoftecla.audio.GestorSonido;
 
 
 /**
@@ -47,6 +49,7 @@ public class ComandoTirar implements Comando {
             Celda celda = context.getJuego().getMapa().getCelda(context.getJuego().getJugador().getPosicion());
             celda.agregarObjeto(obj);
             context.getJuego().getConsola().imprimir("Has tirado " + obj.getNombre() + ".");
+            GestorSonido.reproducir(EventoSonido.TIRAR);
         } catch (AccionInvalidaException e) {
             throw new ComandoException(e.getMessage());
         }

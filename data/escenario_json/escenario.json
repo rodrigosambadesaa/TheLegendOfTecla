@@ -13,7 +13,11 @@
     { "fila": 2, "columna": 2, "descripcion": "Muro norte", "transitable": false },
     { "fila": 3, "columna": 2, "descripcion": "Muro norte", "transitable": false },
     { "fila": 4, "columna": 6, "descripcion": "Contenedor", "transitable": false },
-    { "fila": 5, "columna": 6, "descripcion": "Contenedor", "transitable": false }
+    { "fila": 5, "columna": 6, "descripcion": "Contenedor", "transitable": false },
+    { "fila": 3, "columna": 4, "descripcion": "Sala de madera oscura", "transitable": true,
+      "oscura": true, "sueloMadera": true, "antorchaMural": true },
+    { "fila": 1, "columna": 1, "descripcion": "Fuente del laboratorio", "transitable": true,
+      "fuenteAgua": true }
   ],
   "enemigos": [
     {
@@ -38,6 +42,14 @@
       "tipo": "armadura", "nombre": "blindaje_json", "descripcion": "Blindaje modular",
       "fila": 6, "columna": 5, "peso": 5.0, "valor": 4,
       "valorSecundario": 15, "valorTerciario": 10
+    },
+    {
+      "tipo": "linterna", "nombre": "linterna_json", "descripcion": "Ilumina zonas oscuras",
+      "fila": 0, "columna": 1, "peso": 0.8, "valor": 4
+    },
+    {
+      "tipo": "cuboagua", "nombre": "cubo_json", "descripcion": "Cubo lleno reutilizable",
+      "fila": 1, "columna": 0, "peso": 2.0, "valor": 1
     }
   ]
 }

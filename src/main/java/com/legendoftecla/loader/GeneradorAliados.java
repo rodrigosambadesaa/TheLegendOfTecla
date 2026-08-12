@@ -10,9 +10,6 @@ import com.legendoftecla.model.world.Juego;
 import com.legendoftecla.model.world.Mapa;
 import com.legendoftecla.model.world.Posicion;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Random;
 
 /** Aplica la politica unica de generacion automatica de aliados. */
@@ -21,21 +18,21 @@ final class GeneradorAliados {
     }
 
     static int poblar(Juego juego, Mapa mapa, Dificultad dificultad, Random random, String prefijo) {
-        List<Posicion> disponibles = posicionesDisponibles(mapa);
-        if (disponibles.isEmpty()) {
-            return 0;
+        Posicion despliegue = mapa.getInicio();
+        if (!mapa.esTransitable(despliegue)) {
+            throw new IllegalStateException(
+                    "La casilla inicial debe ser transitable para desplegar el escuadron.");
         }
-        Collections.shuffle(disponibles, random);
 
-        int cantidad = Math.min(calcularCantidad(mapa, dificultad), disponibles.size());
+        int cantidad = calcularCantidad(mapa, dificultad);
         int area = mapa.getFilas() * mapa.getColumnas();
         int salud = 90 + Math.min(30, area / 500 * 5);
         int energia = 140 + Math.min(160, (mapa.getFilas() + mapa.getColumnas()) * 2);
         int vision = area >= 1600 ? 4 : 3;
 
         for (int indice = 0; indice < cantidad; indice++) {
-            Posicion posicion = disponibles.get(indice);
-            Aliado aliado = new Aliado(prefijo + "_" + (indice + 1), posicion, new Mochila(4, 12), vision);
+            Aliado aliado = new Aliado(prefijo + "_" + (indice + 1), despliegue,
+                    new Mochila(4, 12), vision);
             aliado.configurarEstadisticas(salud, energia, vision);
             aliado.getMochila().guardar(new Botiquin("botiquin_apoyo_" + prefijo + "_" + (indice + 1),
                     "Botiquin reservado para asistencia prioritaria", 1.0, 25));
@@ -45,9 +42,10 @@ final class GeneradorAliados {
                 aliado.getMochila().guardar(new Binocular("radar_tactico_" + prefijo + "_" + (indice + 1),
                         "Radar tactico asignado automaticamente", 1.0, 2));
             }
-            mapa.getCelda(posicion).agregarAliado(aliado);
+            mapa.getCelda(despliegue).agregarAliado(aliado);
             juego.agregarAliado(aliado);
         }
+        DistribucionEnemigaEscuadron.endurecer(juego, random, cantidad);
         return cantidad;
     }
 
@@ -57,20 +55,4 @@ final class GeneradorAliados {
         return Math.max(1, Math.min(12, (int) Math.ceil(escalaMapa * escalaAmenaza)));
     }
 
-    private static List<Posicion> posicionesDisponibles(Mapa mapa) {
-        List<Posicion> posiciones = new ArrayList<>();
-        for (int fila = 0; fila < mapa.getFilas(); fila++) {
-            for (int columna = 0; columna < mapa.getColumnas(); columna++) {
-                Posicion posicion = new Posicion(fila, columna);
-                if (mapa.esTransitable(posicion)
-                        && !posicion.equals(mapa.getInicio())
-                        && !posicion.equals(mapa.getObjetivo())
-                        && mapa.getCelda(posicion).getEnemigos().isEmpty()
-                        && mapa.getCelda(posicion).getAliados().isEmpty()) {
-                    posiciones.add(posicion);
-                }
-            }
-        }
-        return posiciones;
-    }
 }

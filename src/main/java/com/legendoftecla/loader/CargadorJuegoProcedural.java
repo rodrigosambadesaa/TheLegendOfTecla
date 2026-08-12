@@ -51,6 +51,13 @@ public final class CargadorJuegoProcedural extends CargadorJuegoBase {
         }
         Juego juego = new Juego(consola, mapa, jugador, Math.max(50, filas * columnas));
         poblar(juego, new Random(seed ^ 0x5EED5EEDL));
+        int cantidadAliados = conAliados
+                ? GeneradorAliados.poblar(juego, mapa, dificultad,
+                        new Random(seed ^ 0xA11AD05L), "AliadoProcedural")
+                : 0;
+        consola.imprimirInfo("Mapa procedural: seed=" + seed
+                + " | enemigos=" + juego.getEnemigos().size()
+                + " | aliados=" + cantidadAliados);
         return juego;
     }
 

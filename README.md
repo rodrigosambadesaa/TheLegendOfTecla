@@ -45,6 +45,9 @@ Implementacion en Java del proyecto de POO por entregas (P1, P2, P3) y con ampli
 - IA State/Strategy con ruido, memoria y ocho estados de alerta; seis roles enemigos y dos jefes por fases.
 - Misiones/objetivos opcionales, campana, XP, niveles, habilidades, logros y estadisticas por eventos.
 - Tres generadores procedurales reproducibles, savegames versionados y replay con validacion SHA-256.
+- Despliegue de escuadron unificado: jugador y aliados parten de la casilla inicial transitable;
+  los aliados priorizan asistir al jugador y despues explorar, mientras los enemigos forman
+  anillos de intercepcion mas exigentes cuando la partida incluye aliados.
 
 ## Especificaciones y validación
 

@@ -547,15 +547,10 @@ public final class MotorPartida {
             if (evacuarAliadoSiTieneLaSalidaAlAlcance(aliado)) {
                 continue;
             }
-            if (juego.getFormacionAliada() != FormacionAliada.SIN_FORMACION) {
-                ejecutarFormacion(aliado);
-                extraerAliadoSiProcede(aliado);
-                continue;
-            }
             if (turnosAyudaAliados > 0 && prepararAliadoParaAyuda(aliado)) {
                 continue;
             }
-            if (asistirJugador(aliado) || asistirAliadoPrioritario(aliado)) {
+            if (priorizarAyudaJugador(aliado)) {
                 continue;
             }
             if (turnosAyudaAliados > 0) {
@@ -563,6 +558,17 @@ public final class MotorPartida {
                     continue;
                 }
                 ejecutarOrdenAyuda(aliado);
+                continue;
+            }
+            if (juego.getFormacionAliada() != FormacionAliada.SIN_FORMACION) {
+                ejecutarFormacion(aliado);
+                extraerAliadoSiProcede(aliado);
+                continue;
+            }
+            if (asistirAliadoPrioritario(aliado)) {
+                continue;
+            }
+            if (explorarSuministrosDesconocidos(aliado)) {
                 continue;
             }
             Enemigo objetivo = buscarEnemigoMasCercano(aliado);
@@ -593,6 +599,62 @@ public final class MotorPartida {
                 moverAliadoHaciaObjetivo(aliado, objetivo.getPosicion());
             }
         }
+    }
+
+    private boolean priorizarAyudaJugador(Aliado aliado) {
+        Personaje jugador = juego.getJugador();
+        if (asistirJugador(aliado)) {
+            return true;
+        }
+        boolean necesitaVida = jugador.getSalud() < jugador.getSaludMaxima();
+        boolean necesitaEnergia = jugador.getEnergia() < jugador.getEnergiaMaxima();
+        boolean llevaAyuda = necesitaVida
+                && aliado.getMochila().getObjetos().stream().anyMatch(Botiquin.class::isInstance)
+                || necesitaEnergia
+                && aliado.getMochila().getObjetos().stream().anyMatch(ToritoRojo.class::isInstance);
+        int distanciaJugador = aliado.getPosicion().distanciaManhattan(jugador.getPosicion());
+        if (llevaAyuda && distanciaJugador > 1) {
+            cambiarSituacion(aliado, SituacionAliado.ACUDIENDO);
+            moverAliadoHaciaObjetivo(aliado, jugador.getPosicion());
+            return true;
+        }
+        Enemigo amenaza = buscarEnemigoCercanoAlJugador();
+        if (amenaza != null) {
+            cambiarSituacion(aliado, SituacionAliado.EN_COMBATE);
+            marcarCombate(aliado, true);
+            if (puedeAliadoAtacarA(aliado, amenaza)) {
+                if (debeAliadoAtacarConRadar(aliado, amenaza)) {
+                    SistemaCombate.atacar(juego, aliado, amenaza, random);
+                    eliminarEnemigoDerrotado(aliado, amenaza);
+                }
+            } else if (!aliado.puedeAtacar()) {
+                intentarRecargar(aliado);
+            } else {
+                moverAliadoHaciaObjetivo(aliado, amenaza.getPosicion());
+            }
+            return true;
+        }
+        Enemigo amenazaInmediata = buscarEnemigoMasCercano(aliado);
+        if (amenazaInmediata != null
+                && aliado.getPosicion().distanciaManhattan(amenazaInmediata.getPosicion()) <= 1) {
+            cambiarSituacion(aliado, SituacionAliado.EN_COMBATE);
+            marcarCombate(aliado, true);
+            if (puedeAliadoAtacarA(aliado, amenazaInmediata)
+                    && debeAliadoAtacarConRadar(aliado, amenazaInmediata)) {
+                SistemaCombate.atacar(juego, aliado, amenazaInmediata, random);
+                eliminarEnemigoDerrotado(aliado, amenazaInmediata);
+            }
+            return true;
+        }
+        if ((necesitaVida || necesitaEnergia) && buscarSuministroNecesarioParaJugador(aliado)) {
+            return true;
+        }
+        if (distanciaJugador > 2) {
+            cambiarSituacion(aliado, SituacionAliado.ACOMPANANDO);
+            moverAliadoHaciaObjetivo(aliado, jugador.getPosicion());
+            return true;
+        }
+        return false;
     }
 
     private void ejecutarOrdenAyuda(Aliado aliado) {

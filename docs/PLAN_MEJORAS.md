@@ -229,7 +229,6 @@ subir de forma monotónica; no se excluirán GUI o clases centrales para fabrica
 el porcentaje. La finalización global exige además guardado/reanudación, IA
 explicable, misiones y campaña, por lo que esta auditoría no declara completado
 el programa completo de 25 fases.
-
 ## 11. Estado de verificación actualizado
 
 El 5 de agosto de 2026 se repitió la línea base con Temurin 17.0.20 y Maven

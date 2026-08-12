@@ -38,6 +38,13 @@ Implementacion en Java del proyecto de POO por entregas (P1, P2, P3) y con ampli
 - Mapa grafico con celdas, jugador, objetivo, objetos, aliados y enemigos.
 - Botones para coger, usar, tirar, equipar, desequipar, atacar, descansar, lanzar explosivos y pedir ayuda.
 - Editor grafico de escenarios completos con persistencia JSON.
+- Bus de eventos de dominio de instancia con orden determinista, reloj inyectable y listeners aislados.
+- Nueve efectos temporales con duracion, acumulacion e interacciones entre fuego, agua y descanso.
+- Puertas, credenciales, terminales, interruptores, barricadas, cobertura y cinco clases de trampas.
+- Municion finita, cargadores, recarga, intercambio atomico entre personajes y crafting extensible.
+- IA State/Strategy con ruido, memoria y ocho estados de alerta; seis roles enemigos y dos jefes por fases.
+- Misiones/objetivos opcionales, campana, XP, niveles, habilidades, logros y estadisticas por eventos.
+- Tres generadores procedurales reproducibles, savegames versionados y replay con validacion SHA-256.
 
 ## Especificaciones y validación
 
@@ -191,6 +198,7 @@ Al iniciar el juego, el modo se elige con:
 - `1`: mapa por defecto.
 - `2`: mapa grande 50x50 con 50 variantes.
 - `3`: carga desde ficheros.
+- `4`: mapa procedural reproducible (por CLI: `--modo procedural --seed 12345`).
 
 En los tres modos se pregunta si se desean aliados. Solo se elige `si` o `no`:
 el juego calcula su cantidad, posiciones, salud, energia, vision y equipo segun
@@ -252,3 +260,57 @@ guardan posiciones ni caracteristicas de aliados personalizables.
 Tambien se incluye un escenario completo en
 [data/escenario_json/escenario.json](data/escenario_json/escenario.json), compatible
 con el juego y con el editor grafico.
+
+## Sistemas tacticos nuevos
+
+Los comandos históricos siguen disponibles. Los nuevos comandos principales son:
+
+```text
+recargar [arma]                 estado arma
+dar <objeto> <aliado>          pedir <objeto> <aliado>
+intercambiar <obj1> <obj2> <aliado>
+abrir puerta                   cerrar puerta
+hackear terminal               activar interruptor
+inspeccionar trampa            desactivar trampa
+recetas                        fabricar <resultado>
+guardar partida [archivo]      cargar partida [archivo]
+estadisticas                    logros
+```
+
+El modo procedural se ejecuta, por ejemplo, con:
+
+```bash
+java -jar target/the-legend-of-tecla.jar --rapido --modo procedural --seed 12345
+```
+
+Un elemento interactivo opcional en `escenario.json` conserva la compatibilidad
+porque todos sus campos tienen valores predeterminados:
+
+```json
+{
+  "fila": 2,
+  "columna": 4,
+  "descripcion": "Acceso al reactor",
+  "transitable": true,
+  "elementoTipo": "puerta",
+  "elementoId": "reactor-norte",
+  "elementoEstado": "BLOQUEADA",
+  "referencia": "tarjeta-reactor",
+  "resistencia": 30,
+  "dificultad": 5
+}
+```
+
+Los savegames son deliberadamente distintos de los escenarios y comienzan con
+`{"version": 1}`. Guardan el mapa modificado, puertas, trampas, coberturas,
+turnos, personajes, inventarios, credenciales, componentes, equipamiento,
+cargadores, estados, fuego, progresion, estadisticas, logros y celdas
+inspeccionadas. Una version desconocida o un JSON corrupto se rechazan con un
+error controlado.
+
+La campaña opcional usa `Campana` para encadenar misiones. Su índice, nivel, XP
+y habilidades pueden guardarse con `PersistenciaCampana`; el equipo, los aliados
+supervivientes y el resto del estado continúan en el savegame de la partida.
+
+La arquitectura y los contratos de ampliacion se detallan en
+[docs/ARQUITECTURA_ROGUELIKE.md](docs/ARQUITECTURA_ROGUELIKE.md).

@@ -4,7 +4,9 @@ import com.legendoftecla.model.world.Posicion;
 /** Extincion de una celda concreta. */
 public final class ApagarIncendio implements ObjetivoMision {
     private final Posicion posicion;
-    public ApagarIncendio(Posicion posicion) { this.posicion = posicion; }
+    public ApagarIncendio(Posicion posicion) {
+        this.posicion = java.util.Objects.requireNonNull(posicion, "Posicion");
+    }
     public boolean completado(Juego juego) {
         return !juego.getMapa().getCelda(posicion).estaArdiendo();
     }

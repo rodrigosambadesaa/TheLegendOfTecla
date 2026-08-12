@@ -6,11 +6,16 @@ public final class CompletarSinDisparar implements ObjetivoMision {
     private final BooleanSupplier seHaDisparado;
     private final ObjetivoMision finalizacion;
     public CompletarSinDisparar(BooleanSupplier seHaDisparado, ObjetivoMision finalizacion) {
-        this.seHaDisparado = seHaDisparado; this.finalizacion = finalizacion;
+        this.seHaDisparado = java.util.Objects.requireNonNull(
+                seHaDisparado, "Contador de disparos");
+        this.finalizacion = java.util.Objects.requireNonNull(
+                finalizacion, "Finalizacion");
     }
     /** Variante persistible que consulta la proyeccion de disparos de la partida. */
     public CompletarSinDisparar(ObjetivoMision finalizacion) {
-        this.seHaDisparado = null; this.finalizacion = finalizacion;
+        this.seHaDisparado = null;
+        this.finalizacion = java.util.Objects.requireNonNull(
+                finalizacion, "Finalizacion");
     }
     public boolean completado(Juego juego) {
         boolean disparado = seHaDisparado == null

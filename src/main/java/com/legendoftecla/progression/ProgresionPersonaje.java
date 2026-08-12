@@ -10,6 +10,8 @@ public final class ProgresionPersonaje {
     public int getNivel() { return nivel; }
     public int getExperiencia() { return experiencia; }
     public Set<String> getDesbloqueadas() { return Set.copyOf(desbloqueadas); }
+    /** @return si una habilidad ya forma parte del progreso */
+    public boolean tiene(String id) { return id != null && desbloqueadas.contains(id); }
     public int experienciaSiguienteNivel() { return nivel * 100; }
     public int ganarExperiencia(int cantidad) {
         if (cantidad < 0) throw new IllegalArgumentException("XP negativa");
@@ -21,6 +23,8 @@ public final class ProgresionPersonaje {
         return subidas;
     }
     public boolean desbloquear(String id, ArbolHabilidades arbol, Jugador jugador) {
+        java.util.Objects.requireNonNull(arbol, "Arbol");
+        java.util.Objects.requireNonNull(jugador, "Jugador");
         Habilidad habilidad = arbol.buscar(id);
         if (habilidad == null || desbloqueadas.contains(id)) return false;
         RequisitoHabilidad requisito = habilidad.requisito();

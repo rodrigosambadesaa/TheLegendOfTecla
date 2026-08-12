@@ -8,12 +8,20 @@ public final class Campana {
     private final ProgresionPersonaje progresion;
     private int indice;
     public Campana(String id, List<Mision> misiones, ProgresionPersonaje progresion) {
-        if (misiones.isEmpty()) throw new IllegalArgumentException("Campana vacia");
-        this.id = id; this.misiones = List.copyOf(misiones); this.progresion = progresion;
+        if (id == null || id.isBlank()) throw new IllegalArgumentException("ID obligatorio");
+        if (misiones == null || misiones.isEmpty()) {
+            throw new IllegalArgumentException("Campana vacia");
+        }
+        this.id = id;
+        this.misiones = List.copyOf(misiones);
+        this.progresion = java.util.Objects.requireNonNull(progresion, "Progresion");
     }
     public String getId() { return id; }
     public Mision misionActual() { return indice < misiones.size() ? misiones.get(indice) : null; }
-    public boolean avanzar() { if (indice < misiones.size()) indice++; return completada(); }
+    public boolean avanzar() {
+        if (indice < misiones.size()) indice++;
+        return completada();
+    }
     public boolean completada() { return indice >= misiones.size(); }
     public int getIndice() { return indice; }
     /** Restaura una posicion validada dentro de la secuencia, incluido el final. */

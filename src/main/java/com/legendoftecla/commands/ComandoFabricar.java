@@ -1,9 +1,9 @@
 package com.legendoftecla.commands;
 
 import com.legendoftecla.exceptions.ComandoException;
-import com.legendoftecla.inventory.*;
-import com.legendoftecla.model.items.*;
-import java.util.List;
+import com.legendoftecla.inventory.CatalogoRecetas;
+import com.legendoftecla.inventory.ResultadoFabricacion;
+import com.legendoftecla.inventory.SistemaFabricacion;
 
 /** Lista o ejecuta recetas predeterminadas. */
 public final class ComandoFabricar implements Comando {
@@ -25,13 +25,6 @@ public final class ComandoFabricar implements Comando {
         contexto.getJuego().getConsola().imprimirExito(resultado.mensaje());
     }
     private SistemaFabricacion recetas() {
-        SistemaFabricacion sistema = new SistemaFabricacion();
-        sistema.registrar(new Receta("mina", List.of(new Ingrediente("Componentes", 1),
-                new Ingrediente("Explosivo", 1)), () -> new Explosivo("Mina", "Fabricada", 2)));
-        sistema.registrar(new Receta("botiquin", List.of(new Ingrediente("Vendas", 1),
-                new Ingrediente("Medicamento", 1)), () -> new Botiquin("Botiquin", "Fabricado", 1, 20)));
-        sistema.registrar(new Receta("antorcha", List.of(new Ingrediente("Combustible", 1),
-                new Ingrediente("Trapo", 1)), () -> new Linterna("Antorcha", "Fabricada", 1, 3)));
-        return sistema;
+        return CatalogoRecetas.predeterminado();
     }
 }

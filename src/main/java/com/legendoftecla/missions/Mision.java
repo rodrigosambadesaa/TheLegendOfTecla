@@ -10,11 +10,16 @@ public final class Mision {
     private final List<String> recompensas;
     public Mision(String id, String nombre, ObjetivoMision principal,
             List<ObjetivoMision> secundarios, List<String> recompensas) {
-        this.id = java.util.Objects.requireNonNull(id, "ID");
-        this.nombre = java.util.Objects.requireNonNull(nombre, "Nombre");
+        if (id == null || id.isBlank() || nombre == null || nombre.isBlank()) {
+            throw new IllegalArgumentException("ID y nombre de mision obligatorios");
+        }
+        this.id = id;
+        this.nombre = nombre;
         this.principal = java.util.Objects.requireNonNull(principal, "Principal");
-        this.secundarios = List.copyOf(secundarios);
-        this.recompensas = List.copyOf(recompensas);
+        this.secundarios = List.copyOf(java.util.Objects.requireNonNull(
+                secundarios, "Secundarios"));
+        this.recompensas = List.copyOf(java.util.Objects.requireNonNull(
+                recompensas, "Recompensas"));
     }
     public String getId() { return id; }
     public String getNombre() { return nombre; }

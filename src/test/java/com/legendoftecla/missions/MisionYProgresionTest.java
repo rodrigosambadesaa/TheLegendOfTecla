@@ -5,6 +5,7 @@ import com.legendoftecla.model.items.Botiquin;
 import com.legendoftecla.model.world.Juego;
 import com.legendoftecla.model.world.Posicion;
 import com.legendoftecla.progression.ArbolHabilidades;
+import com.legendoftecla.progression.CatalogoHabilidades;
 import com.legendoftecla.progression.Habilidad;
 import com.legendoftecla.progression.ProgresionPersonaje;
 import com.legendoftecla.progression.RequisitoHabilidad;
@@ -18,6 +19,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class MisionYProgresionTest {
     @TempDir Path temporal;
@@ -48,6 +50,7 @@ class MisionYProgresionTest {
                 new SobrevivirTurnos(5)).completado(juego));
         assertFalse(new CompletarSinDisparar(() -> true,
                 new SobrevivirTurnos(5)).completado(juego));
+        assertFalse(new EliminarEnemigo("ausente").completado(juego));
     }
 
     @Test
@@ -69,6 +72,23 @@ class MisionYProgresionTest {
         Campana campana = new Campana("c", List.of(m, m), progresion);
         assertFalse(campana.avanzar());
         assertTrue(campana.avanzar());
+    }
+
+    @Test
+    void catalogoDeClaseAplicaEfectosYValidaDuplicados() {
+        Juego juego = TestFixtures.juegoBasico(TestFixtures.consola());
+        ProgresionPersonaje progresion = juego.getJugador().getProgresion();
+        progresion.ganarExperiencia(600);
+        ArbolHabilidades arbol = CatalogoHabilidades.para(juego.getJugador());
+        int salud = juego.getJugador().getSaludMaxima();
+
+        assertTrue(progresion.desbloquear(CatalogoHabilidades.RESISTENCIA,
+                arbol, juego.getJugador()));
+        assertEquals(salud + 15, juego.getJugador().getSaludMaxima());
+        assertTrue(progresion.desbloquear(CatalogoHabilidades.FUEGO_SUPRESION,
+                arbol, juego.getJugador()));
+        assertThrows(IllegalArgumentException.class,
+                () -> arbol.agregar(arbol.buscar(CatalogoHabilidades.RESISTENCIA)));
     }
 
     @Test

@@ -72,6 +72,8 @@ public final class SistemaIncendios {
             danar(juego, juego.getJugador(), posicion, danio);
             List.copyOf(celda.getAliados()).forEach(p -> danar(juego, p, posicion, danio));
             List.copyOf(celda.getEnemigos()).forEach(p -> danar(juego, p, posicion, danio));
+            SistemaDestruccion.danar(juego, posicion,
+                    Math.max(1, celda.getNivelFuego() * 3));
             for (Direccion direccion : Direccion.values()) {
                 Posicion vecina = posicion.mover(direccion);
                 if (!juego.getMapa().esTransitable(vecina)) continue;
@@ -87,6 +89,9 @@ public final class SistemaIncendios {
                 }
             }
             celda.setNivelFuego(Math.max(0, celda.getNivelFuego() - 1));
+            if (!celda.estaArdiendo() && celda.getTipoSuelo() == TipoSuelo.MADERA) {
+                celda.setTipoSuelo(TipoSuelo.PIEDRA);
+            }
         }
     }
 

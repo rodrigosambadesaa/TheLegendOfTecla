@@ -86,4 +86,21 @@ class RecursosTacticosTest {
         assertFalse(sistema.fabricar("botiquin", mochila).exito());
         assertFalse(sistema.fabricar("desconocido", mochila).exito());
     }
+
+    @Test
+    void craftingAgrupaIngredientesRepetidosSinConsumirParcialmente() {
+        Mochila mochila = new Mochila(3, 10);
+        mochila.guardar(new Botiquin("Pieza", "", 1, 1));
+        SistemaFabricacion sistema = new SistemaFabricacion();
+        sistema.registrar(new Receta("doble", List.of(
+                new Ingrediente("Pieza", 1), new Ingrediente("pieza", 1)),
+                () -> new Botiquin("Resultado", "", 1, 1)));
+
+        assertFalse(sistema.fabricar("doble", mochila).exito());
+        assertEquals(1, mochila.getObjetos().size());
+        assertThrows(IllegalArgumentException.class,
+                () -> sistema.registrar(new Receta("DOBLE", List.of(
+                        new Ingrediente("Pieza", 1)),
+                        () -> new Botiquin("Otro", "", 1, 1))));
+    }
 }

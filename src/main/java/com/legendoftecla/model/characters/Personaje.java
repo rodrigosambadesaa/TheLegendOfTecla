@@ -559,6 +559,12 @@ public abstract class Personaje {
                         arma.puedeDisparar() && arma.alcanza(distancia));
     }
 
+    /** @return primera arma cargada que el ataque consumiría a esa distancia */
+    public java.util.Optional<Arma> armaDisponiblePara(int distancia) {
+        return armasEquipadas.stream().filter(arma ->
+                arma.puedeDisparar() && arma.alcanza(distancia)).findFirst();
+    }
+
     private void consumirMunicionAtaque(int distancia) {
         // Los personajes historicos sin equipo conservan su ataque natural/implicito.
         // Solo las armas explicitas quedan sujetas a cargador y tipo de municion.

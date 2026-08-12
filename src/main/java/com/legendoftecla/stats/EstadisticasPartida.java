@@ -17,6 +17,7 @@ public final class EstadisticasPartida implements AutoCloseable {
     private int trampasDesactivadas;
     private int celdasInspeccionadas;
     private final com.legendoftecla.model.world.Juego juego;
+    private final java.util.Map<String, String> ultimoAtacante = new java.util.HashMap<>();
 
     public EstadisticasPartida(BusEventos bus) {
         this(bus, null);
@@ -33,7 +34,10 @@ public final class EstadisticasPartida implements AutoCloseable {
 
     private void procesar(EventoJuego evento) {
         if (evento instanceof PersonajeMovido) pasos++;
-        if (evento instanceof PersonajeAtacado) disparos++;
+        if (evento instanceof PersonajeAtacado ataque) {
+            ultimoAtacante.put(ataque.objetivo(), ataque.atacante());
+            if (esAtaqueDelJugador(ataque)) disparos++;
+        }
         if (evento instanceof PersonajeMuerto muerte) {
             muertes++;
             if (juego != null && juego.getEnemigos().stream()
@@ -46,7 +50,20 @@ public final class EstadisticasPartida implements AutoCloseable {
         if (evento instanceof ObjetoUsado) objetosUsados++;
         if (evento instanceof TrampaDesactivada) trampasDesactivadas++;
         if (evento instanceof CeldaInspeccionada) celdasInspeccionadas++;
-        if (evento instanceof PersonajeDanado dano) danoCausado += dano.cantidad();
+        if (evento instanceof PersonajeDanado dano) {
+            if (juego == null) {
+                danoCausado += dano.cantidad();
+            } else if (dano.personaje().equals(juego.getJugador().getNombre())) {
+                danoRecibido += dano.cantidad();
+            } else if (juego.getJugador().getNombre().equals(
+                    ultimoAtacante.get(dano.personaje()))) {
+                danoCausado += dano.cantidad();
+            }
+        }
+    }
+
+    private boolean esAtaqueDelJugador(PersonajeAtacado ataque) {
+        return juego == null || ataque.atacante().equals(juego.getJugador().getNombre());
     }
 
     /** Registra dano recibido por el jugador cuando el adaptador conoce su identidad. */

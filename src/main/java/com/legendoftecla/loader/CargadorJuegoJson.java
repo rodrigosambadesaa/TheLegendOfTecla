@@ -194,6 +194,9 @@ public final class CargadorJuegoJson extends CargadorJuegoBase {
             case "barricada", "cobertura" -> new com.legendoftecla.model.elements.Barricada(
                     id, origen.getResistencia(), com.legendoftecla.model.elements.TipoCobertura.COMPLETA,
                     com.legendoftecla.model.elements.OrientacionCobertura.TODAS);
+            case "pared_debil", "pareddebil" ->
+                    new com.legendoftecla.model.elements.ParedDebil(
+                            id, origen.getResistencia());
             case "mina", "trampa" -> new com.legendoftecla.model.elements.Mina(id, 20, 1, false);
             case "trampa_fuego" -> new com.legendoftecla.model.elements.TrampaFuego(id);
             case "trampa_veneno" -> new com.legendoftecla.model.elements.TrampaVeneno(id);

@@ -33,6 +33,7 @@ public abstract class Trampa extends ElementoBase {
     public boolean detectar(Personaje personaje, int percepcion) {
         Objects.requireNonNull(personaje, "Personaje");
         int ventaja = personaje instanceof Zapador ? 4 : 0;
+        if (tieneDesactivacionAvanzada(personaje)) ventaja += 2;
         if (percepcion + ventaja >= detectabilidad) detectada = true;
         return detectada;
     }
@@ -41,6 +42,7 @@ public abstract class Trampa extends ElementoBase {
         Objects.requireNonNull(personaje, "Personaje");
         if (!activa) return true;
         int ventaja = personaje instanceof Zapador ? 5 : 0;
+        if (tieneDesactivacionAvanzada(personaje)) ventaja += 3;
         if (detectada && habilidad + ventaja >= dificultadDesactivacion) activa = false;
         return !activa;
     }
@@ -94,5 +96,12 @@ public abstract class Trampa extends ElementoBase {
             aplicarEstado(victima);
         }
         return true;
+    }
+
+    private boolean tieneDesactivacionAvanzada(Personaje personaje) {
+        return personaje instanceof com.legendoftecla.model.characters.Jugador jugador
+                && jugador.getProgresion().tiene(
+                        com.legendoftecla.progression.CatalogoHabilidades
+                                .DESACTIVACION_AVANZADA);
     }
 }

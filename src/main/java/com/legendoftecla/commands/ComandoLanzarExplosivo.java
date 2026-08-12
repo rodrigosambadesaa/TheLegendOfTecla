@@ -102,6 +102,8 @@ public final class ComandoLanzarExplosivo implements Comando {
         context.getJuego().publicarEvento(new RuidoGenerado(
                 context.getJuego().getBusEventos().ahora(), destino, 10, "explosion"));
         objetivos.forEach(enemigo -> enemigo.recibirDanio(explosivo.getDanio()));
+        com.legendoftecla.engine.SistemaDestruccion.danar(
+                context.getJuego(), destino, explosivo.getDanio());
         context.getJuego().getConsola().imprimir("Lanzas " + explosivo.getNombre() + " a " + destino
                 + " y causas " + explosivo.getDanio() + " de dano a " + objetivos.size() + " enemigo(s).");
         for (int i = 0; i < objetivos.size(); i++) {

@@ -118,7 +118,8 @@ public final class SerializadorEscenarioJson {
         java.util.Set<String> idsConocidos = new java.util.HashSet<>(ids);
         java.util.Set<String> tipos = java.util.Set.of("puerta", "terminal", "interruptor",
                 "cofre", "barricada", "cobertura", "mina", "trampa",
-                "trampa_fuego", "trampa_veneno", "trampa_electrica", "alarma");
+                "trampa_fuego", "trampa_veneno", "trampa_electrica", "alarma",
+                "pared_debil", "pareddebil");
         for (EscenarioDefinicion.CeldaDef celda : escenario.getCeldas()) {
             String tipo = celda.getElementoTipo();
             if (tipo == null || tipo.isBlank()) continue;

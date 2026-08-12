@@ -11,6 +11,8 @@ import com.legendoftecla.model.characters.Jugador;
 import com.legendoftecla.model.characters.Personaje;
 import com.legendoftecla.model.elements.SistemaCobertura;
 import com.legendoftecla.model.elements.TipoCobertura;
+import com.legendoftecla.model.items.Arma;
+import com.legendoftecla.model.items.TipoMunicion;
 import com.legendoftecla.model.world.Juego;
 
 import java.util.ArrayList;
@@ -22,6 +24,8 @@ public final class SistemaCombate {
     private SistemaCombate() { }
 
     public static ResultadoAtaque atacar(Juego juego, Personaje atacante, Personaje objetivo, Random random) {
+        int distancia = atacante.getPosicion().distanciaManhattan(objetivo.getPosicion());
+        Arma arma = atacante.armaDisponiblePara(distancia).orElse(null);
         exigirMunicion(atacante, objetivo);
         int vidaAntes = objetivo.getSalud();
         publicarAtaque(juego, atacante, objetivo);
@@ -39,6 +43,7 @@ public final class SistemaCombate {
             }
         }
         atacante.atacar(objetivo);
+        aplicarEfectosDeArma(juego, atacante, objetivo, arma);
         ResultadoAtaque resultado = resultado(atacante, objetivo, vidaAntes);
         informar(juego, resultado, objetivo);
         SistemaIncendios.intentarDerribarAntorcha(juego, objetivo.getPosicion(), random);
@@ -47,6 +52,9 @@ public final class SistemaCombate {
 
     public static List<ResultadoAtaque> atacarTodos(Juego juego, Personaje atacante,
             List<? extends Personaje> objetivos, Random random) {
+        Arma arma = objetivos.isEmpty() ? null : atacante.armaDisponiblePara(
+                atacante.getPosicion().distanciaManhattan(
+                        objetivos.get(0).getPosicion())).orElse(null);
         if (!objetivos.isEmpty()) {
             exigirMunicion(atacante, objetivos.get(0));
         }
@@ -55,8 +63,12 @@ public final class SistemaCombate {
                 juego.getBusEventos().ahora(), atacante.getNombre(), objetivo.getNombre(),
                 atacante.getPosicion(), objetivo.getPosicion())));
         juego.publicarEvento(new RuidoGenerado(juego.getBusEventos().ahora(),
-                atacante.getPosicion(), 7, "ataque"));
+                atacante.getPosicion(), intensidadAtaque(atacante,
+                        objetivos.isEmpty() ? null : objetivos.get(0)), "ataque"));
         atacante.atacar(objetivos);
+        if (!objetivos.isEmpty()) {
+            aplicarEfectosDeArma(juego, atacante, objetivos.get(0), arma);
+        }
         List<ResultadoAtaque> resultados = new ArrayList<>();
         for (int i = 0; i < objetivos.size(); i++) {
             Personaje objetivo = objetivos.get(i);
@@ -97,7 +109,38 @@ public final class SistemaCombate {
                 atacante.getNombre(), objetivo.getNombre(), atacante.getPosicion(),
                 objetivo.getPosicion()));
         juego.publicarEvento(new RuidoGenerado(juego.getBusEventos().ahora(),
-                atacante.getPosicion(), 7, "ataque"));
+                atacante.getPosicion(), intensidadAtaque(atacante, objetivo), "ataque"));
+    }
+
+    private static int intensidadAtaque(Personaje atacante, Personaje objetivo) {
+        if (objetivo == null) return 2;
+        int distancia = atacante.getPosicion().distanciaManhattan(objetivo.getPosicion());
+        Arma arma = atacante.armaDisponiblePara(distancia).orElse(null);
+        if (arma == null) return 2;
+        if (atacante instanceof Jugador jugador
+                && jugador.getProgresion().tiene(
+                        com.legendoftecla.progression.CatalogoHabilidades.SILENCIADOR)) {
+            return 2;
+        }
+        return switch (arma.getCategoria()) {
+            case MELE -> 1;
+            case ARROJADIZA, ARCO, BALLESTA -> 2;
+            case FUEGO -> 9;
+        };
+    }
+
+    private static void aplicarEfectosDeArma(Juego juego, Personaje atacante,
+            Personaje objetivo, Arma arma) {
+        if (arma != null && (arma.getTipoMunicion() == TipoMunicion.PESADA
+                || arma.getTipoMunicion() == TipoMunicion.COHETE)) {
+            SistemaDestruccion.danar(juego, objetivo.getPosicion(), arma.getDanio());
+        }
+        if (atacante instanceof Jugador jugador
+                && jugador.getProgresion().tiene(
+                        com.legendoftecla.progression.CatalogoHabilidades.FUEGO_SUPRESION)
+                && objetivo.getSalud() > 0) {
+            objetivo.getEstados().aplicar(new com.legendoftecla.effects.Asustado());
+        }
     }
 
     private static void exigirMunicion(Personaje atacante, Personaje objetivo) {

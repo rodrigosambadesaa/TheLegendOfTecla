@@ -13,6 +13,7 @@ import com.legendoftecla.validation.Validaciones;
  */
 public abstract class Jugador extends Personaje {
     private List<Posicion> recorrido;
+    private com.legendoftecla.progression.ProgresionPersonaje progresion;
 
     /**
      * Ejecuta Jugador.
@@ -25,7 +26,15 @@ public abstract class Jugador extends Personaje {
      */
     protected Jugador(String nombre, int salud, int energia, Posicion posicion, Mochila mochila, int visionBase) {
         super(nombre, salud, energia, posicion, mochila, visionBase);
+        progresion = new com.legendoftecla.progression.ProgresionPersonaje();
         setRecorrido(List.of(posicion));
+    }
+
+    /** @return progresion persistente de campana */
+    public com.legendoftecla.progression.ProgresionPersonaje getProgresion() { return progresion; }
+    /** @param progresion progreso no nulo, util para cargar campanas */
+    public void setProgresion(com.legendoftecla.progression.ProgresionPersonaje progresion) {
+        this.progresion = Validaciones.noNulo(progresion, "Progresion");
     }
 
     /**

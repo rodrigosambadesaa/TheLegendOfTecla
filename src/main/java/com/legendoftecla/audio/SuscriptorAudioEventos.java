@@ -5,6 +5,7 @@ import com.legendoftecla.events.ArmaRecargada;
 import com.legendoftecla.events.IncendioIniciado;
 import com.legendoftecla.events.IncendioPropagado;
 import com.legendoftecla.events.ObjetoTirado;
+import com.legendoftecla.events.ObjetoUsado;
 import com.legendoftecla.events.PersonajeAtacado;
 import com.legendoftecla.events.PersonajeDanado;
 import com.legendoftecla.events.PersonajeMovido;
@@ -60,7 +61,9 @@ public final class SuscriptorAudioEventos {
                 evento -> sonar(salida, partida, EventoSonido.PUERTA,
                         partida.getJugador().getPosicion()));
         partida.getBusEventos().suscribir(TrampaActivada.class,
-                evento -> sonar(salida, partida, EventoSonido.TRAMPA,
+                evento -> sonar(salida, partida,
+                        evento.trampa().toLowerCase().contains("alarma")
+                                ? EventoSonido.ALARMA : EventoSonido.TRAMPA,
                         partida.getJugador().getPosicion()));
         partida.getBusEventos().suscribir(TrampaDetectada.class,
                 evento -> sonar(salida, partida, EventoSonido.DESCUBRIMIENTO,
@@ -71,6 +74,12 @@ public final class SuscriptorAudioEventos {
         partida.getBusEventos().suscribir(ArmaRecargada.class,
                 evento -> sonar(salida, partida, EventoSonido.RECARGA,
                         evento.posicion()));
+        partida.getBusEventos().suscribir(ObjetoUsado.class, evento -> {
+            String objeto = evento.objeto().toLowerCase();
+            if (objeto.contains("agua") || objeto.contains("cubo")) {
+                sonar(salida, partida, EventoSonido.AGUA, evento.posicion());
+            }
+        });
     }
 
     private static EventoSonido sonidoMuerte(Juego juego, String nombre) {

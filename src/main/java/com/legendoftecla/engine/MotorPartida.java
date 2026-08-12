@@ -434,7 +434,8 @@ public final class MotorPartida {
         setEstadoFinal(Validaciones.noNulo(estado, "Estado final"));
         if (estado == SistemaPuntuacion.EstadoFinalPartida.VICTORIA) {
             juego.publicarEvento(new MisionCompletada(
-                    juego.getBusEventos().ahora(), "victoria-original"));
+                    juego.getBusEventos().ahora(), juego.getMision() == null
+                            ? "victoria-original" : juego.getMision().getId()));
         }
         switch (estado) {
             case VICTORIA -> juego.getConsola().imprimir("Has llegado al objetivo. Victoria.", TipoMensaje.EXITO);
@@ -449,6 +450,7 @@ public final class MotorPartida {
         }
 
         SistemaPuntuacion.ResultadoPuntuacion puntuacion = SistemaPuntuacion.calcular(juego, estado);
+        juego.setPuntuacion(puntuacion.getTotal());
         for (String linea : puntuacion.formatearDesglose()) {
             juego.getConsola().imprimir(linea, TipoMensaje.INFO);
         }

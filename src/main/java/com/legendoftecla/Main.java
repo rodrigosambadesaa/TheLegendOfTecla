@@ -98,6 +98,7 @@ public final class Main {
             ConfiguracionPartida configuracion = new ConfiguracionPartida(
                     nombre, clase, modo, dificultad, dimensiones, directorio, conAliados,
                     condicionVictoria, varianteMapa);
+            if (opciones.seed() != null) configuracion.setSeed(opciones.seed());
             Juego juego = FabricaJuego.crear(consola, configuracion);
             MotorPartida motor = new MotorPartida(juego);
 
@@ -143,7 +144,7 @@ public final class Main {
     private static String leerModo(Consola consola) {
         while (true) {
             String modo = consola.leer(
-                    "Modo (1=predeterminado, 2=grande con 50 variantes, 3=ficheros/JSON):")
+                    "Modo (1=predeterminado, 2=grande con 50 variantes, 3=ficheros/JSON, 4=procedural):")
                     .trim().toLowerCase();
             switch (modo) {
                 case "1", "default" -> {
@@ -154,6 +155,9 @@ public final class Main {
                 }
                 case "3", "ficheros" -> {
                     return "ficheros";
+                }
+                case "4", "procedural" -> {
+                    return "procedural";
                 }
                 default -> consola.imprimir("Modo invalido.", TipoMensaje.ERROR);
             }

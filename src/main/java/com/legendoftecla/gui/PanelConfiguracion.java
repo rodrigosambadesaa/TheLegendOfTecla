@@ -26,7 +26,7 @@ import java.awt.Insets;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
-/** Asistente grafico para los modos predeterminado, grande y desde ficheros. */
+/** Asistente grafico para los modos predeterminado, grande, procedural y ficheros. */
 public final class PanelConfiguracion extends JPanel {
     private record Opcion(String etiqueta, String valor) {
         @Override
@@ -53,7 +53,8 @@ public final class PanelConfiguracion extends JPanel {
     private final JComboBox<Opcion> modo = new JComboBox<>(new Opcion[]{
             new Opcion("Mapa predeterminado", "default"),
             new Opcion("Mapa grande (50 variantes)", "grande"),
-            new Opcion("Escenario desde ficheros / JSON", "ficheros")
+            new Opcion("Escenario desde ficheros / JSON", "ficheros"),
+            new Opcion("Mapa procedural por semilla", "procedural")
     });
     /**
      * Ejecuta la operacion publica {@code values}.
@@ -70,6 +71,8 @@ public final class PanelConfiguracion extends JPanel {
             new JComboBox<>(CondicionVictoria.values());
     /** Variante determinista del mapa grande. */
     private final JSpinner varianteMapa = ControlesNumericos.entero("mapa.variante", 1, 1, 50, 1);
+    /** Semilla reproducible del modo procedural. */
+    private final JSpinner seed = ControlesNumericos.entero("mapa.seed", 12345, -1_000_000, 1_000_000, 1);
     /**
      * Ejecuta la operacion publica {@code JTextField}.
      */
@@ -130,6 +133,7 @@ public final class PanelConfiguracion extends JPanel {
         agregarFila(formulario, fila++, "Dimensiones", dimensiones);
         agregarFila(formulario, fila++, "Aliados", conAliados);
         agregarFila(formulario, fila++, "Variante del mapa", varianteMapa);
+        agregarFila(formulario, fila++, "Semilla procedural", seed);
 
         JPanel selectorDirectorio = new JPanel(new BorderLayout(5, 0));
         selectorDirectorio.add(directorio, BorderLayout.CENTER);
@@ -195,7 +199,7 @@ public final class PanelConfiguracion extends JPanel {
                 ControlesNumericos.valorEntero(filas),
                 ControlesNumericos.valorEntero(columnas));
         Path ruta = directorio.getText().isBlank() ? null : Path.of(directorio.getText().trim());
-        return new ConfiguracionPartida(
+        ConfiguracionPartida configuracion = new ConfiguracionPartida(
                 nombre.getText().trim(),
                 claseElegida.valor(),
                 modoElegido.valor(),
@@ -205,6 +209,8 @@ public final class PanelConfiguracion extends JPanel {
                 conAliados.isSelected(),
                 (CondicionVictoria) condicionVictoria.getSelectedItem(),
                 ControlesNumericos.valorEntero(varianteMapa));
+        configuracion.setSeed(ControlesNumericos.valorEntero(seed));
+        return configuracion;
     }
 
     private void seleccionarDirectorioConDialogo() {
@@ -220,9 +226,11 @@ public final class PanelConfiguracion extends JPanel {
         Opcion seleccion = (Opcion) modo.getSelectedItem();
         boolean usaFicheros = seleccion != null && "ficheros".equals(seleccion.valor());
         boolean usaVariantes = seleccion != null && "grande".equals(seleccion.valor());
+        boolean usaSeed = seleccion != null && "procedural".equals(seleccion.valor());
         directorio.setEnabled(usaFicheros);
         examinar.setEnabled(usaFicheros);
         varianteMapa.setEnabled(usaVariantes);
+        seed.setEnabled(usaSeed);
         if (usaVariantes) {
             filas.setValue(50);
             columnas.setValue(50);

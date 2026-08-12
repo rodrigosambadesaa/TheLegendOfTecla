@@ -13,13 +13,14 @@ public enum EventoSonido {
     MUERTE_JUGADOR("player-death.wav"),
     INCENDIO("fire-start.wav"),
     APAGAR_FUEGO("fire-out.wav"),
-    PUERTA("door.wav"),
-    RECARGA("reload.wav"),
-    TRAMPA("trap.wav"),
-    ALARMA("alarm.wav"),
-    AGUA("water.wav"),
-    DESCUBRIMIENTO("discover.wav"),
-    MISION("mission.wav");
+    // Se reutilizan recursos compatibles ya auditados en el repositorio.
+    PUERTA("move.wav"),
+    RECARGA("equip.wav"),
+    TRAMPA("attack.wav"),
+    ALARMA("enemy-death.wav"),
+    AGUA("fire-out.wav"),
+    DESCUBRIMIENTO("equip.wav"),
+    MISION("ally-death.wav");
 
     private final String archivo;
 

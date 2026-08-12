@@ -6,6 +6,7 @@ import com.legendoftecla.loader.CargadorJuego;
 import com.legendoftecla.loader.CargadorJuegoDeFicheros;
 import com.legendoftecla.loader.CargadorJuegoGrandeConAliados;
 import com.legendoftecla.loader.CargadorJuegoPorDefecto;
+import com.legendoftecla.loader.CargadorJuegoProcedural;
 import com.legendoftecla.model.world.Juego;
 
 /** Construye el mismo juego para la interfaz de consola y para la grafica. */
@@ -22,6 +23,10 @@ public final class FabricaJuego {
      */
     public static Juego crear(Consola consola, ConfiguracionPartida configuracion) throws JuegoException {
         CargadorJuego cargador = switch (configuracion.modo()) {
+            case "procedural" -> new CargadorJuegoProcedural(
+                    consola, configuracion.nombreJugador(), configuracion.clase(),
+                    configuracion.dificultad(), configuracion.dimensiones(),
+                    configuracion.conAliados(), configuracion.seed());
             case "ficheros" -> new CargadorJuegoDeFicheros(
                     consola,
                     configuracion.nombreJugador(),

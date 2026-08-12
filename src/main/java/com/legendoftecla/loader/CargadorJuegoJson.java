@@ -21,7 +21,6 @@ import com.legendoftecla.model.items.Explosivo;
 import com.legendoftecla.model.items.Objeto;
 import com.legendoftecla.model.items.ToritoRojo;
 import com.legendoftecla.model.items.CuboAgua;
-import com.legendoftecla.model.items.Credencial;
 import com.legendoftecla.model.items.Linterna;
 import com.legendoftecla.model.world.Celda;
 import com.legendoftecla.model.world.DimensionesMapa;
@@ -176,9 +175,7 @@ public final class CargadorJuegoJson extends CargadorJuegoBase {
     }
 
     private void cargarElemento(Celda destino, EscenarioDefinicion.CeldaDef origen) {
-        if (origen.getElementoTipo() == null || origen.getElementoTipo().isBlank()) {
-            return;
-        }
+        if (origen.getElementoTipo() == null || origen.getElementoTipo().isBlank()) return;
         String id = origen.getElementoId() == null ? "elemento-" + origen.getFila()
                 + "-" + origen.getColumna() : origen.getElementoId();
         String tipo = origen.getElementoTipo().toLowerCase(Locale.ROOT);
@@ -195,20 +192,16 @@ public final class CargadorJuegoJson extends CargadorJuegoBase {
                     id, false, origen.getReferencia());
             case "cofre" -> new com.legendoftecla.model.elements.Cofre(id, java.util.List.of());
             case "barricada", "cobertura" -> new com.legendoftecla.model.elements.Barricada(
-                    id, origen.getResistencia(),
-                    com.legendoftecla.model.elements.TipoCobertura.COMPLETA,
+                    id, origen.getResistencia(), com.legendoftecla.model.elements.TipoCobertura.COMPLETA,
                     com.legendoftecla.model.elements.OrientacionCobertura.TODAS);
-            case "mina", "trampa" -> new com.legendoftecla.model.elements.Mina(
-                    id, 20, 1, false);
+            case "mina", "trampa" -> new com.legendoftecla.model.elements.Mina(id, 20, 1, false);
             case "trampa_fuego" -> new com.legendoftecla.model.elements.TrampaFuego(id);
             case "trampa_veneno" -> new com.legendoftecla.model.elements.TrampaVeneno(id);
             case "trampa_electrica" -> new com.legendoftecla.model.elements.TrampaElectrica(id);
             case "alarma" -> new com.legendoftecla.model.elements.Alarma(id);
             default -> null;
         };
-        if (elemento != null) {
-            destino.agregarElemento(elemento);
-        }
+        if (elemento != null) destino.agregarElemento(elemento);
     }
 
     private Objeto crearObjeto(EscenarioDefinicion.ObjetoDef definicion) {
@@ -240,7 +233,7 @@ public final class CargadorJuegoJson extends CargadorJuegoBase {
                     definicion.getNombre(), definicion.getPeso(),
                     tipoMunicion(definicion), definicion.getCantidad() > 0
                             ? definicion.getCantidad() : Math.max(0, definicion.getValor()));
-            case "credencial", "llave", "tarjeta" -> new Credencial(
+            case "credencial", "llave", "tarjeta" -> new com.legendoftecla.model.items.Credencial(
                     definicion.getNombre(), descripcion, definicion.getPeso(), definicion.getNombre());
             default -> new Botiquin(definicion.getNombre(), descripcion, definicion.getPeso(),
                     Math.max(1, definicion.getValor()));

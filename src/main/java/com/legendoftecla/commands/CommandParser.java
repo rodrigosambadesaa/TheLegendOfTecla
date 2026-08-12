@@ -123,8 +123,19 @@ public class CommandParser {
         registrar(comandos, this::parseLanzarExplosivo, "lanzar");
         registrar(comandos, partes -> {
             requiereArg(partes);
+            if ("partida".equalsIgnoreCase(partes[1])) {
+                String archivo = partes.length > 2 ? unir(partes, 2) : "partida.json";
+                return new ComandoCargarPartida(context, archivo);
+            }
             return new ComandoCargar(context, unir(partes, 1));
         }, "cargar");
+        registrar(comandos, partes -> {
+            if (partes.length < 2 || !"partida".equalsIgnoreCase(partes[1])) {
+                throw new ComandoException("Uso: guardar partida [archivo]");
+            }
+            return new ComandoGuardarPartida(context,
+                    partes.length > 2 ? unir(partes, 2) : "partida.json");
+        }, "guardar");
         registrar(comandos, partes -> new ComandoRecargar(context,
                 partes.length > 1 ? unir(partes, 1) : null), "recargar");
         registrar(comandos, partes -> {
@@ -138,6 +149,11 @@ public class CommandParser {
                 ComandoTransferir.Operacion.DAR), "dar");
         registrar(comandos, partes -> parseTransferencia(partes,
                 ComandoTransferir.Operacion.INTERCAMBIAR), "intercambiar");
+        registrar(comandos, partes -> new ComandoFabricar(context,
+                partes.length > 1 ? unir(partes, 1) : null), "fabricar");
+        registrar(comandos, partes -> new ComandoFabricar(context, null), "recetas");
+        registrar(comandos, partes -> new ComandoEstadisticas(context),
+                "estadisticas", "logros");
         registrar(comandos, partes -> new ComandoPuerta(context, true), "abrir");
         registrar(comandos, partes -> new ComandoPuerta(context, false), "cerrar");
         registrar(comandos, partes -> new ComandoTrampa(

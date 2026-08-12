@@ -267,6 +267,14 @@ public final class PanelJuego extends JPanel {
         utilidades.add(boton("Ayuda", "ayuda"));
         utilidades.add(boton("Recorrido", "recorrido"));
         utilidades.add(boton("Descansar", "descansar"));
+        utilidades.add(boton("Recargar", "recargar"));
+        utilidades.add(boton("Estado arma", "estado arma"));
+        utilidades.add(boton("Abrir puerta", "abrir puerta"));
+        utilidades.add(boton("Desactivar trampa", "desactivar trampa"));
+        utilidades.add(boton("Recetas", "recetas"));
+        utilidades.add(boton("Guardar", "guardar partida"));
+        utilidades.add(boton("Cargar", "cargar partida"));
+        utilidades.add(boton("Estadisticas", "estadisticas"));
         utilidades.add(boton("Salir", "salir"));
         contenedor.add(utilidades, BorderLayout.CENTER);
 
@@ -479,7 +487,12 @@ public final class PanelJuego extends JPanel {
     }
 
     private void actualizarVista() {
-        estado.setText(motor.getEstadoJugador());
+        String efectos = motor.getJuego().getJugador().getEstados().getActivos().stream()
+                .map(e -> e.tipo() + "(" + e.turnosRestantes() + ")")
+                .collect(java.util.stream.Collectors.joining(", "));
+        String mision = motor.getJuego().getMision() == null ? ""
+                : " | Mision: " + motor.getJuego().getMision().getNombre();
+        estado.setText(motor.getEstadoJugador() + (efectos.isEmpty() ? "" : " | " + efectos) + mision);
         estadoAliados.setText(motor.getEstadoAliados());
         estadoAliados.setCaretPosition(0);
         Mochila inventario = motor.getJuego().getJugador().getMochila();

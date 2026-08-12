@@ -11,6 +11,8 @@ public final class Cofre extends ElementoBase {
         this.contenido = new ArrayList<>(List.copyOf(contenido));
     }
     public List<Objeto> abrir() { abierto = true; return List.copyOf(contenido); }
+    /** @return snapshot inmutable del contenido restante */
+    public List<Objeto> getContenido() { return List.copyOf(contenido); }
     public boolean retirar(Objeto objeto) { return abierto && contenido.remove(objeto); }
     public boolean isAbierto() { return abierto; }
     public boolean permitePaso() { return estaDestruido(); }

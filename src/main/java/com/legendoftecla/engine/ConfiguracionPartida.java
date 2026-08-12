@@ -20,6 +20,7 @@ public final class ConfiguracionPartida {
     private boolean conAliados;
     private CondicionVictoria condicionVictoria;
     private int varianteMapa;
+    private long seed = 1L;
 
     /**
      * Crea una configuracion completa utilizando exclusivamente setters.
@@ -102,7 +103,8 @@ public final class ConfiguracionPartida {
     public void setModo(String modo) {
         String valor = Validaciones.textoObligatorio(modo, "Modo", Limites.TEXTO_CORTO)
                 .toLowerCase(Locale.ROOT);
-        if (!valor.equals("default") && !valor.equals("grande") && !valor.equals("ficheros")) {
+        if (!valor.equals("default") && !valor.equals("grande")
+                && !valor.equals("ficheros") && !valor.equals("procedural")) {
             throw new IllegalArgumentException("Modo de juego invalido: " + modo);
         }
         if (valor.equals("ficheros") && directorioDatos == null) {
@@ -196,6 +198,12 @@ public final class ConfiguracionPartida {
     public CondicionVictoria condicionVictoria() { return getCondicionVictoria(); }
     /** @return variante, conservando la API anterior */
     public int varianteMapa() { return getVarianteMapa(); }
+    /** @return semilla procedural */
+    public long getSeed() { return seed; }
+    /** @param seed semilla reproducible sin restricciones */
+    public void setSeed(long seed) { this.seed = seed; }
+    /** @return semilla conservando el acceso compacto */
+    public long seed() { return seed; }
     private void validarCoherencia() {
         if ("ficheros".equals(modo) && directorioDatos == null) {
             throw new IllegalArgumentException("Selecciona el directorio del escenario.");

@@ -24,6 +24,7 @@ public final class OpcionesInicio {
     private boolean mostrarAyuda;
     private boolean gui;
     private boolean editor;
+    private Long seed;
 
     /**
      * Crea las opciones usando sus setters delimitados.
@@ -172,6 +173,9 @@ public final class OpcionesInicio {
     public boolean gui() { return isGui(); }
     /** @return editor conservando la API anterior */
     public boolean editor() { return isEditor(); }
+    public Long getSeed() { return seed; }
+    public void setSeed(Long seed) { this.seed = seed; }
+    public Long seed() { return seed; }
 
     /**
      * Interpreta las opciones de la linea de comandos.
@@ -194,6 +198,7 @@ public final class OpcionesInicio {
         boolean mostrarAyuda = false;
         boolean gui = false;
         boolean editor = false;
+        Long seed = null;
 
         for (int i = 0; i < args.length; i++) {
             String argumento = Validaciones.textoObligatorio(args[i], "Opcion", Limites.DESCRIPCION);
@@ -213,6 +218,7 @@ public final class OpcionesInicio {
                 case "--victoria" -> condicionVictoria = parsearCondicionVictoria(
                         siguienteValor(args, ++i, argumento));
                 case "--variante" -> varianteMapa = parsearVariante(siguienteValor(args, ++i, argumento));
+                case "--seed" -> seed = parsearSeed(siguienteValor(args, ++i, argumento));
                 default -> throw new IllegalArgumentException("Opcion desconocida: " + argumento);
             }
         }
@@ -232,9 +238,11 @@ public final class OpcionesInicio {
             }
         }
 
-        return new OpcionesInicio(nombre, clase, modo, dificultad, dimensiones,
+        OpcionesInicio opciones = new OpcionesInicio(nombre, clase, modo, dificultad, dimensiones,
                 directorioDatos, conAliados, condicionVictoria, varianteMapa,
                 rapido, mostrarAyuda, gui, editor);
+        opciones.setSeed(seed);
+        return opciones;
     }
 
     /** @return ayuda de la linea de comandos */
@@ -248,7 +256,7 @@ public final class OpcionesInicio {
                   --editor                  Abre directamente el editor grafico de mapas
                   --nombre <nombre>         Nombre del personaje
                   --clase <clase>           marine, francotirador o zapador
-                  --modo <modo>             default, grande o ficheros
+                  --modo <modo>             default, grande, ficheros o procedural
                   --dificultad <nivel>      muy_facil, facil, normal, dificil,
                                             muy_dificil, pesadilla o demente
                   --dimensiones <FxC>       Tamano del mapa; por ejemplo, 12x20
@@ -256,6 +264,7 @@ public final class OpcionesInicio {
                   --aliados <si|no>         Activa o desactiva aliados calculados automaticamente
                   --victoria <condicion>    solo_jugador o jugador_y_aliados
                   --variante <1-50>         Variante determinista del mapa grande
+                  --seed <entero>           Semilla del modo procedural
                   --help, -h                Muestra esta ayuda
 
                 Las opciones indicadas reemplazan sus preguntas del asistente. Combina
@@ -286,6 +295,7 @@ public final class OpcionesInicio {
             case "1", "default" -> "default";
             case "2", "grande" -> "grande";
             case "3", "ficheros" -> "ficheros";
+            case "4", "procedural" -> "procedural";
             default -> throw new IllegalArgumentException("Modo invalido: " + valor + ".");
         };
     }
@@ -332,6 +342,14 @@ public final class OpcionesInicio {
             return Validaciones.enteroEntre(Integer.parseInt(valor), 1, 50, "Variante");
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Variante invalida: " + valor + ".", e);
+        }
+    }
+
+    private static long parsearSeed(String valor) {
+        try {
+            return Long.parseLong(valor);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Seed invalida: " + valor + ".", e);
         }
     }
 }

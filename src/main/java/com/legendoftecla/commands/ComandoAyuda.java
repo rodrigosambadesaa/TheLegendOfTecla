@@ -68,7 +68,12 @@ public class ComandoAyuda implements Comando {
                 "17) recargar [arma] | estado arma",
                 "18) dar <objeto> <aliado> | pedir <objeto> <aliado>",
                 "    intercambiar <objeto1> <objeto2> <aliado>",
-                "19) salir",
+                "19) abrir puerta | cerrar puerta | hackear terminal | activar interruptor",
+                "20) inspeccionar trampa | desactivar trampa",
+                "21) recetas | fabricar <objeto>",
+                "22) guardar partida [archivo] | cargar partida [archivo]",
+                "23) estadisticas (alias: logros)",
+                "24) salir",
                 "    Ejemplo: salir");
         context.getJuego().getConsola().imprimirInfo(ayuda);
     }

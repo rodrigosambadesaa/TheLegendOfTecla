@@ -41,7 +41,11 @@ public class Juego {
     private Map<Aliado, Set<Posicion>> celdasInspeccionadasAliados;
     private CondicionVictoria condicionVictoria;
     private FormacionAliada formacionAliada;
+    private com.legendoftecla.missions.Mision mision;
     private BusEventos busEventos;
+    private com.legendoftecla.stats.EstadisticasPartida estadisticas;
+    private com.legendoftecla.achievements.GestorLogros logros;
+    private int puntuacion;
 
     /**
      * Ejecuta Juego.
@@ -71,6 +75,7 @@ public class Juego {
         setCondicionVictoria(CondicionVictoria.JUGADOR_Y_ALIADOS);
         setFormacionAliada(FormacionAliada.SIN_FORMACION);
         setBusEventos(new BusEventos());
+        setPuntuacion(0);
     }
 
     /**
@@ -458,6 +463,9 @@ public class Juego {
       * @return resultado de la operacion
      */
     public boolean jugadorGano() {
+        if (mision != null) {
+            return mision.completada(this);
+        }
         if (!jugador.getPosicion().equals(mapa.getObjetivo())) {
             return false;
         }
@@ -477,6 +485,11 @@ public class Juego {
         this.condicionVictoria = Validaciones.noNulo(condicionVictoria, "Condicion de victoria");
     }
 
+    /** @return mision opcional; {@code null} conserva la victoria historica */
+    public com.legendoftecla.missions.Mision getMision() { return mision; }
+    /** @param mision mision opcional */
+    public void setMision(com.legendoftecla.missions.Mision mision) { this.mision = mision; }
+
     /** @return estrategia activa del grupo aliado */
     public FormacionAliada getFormacionAliada() {
         return formacionAliada;
@@ -492,9 +505,42 @@ public class Juego {
         return busEventos;
     }
 
+    /** @return proyeccion de estadisticas en tiempo real de esta partida */
+    public com.legendoftecla.stats.EstadisticasPartida getEstadisticas() {
+        return estadisticas;
+    }
+
+    /** @param estadisticas proyeccion no nula asociada a esta partida */
+    public void setEstadisticas(com.legendoftecla.stats.EstadisticasPartida estadisticas) {
+        this.estadisticas = Validaciones.noNulo(estadisticas, "Estadisticas");
+    }
+
+    /** @return gestor de logros desacoplado mediante eventos */
+    public com.legendoftecla.achievements.GestorLogros getLogros() {
+        return logros;
+    }
+
+    /** @return puntuacion acumulada o final persistible */
+    public int getPuntuacion() { return puntuacion; }
+    /** @param puntuacion puntuacion acotada, admite penalizaciones */
+    public void setPuntuacion(int puntuacion) {
+        this.puntuacion = Validaciones.enteroEntre(puntuacion,
+                -Limites.ESTADISTICA, Limites.ESTADISTICA, "Puntuacion");
+    }
+
+    /** @param logros gestor no nulo asociado a esta partida */
+    public void setLogros(com.legendoftecla.achievements.GestorLogros logros) {
+        this.logros = Validaciones.noNulo(logros, "Logros");
+    }
+
     /** @param busEventos bus no nulo que sustituye al adaptador de la partida */
     public void setBusEventos(BusEventos busEventos) {
+        if (logros != null) logros.close();
+        if (estadisticas != null) estadisticas.close();
         this.busEventos = Validaciones.noNulo(busEventos, "Bus de eventos");
+        setEstadisticas(new com.legendoftecla.stats.EstadisticasPartida(this));
+        setLogros(new com.legendoftecla.achievements.GestorLogros(
+                this.busEventos, this.estadisticas));
         if (jugador != null) {
             jugador.getEstados().setBusEventos(this.busEventos);
         }

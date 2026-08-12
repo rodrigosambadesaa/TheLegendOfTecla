@@ -224,6 +224,10 @@ public final class PersistenciaPartida {
                     barricada.getOrientacion().name(), base.getResistencia(), true,
                     0, 0, 0, 0, false, false, List.of());
         }
+        if (elemento instanceof ParedDebil) {
+            return estadoElemento(elemento, null, null, base.getResistencia(), true,
+                    0, 0, 0, 0, false, false, List.of());
+        }
         if (elemento instanceof Terminal terminal) {
             return estadoElemento(elemento, null, terminal.getObjetivoId(), 1, false,
                     terminal.getDificultad(), 0, 0, 0,
@@ -264,6 +268,7 @@ public final class PersistenciaPartida {
             case "Barricada" -> new Barricada(estado.id(), Math.max(1, estado.resistencia()),
                     TipoCobertura.valueOf(estado.estado()),
                     OrientacionCobertura.valueOf(estado.referencia()));
+            case "ParedDebil" -> new ParedDebil(estado.id(), Math.max(1, estado.resistencia()));
             case "Terminal" -> new Terminal(estado.id(), estado.valor1(), estado.referencia());
             case "Interruptor" -> new Interruptor(estado.id(), estado.bandera1(), estado.referencia());
             case "Cofre" -> new Cofre(estado.id(), lista(estado.objetos()).stream()
@@ -293,7 +298,8 @@ public final class PersistenciaPartida {
             if (estado.bandera2()) trampa.detectar(personajeAuxiliar(), Integer.MAX_VALUE);
             if (!estado.bandera1()) trampa.disparar(List.of());
         }
-        if ((elemento instanceof Puerta || elemento instanceof Barricada)
+        if ((elemento instanceof Puerta || elemento instanceof Barricada
+                || elemento instanceof ParedDebil)
                 && estado.resistencia() == 0) {
             elemento.recibirDanio(1);
         }

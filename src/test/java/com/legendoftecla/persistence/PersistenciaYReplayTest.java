@@ -5,6 +5,7 @@ import com.legendoftecla.effects.Quemado;
 import com.legendoftecla.events.PersonajeAtacado;
 import com.legendoftecla.model.elements.EstadoPuerta;
 import com.legendoftecla.model.elements.Mina;
+import com.legendoftecla.model.elements.ParedDebil;
 import com.legendoftecla.model.elements.Puerta;
 import com.legendoftecla.model.elements.Terminal;
 import com.legendoftecla.missions.ActivarTerminal;
@@ -54,8 +55,10 @@ class PersistenciaYReplayTest {
         mina.detectar(juego.getJugador(), Integer.MAX_VALUE);
         Terminal terminal = new Terminal("terminal-1", 2, "puerta-1");
         terminal.hackear(2);
+        ParedDebil pared = new ParedDebil("pared-1", 12);
+        pared.recibirDanio(5);
         juego.getMapa().getCelda(new Posicion(1, 1)).setElementos(
-                List.of(puerta, mina, terminal));
+                List.of(puerta, mina, terminal, pared));
         juego.setMision(new Mision("mision-1", "Hackeo", new ActivarTerminal(terminal),
                 List.of(), List.of("100 XP")));
         juego.setPuntuacion(321);
@@ -84,6 +87,10 @@ class PersistenciaYReplayTest {
                 cargado.getMapa().getCelda(new Posicion(1, 1)).getElementos().get(1));
         assertTrue(minaCargada.isRemota());
         assertTrue(minaCargada.isDetectada());
+        ParedDebil paredCargada = assertInstanceOf(ParedDebil.class,
+                cargado.getMapa().getCelda(new Posicion(1, 1)).getElementos().get(3));
+        assertEquals(7, paredCargada.getResistencia());
+        assertTrue(paredCargada.bloqueaVision());
         assertEquals(1, cargado.getEstadisticas().getDisparos());
         assertTrue(cargado.getLogros().getDesbloqueados().contains("primer-contacto"));
         assertEquals(321, cargado.getPuntuacion());

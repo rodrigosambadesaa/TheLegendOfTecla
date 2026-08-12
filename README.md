@@ -57,6 +57,7 @@ Implementacion en Java del proyecto de POO por entregas (P1, P2, P3) y con ampli
 - [P4 opcional (2015)](2015_POO_Proyecto_OPT.pdf)
 - [Matriz de cumplimiento](docs/CUMPLIMIENTO_ESPECIFICACIONES.md)
 - [Pruebas reproducibles de consola y GUI](docs/partidas_probadas.md)
+- [Informe final de la ampliacion roguelike](docs/INFORME_FINAL_ROGUELIKE.md)
 
 ## Interfaz grafica
 

@@ -189,6 +189,7 @@ public final class MotorPartida {
                 + "  Energia " + juego.getJugador().getEnergia() + "/" + juego.getJugador().getEnergiaMaxima()
                 + "  Pasos " + juego.getPasos() + "/" + juego.getPasosMaximos()
                 + "  Formacion " + juego.getFormacionAliada().getEtiqueta()
+                + "  Efectos " + SistemaEstados.resumen(juego.getJugador())
                 + (turnosAyudaAliados > 0 ? "  Ayuda aliada " + turnosAyudaAliados : "");
     }
 
@@ -217,7 +218,8 @@ public final class MotorPartida {
                     + " | Combate " + (estaAliadoEnCombate(aliado) ? "EN COMBATE" : "FUERA DE COMBATE")
                     + " | Vida " + aliado.getSalud() + "/" + aliado.getSaludMaxima()
                     + " | Energia " + aliado.getEnergia() + "/" + aliado.getEnergiaMaxima()
-                    + " | Posicion " + posicion);
+                    + " | Posicion " + posicion
+                    + " | Efectos " + SistemaEstados.resumen(aliado));
             lineas.add("  Objetos: " + listarObjetos(aliado) + " | Equipo: " + listarEquipo(aliado));
         }
         return lineas.toString();
@@ -235,8 +237,19 @@ public final class MotorPartida {
         juego.getJugador().resetTurno();
         try {
             Comando comando = parser.parse(linea == null ? "" : linea);
-            comando.ejecutar();
-            if (comando instanceof ComandoSalir) {
+            SistemaEstados.iniciarTurno(juego);
+            if (juego.getJugador().getSalud() <= 0) {
+                evaluarFinNatural();
+                return false;
+            }
+            boolean aturdido = juego.getJugador().getEstados().consumirBloqueoAccion();
+            if (aturdido) {
+                juego.getConsola().imprimirAdvertencia(
+                        "Estas aturdido y pierdes la accion de este turno.");
+            } else {
+                comando.ejecutar();
+            }
+            if (!aturdido && comando instanceof ComandoSalir) {
                 finalizar(SistemaPuntuacion.EstadoFinalPartida.SALIDA_MANUAL);
                 return false;
             }
@@ -254,6 +267,7 @@ public final class MotorPartida {
             ejecutarTurnoNPC(comando instanceof ComandoDescansar);
             avanzarOrdenAyuda();
             SistemaIncendios.avanzarTurno(juego, random);
+            SistemaEstados.finalizarTurno(juego);
         } catch (ComandoException e) {
             juego.getConsola().imprimir("Error de comando: " + e.getMessage(), TipoMensaje.ERROR);
         } catch (Exception e) {
@@ -414,6 +428,9 @@ public final class MotorPartida {
             if (enemigo.getSalud() <= 0) {
                 continue;
             }
+            if (enemigo.getEstados().consumirBloqueoAccion()) {
+                continue;
+            }
             boolean formacionDetectada = enemigoDetectaFormacion(enemigo);
             Personaje objetivoTactico = formacionDetectada ? seleccionarObjetivoTactico(enemigo) : null;
             if (formacionDetectada) {
@@ -466,6 +483,11 @@ public final class MotorPartida {
                 continue;
             }
             aliado.resetTurno();
+            if (aliado.getEstados().consumirBloqueoAccion()) {
+                juego.getConsola().imprimirAdvertencia(
+                        aliado.getNombre() + " esta aturdido y pierde su accion.");
+                continue;
+            }
             gestionarLinternaAliada(aliado);
             usarBinocularSiConviene(aliado);
             marcarCombate(aliado, false);

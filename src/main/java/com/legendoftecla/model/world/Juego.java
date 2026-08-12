@@ -126,6 +126,9 @@ public class Juego {
             throw new IllegalArgumentException("El jugador debe estar dentro del mapa.");
         }
         this.jugador = validado;
+        if (busEventos != null) {
+            validado.getEstados().setBusEventos(busEventos);
+        }
     }
 
     /**
@@ -191,6 +194,9 @@ public class Juego {
     /** @param enemigos enemigos no nulos situados dentro del mapa */
     public void setEnemigos(List<Enemigo> enemigos) {
         this.enemigos = copiarPersonajes(enemigos, "Enemigos");
+        if (busEventos != null) {
+            this.enemigos.forEach(enemigo -> enemigo.getEstados().setBusEventos(busEventos));
+        }
     }
 
     /**
@@ -225,6 +231,9 @@ public class Juego {
     /** @param aliados aliados activos no nulos */
     public void setAliados(List<Aliado> aliados) {
         this.aliados = copiarPersonajes(aliados, "Aliados");
+        if (busEventos != null) {
+            this.aliados.forEach(aliado -> aliado.getEstados().setBusEventos(busEventos));
+        }
     }
 
     /**
@@ -239,6 +248,10 @@ public class Juego {
     /** @param aliadosRegistrados historial completo no nulo */
     public void setAliadosRegistrados(List<Aliado> aliadosRegistrados) {
         this.aliadosRegistrados = copiarPersonajes(aliadosRegistrados, "Aliados registrados");
+        if (busEventos != null) {
+            this.aliadosRegistrados.forEach(
+                    aliado -> aliado.getEstados().setBusEventos(busEventos));
+        }
     }
 
     /** @return vista inmutable de aliados evacuados */
@@ -482,6 +495,16 @@ public class Juego {
     /** @param busEventos bus no nulo que sustituye al adaptador de la partida */
     public void setBusEventos(BusEventos busEventos) {
         this.busEventos = Validaciones.noNulo(busEventos, "Bus de eventos");
+        if (jugador != null) {
+            jugador.getEstados().setBusEventos(this.busEventos);
+        }
+        if (enemigos != null) {
+            enemigos.forEach(enemigo -> enemigo.getEstados().setBusEventos(this.busEventos));
+        }
+        if (aliadosRegistrados != null) {
+            aliadosRegistrados.forEach(
+                    aliado -> aliado.getEstados().setBusEventos(this.busEventos));
+        }
     }
 
     /**

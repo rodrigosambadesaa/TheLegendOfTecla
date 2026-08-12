@@ -33,6 +33,7 @@ public final class ComandoDescansar implements Comando {
                 (int) Math.ceil(jugador.getSaludMaxima() * PROPORCION_RECUPERADA)));
         jugador.recuperarEnergia(Math.max(1,
                 (int) Math.ceil(jugador.getEnergiaMaxima() * PROPORCION_RECUPERADA)));
+        jugador.getEstados().descansar();
         int saludRecuperada = jugador.getSalud() - saludAnterior;
         int energiaRecuperada = jugador.getEnergia() - energiaAnterior;
         if (saludRecuperada > 0) {

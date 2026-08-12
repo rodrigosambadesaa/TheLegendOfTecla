@@ -1,5 +1,6 @@
 package com.legendoftecla.model.items;
 
+import com.legendoftecla.effects.TipoEstado;
 import com.legendoftecla.model.characters.Personaje;
 import com.legendoftecla.validation.Limites;
 import com.legendoftecla.validation.Validaciones;
@@ -44,6 +45,7 @@ public final class Botiquin extends Objeto {
     public void usar(Personaje personaje) {
         Validaciones.noNulo(personaje, "Personaje");
         personaje.recuperarSalud(curacion);
+        personaje.getEstados().eliminar(TipoEstado.SANGRADO);
     }
 }
 

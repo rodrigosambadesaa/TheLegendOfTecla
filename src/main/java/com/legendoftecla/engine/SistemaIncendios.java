@@ -7,6 +7,7 @@ import com.legendoftecla.events.IncendioPropagado;
 import com.legendoftecla.events.PersonajeDanado;
 import com.legendoftecla.events.PersonajeMuerto;
 import com.legendoftecla.events.RuidoGenerado;
+import com.legendoftecla.effects.Quemado;
 import com.legendoftecla.model.characters.Personaje;
 import com.legendoftecla.model.characters.Jugador;
 import com.legendoftecla.model.characters.Aliado;
@@ -105,6 +106,8 @@ public final class SistemaIncendios {
             juego.publicarEvento(new PersonajeMuerto(juego.getBusEventos().ahora(),
                     personaje.getNombre(), posicion));
             juego.getConsola().imprimir(personaje.getNombre() + " muere por el incendio.", TipoMensaje.ERROR);
+        } else if (personaje.getSalud() > 0) {
+            personaje.getEstados().aplicar(new Quemado());
         }
     }
 

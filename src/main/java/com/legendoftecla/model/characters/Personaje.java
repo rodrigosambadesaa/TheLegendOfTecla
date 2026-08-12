@@ -1,6 +1,7 @@
 package com.legendoftecla.model.characters;
 
 import com.legendoftecla.exceptions.AccionInvalidaException;
+import com.legendoftecla.effects.GestorEstados;
 import com.legendoftecla.model.items.Arma;
 import com.legendoftecla.model.items.Armadura;
 import com.legendoftecla.model.items.Binocular;
@@ -73,6 +74,7 @@ public abstract class Personaje {
     private double penalizacionEnergiaSiguienteTurno;
     private boolean linternaActiva;
     private int alcanceLinterna;
+    private GestorEstados estados;
 
     /**
      * Ejecuta Personaje.
@@ -84,6 +86,7 @@ public abstract class Personaje {
       * @param visionBase valor de {@code visionBase}
      */
     protected Personaje(String nombre, int salud, int energia, Posicion posicion, Mochila mochila, int visionBase) {
+        setEstados(new GestorEstados(this));
         setNombre(nombre);
         setMochila(mochila);
         setArmasEquipadas(List.of());
@@ -237,7 +240,8 @@ public abstract class Personaje {
       * @return resultado de la operacion
      */
     public int getRangoVision() {
-        return visionBase + visionTemporal;
+        return Math.max(1, (int) Math.floor((visionBase + visionTemporal)
+                * estados.multiplicadorVision()));
     }
 
     /** @return alcance visual base sin mejoras temporales */
@@ -347,6 +351,20 @@ public abstract class Personaje {
         return mochila.getObjetos().stream().anyMatch(Linterna.class::isInstance);
     }
 
+    /** @return gestor de efectos temporales de este personaje */
+    public GestorEstados getEstados() {
+        return estados;
+    }
+
+    /** @param estados gestor no nulo perteneciente a este personaje */
+    public void setEstados(GestorEstados estados) {
+        GestorEstados validado = Validaciones.noNulo(estados, "Gestor de estados");
+        if (validado.getPersonaje() != this) {
+            throw new IllegalArgumentException("El gestor debe pertenecer al personaje.");
+        }
+        this.estados = validado;
+    }
+
     /**
      * Ejecuta mover.
       * @param direccion valor de {@code direccion}
@@ -354,6 +372,9 @@ public abstract class Personaje {
       * @throws com.legendoftecla.exceptions.AccionInvalidaException si la operacion no puede completarse
      */
     public void mover(Direccion direccion, Juego juego) throws AccionInvalidaException {
+        if (estados.consumirBloqueoAccion()) {
+            throw new AccionInvalidaException("Estas aturdido y pierdes la accion.");
+        }
         Validaciones.noNulo(direccion, "Direccion");
         Validaciones.noNulo(juego, "Juego");
         Posicion destino = posicion.mover(direccion);
@@ -363,6 +384,7 @@ public abstract class Personaje {
         int coste = calcularCosteMovimiento();
         gastarEnergia(coste);
         setPosicion(destino);
+        estados.alMover();
     }
 
     /**

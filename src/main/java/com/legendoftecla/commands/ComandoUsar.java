@@ -10,6 +10,7 @@ import com.legendoftecla.model.items.Objeto;
 import com.legendoftecla.model.items.CuboAgua;
 import com.legendoftecla.model.items.Linterna;
 import com.legendoftecla.engine.SistemaIncendios;
+import com.legendoftecla.engine.SistemaEstados;
 import com.legendoftecla.model.world.Celda;
 import com.legendoftecla.model.world.Direccion;
 import com.legendoftecla.model.world.Posicion;
@@ -118,6 +119,7 @@ public class ComandoUsar implements Comando {
         }
         if (fuego == null) throw new ComandoException("No hay fuego que apagar en esta celda ni al lado.");
         SistemaIncendios.apagar(context.getJuego(), fuego);
+        SistemaEstados.mojarEn(context.getJuego(), fuego, 3);
         cubo.consumirAgua();
     }
 

@@ -8,6 +8,8 @@ import com.legendoftecla.validation.Validaciones;
  */
 public abstract class Enemigo extends Personaje {
     private static double multiplicadorDanioGlobal = 1.0;
+    private int rangoAudicion;
+    private final com.legendoftecla.ai.ControladorIA controladorIA;
 
     /**
      * Ejecuta Enemigo.
@@ -20,6 +22,8 @@ public abstract class Enemigo extends Personaje {
      */
     protected Enemigo(String nombre, int salud, int energia, Posicion posicion, Mochila mochila, int visionBase) {
         super(nombre, salud, energia, posicion, mochila, visionBase);
+        rangoAudicion = 6;
+        controladorIA = new com.legendoftecla.ai.ControladorIA(this);
     }
 
     @Override
@@ -43,4 +47,14 @@ public abstract class Enemigo extends Personaje {
     public static double getMultiplicadorDanioGlobal() {
         return multiplicadorDanioGlobal;
     }
+
+    /** @return alcance auditivo base */
+    public int getRangoAudicion() { return rangoAudicion; }
+    /** @param rangoAudicion alcance no negativo */
+    public void setRangoAudicion(int rangoAudicion) {
+        if (rangoAudicion < 0) throw new IllegalArgumentException("Audicion invalida");
+        this.rangoAudicion = rangoAudicion;
+    }
+    /** @return controlador State/Strategy propio */
+    public com.legendoftecla.ai.ControladorIA getControladorIA() { return controladorIA; }
 }

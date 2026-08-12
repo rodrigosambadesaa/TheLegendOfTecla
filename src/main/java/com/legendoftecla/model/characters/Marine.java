@@ -52,6 +52,10 @@ public final class Marine extends Jugador {
      * Ejecuta equiparArma.
      */
     protected void equiparArma(Arma arma) throws AccionInvalidaException {
+        if (!puedeUsar(arma)) {
+            throw new AccionInvalidaException(
+                    "El marine no domina esta categoria de arma o su municion.");
+        }
         long dosManos = getArmasEquipadas().stream().filter(Arma::isDosManos).count();
         if (arma.isDosManos() && dosManos >= 2) {
             throw new AccionInvalidaException("El marine ya lleva dos armas a dos manos.");

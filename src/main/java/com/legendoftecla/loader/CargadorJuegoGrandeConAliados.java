@@ -190,19 +190,20 @@ public class CargadorJuegoGrandeConAliados extends CargadorJuegoBase {
         for (int i = 0; i < cantidad; i++) {
             Posicion p = randomPosTransitable(mapa, random, ocupadas);
             Enemigo enemigo;
-            int tipo = random.nextInt(3);
-            if (tipo == 0) {
-                enemigo = new Sectoid("Sectoid_" + i, p, new Mochila(3, 10), 2);
-            } else if (tipo == 1) {
-                enemigo = new LightFloater("LightFloater_" + i, p, new Mochila(3, 10), 2);
-            } else {
-                enemigo = new HeavyFloater("HeavyFloater_" + i, p, new Mochila(3, 10), 2);
-            }
+            int tipo = random.nextInt(9);
+            enemigo = switch (tipo) {
+                case 0 -> new Sectoid("Sectoid_" + i, p, new Mochila(3, 10), 2);
+                case 1 -> new LightFloater("LightFloater_" + i, p, new Mochila(3, 10), 2);
+                case 2 -> new HeavyFloater("HeavyFloater_" + i, p, new Mochila(3, 10), 2);
+                case 3 -> new Berserker("Berserker_" + i, p, new Mochila(3, 10), 3);
+                case 4 -> new Medic("Medic_" + i, p, new Mochila(3, 10), 3);
+                case 5 -> new Sniper("Sniper_" + i, p, new Mochila(3, 10), 6);
+                case 6 -> new Pyro("Pyro_" + i, p, new Mochila(3, 10), 4);
+                case 7 -> new Scout("Scout_" + i, p, new Mochila(3, 10), 6);
+                default -> new Commander("Commander_" + i, p, new Mochila(3, 10), 5);
+            };
             enemigo.escalarSalud(dificultad.getMultiplicadorSaludEnemigo());
-            if (i % 3 == 0) {
-                enemigo.getMochila().guardar(new Municion(
-                        "municion_enemigo_" + i, 0.5, TipoMunicion.RIFLE, 4));
-            }
+            com.legendoftecla.engine.ArsenalEnemigo.asignar(enemigo, dificultad);
             mapa.getCelda(p).agregarEnemigo(enemigo);
             juego.agregarEnemigo(enemigo);
             ocupadas.add(p);

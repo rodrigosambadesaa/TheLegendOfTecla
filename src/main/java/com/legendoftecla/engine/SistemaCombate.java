@@ -22,7 +22,7 @@ public final class SistemaCombate {
     private SistemaCombate() { }
 
     public static ResultadoAtaque atacar(Juego juego, Personaje atacante, Personaje objetivo, Random random) {
-        exigirMunicion(atacante);
+        exigirMunicion(atacante, objetivo);
         int vidaAntes = objetivo.getSalud();
         publicarAtaque(juego, atacante, objetivo);
         SistemaCobertura cobertura = new SistemaCobertura(random);
@@ -47,7 +47,9 @@ public final class SistemaCombate {
 
     public static List<ResultadoAtaque> atacarTodos(Juego juego, Personaje atacante,
             List<? extends Personaje> objetivos, Random random) {
-        exigirMunicion(atacante);
+        if (!objetivos.isEmpty()) {
+            exigirMunicion(atacante, objetivos.get(0));
+        }
         List<Integer> vidas = objetivos.stream().map(Personaje::getSalud).toList();
         objetivos.forEach(objetivo -> juego.publicarEvento(new PersonajeAtacado(
                 juego.getBusEventos().ahora(), atacante.getNombre(), objetivo.getNombre(),
@@ -98,9 +100,11 @@ public final class SistemaCombate {
                 atacante.getPosicion(), 7, "ataque"));
     }
 
-    private static void exigirMunicion(Personaje atacante) {
-        if (!atacante.puedeAtacar()) {
-            throw new IllegalStateException("No hay municion disponible.");
+    private static void exigirMunicion(Personaje atacante, Personaje objetivo) {
+        int distancia = atacante.getPosicion().distanciaManhattan(objetivo.getPosicion());
+        if (!atacante.puedeAtacarA(distancia)) {
+            throw new IllegalStateException(
+                    "No hay un arma cargada con alcance suficiente.");
         }
     }
 }

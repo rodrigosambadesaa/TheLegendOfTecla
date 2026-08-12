@@ -150,11 +150,19 @@ public final class SerializadorEscenarioJson {
         boolean esArma = "arma".equalsIgnoreCase(objeto.getTipo());
         boolean esMunicion = "municion".equalsIgnoreCase(objeto.getTipo());
         if (!esArma && !esMunicion) {
+            if ("granada".equalsIgnoreCase(objeto.getTipo())) {
+                validarTipoGranada(objeto);
+            }
             return;
         }
         if (objeto.getTipoMunicion() == null || objeto.getTipoMunicion().isBlank()) {
             if (esMunicion) {
                 throw new JuegoException("La municion necesita tipoMunicion.");
+            }
+            if (objeto.getCategoriaArma() != null
+                    && !objeto.getCategoriaArma().isBlank()) {
+                throw new JuegoException(
+                        "Un arma con categoria explicita necesita tipoMunicion.");
             }
             return;
         }
@@ -174,6 +182,32 @@ public final class SerializadorEscenarioJson {
                 && (objeto.getCapacidadCargador() <= 0
                         || objeto.getMunicionActual() > objeto.getCapacidadCargador())) {
             throw new JuegoException("El cargador del arma es invalido.");
+        }
+        if (esArma && objeto.getCategoriaArma() != null
+                && !objeto.getCategoriaArma().isBlank()) {
+            try {
+                new com.legendoftecla.model.items.Arma("validacion", "", 0, 1,
+                        objeto.isDosManos(),
+                        com.legendoftecla.model.items.CategoriaArma.valueOf(
+                                objeto.getCategoriaArma().toUpperCase(java.util.Locale.ROOT)),
+                        tipo, objeto.getCapacidadCargador(), objeto.getMunicionActual());
+            } catch (IllegalArgumentException error) {
+                throw new JuegoException("Categoria de arma incompatible: "
+                        + objeto.getCategoriaArma());
+            }
+        }
+    }
+
+    private static void validarTipoGranada(EscenarioDefinicion.ObjetoDef objeto)
+            throws JuegoException {
+        if (objeto.getTipoGranada() == null || objeto.getTipoGranada().isBlank()) {
+            return;
+        }
+        try {
+            com.legendoftecla.model.items.TipoGranada.valueOf(
+                    objeto.getTipoGranada().toUpperCase(java.util.Locale.ROOT));
+        } catch (IllegalArgumentException error) {
+            throw new JuegoException("Tipo de granada invalido: " + objeto.getTipoGranada());
         }
     }
 

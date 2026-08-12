@@ -515,6 +515,8 @@ public class EscenarioDefinicion {
         private int capacidadCargador;
         private int municionActual;
         private int cantidad;
+        private String categoriaArma;
+        private String tipoGranada;
 
         /** Crea una definicion de objeto predeterminada. */
         public ObjetoDef() {
@@ -530,6 +532,8 @@ public class EscenarioDefinicion {
             setCapacidadCargador(0);
             setMunicionActual(0);
             setCantidad(0);
+            setCategoriaArma(null);
+            setTipoGranada(null);
         }
 
         /** @return tipo */
@@ -639,6 +643,14 @@ public class EscenarioDefinicion {
             this.cantidad = Validaciones.enteroEntre(
                     cantidad, 0, Limites.ESTADISTICA, "Cantidad");
         }
+        /** @return categoria opcional del arma */
+        public String getCategoriaArma() { return categoriaArma; }
+        /** @param categoriaArma categoria opcional compatible con {@code CategoriaArma} */
+        public void setCategoriaArma(String categoriaArma) { this.categoriaArma = categoriaArma; }
+        /** @return variante opcional de granada */
+        public String getTipoGranada() { return tipoGranada; }
+        /** @param tipoGranada variante opcional compatible con {@code TipoGranada} */
+        public void setTipoGranada(String tipoGranada) { this.tipoGranada = tipoGranada; }
 
         void normalizar() {
             super.normalizar();
@@ -654,6 +666,8 @@ public class EscenarioDefinicion {
             setCapacidadCargador(capacidadCargador);
             setMunicionActual(municionActual);
             setCantidad(cantidad);
+            setCategoriaArma(categoriaArma);
+            setTipoGranada(tipoGranada);
         }
     }
 }

@@ -7,6 +7,7 @@ import com.legendoftecla.model.world.Direccion;
 import com.legendoftecla.model.world.Mapa;
 import com.legendoftecla.model.world.Posicion;
 import com.legendoftecla.engine.SistemaCombate;
+import com.legendoftecla.engine.ServicioBotinEnemigo;
 import com.legendoftecla.engine.SistemaIluminacion;
 import com.legendoftecla.validation.Limites;
 import com.legendoftecla.validation.Validaciones;
@@ -91,7 +92,7 @@ public class ComandoAtacar implements Comando {
                 + destino + " (" + enemigos.size() + " objetivo(s)).");
         celda.getEnemigos().stream().filter(e -> e.getSalud() <= 0).toList().forEach(e -> {
             celda.quitarEnemigo(e);
-            e.getMochila().getObjetos().forEach(celda::agregarObjeto);
+            ServicioBotinEnemigo.soltar(celda, e);
         });
     }
 

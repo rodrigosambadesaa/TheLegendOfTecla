@@ -7,6 +7,9 @@ import com.legendoftecla.model.items.Arma;
 import com.legendoftecla.model.items.Armadura;
 import com.legendoftecla.model.items.Binocular;
 import com.legendoftecla.model.items.Explosivo;
+import com.legendoftecla.model.items.Granada;
+import com.legendoftecla.model.items.PerfilArmamento;
+import com.legendoftecla.model.items.ReglasArmamento;
 import com.legendoftecla.model.items.Objeto;
 import com.legendoftecla.model.items.Linterna;
 import com.legendoftecla.model.world.Direccion;
@@ -416,7 +419,11 @@ public abstract class Personaje {
     }
 
     private boolean admitePorClase(Objeto objeto) {
-        return !(objeto instanceof Explosivo) || this instanceof Zapador;
+        if (objeto instanceof Granada) {
+            return getPerfilArmamento().permiteGranadas();
+        }
+        return !(objeto instanceof Explosivo)
+                || getPerfilArmamento().permiteDemolicion();
     }
 
     /**
@@ -504,7 +511,7 @@ public abstract class Personaje {
      */
     public void atacar(Personaje objetivo) {
         Validaciones.noNulo(objetivo, "Objetivo");
-        consumirMunicionAtaque();
+        consumirMunicionAtaque(posicion.distanciaManhattan(objetivo.getPosicion()));
         int danio = calcularDanio(objetivo);
         objetivo.recibirDanio(danio);
     }
@@ -518,7 +525,8 @@ public abstract class Personaje {
         if (objetivos.isEmpty()) {
             return;
         }
-        consumirMunicionAtaque();
+        consumirMunicionAtaque(posicion.distanciaManhattan(
+                objetivos.get(0).getPosicion()));
         int danio = Math.max(1, calcularDanio(objetivos.get(0)) / objetivos.size());
         for (Personaje personaje : objetivos) {
             Validaciones.noNulo(personaje, "Objetivo");
@@ -544,12 +552,21 @@ public abstract class Personaje {
         return armasEquipadas.isEmpty() || armasEquipadas.stream().anyMatch(Arma::puedeDisparar);
     }
 
-    private void consumirMunicionAtaque() {
-        if (armasEquipadas.isEmpty()) return;
+    /** @return si existe un arma cargada que cubre la distancia indicada */
+    public boolean puedeAtacarA(int distancia) {
+        return armasEquipadas.isEmpty() ? distancia <= getRangoVision()
+                : armasEquipadas.stream().anyMatch(arma ->
+                        arma.puedeDisparar() && arma.alcanza(distancia));
+    }
+
+    private void consumirMunicionAtaque(int distancia) {
+        // Los personajes historicos sin equipo conservan su ataque natural/implicito.
+        // Solo las armas explicitas quedan sujetas a cargador y tipo de municion.
+        if (armasEquipadas.isEmpty() && distancia <= getRangoVision()) return;
         for (Arma arma : armasEquipadas) {
-            if (arma.consumirDisparo()) return;
+            if (arma.alcanza(distancia) && arma.consumirDisparo()) return;
         }
-        throw new IllegalStateException("No hay municion disponible.");
+        throw new IllegalStateException("No hay un arma cargada con alcance suficiente.");
     }
 
     /**
@@ -591,6 +608,10 @@ public abstract class Personaje {
      */
     protected void equiparArma(Arma arma) throws AccionInvalidaException {
         Validaciones.noNulo(arma, "Arma");
+        if (!puedeUsar(arma)) {
+            throw new AccionInvalidaException(
+                    "La clase no domina esta categoria de arma o su municion.");
+        }
         int usadas = 0;
         for (Arma equipada : armasEquipadas) {
             usadas += equipada.isDosManos() ? 2 : 1;
@@ -602,6 +623,16 @@ public abstract class Personaje {
         List<Arma> nuevasArmas = new ArrayList<>(armasEquipadas);
         nuevasArmas.add(arma);
         setArmasEquipadas(nuevasArmas);
+    }
+
+    /** @return competencias de armamento del rol concreto */
+    public PerfilArmamento getPerfilArmamento() {
+        return ReglasArmamento.perfil(this);
+    }
+
+    /** @param arma arma que se desea equipar */
+    public boolean puedeUsar(Arma arma) {
+        return getPerfilArmamento().permite(Validaciones.noNulo(arma, "Arma"));
     }
 
     /**

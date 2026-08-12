@@ -145,12 +145,31 @@ public final class CargadorJuegoJson extends CargadorJuegoBase {
             String nombre, Posicion posicion) {
         Mochila mochila = new Mochila(8, 30);
         Enemigo enemigo = switch (definicion.getTipo().toLowerCase(Locale.ROOT)) {
+            case "berserker" -> new com.legendoftecla.model.characters.Berserker(
+                    nombre, posicion, mochila, definicion.getVision());
+            case "medic" -> new com.legendoftecla.model.characters.Medic(
+                    nombre, posicion, mochila, definicion.getVision());
+            case "sniper" -> new com.legendoftecla.model.characters.Sniper(
+                    nombre, posicion, mochila, definicion.getVision());
+            case "pyro" -> new com.legendoftecla.model.characters.Pyro(
+                    nombre, posicion, mochila, definicion.getVision());
+            case "scout" -> new com.legendoftecla.model.characters.Scout(
+                    nombre, posicion, mochila, definicion.getVision());
+            case "commander" -> new com.legendoftecla.model.characters.Commander(
+                    nombre, posicion, mochila, definicion.getVision());
+            case "commanderprime" -> new com.legendoftecla.model.characters.CommanderPrime(
+                    nombre, posicion, mochila, definicion.getVision());
+            case "pyrooverlord" -> new com.legendoftecla.model.characters.PyroOverlord(
+                    nombre, posicion, mochila, definicion.getVision());
             case "lightfloater", "light_floater" -> new LightFloater(
                     nombre, posicion, mochila, definicion.getVision());
             case "heavyfloater", "heavy_floater" -> new HeavyFloater(
                     nombre, posicion, mochila, definicion.getVision());
             default -> new Sectoid(nombre, posicion, mochila, definicion.getVision());
         };
+        if (enemigo instanceof com.legendoftecla.ai.EnemigoTactico) {
+            com.legendoftecla.engine.ArsenalEnemigo.asignar(enemigo, dificultad);
+        }
         enemigo.configurarEstadisticas(
                 definicion.getSalud(), definicion.getEnergia(), definicion.getVision());
         return enemigo;
@@ -208,6 +227,11 @@ public final class CargadorJuegoJson extends CargadorJuegoBase {
                     Math.max(1, definicion.getValor()));
             case "explosivo" -> new Explosivo(
                     definicion.getNombre(), descripcion, definicion.getPeso());
+            case "granada" -> new com.legendoftecla.model.items.Granada(
+                    definicion.getNombre(), descripcion, definicion.getPeso(),
+                    com.legendoftecla.model.items.TipoGranada.valueOf(
+                            (definicion.getTipoGranada() == null ? "FRAGMENTACION"
+                                    : definicion.getTipoGranada()).toUpperCase(Locale.ROOT)));
             case "linterna" -> new Linterna(definicion.getNombre(), descripcion,
                     definicion.getPeso(), Math.max(1, definicion.getValor()));
             case "cubo", "cuboagua", "cubo_agua" -> new CuboAgua(definicion.getNombre(), descripcion,
@@ -229,8 +253,17 @@ public final class CargadorJuegoJson extends CargadorJuegoBase {
             return new Arma(definicion.getNombre(), descripcion, definicion.getPeso(),
                     Math.max(1, definicion.getValor()), definicion.isDosManos());
         }
+        if (definicion.getCategoriaArma() == null
+                || definicion.getCategoriaArma().isBlank()) {
+            return new Arma(definicion.getNombre(), descripcion, definicion.getPeso(),
+                    Math.max(1, definicion.getValor()), definicion.isDosManos(),
+                    tipoMunicion(definicion), definicion.getCapacidadCargador(),
+                    definicion.getMunicionActual());
+        }
         return new Arma(definicion.getNombre(), descripcion, definicion.getPeso(),
                 Math.max(1, definicion.getValor()), definicion.isDosManos(),
+                com.legendoftecla.model.items.CategoriaArma.valueOf(
+                        definicion.getCategoriaArma().toUpperCase(Locale.ROOT)),
                 tipoMunicion(definicion), definicion.getCapacidadCargador(),
                 definicion.getMunicionActual());
     }

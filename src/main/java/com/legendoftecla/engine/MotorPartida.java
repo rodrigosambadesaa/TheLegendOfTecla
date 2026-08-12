@@ -11,6 +11,9 @@ import com.legendoftecla.console.TipoMensaje;
 import com.legendoftecla.audio.EventoSonido;
 import com.legendoftecla.audio.GestorSonido;
 import com.legendoftecla.audio.SuscriptorAudioEventos;
+import com.legendoftecla.ai.EnemigoTactico;
+import com.legendoftecla.ai.SistemaTurnosIA;
+import com.legendoftecla.ai.SistemaRuido;
 import com.legendoftecla.exceptions.ComandoException;
 import com.legendoftecla.events.MisionCompletada;
 import com.legendoftecla.inventory.CooperacionInventario;
@@ -61,6 +64,8 @@ public final class MotorPartida {
     private int turnosAyudaAliados;
     private boolean avisoRescateEnergia;
     private boolean cooperacionInventarioActiva;
+    private SistemaTurnosIA sistemaTurnosIA;
+    private SistemaRuido sistemaRuido;
 
     /**
      * Crea una instancia de {@code MotorPartida}.
@@ -68,6 +73,8 @@ public final class MotorPartida {
      */
     public MotorPartida(Juego juego) {
         setJuego(juego);
+        setSistemaTurnosIA(new SistemaTurnosIA());
+        setSistemaRuido(new SistemaRuido(juego));
         SuscriptorAudioEventos.registrar(juego);
         setContexto(new CommandContext(juego));
         setParser(new CommandParser(contexto));
@@ -100,6 +107,20 @@ public final class MotorPartida {
     /** @param juego partida no nula */
     public void setJuego(Juego juego) {
         this.juego = Validaciones.noNulo(juego, "Juego");
+    }
+
+    /** @return fachada formal de percepcion, decision y ejecucion enemiga */
+    public SistemaTurnosIA getSistemaTurnosIA() { return sistemaTurnosIA; }
+    /** @param sistemaTurnosIA fachada no nula */
+    public void setSistemaTurnosIA(SistemaTurnosIA sistemaTurnosIA) {
+        this.sistemaTurnosIA = Validaciones.noNulo(sistemaTurnosIA, "Sistema de turnos IA");
+    }
+    /** @return distribuidor de ruido activo */
+    public SistemaRuido getSistemaRuido() { return sistemaRuido; }
+    /** @param sistemaRuido distribuidor no nulo; cierra la suscripcion anterior */
+    public void setSistemaRuido(SistemaRuido sistemaRuido) {
+        if (this.sistemaRuido != null) this.sistemaRuido.close();
+        this.sistemaRuido = Validaciones.noNulo(sistemaRuido, "Sistema de ruido");
     }
 
     /** @return contexto de comandos */
@@ -289,6 +310,8 @@ public final class MotorPartida {
 
     private void reemplazarJuegoCargado(Juego cargado) {
         setJuego(cargado);
+        setSistemaRuido(new SistemaRuido(cargado));
+        SuscriptorAudioEventos.registrar(cargado);
         Map<Aliado, SituacionAliado> situaciones = new HashMap<>();
         Map<Aliado, Boolean> combates = new HashMap<>();
         cargado.getAliadosRegistrados().forEach(aliado -> {
@@ -441,6 +464,11 @@ public final class MotorPartida {
             if (enemigo.getEstados().consumirBloqueoAccion()) {
                 continue;
             }
+            if (enemigo instanceof EnemigoTactico
+                    || enemigo instanceof com.legendoftecla.model.characters.Jefe) {
+                sistemaTurnosIA.ejecutar(juego, enemigo, random);
+                continue;
+            }
             boolean formacionDetectada = enemigoDetectaFormacion(enemigo);
             Personaje objetivoTactico = formacionDetectada ? seleccionarObjetivoTactico(enemigo) : null;
             if (formacionDetectada) {
@@ -549,19 +577,16 @@ public final class MotorPartida {
             }
             cambiarSituacion(aliado, SituacionAliado.EN_COMBATE);
             marcarCombate(aliado, true);
-            int distancia = aliado.getPosicion().distanciaManhattan(objetivo.getPosicion());
-            if (distancia <= 1) {
+            if (puedeAliadoAtacarA(aliado, objetivo)) {
                 if (!debeAliadoAtacarConRadar(aliado, objetivo)) {
-                    continue;
-                }
-                if (!aliado.puedeAtacar()) {
-                    intentarRecargar(aliado);
                     continue;
                 }
                 SistemaCombate.atacar(juego, aliado, objetivo, random);
                 if (objetivo.getSalud() <= 0) {
                     eliminarEnemigoDerrotado(aliado, objetivo);
                 }
+            } else if (!aliado.puedeAtacar()) {
+                intentarRecargar(aliado);
             } else {
                 moverAliadoHaciaObjetivo(aliado, objetivo.getPosicion());
             }
@@ -588,16 +613,13 @@ public final class MotorPartida {
         }
         cambiarSituacion(aliado, SituacionAliado.EN_COMBATE);
         marcarCombate(aliado, true);
-        int distancia = aliado.getPosicion().distanciaManhattan(objetivo.getPosicion());
-        if (distancia <= 1) {
+        if (puedeAliadoAtacarA(aliado, objetivo)) {
             if (debeAliadoAtacarConRadar(aliado, objetivo)) {
-                if (!aliado.puedeAtacar()) {
-                    intentarRecargar(aliado);
-                    return;
-                }
                 SistemaCombate.atacar(juego, aliado, objetivo, random);
                 eliminarEnemigoDerrotado(aliado, objetivo);
             }
+        } else if (!aliado.puedeAtacar()) {
+            intentarRecargar(aliado);
         } else {
             moverAliadoHaciaObjetivo(aliado, objetivo.getPosicion());
         }
@@ -994,8 +1016,8 @@ public final class MotorPartida {
             return;
         }
         juego.getMapa().getCelda(objetivo.getPosicion()).quitarEnemigo(objetivo);
-        objetivo.getMochila().getObjetos().forEach(
-                juego.getMapa().getCelda(objetivo.getPosicion())::agregarObjeto);
+        ServicioBotinEnemigo.soltar(
+                juego.getMapa().getCelda(objetivo.getPosicion()), objetivo);
         juego.getConsola().imprimirExito(aliado.getNombre() + " elimina a " + objetivo.getNombre() + ".");
     }
 
@@ -1156,7 +1178,7 @@ public final class MotorPartida {
         int separacion = aliado.getPosicion().distanciaManhattan(jugador);
         if (juego.getFormacionAliada() == FormacionAliada.DEFENSIVA) {
             cambiarSituacion(aliado, SituacionAliado.PROTEGIENDO);
-            if (amenaza != null && aliado.getPosicion().distanciaManhattan(amenaza.getPosicion()) <= 1) {
+            if (amenaza != null && puedeAliadoAtacarA(aliado, amenaza)) {
                 atacarEnFormacion(aliado, amenaza);
             } else if (separacion > 1) {
                 moverAliadoHaciaObjetivo(aliado, jugador);
@@ -1174,7 +1196,7 @@ public final class MotorPartida {
             if (separacion > 1) {
                 moverAliadoHaciaObjetivo(aliado, jugador);
             }
-        } else if (aliado.getPosicion().distanciaManhattan(amenaza.getPosicion()) <= 1) {
+        } else if (puedeAliadoAtacarA(aliado, amenaza)) {
             atacarEnFormacion(aliado, amenaza);
         } else {
             moverAliadoHaciaObjetivo(aliado, amenaza.getPosicion());
@@ -1188,6 +1210,14 @@ public final class MotorPartida {
         }
         SistemaCombate.atacar(juego, aliado, enemigo, random);
         eliminarEnemigoDerrotado(aliado, enemigo);
+    }
+
+    private boolean puedeAliadoAtacarA(Aliado aliado, Enemigo enemigo) {
+        int distancia = aliado.getPosicion().distanciaManhattan(enemigo.getPosicion());
+        boolean alcance = aliado.getArmasEquipadas().isEmpty()
+                ? distancia <= 1 : aliado.puedeAtacarA(distancia);
+        return alcance && juego.getMapa().hayLineaAtaque(
+                aliado.getPosicion(), enemigo.getPosicion());
     }
 
     private Enemigo buscarAmenazaDeFormacion(Aliado aliado) {

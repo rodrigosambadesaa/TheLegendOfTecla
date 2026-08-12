@@ -2,14 +2,16 @@ package com.legendoftecla.model.items;
 
 import com.legendoftecla.exceptions.ObjetoNoUsableException;
 import com.legendoftecla.model.characters.Personaje;
+import com.legendoftecla.validation.Limites;
+import com.legendoftecla.validation.Validaciones;
 
 
 /**
  * Representa la entidad Explosivo del juego.
  */
-public final class Explosivo extends Objeto {
-    private static final int DANIO = 50;
-    private static final int ALCANCE_MAXIMO = 5;
+public class Explosivo extends Objeto {
+    private final int danio;
+    private final int alcanceMaximo;
     /**
      * Ejecuta Explosivo.
       * @param descripcion valor de {@code descripcion}
@@ -17,7 +19,17 @@ public final class Explosivo extends Objeto {
       * @param peso valor de {@code peso}
      */
     public Explosivo(String nombre, String descripcion, double peso) {
+        this(nombre, descripcion, peso, 50, 5);
+    }
+
+    /** Constructor protegido para explosivos especializados como granadas. */
+    protected Explosivo(String nombre, String descripcion, double peso,
+            int danio, int alcanceMaximo) {
         super(nombre, descripcion, peso);
+        this.danio = Validaciones.enteroEntre(
+                danio, 0, Limites.ESTADISTICA, "Dano del explosivo");
+        this.alcanceMaximo = Validaciones.enteroEntre(
+                alcanceMaximo, 1, Limites.ESTADISTICA, "Alcance del explosivo");
     }
 
     /**
@@ -26,7 +38,7 @@ public final class Explosivo extends Objeto {
      * @return dano del explosivo
      */
     public int getDanio() {
-        return DANIO;
+        return danio;
     }
 
     /**
@@ -35,7 +47,7 @@ public final class Explosivo extends Objeto {
      * @return alcance maximo en celdas
      */
     public int getAlcanceMaximo() {
-        return ALCANCE_MAXIMO;
+        return alcanceMaximo;
     }
 
     @Override

@@ -46,6 +46,7 @@ public final class PanelEditorMapa extends JPanel {
         TRAMPA_ELECTRICA("Anadir trampa electrica"),
         ALARMA("Anadir alarma"),
         COBERTURA("Anadir cobertura completa"),
+        PARED_DEBIL("Anadir pared debil"),
         EDITAR_CELDA("Editar celda"),
         BORRAR("Borrar contenido");
 
@@ -270,6 +271,7 @@ public final class PanelEditorMapa extends JPanel {
                 case TRAMPA_ELECTRICA -> configurarElemento(celda, "trampa_electrica", null);
                 case ALARMA -> configurarElemento(celda, "alarma", null);
                 case COBERTURA -> configurarElemento(celda, "cobertura", null);
+                case PARED_DEBIL -> configurarElemento(celda, "pared_debil", null);
                 case EDITAR_CELDA -> editarCelda(celda);
                 case BORRAR -> borrarContenido(fila, columna);
             }

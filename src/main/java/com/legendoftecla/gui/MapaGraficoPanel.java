@@ -85,6 +85,12 @@ public final class MapaGraficoPanel extends JPanel {
                     } else if (elemento instanceof com.legendoftecla.model.elements.Terminal) {
                         g.setColor(new Color(70, 190, 205));
                         g.fillRect(x + 7, y + 7, 18, 18);
+                    } else if (elemento instanceof com.legendoftecla.model.elements.ParedDebil) {
+                        g.setColor(new Color(145, 150, 158));
+                        g.fillRect(x + 3, y + 4, 26, 24);
+                        g.setColor(new Color(60, 65, 72));
+                        g.drawLine(x + 5, y + 8, x + 27, y + 24);
+                        g.drawLine(x + 25, y + 6, x + 8, y + 27);
                     }
                 }
 
@@ -153,9 +159,17 @@ public final class MapaGraficoPanel extends JPanel {
                     g.fillPolygon(new int[]{x + 5, x + 15, x + 5}, new int[]{y + 18, y + 13, y + 8}, 3);
                 }
                 if (!celda.getEnemigos().isEmpty() && enemigosVisibles.contains(posicion)) {
-                    g.setColor(new Color(224, 68, 74));
-                    g.fillPolygon(new int[]{x + 23, x + 29, x + 23, x + 17},
-                            new int[]{y + 6, y + 12, y + 18, y + 12}, 4);
+                    var enemigo = celda.getEnemigos().get(0);
+                    if (enemigo instanceof com.legendoftecla.model.characters.Jefe) {
+                        g.setColor(new Color(178, 62, 225));
+                        g.fillOval(x + 16, y + 4, 14, 14);
+                        g.setColor(Color.WHITE);
+                        g.drawString("!", x + 21, y + 15);
+                    } else {
+                        g.setColor(new Color(224, 68, 74));
+                        g.fillPolygon(new int[]{x + 23, x + 29, x + 23, x + 17},
+                                new int[]{y + 6, y + 12, y + 18, y + 12}, 4);
+                    }
                 }
                 if (posicion.equals(juego.getJugador().getPosicion())) {
                     g.setColor(new Color(58, 220, 210));

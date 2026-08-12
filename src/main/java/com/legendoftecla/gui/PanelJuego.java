@@ -3,7 +3,6 @@ package com.legendoftecla.gui;
 import com.legendoftecla.console.TipoMensaje;
 import com.legendoftecla.engine.MotorPartida;
 import com.legendoftecla.model.characters.Enemigo;
-import com.legendoftecla.model.characters.Mochila;
 import com.legendoftecla.model.characters.Personaje;
 import com.legendoftecla.model.characters.Zapador;
 import com.legendoftecla.model.items.Arma;
@@ -22,21 +21,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.JTextPane;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyledDocument;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -59,7 +47,7 @@ public final class PanelJuego extends JPanel {
     /**
      * Valor publico {@code registro} utilizado por el modelo del juego.
      */
-    private final JTextPane registro;
+    private final PanelRegistro registro;
     /**
      * Valor publico {@code comando} utilizado por el modelo del juego.
      */
@@ -67,13 +55,8 @@ public final class PanelJuego extends JPanel {
     /**
      * Valor publico {@code estado} utilizado por el modelo del juego.
      */
-    private final JLabel estado;
-    /**
-     * Valor publico {@code mochila} utilizado por el modelo del juego.
-     */
-    private final JLabel mochila;
-    /** Panel persistente con el estado completo de todos los aliados. */
-    private final JTextArea estadoAliados;
+    private final PanelEstado panelEstado;
+    private final PanelAcciones panelAcciones;
     /**
      * Valor publico {@code ejecutar} utilizado por el modelo del juego.
      */
@@ -118,44 +101,21 @@ public final class PanelJuego extends JPanel {
         this.motor = motor;
         setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
-        estado = new JLabel();
-        estado.setFont(estado.getFont().deriveFont(Font.BOLD, 15f));
-        mochila = new JLabel();
-        JPanel cabecera = new JPanel(new BorderLayout());
-        cabecera.add(estado, BorderLayout.WEST);
-        cabecera.add(mochila, BorderLayout.EAST);
-        add(cabecera, BorderLayout.NORTH);
+        panelEstado = new PanelEstado();
+        add(panelEstado, BorderLayout.NORTH);
 
         mapaPanel = new MapaGraficoPanel(motor);
         scrollMapa = new JScrollPane(mapaPanel);
         scrollMapa.getViewport().setBackground(new Color(20, 24, 31));
 
-        registro = new JTextPane();
-        registro.setEditable(false);
-        registro.setBackground(new Color(25, 29, 35));
-        registro.setForeground(new Color(225, 230, 235));
-        registro.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
-        JScrollPane scrollRegistro = new JScrollPane(registro);
-        scrollRegistro.setPreferredSize(new Dimension(380, 300));
-
-        JPanel acciones = crearPanelAcciones(volver);
-        estadoAliados = new JTextArea(6, 32);
-        estadoAliados.setName("estado.aliados");
-        estadoAliados.setEditable(false);
-        estadoAliados.setLineWrap(true);
-        estadoAliados.setWrapStyleWord(true);
-        estadoAliados.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 11));
-        estadoAliados.setBackground(new Color(245, 247, 249));
-        JScrollPane scrollAliados = new JScrollPane(estadoAliados);
-        scrollAliados.setBorder(BorderFactory.createTitledBorder("Estado de aliados"));
-        scrollAliados.setPreferredSize(new Dimension(380, 145));
+        registro = new PanelRegistro();
+        panelAcciones = crearPanelAcciones(volver);
 
         JPanel seguimiento = new JPanel(new BorderLayout(6, 6));
-        seguimiento.add(acciones, BorderLayout.NORTH);
-        seguimiento.add(scrollAliados, BorderLayout.CENTER);
+        seguimiento.add(panelAcciones, BorderLayout.NORTH);
         JPanel lateral = new JPanel(new BorderLayout(6, 6));
         lateral.add(seguimiento, BorderLayout.NORTH);
-        lateral.add(scrollRegistro, BorderLayout.CENTER);
+        lateral.add(registro, BorderLayout.CENTER);
 
         JLabel leyendaMapa = new JLabel("J jugador · △ aliado · ◆ enemigo · 🔥 fuego · ? oscuridad · "
                 + "antorcha naranja · fuente azul · suelo marrón madera");
@@ -227,77 +187,20 @@ public final class PanelJuego extends JPanel {
     public void setPedirAyuda(JButton pedirAyuda) {
         this.pedirAyuda = Validaciones.noNulo(pedirAyuda, "Boton pedir ayuda");
     }
-    private JPanel crearPanelAcciones(Runnable volver) {
-        JPanel contenedor = new JPanel(new BorderLayout(5, 5));
-        contenedor.setBorder(BorderFactory.createTitledBorder("Acciones rapidas"));
-        JPanel movimiento = new JPanel(new GridLayout(3, 3, 4, 4));
-        movimiento.add(new JLabel());
-        movimiento.add(boton("N", "mover norte"));
-        movimiento.add(new JLabel());
-        movimiento.add(boton("O", "mover oeste"));
-        JButton mirar = boton("Mirar", "mirar");
-        movimiento.add(mirar);
-        movimiento.add(boton("E", "mover este"));
-        movimiento.add(new JLabel());
-        movimiento.add(boton("S", "mover sur"));
-        movimiento.add(new JLabel());
-        contenedor.add(movimiento, BorderLayout.NORTH);
-
-        JPanel utilidades = new JPanel(new GridLayout(0, 2, 4, 4));
-        setCoger(botonContextual("Coger", this::cogerObjeto));
-        setUsar(botonContextual("Usar", this::usarObjeto));
-        setTirar(botonContextual("Tirar", this::tirarObjeto));
-        setEquipar(botonContextual("Equipar", this::equiparObjeto));
-        setDesequipar(botonContextual("Desequipar", this::desequiparObjeto));
-        setAtacar(botonContextual("Atacar", this::atacarEnemigo));
-        setLanzarExplosivo(botonContextual("Lanzar explosivo", this::lanzarExplosivo));
-        setPedirAyuda(boton("Pedir ayuda", "pedir ayuda"));
-        utilidades.add(coger);
-        utilidades.add(usar);
-        utilidades.add(tirar);
-        utilidades.add(equipar);
-        utilidades.add(desequipar);
-        utilidades.add(atacar);
-        utilidades.add(lanzarExplosivo);
-        utilidades.add(pedirAyuda);
-        utilidades.add(boton("Formacion defensiva", "reagrupar defensiva"));
-        utilidades.add(boton("Formacion ofensiva", "reagrupar ofensiva"));
-        utilidades.add(boton("Inventario", "inventario"));
-        utilidades.add(boton("Estado", "mirar"));
-        utilidades.add(boton("Ayuda", "ayuda"));
-        utilidades.add(boton("Recorrido", "recorrido"));
-        utilidades.add(boton("Descansar", "descansar"));
-        utilidades.add(boton("Recargar", "recargar"));
-        utilidades.add(boton("Estado arma", "estado arma"));
-        utilidades.add(boton("Abrir puerta", "abrir puerta"));
-        utilidades.add(boton("Desactivar trampa", "desactivar trampa"));
-        utilidades.add(boton("Recetas", "recetas"));
-        utilidades.add(boton("Guardar", "guardar partida"));
-        utilidades.add(boton("Cargar", "cargar partida"));
-        utilidades.add(boton("Estadisticas", "estadisticas"));
-        utilidades.add(boton("Salir", "salir"));
-        contenedor.add(utilidades, BorderLayout.CENTER);
-
-        JButton nueva = new JButton("Nueva partida / menu");
-        nueva.addActionListener(e -> volver.run());
-        JPanel pie = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 4));
-        pie.add(nueva);
-        contenedor.add(pie, BorderLayout.SOUTH);
-        return contenedor;
-    }
-
-    private JButton boton(String etiqueta, String accion) {
-        JButton boton = new JButton(etiqueta);
-        boton.setHorizontalAlignment(SwingConstants.CENTER);
-        boton.addActionListener(e -> ejecutar(accion));
-        return boton;
-    }
-
-    private JButton botonContextual(String etiqueta, Runnable accion) {
-        JButton boton = new JButton(etiqueta);
-        boton.setHorizontalAlignment(SwingConstants.CENTER);
-        boton.addActionListener(e -> accion.run());
-        return boton;
+    private PanelAcciones crearPanelAcciones(Runnable volver) {
+        PanelAcciones acciones = new PanelAcciones(this::ejecutar,
+                this::cogerObjeto, this::usarObjeto, this::tirarObjeto,
+                this::equiparObjeto, this::desequiparObjeto,
+                this::atacarEnemigo, this::lanzarExplosivo, volver);
+        setCoger(acciones.getCoger());
+        setUsar(acciones.getUsar());
+        setTirar(acciones.getTirar());
+        setEquipar(acciones.getEquipar());
+        setDesequipar(acciones.getDesequipar());
+        setAtacar(acciones.getAtacar());
+        setLanzarExplosivo(acciones.getLanzarExplosivo());
+        setPedirAyuda(acciones.getPedirAyuda());
+        return acciones;
     }
 
     private void cogerObjeto() {
@@ -487,18 +390,7 @@ public final class PanelJuego extends JPanel {
     }
 
     private void actualizarVista() {
-        String efectos = motor.getJuego().getJugador().getEstados().getActivos().stream()
-                .map(e -> e.tipo() + "(" + e.turnosRestantes() + ")")
-                .collect(java.util.stream.Collectors.joining(", "));
-        String mision = motor.getJuego().getMision() == null ? ""
-                : " | Mision: " + motor.getJuego().getMision().getNombre();
-        estado.setText(motor.getEstadoJugador() + (efectos.isEmpty() ? "" : " | " + efectos) + mision);
-        estadoAliados.setText(motor.getEstadoAliados());
-        estadoAliados.setCaretPosition(0);
-        Mochila inventario = motor.getJuego().getJugador().getMochila();
-        mochila.setText(String.format("Mochila %d/%d  %.1f/%.1f kg",
-                inventario.getObjetos().size(), inventario.getCapacidadMax(),
-                inventario.getPesoActual(), inventario.getPesoMax()));
+        panelEstado.actualizar(motor);
         mapaPanel.repaint();
         boolean activa = !motor.isFinalizada();
         comando.setEnabled(activa);
@@ -559,25 +451,7 @@ public final class PanelJuego extends JPanel {
     }
 
     private void agregarMensaje(ConsolaGrafica.Mensaje mensaje) {
-        StyledDocument documento = registro.getStyledDocument();
-        SimpleAttributeSet estilo = new SimpleAttributeSet();
-        StyleConstants.setForeground(estilo, color(mensaje.tipo()));
-        try {
-            documento.insertString(documento.getLength(), mensaje.texto() + "\n", estilo);
-            registro.setCaretPosition(documento.getLength());
-        } catch (BadLocationException ignored) {
-            // El documento solo se modifica desde el hilo de eventos de Swing.
-        }
-    }
-
-    private Color color(TipoMensaje tipo) {
-        return switch (tipo) {
-            case EXITO -> new Color(100, 220, 140);
-            case ERROR -> new Color(255, 105, 110);
-            case ADVERTENCIA -> new Color(255, 196, 80);
-            case ESTADO -> new Color(90, 205, 235);
-            case INFO -> new Color(220, 225, 230);
-        };
+        registro.agregar(mensaje);
     }
 
     private record OpcionAccion(String etiqueta, String comando) {

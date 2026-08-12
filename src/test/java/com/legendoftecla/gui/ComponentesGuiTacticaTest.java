@@ -1,0 +1,71 @@
+package com.legendoftecla.gui;
+
+import com.legendoftecla.TestFixtures;
+import com.legendoftecla.engine.MotorPartida;
+import com.legendoftecla.model.characters.Aliado;
+import com.legendoftecla.model.characters.Mochila;
+import com.legendoftecla.model.world.Juego;
+import com.legendoftecla.model.world.Posicion;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
+import java.awt.Component;
+import java.awt.Container;
+import java.util.ArrayDeque;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class ComponentesGuiTacticaTest {
+    @BeforeAll
+    static void headless() {
+        System.setProperty("java.awt.headless", "true");
+    }
+
+    @Test
+    void panelEstadoMantieneElNombreHeadlessDelEstadoAliado() throws Exception {
+        Juego juego = TestFixtures.juegoBasico(TestFixtures.consola());
+        Aliado aliado = new Aliado("A", new Posicion(0, 1), new Mochila(2, 10), 3);
+        juego.agregarAliado(aliado);
+        PanelEstado[] panel = new PanelEstado[1];
+
+        SwingUtilities.invokeAndWait(() -> {
+            panel[0] = new PanelEstado();
+            panel[0].actualizar(new MotorPartida(juego));
+        });
+
+        JTextArea estado = (JTextArea) buscar(panel[0], "estado.aliados");
+        assertNotNull(estado);
+        assertTrue(estado.getText().contains("A"));
+    }
+
+    @Test
+    void panelAccionesConservaOrdenesRapidas() throws Exception {
+        java.util.List<String> ejecutadas = new java.util.ArrayList<>();
+        PanelAcciones[] panel = new PanelAcciones[1];
+        SwingUtilities.invokeAndWait(() -> panel[0] = new PanelAcciones(
+                ejecutadas::add, () -> { }, () -> { }, () -> { }, () -> { },
+                () -> { }, () -> { }, () -> { }, () -> { }));
+
+        SwingUtilities.invokeAndWait(() -> panel[0].getPedirAyuda().doClick());
+
+        assertEquals(java.util.List.of("pedir ayuda"), ejecutadas);
+        assertNotNull(panel[0].getLanzarExplosivo());
+    }
+
+    private Component buscar(Container raiz, String nombre) {
+        ArrayDeque<Component> pendientes = new ArrayDeque<>();
+        pendientes.add(raiz);
+        while (!pendientes.isEmpty()) {
+            Component actual = pendientes.removeFirst();
+            if (nombre.equals(actual.getName())) return actual;
+            if (actual instanceof Container contenedor) {
+                java.util.Collections.addAll(pendientes, contenedor.getComponents());
+            }
+        }
+        return null;
+    }
+}

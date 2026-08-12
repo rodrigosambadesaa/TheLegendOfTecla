@@ -125,7 +125,19 @@ public class CommandParser {
             requiereArg(partes);
             return new ComandoCargar(context, unir(partes, 1));
         }, "cargar");
-        registrar(comandos, this::parsePedirAyuda, "pedir");
+        registrar(comandos, partes -> new ComandoRecargar(context,
+                partes.length > 1 ? unir(partes, 1) : null), "recargar");
+        registrar(comandos, partes -> {
+            if (partes.length == 2 && "arma".equalsIgnoreCase(partes[1])) {
+                return new ComandoEstadoArma(context);
+            }
+            throw new ComandoException("Uso: estado arma");
+        }, "estado");
+        registrar(comandos, this::parsePedir, "pedir");
+        registrar(comandos, partes -> parseTransferencia(partes,
+                ComandoTransferir.Operacion.DAR), "dar");
+        registrar(comandos, partes -> parseTransferencia(partes,
+                ComandoTransferir.Operacion.INTERCAMBIAR), "intercambiar");
         registrar(comandos, partes -> new ComandoPuerta(context, true), "abrir");
         registrar(comandos, partes -> new ComandoPuerta(context, false), "cerrar");
         registrar(comandos, partes -> new ComandoTrampa(
@@ -276,6 +288,27 @@ public class CommandParser {
             return new ComandoPuerta(context, true);
         }
         return new ComandoUsar(context, unir(partes, 1));
+    }
+
+    private Comando parsePedir(String[] partes) throws ComandoException {
+        if (partes.length == 2 && ("ayuda".equalsIgnoreCase(partes[1])
+                || "auxilio".equalsIgnoreCase(partes[1]))) {
+            return parsePedirAyuda(partes);
+        }
+        return parseTransferencia(partes, ComandoTransferir.Operacion.PEDIR);
+    }
+
+    private Comando parseTransferencia(String[] partes,
+            ComandoTransferir.Operacion operacion) throws ComandoException {
+        int esperadas = operacion == ComandoTransferir.Operacion.INTERCAMBIAR ? 4 : 3;
+        if (partes.length != esperadas) {
+            throw new ComandoException(operacion == ComandoTransferir.Operacion.INTERCAMBIAR
+                    ? "Uso: intercambiar <objeto1> <objeto2> <aliado>"
+                    : "Uso: " + partes[0] + " <objeto> <aliado>");
+        }
+        return new ComandoTransferir(context, operacion, partes[1],
+                operacion == ComandoTransferir.Operacion.INTERCAMBIAR ? partes[2] : null,
+                partes[esperadas - 1]);
     }
 
     private Comando parseReagrupar(String[] partes) throws ComandoException {

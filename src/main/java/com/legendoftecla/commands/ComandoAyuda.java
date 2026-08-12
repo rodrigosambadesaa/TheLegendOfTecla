@@ -65,7 +65,10 @@ public class ComandoAyuda implements Comando {
                 "    Ejemplo: ayuda",
                 "16) cargar <directorio>",
                 "    Carga escenario.json o mapa.txt, objetos.txt y enemigos.txt",
-                "17) salir",
+                "17) recargar [arma] | estado arma",
+                "18) dar <objeto> <aliado> | pedir <objeto> <aliado>",
+                "    intercambiar <objeto1> <objeto2> <aliado>",
+                "19) salir",
                 "    Ejemplo: salir");
         context.getJuego().getConsola().imprimirInfo(ayuda);
     }

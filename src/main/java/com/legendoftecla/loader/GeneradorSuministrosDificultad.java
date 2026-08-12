@@ -2,6 +2,8 @@ package com.legendoftecla.loader;
 
 import com.legendoftecla.constants.Dificultad;
 import com.legendoftecla.model.items.Botiquin;
+import com.legendoftecla.model.items.Municion;
+import com.legendoftecla.model.items.TipoMunicion;
 import com.legendoftecla.model.items.ToritoRojo;
 import com.legendoftecla.model.world.Mapa;
 import com.legendoftecla.model.world.Posicion;
@@ -31,7 +33,9 @@ final class GeneradorSuministrosDificultad {
     static void poblar(Mapa mapa, Dificultad dificultad, Random random) {
         int cantidad = dificultad.calcularSuministrosExtra(
                 mapa.getFilas() * mapa.getColumnas());
-        if (cantidad == 0) {
+        int paquetesMunicion = dificultad.calcularMunicionExtra(
+                mapa.getFilas() * mapa.getColumnas());
+        if (cantidad == 0 && paquetesMunicion == 0) {
             return;
         }
 
@@ -59,6 +63,13 @@ final class GeneradorSuministrosDificultad {
                     "Suministro adicional de dificultad",
                     0.5,
                     ENERGIA_TORITO));
+        }
+        for (int indice = 0; indice < paquetesMunicion; indice++) {
+            Posicion posicion = posiciones.get((cantidad * 2 + indice) % posiciones.size());
+            mapa.getCelda(posicion).agregarObjeto(new Municion(
+                    "municion_rifle_" + dificultad.name().toLowerCase(Locale.ROOT)
+                            + "_" + indice,
+                    0.8, TipoMunicion.RIFLE, 6));
         }
     }
 

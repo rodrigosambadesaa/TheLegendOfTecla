@@ -511,6 +511,10 @@ public class EscenarioDefinicion {
         private int valorSecundario;
         private int valorTerciario;
         private boolean dosManos;
+        private String tipoMunicion;
+        private int capacidadCargador;
+        private int municionActual;
+        private int cantidad;
 
         /** Crea una definicion de objeto predeterminada. */
         public ObjetoDef() {
@@ -522,6 +526,10 @@ public class EscenarioDefinicion {
             setValorSecundario(0);
             setValorTerciario(0);
             setDosManos(false);
+            setTipoMunicion(null);
+            setCapacidadCargador(0);
+            setMunicionActual(0);
+            setCantidad(0);
         }
 
         /** @return tipo */
@@ -606,6 +614,32 @@ public class EscenarioDefinicion {
             this.dosManos = dosManos;
         }
 
+        /** @return familia de municion opcional */
+        public String getTipoMunicion() { return tipoMunicion; }
+        /** @param tipoMunicion familia opcional compatible con {@code TipoMunicion} */
+        public void setTipoMunicion(String tipoMunicion) { this.tipoMunicion = tipoMunicion; }
+        /** @return capacidad de cargador, cero para objetos antiguos */
+        public int getCapacidadCargador() { return capacidadCargador; }
+        /** @param capacidadCargador capacidad no negativa */
+        public void setCapacidadCargador(int capacidadCargador) {
+            this.capacidadCargador = Validaciones.enteroEntre(
+                    capacidadCargador, 0, Limites.ESTADISTICA, "Capacidad de cargador");
+        }
+        /** @return proyectiles cargados */
+        public int getMunicionActual() { return municionActual; }
+        /** @param municionActual proyectiles cargados no negativos */
+        public void setMunicionActual(int municionActual) {
+            this.municionActual = Validaciones.enteroEntre(
+                    municionActual, 0, Limites.ESTADISTICA, "Municion actual");
+        }
+        /** @return cantidad del paquete de municion */
+        public int getCantidad() { return cantidad; }
+        /** @param cantidad cantidad no negativa */
+        public void setCantidad(int cantidad) {
+            this.cantidad = Validaciones.enteroEntre(
+                    cantidad, 0, Limites.ESTADISTICA, "Cantidad");
+        }
+
         void normalizar() {
             super.normalizar();
             setTipo(tipo);
@@ -616,6 +650,10 @@ public class EscenarioDefinicion {
             setValorSecundario(valorSecundario);
             setValorTerciario(valorTerciario);
             setDosManos(dosManos);
+            setTipoMunicion(tipoMunicion);
+            setCapacidadCargador(capacidadCargador);
+            setMunicionActual(municionActual);
+            setCantidad(cantidad);
         }
     }
 }

@@ -13,6 +13,8 @@ import com.legendoftecla.audio.GestorSonido;
 import com.legendoftecla.audio.SuscriptorAudioEventos;
 import com.legendoftecla.exceptions.ComandoException;
 import com.legendoftecla.events.MisionCompletada;
+import com.legendoftecla.inventory.CooperacionInventario;
+import com.legendoftecla.inventory.ServicioRecarga;
 import com.legendoftecla.model.characters.Aliado;
 import com.legendoftecla.model.characters.Enemigo;
 import com.legendoftecla.model.characters.Personaje;
@@ -58,6 +60,7 @@ public final class MotorPartida {
     private SistemaPuntuacion.EstadoFinalPartida estadoFinal;
     private int turnosAyudaAliados;
     private boolean avisoRescateEnergia;
+    private boolean cooperacionInventarioActiva;
 
     /**
      * Crea una instancia de {@code MotorPartida}.
@@ -81,6 +84,7 @@ public final class MotorPartida {
         setEstadoFinal(null);
         setTurnosAyudaAliados(0);
         setAvisoRescateEnergia(false);
+        setCooperacionInventarioActiva(true);
         anunciarPartida();
         evaluarFinNatural();
     }
@@ -177,6 +181,12 @@ public final class MotorPartida {
     /** @param avisoRescateEnergia estado del aviso */
     public void setAvisoRescateEnergia(boolean avisoRescateEnergia) {
         this.avisoRescateEnergia = avisoRescateEnergia;
+    }
+    /** @return si los aliados pueden compartir municion y mejoras automaticamente */
+    public boolean isCooperacionInventarioActiva() { return cooperacionInventarioActiva; }
+    /** @param activa habilita o deshabilita la cooperacion automatica */
+    public void setCooperacionInventarioActiva(boolean activa) {
+        cooperacionInventarioActiva = activa;
     }
 
     /**
@@ -444,6 +454,10 @@ public final class MotorPartida {
                 int distancia = enemigo.getPosicion().distanciaManhattan(objetivo.getPosicion());
                 if (distancia <= enemigo.getRangoVision()
                         && juego.getMapa().hayLineaAtaque(enemigo.getPosicion(), objetivo.getPosicion())) {
+                    if (!enemigo.puedeAtacar()) {
+                        intentarRecargar(enemigo);
+                        break;
+                    }
                     SistemaCombate.atacar(juego, enemigo, objetivo, random);
                     break;
                 }
@@ -540,11 +554,13 @@ public final class MotorPartida {
                 if (!debeAliadoAtacarConRadar(aliado, objetivo)) {
                     continue;
                 }
+                if (!aliado.puedeAtacar()) {
+                    intentarRecargar(aliado);
+                    continue;
+                }
                 SistemaCombate.atacar(juego, aliado, objetivo, random);
                 if (objetivo.getSalud() <= 0) {
-                    juego.getMapa().getCelda(objetivo.getPosicion()).quitarEnemigo(objetivo);
-                    juego.getConsola().imprimirExito(
-                            aliado.getNombre() + " elimina a " + objetivo.getNombre() + ".");
+                    eliminarEnemigoDerrotado(aliado, objetivo);
                 }
             } else {
                 moverAliadoHaciaObjetivo(aliado, objetivo.getPosicion());
@@ -575,6 +591,10 @@ public final class MotorPartida {
         int distancia = aliado.getPosicion().distanciaManhattan(objetivo.getPosicion());
         if (distancia <= 1) {
             if (debeAliadoAtacarConRadar(aliado, objetivo)) {
+                if (!aliado.puedeAtacar()) {
+                    intentarRecargar(aliado);
+                    return;
+                }
                 SistemaCombate.atacar(juego, aliado, objetivo, random);
                 eliminarEnemigoDerrotado(aliado, objetivo);
             }
@@ -910,8 +930,16 @@ public final class MotorPartida {
                 && usarBotiquin(donante, destinatario)) {
             return true;
         }
-        return destinatario.getEnergia() < destinatario.getEnergiaMaxima()
-                && usarTorito(donante, destinatario);
+        if (destinatario.getEnergia() < destinatario.getEnergiaMaxima()
+                && usarTorito(donante, destinatario)) {
+            return true;
+        }
+        if (!cooperacionInventarioActiva) {
+            return false;
+        }
+        CooperacionInventario cooperacion = new CooperacionInventario(1);
+        return cooperacion.compartirMunicion(donante, destinatario)
+                || cooperacion.transferirMejorArma(donante, destinatario);
     }
 
     private boolean usarBotiquin(Aliado donante, Personaje destinatario) {
@@ -966,6 +994,8 @@ public final class MotorPartida {
             return;
         }
         juego.getMapa().getCelda(objetivo.getPosicion()).quitarEnemigo(objetivo);
+        objetivo.getMochila().getObjetos().forEach(
+                juego.getMapa().getCelda(objetivo.getPosicion())::agregarObjeto);
         juego.getConsola().imprimirExito(aliado.getNombre() + " elimina a " + objetivo.getNombre() + ".");
     }
 
@@ -1049,6 +1079,21 @@ public final class MotorPartida {
         elegido.usar(aliado);
         juego.getConsola().imprimirInfo(aliado.getNombre() + " usa " + elegido.getNombre()
                 + " porque permite detectar una amenaza nueva este turno.");
+    }
+
+    private boolean intentarRecargar(Personaje personaje) {
+        try {
+            var resultado = new ServicioRecarga().recargar(personaje, null);
+            juego.getConsola().imprimirInfo(personaje.getNombre() + " recarga "
+                    + resultado.arma().getNombre() + " (" + resultado.cantidad() + ").");
+            juego.publicarEvento(new com.legendoftecla.events.ArmaRecargada(
+                    juego.getBusEventos().ahora(), personaje.getNombre(),
+                    resultado.arma().getNombre(), resultado.cantidad(),
+                    personaje.getPosicion()));
+            return true;
+        } catch (com.legendoftecla.exceptions.AccionInvalidaException error) {
+            return false;
+        }
     }
 
     private void gestionarLinternaAliada(Aliado aliado) {

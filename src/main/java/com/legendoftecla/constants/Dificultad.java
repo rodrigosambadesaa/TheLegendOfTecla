@@ -109,6 +109,24 @@ public enum Dificultad {
     }
 
     /**
+     * Calcula paquetes de municion de apoyo: cuanto menor la dificultad, mas reservas.
+     *
+     * @param cantidadCeldas superficie total del mapa
+     * @return paquetes adicionales de rifle
+     */
+    public int calcularMunicionExtra(int cantidadCeldas) {
+        if (cantidadCeldas <= 0) {
+            return 0;
+        }
+        return switch (this) {
+            case MUY_FACIL -> Math.max(4, (int) Math.ceil(cantidadCeldas / 50.0));
+            case FACIL -> Math.max(3, (int) Math.ceil(cantidadCeldas / 80.0));
+            case NORMAL -> 2;
+            default -> 1;
+        };
+    }
+
+    /**
      * Ejecuta la operacion publica {@code desdeTexto}.
       * @param texto valor de {@code texto}
       * @return resultado de la operacion

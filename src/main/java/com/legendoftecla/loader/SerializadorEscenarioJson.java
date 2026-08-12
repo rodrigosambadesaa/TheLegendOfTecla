@@ -99,6 +99,7 @@ public final class SerializadorEscenarioJson {
             if (objeto.getNombre().isBlank() || objeto.getPeso() < 0) {
                 throw new JuegoException("Todos los objetos necesitan nombre y peso no negativo.");
             }
+            validarMunicion(objeto);
         }
         EscenarioDefinicion.CeldaDef inicio = escenario.celda(
                 escenario.getInicio().getFila(), escenario.getInicio().getColumna());
@@ -142,6 +143,38 @@ public final class SerializadorEscenarioJson {
             }
         }
         validarConectividad(escenario);
+    }
+
+    private static void validarMunicion(EscenarioDefinicion.ObjetoDef objeto)
+            throws JuegoException {
+        boolean esArma = "arma".equalsIgnoreCase(objeto.getTipo());
+        boolean esMunicion = "municion".equalsIgnoreCase(objeto.getTipo());
+        if (!esArma && !esMunicion) {
+            return;
+        }
+        if (objeto.getTipoMunicion() == null || objeto.getTipoMunicion().isBlank()) {
+            if (esMunicion) {
+                throw new JuegoException("La municion necesita tipoMunicion.");
+            }
+            return;
+        }
+        com.legendoftecla.model.items.TipoMunicion tipo;
+        try {
+            tipo = com.legendoftecla.model.items.TipoMunicion.valueOf(
+                    objeto.getTipoMunicion().toUpperCase(java.util.Locale.ROOT));
+        } catch (IllegalArgumentException error) {
+            throw new JuegoException("Tipo de municion invalido: "
+                    + objeto.getTipoMunicion());
+        }
+        if (esMunicion && (tipo == com.legendoftecla.model.items.TipoMunicion.INFINITA
+                || objeto.getCantidad() <= 0)) {
+            throw new JuegoException("El paquete de municion debe ser finito y no vacio.");
+        }
+        if (esArma && tipo != com.legendoftecla.model.items.TipoMunicion.INFINITA
+                && (objeto.getCapacidadCargador() <= 0
+                        || objeto.getMunicionActual() > objeto.getCapacidadCargador())) {
+            throw new JuegoException("El cargador del arma es invalido.");
+        }
     }
 
     private static void validarConectividad(EscenarioDefinicion escenario) throws JuegoException {

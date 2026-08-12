@@ -1,6 +1,7 @@
 package com.legendoftecla.audio;
 
 import com.legendoftecla.events.IncendioExtinguido;
+import com.legendoftecla.events.ArmaRecargada;
 import com.legendoftecla.events.IncendioIniciado;
 import com.legendoftecla.events.IncendioPropagado;
 import com.legendoftecla.events.ObjetoTirado;
@@ -67,6 +68,9 @@ public final class SuscriptorAudioEventos {
         partida.getBusEventos().suscribir(MisionCompletada.class,
                 evento -> sonar(salida, partida, EventoSonido.MISION,
                         partida.getJugador().getPosicion()));
+        partida.getBusEventos().suscribir(ArmaRecargada.class,
+                evento -> sonar(salida, partida, EventoSonido.RECARGA,
+                        evento.posicion()));
     }
 
     private static EventoSonido sonidoMuerte(Juego juego, String nombre) {

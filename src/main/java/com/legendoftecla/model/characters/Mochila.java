@@ -153,5 +153,36 @@ public class Mochila {
         }
         return null;
     }
+
+    /**
+     * Busca un objeto sin modificar el contenido.
+     *
+     * @param nombre nombre ignorando mayusculas
+     * @return objeto encontrado o {@code null}
+     */
+    public Objeto buscarPorNombre(String nombre) {
+        String nombreValidado = Validaciones.textoObligatorio(
+                nombre, "Nombre del objeto", Limites.TEXTO_CORTO);
+        return objetos.stream()
+                .filter(objeto -> objeto.getNombre().equalsIgnoreCase(nombreValidado))
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * Retira exactamente una instancia, util para consumir paquetes agotados.
+     *
+     * @param objeto instancia presente en la mochila
+     * @return si se retiro
+     */
+    public boolean quitar(Objeto objeto) {
+        Validaciones.noNulo(objeto, "Objeto");
+        List<Objeto> restantes = new ArrayList<>(objetos);
+        if (!restantes.remove(objeto)) {
+            return false;
+        }
+        setObjetos(restantes);
+        return true;
+    }
 }
 

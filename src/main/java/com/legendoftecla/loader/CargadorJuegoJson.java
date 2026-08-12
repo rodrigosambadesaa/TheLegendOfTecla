@@ -196,8 +196,7 @@ public final class CargadorJuegoJson extends CargadorJuegoBase {
         String tipo = definicion.getTipo().toLowerCase(Locale.ROOT);
         String descripcion = definicion.getDescripcion();
         return switch (tipo) {
-            case "arma" -> new Arma(definicion.getNombre(), descripcion, definicion.getPeso(),
-                    Math.max(1, definicion.getValor()), definicion.isDosManos());
+            case "arma" -> crearArma(definicion, descripcion);
             case "armadura" -> new Armadura(definicion.getNombre(), descripcion, definicion.getPeso(),
                     definicion.getValor(), definicion.getValorSecundario(),
                     definicion.getValorTerciario());
@@ -213,11 +212,37 @@ public final class CargadorJuegoJson extends CargadorJuegoBase {
                     definicion.getPeso(), Math.max(1, definicion.getValor()));
             case "cubo", "cuboagua", "cubo_agua" -> new CuboAgua(definicion.getNombre(), descripcion,
                     definicion.getPeso(), definicion.getValor() > 0);
+            case "municion" -> new com.legendoftecla.model.items.Municion(
+                    definicion.getNombre(), definicion.getPeso(),
+                    tipoMunicion(definicion), definicion.getCantidad() > 0
+                            ? definicion.getCantidad() : Math.max(0, definicion.getValor()));
             case "credencial", "llave", "tarjeta" -> new Credencial(
                     definicion.getNombre(), descripcion, definicion.getPeso(), definicion.getNombre());
             default -> new Botiquin(definicion.getNombre(), descripcion, definicion.getPeso(),
                     Math.max(1, definicion.getValor()));
         };
+    }
+
+    private Arma crearArma(EscenarioDefinicion.ObjetoDef definicion, String descripcion) {
+        if (definicion.getTipoMunicion() == null
+                || definicion.getTipoMunicion().isBlank()) {
+            return new Arma(definicion.getNombre(), descripcion, definicion.getPeso(),
+                    Math.max(1, definicion.getValor()), definicion.isDosManos());
+        }
+        return new Arma(definicion.getNombre(), descripcion, definicion.getPeso(),
+                Math.max(1, definicion.getValor()), definicion.isDosManos(),
+                tipoMunicion(definicion), definicion.getCapacidadCargador(),
+                definicion.getMunicionActual());
+    }
+
+    private com.legendoftecla.model.items.TipoMunicion tipoMunicion(
+            EscenarioDefinicion.ObjetoDef definicion) {
+        String tipo = definicion.getTipoMunicion();
+        if (tipo == null || tipo.isBlank()) {
+            tipo = definicion.getDescripcion();
+        }
+        return com.legendoftecla.model.items.TipoMunicion.valueOf(
+                tipo.toUpperCase(Locale.ROOT));
     }
 
     private Posicion posicion(EscenarioDefinicion.Punto punto) {

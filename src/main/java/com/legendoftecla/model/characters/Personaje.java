@@ -396,12 +396,27 @@ public abstract class Personaje {
      */
     public void coger(Objeto objeto) throws AccionInvalidaException {
         Validaciones.noNulo(objeto, "Objeto");
-        if (objeto instanceof Explosivo && !(this instanceof Zapador)) {
+        if (!admitePorClase(objeto)) {
             throw new AccionInvalidaException("Solo el zapador puede cargar explosivos.");
         }
         if (!mochila.guardar(objeto)) {
             throw new AccionInvalidaException("La mochila no tiene capacidad o peso disponible.");
         }
+    }
+
+    /**
+     * Comprueba de antemano peso, capacidad y restricciones de clase.
+     *
+     * @param objeto candidato a recoger
+     * @return si {@link #coger(Objeto)} puede completarse en el estado actual
+     */
+    public boolean puedeCoger(Objeto objeto) {
+        Validaciones.noNulo(objeto, "Objeto");
+        return admitePorClase(objeto) && mochila.puedeGuardar(objeto);
+    }
+
+    private boolean admitePorClase(Objeto objeto) {
+        return !(objeto instanceof Explosivo) || this instanceof Zapador;
     }
 
     /**
@@ -489,6 +504,7 @@ public abstract class Personaje {
      */
     public void atacar(Personaje objetivo) {
         Validaciones.noNulo(objetivo, "Objetivo");
+        consumirMunicionAtaque();
         int danio = calcularDanio(objetivo);
         objetivo.recibirDanio(danio);
     }
@@ -502,6 +518,7 @@ public abstract class Personaje {
         if (objetivos.isEmpty()) {
             return;
         }
+        consumirMunicionAtaque();
         int danio = Math.max(1, calcularDanio(objetivos.get(0)) / objetivos.size());
         for (Personaje personaje : objetivos) {
             Validaciones.noNulo(personaje, "Objetivo");
@@ -520,6 +537,19 @@ public abstract class Personaje {
             base = 4;
         }
         return Math.max(1, aplicarModificadorDanio(base, objetivo));
+    }
+
+    /** @return si al menos un arma equipada puede disparar, o se puede combatir desarmado */
+    public boolean puedeAtacar() {
+        return armasEquipadas.isEmpty() || armasEquipadas.stream().anyMatch(Arma::puedeDisparar);
+    }
+
+    private void consumirMunicionAtaque() {
+        if (armasEquipadas.isEmpty()) return;
+        for (Arma arma : armasEquipadas) {
+            if (arma.consumirDisparo()) return;
+        }
+        throw new IllegalStateException("No hay municion disponible.");
     }
 
     /**

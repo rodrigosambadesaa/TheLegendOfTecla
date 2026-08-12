@@ -123,6 +123,9 @@ public final class CargadorJuegoJson extends CargadorJuegoBase {
         int cantidadAliados = conAliados
                 ? GeneradorAliados.poblar(juego, mapa, dificultad, new Random(303), "AliadoJson")
                 : 0;
+        if (definicion.getMision() != null) {
+            juego.setMision(crearMision(definicion.getMision(), juego));
+        }
 
         consola.imprimirInfo("Escenario JSON cargado: " + definicion.getNombre()
                 + " | dificultad=" + dificultad.getEtiqueta()
@@ -275,6 +278,61 @@ public final class CargadorJuegoJson extends CargadorJuegoBase {
         }
         return com.legendoftecla.model.items.TipoMunicion.valueOf(
                 tipo.toUpperCase(Locale.ROOT));
+    }
+
+    private com.legendoftecla.missions.Mision crearMision(
+            EscenarioDefinicion.MisionDef definicion, Juego juego) throws JuegoException {
+        java.util.List<com.legendoftecla.missions.ObjetivoMision> secundarios = new java.util.ArrayList<>();
+        for (EscenarioDefinicion.ObjetivoDef secundario : definicion.getSecundarios()) {
+            secundarios.add(crearObjetivo(secundario, juego));
+        }
+        return new com.legendoftecla.missions.Mision(definicion.getId(), definicion.getNombre(),
+                crearObjetivo(definicion.getPrincipal(), juego), secundarios,
+                definicion.getRecompensas());
+    }
+
+    private com.legendoftecla.missions.ObjetivoMision crearObjetivo(
+            EscenarioDefinicion.ObjetivoDef definicion, Juego juego) throws JuegoException {
+        String tipo = definicion.getTipo().toLowerCase(Locale.ROOT);
+        String argumento = definicion.getArgumento();
+        return switch (tipo) {
+            case "alcanzar_salida", "salida" -> new com.legendoftecla.missions.AlcanzarSalida();
+            case "eliminar_enemigo" -> new com.legendoftecla.missions.EliminarEnemigo(argumento);
+            case "eliminar_jefe" -> new com.legendoftecla.missions.EliminarJefe(argumento);
+            case "rescatar" -> new com.legendoftecla.missions.RescatarPersonaje(argumento);
+            case "recuperar_objeto" -> new com.legendoftecla.missions.RecuperarObjeto(argumento);
+            case "sobrevivir_turnos" -> new com.legendoftecla.missions.SobrevivirTurnos(
+                    Math.max(1, definicion.getValor()));
+            case "escoltar" -> new com.legendoftecla.missions.EscoltarPersonaje(argumento);
+            case "apagar_incendio" -> new com.legendoftecla.missions.ApagarIncendio(
+                    posicionObjetivo(definicion, juego));
+            case "no_perder_aliados" -> new com.legendoftecla.missions.NoPerderAliados();
+            case "sin_disparar" -> new com.legendoftecla.missions.CompletarSinDisparar(
+                    new com.legendoftecla.missions.AlcanzarSalida());
+            case "activar_terminal" -> new com.legendoftecla.missions.ActivarTerminal(
+                    buscarTerminal(juego, argumento));
+            default -> throw new JuegoException("Tipo de objetivo desconocido: " + tipo);
+        };
+    }
+
+    private Posicion posicionObjetivo(EscenarioDefinicion.ObjetivoDef definicion, Juego juego) {
+        return definicion.getPosicion() == null
+                ? juego.getMapa().getObjetivo() : posicion(definicion.getPosicion());
+    }
+
+    private com.legendoftecla.model.elements.Terminal buscarTerminal(Juego juego, String id)
+            throws JuegoException {
+        for (int fila = 0; fila < juego.getMapa().getFilas(); fila++) {
+            for (int columna = 0; columna < juego.getMapa().getColumnas(); columna++) {
+                for (var elemento : juego.getMapa().getCelda(new Posicion(fila, columna)).getElementos()) {
+                    if (elemento instanceof com.legendoftecla.model.elements.Terminal terminal
+                            && terminal.getId().equals(id)) {
+                        return terminal;
+                    }
+                }
+            }
+        }
+        throw new JuegoException("Terminal de mision inexistente: " + id);
     }
 
     private Posicion posicion(EscenarioDefinicion.Punto punto) {

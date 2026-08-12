@@ -143,7 +143,42 @@ public final class SerializadorEscenarioJson {
                 }
             }
         }
+        validarMision(escenario, idsConocidos);
         validarConectividad(escenario);
+    }
+
+    private static void validarMision(EscenarioDefinicion escenario,
+            java.util.Set<String> idsConocidos) throws JuegoException {
+        EscenarioDefinicion.MisionDef mision = escenario.getMision();
+        if (mision == null) return;
+        java.util.List<EscenarioDefinicion.ObjetivoDef> objetivos = new java.util.ArrayList<>();
+        objetivos.add(mision.getPrincipal());
+        objetivos.addAll(mision.getSecundarios());
+        java.util.Set<String> tipos = java.util.Set.of("alcanzar_salida", "salida",
+                "eliminar_enemigo", "eliminar_jefe", "rescatar", "recuperar_objeto",
+                "activar_terminal", "sobrevivir_turnos", "escoltar", "apagar_incendio",
+                "no_perder_aliados", "sin_disparar");
+        for (EscenarioDefinicion.ObjetivoDef objetivo : objetivos) {
+            String tipo = objetivo.getTipo().toLowerCase(java.util.Locale.ROOT);
+            if (!tipos.contains(tipo)) {
+                throw new JuegoException("Tipo de objetivo desconocido: " + objetivo.getTipo());
+            }
+            boolean necesitaArgumento = java.util.Set.of("eliminar_enemigo", "eliminar_jefe",
+                    "rescatar", "recuperar_objeto", "activar_terminal", "escoltar").contains(tipo);
+            if (necesitaArgumento && objetivo.getArgumento().isBlank()) {
+                throw new JuegoException("El objetivo " + tipo + " necesita argumento.");
+            }
+            if (tipo.equals("activar_terminal") && !idsConocidos.contains(objetivo.getArgumento())) {
+                throw new JuegoException("Terminal de objetivo inexistente: "
+                        + objetivo.getArgumento());
+            }
+            if (tipo.equals("sobrevivir_turnos") && objetivo.getValor() < 1) {
+                throw new JuegoException("Sobrevivir turnos necesita un valor positivo.");
+            }
+            if (objetivo.getPosicion() != null) {
+                validarPunto(escenario, objetivo.getPosicion(), "objetivo de mision");
+            }
+        }
     }
 
     private static void validarMunicion(EscenarioDefinicion.ObjetoDef objeto)

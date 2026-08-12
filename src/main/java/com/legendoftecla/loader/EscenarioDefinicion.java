@@ -21,6 +21,7 @@ public class EscenarioDefinicion {
     private List<CeldaDef> celdas;
     private List<PersonajeDef> enemigos;
     private List<ObjetoDef> objetos;
+    private MisionDef mision;
 
     /** Crea una definicion con los valores predeterminados del editor. */
     public EscenarioDefinicion() {
@@ -36,6 +37,7 @@ public class EscenarioDefinicion {
         setCeldas(List.of());
         setEnemigos(List.of());
         setObjetos(List.of());
+        setMision(null);
     }
 
     /**
@@ -74,9 +76,11 @@ public class EscenarioDefinicion {
         setCeldas(celdas == null ? List.of() : celdas);
         setEnemigos(enemigos == null ? List.of() : enemigos);
         setObjetos(objetos == null ? List.of() : objetos);
+        setMision(mision);
         this.celdas.forEach(CeldaDef::normalizar);
         this.enemigos.forEach(PersonajeDef::normalizar);
         this.objetos.forEach(ObjetoDef::normalizar);
+        if (this.mision != null) this.mision.normalizar();
     }
 
     /**
@@ -164,6 +168,11 @@ public class EscenarioDefinicion {
     public void setConAliados(boolean conAliados) {
         this.conAliados = conAliados;
     }
+
+    /** @return mision opcional definida por el escenario */
+    public MisionDef getMision() { return mision; }
+    /** @param mision mision opcional; {@code null} conserva la victoria historica */
+    public void setMision(MisionDef mision) { this.mision = mision; }
 
     /** @return punto de inicio */
     public Punto getInicio() {
@@ -677,6 +686,94 @@ public class EscenarioDefinicion {
             setCantidad(cantidad);
             setCategoriaArma(categoriaArma);
             setTipoGranada(tipoGranada);
+        }
+    }
+
+    /** Mision serializable con objetivo principal, secundarios y recompensas. */
+    public static class MisionDef {
+        private String id;
+        private String nombre;
+        private ObjetivoDef principal;
+        private List<ObjetivoDef> secundarios;
+        private List<String> recompensas;
+
+        public MisionDef() {
+            setId("mision");
+            setNombre("Mision tactica");
+            setPrincipal(new ObjetivoDef());
+            setSecundarios(List.of());
+            setRecompensas(List.of());
+        }
+        public String getId() { return id; }
+        public void setId(String id) {
+            this.id = Validaciones.textoObligatorio(id, "ID de mision", Limites.TEXTO_CORTO);
+        }
+        public String getNombre() { return nombre; }
+        public void setNombre(String nombre) {
+            this.nombre = Validaciones.textoObligatorio(
+                    nombre, "Nombre de mision", Limites.TEXTO_CORTO);
+        }
+        public ObjetivoDef getPrincipal() { return principal; }
+        public void setPrincipal(ObjetivoDef principal) {
+            this.principal = Validaciones.noNulo(principal, "Objetivo principal");
+        }
+        public List<ObjetivoDef> getSecundarios() {
+            return Collections.unmodifiableList(secundarios);
+        }
+        public void setSecundarios(List<ObjetivoDef> secundarios) {
+            this.secundarios = new ArrayList<>(Validaciones.noNulo(
+                    secundarios, "Objetivos secundarios"));
+        }
+        public List<String> getRecompensas() { return Collections.unmodifiableList(recompensas); }
+        public void setRecompensas(List<String> recompensas) {
+            this.recompensas = new ArrayList<>(Validaciones.noNulo(recompensas, "Recompensas"));
+        }
+        void normalizar() {
+            setId(id == null ? "mision" : id);
+            setNombre(nombre == null ? "Mision tactica" : nombre);
+            setPrincipal(principal == null ? new ObjetivoDef() : principal);
+            setSecundarios(secundarios == null ? List.of() : secundarios);
+            setRecompensas(recompensas == null ? List.of() : recompensas);
+            principal.normalizar();
+            secundarios.forEach(ObjetivoDef::normalizar);
+        }
+    }
+
+    /** Objetivo serializable; argumento, valor y posicion se interpretan segun el tipo. */
+    public static class ObjetivoDef {
+        private String tipo;
+        private String argumento;
+        private int valor;
+        private Punto posicion;
+
+        public ObjetivoDef() {
+            setTipo("alcanzar_salida");
+            setArgumento("");
+            setValor(1);
+            setPosicion(null);
+        }
+        public String getTipo() { return tipo; }
+        public void setTipo(String tipo) {
+            this.tipo = Validaciones.textoObligatorio(
+                    tipo, "Tipo de objetivo", Limites.TEXTO_CORTO);
+        }
+        public String getArgumento() { return argumento; }
+        public void setArgumento(String argumento) {
+            this.argumento = Validaciones.texto(
+                    argumento == null ? "" : argumento, "Argumento de objetivo", Limites.TEXTO_CORTO);
+        }
+        public int getValor() { return valor; }
+        public void setValor(int valor) {
+            this.valor = Validaciones.enteroEntre(valor, 0, Limites.PASOS_MAXIMOS,
+                    "Valor de objetivo");
+        }
+        public Punto getPosicion() { return posicion; }
+        public void setPosicion(Punto posicion) { this.posicion = posicion; }
+        void normalizar() {
+            setTipo(tipo == null ? "alcanzar_salida" : tipo);
+            setArgumento(argumento);
+            setValor(valor);
+            if (posicion != null) posicion.normalizar();
         }
     }
 }

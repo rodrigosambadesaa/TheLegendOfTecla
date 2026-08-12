@@ -88,6 +88,7 @@ public final class CargadorJuegoJson extends CargadorJuegoBase {
             cargada.setTipoSuelo(celda.isSueloMadera() ? TipoSuelo.MADERA : TipoSuelo.PIEDRA);
             cargada.setAntorchaMural(celda.hasAntorchaMural());
             cargada.setFuenteAgua(celda.hasFuenteAgua());
+            cargada.setNivelFuego(celda.getNivelFuego());
             cargarElemento(cargada, celda);
             mapa.setCelda(celda.getFila(), celda.getColumna(), cargada);
         }
@@ -238,6 +239,8 @@ public final class CargadorJuegoJson extends CargadorJuegoBase {
                             ? definicion.getCantidad() : Math.max(0, definicion.getValor()));
             case "credencial", "llave", "tarjeta" -> new com.legendoftecla.model.items.Credencial(
                     definicion.getNombre(), descripcion, definicion.getPeso(), definicion.getNombre());
+            case "componente" -> new com.legendoftecla.model.items.Componente(
+                    definicion.getNombre(), descripcion, definicion.getPeso());
             default -> new Botiquin(definicion.getNombre(), descripcion, definicion.getPeso(),
                     Math.max(1, definicion.getValor()));
         };

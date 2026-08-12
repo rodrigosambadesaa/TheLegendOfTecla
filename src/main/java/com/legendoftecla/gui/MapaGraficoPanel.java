@@ -49,6 +49,7 @@ public final class MapaGraficoPanel extends JPanel {
         Mapa mapa = juego.getMapa();
         Set<Posicion> enemigosVisibles = motor.getEnemigosVisibles();
         Set<Posicion> aliadosVisibles = motor.getAliadosVisibles();
+        var ultimoRuido = motor.getSistemaRuido().getUltimoRuido();
 
         for (int fila = 0; fila < mapa.getFilas(); fila++) {
             for (int columna = 0; columna < mapa.getColumnas(); columna++) {
@@ -68,6 +69,14 @@ public final class MapaGraficoPanel extends JPanel {
                 }
                 g.setColor(new Color(76, 86, 96));
                 g.drawRect(x, y, TAMANO_CELDA, TAMANO_CELDA);
+
+                if (ultimoRuido.isPresent() && posicion.equals(ultimoRuido.get().origen())) {
+                    int diametro = Math.min(28, 10 + ultimoRuido.get().intensidad());
+                    int margen = (TAMANO_CELDA - diametro) / 2;
+                    g.setColor(new Color(255, 214, 72, 175));
+                    g.drawOval(x + margen, y + margen, diametro, diametro);
+                    g.drawOval(x + margen + 3, y + margen + 3, diametro - 6, diametro - 6);
+                }
 
                 if (!celda.getElementos().isEmpty()) {
                     var elemento = celda.getElementos().get(0);
@@ -170,6 +179,11 @@ public final class MapaGraficoPanel extends JPanel {
                         g.fillPolygon(new int[]{x + 23, x + 29, x + 23, x + 17},
                                 new int[]{y + 6, y + 12, y + 18, y + 12}, 4);
                     }
+                    if (enemigo.getControladorIA().getEstado()
+                            != com.legendoftecla.ai.NivelAlerta.PATRULLA) {
+                        g.setColor(colorAlerta(enemigo.getControladorIA().getEstado()));
+                        g.fillOval(x + 23, y + 22, 7, 7);
+                    }
                 }
                 if (posicion.equals(juego.getJugador().getPosicion())) {
                     g.setColor(new Color(58, 220, 210));
@@ -205,13 +219,29 @@ public final class MapaGraficoPanel extends JPanel {
                 .append(celda.getNivelFuego()).append("</b>");
         if (!celda.getElementos().isEmpty()) detalle.append("<br>Elemento: ")
                 .append(celda.getElementos().get(0).getClass().getSimpleName());
+        motor.getSistemaRuido().getUltimoRuido()
+                .filter(ruido -> ruido.origen().equals(posicion))
+                .ifPresent(ruido -> detalle.append("<br>Ruido: ").append(ruido.causa())
+                        .append(" (").append(ruido.intensidad()).append(")"));
         if (!celda.getObjetos().isEmpty() && motor.getJuego().isCeldaInspeccionada(posicion)) {
             detalle.append("<br>Objetos: ").append(celda.getObjetos());
         }
         if (!celda.getAliados().isEmpty()) detalle.append("<br>Aliados: ").append(celda.getAliados().size());
         if (!celda.getEnemigos().isEmpty() && motor.getEnemigosVisibles().contains(posicion)) {
-            detalle.append("<br>Enemigos: ").append(celda.getEnemigos().size());
+            detalle.append("<br>Enemigos: ").append(celda.getEnemigos().size())
+                    .append(" | alerta: ")
+                    .append(celda.getEnemigos().get(0).getControladorIA().getEstado());
         }
         return detalle.append("</html>").toString();
+    }
+
+    private Color colorAlerta(com.legendoftecla.ai.NivelAlerta alerta) {
+        return switch (alerta) {
+            case COMBATE, ALERTA -> new Color(255, 45, 45);
+            case INVESTIGANDO, BUSQUEDA, SOSPECHA -> new Color(255, 190, 35);
+            case HUYENDO -> new Color(115, 190, 255);
+            case PROTEGIENDO -> new Color(190, 105, 255);
+            case PATRULLA -> new Color(100, 185, 110);
+        };
     }
 }

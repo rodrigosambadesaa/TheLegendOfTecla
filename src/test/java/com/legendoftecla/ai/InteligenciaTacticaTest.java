@@ -32,6 +32,9 @@ class InteligenciaTacticaTest {
         BusEventos bus = new BusEventos();
         try (SistemaRuido ruido = new SistemaRuido(bus, List.of(scout))) {
             ruido.generar(new Posicion(0, 0), FuenteRuido.CAMINAR);
+            assertEquals(new Posicion(0, 0), ruido.getUltimoRuido().orElseThrow().origen());
+            assertEquals(FuenteRuido.CAMINAR.intensidad(),
+                    ruido.getUltimoRuido().orElseThrow().intensidad());
             assertEquals(NivelAlerta.INVESTIGANDO, scout.getControladorIA().getEstado());
             AccionIA investigar = scout.getControladorIA().decidir(
                     new ContextoIA(scout, juego, false, null, false, false));

@@ -6,6 +6,7 @@ import com.legendoftecla.exceptions.JuegoException;
 import com.legendoftecla.loader.CargadorJuegoJson;
 import com.legendoftecla.loader.EscenarioDefinicion;
 import com.legendoftecla.loader.SerializadorEscenarioJson;
+import com.legendoftecla.model.items.Componente;
 import com.legendoftecla.model.world.Juego;
 import com.legendoftecla.model.world.Posicion;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,7 @@ import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ElementosPersistenciaTest {
     @TempDir
@@ -61,5 +63,32 @@ class ElementosPersistenciaTest {
         terminal.setReferencia(null);
         terminal.setElementoTipo("teletransportador");
         assertThrows(JuegoException.class, () -> SerializadorEscenarioJson.validar(escenario));
+    }
+
+    @Test
+    void jsonConservaAmbienteInicialYComponentesDelEditor() throws Exception {
+        EscenarioDefinicion escenario = EscenarioDefinicion.nuevo(5, 5);
+        EscenarioDefinicion.CeldaDef celda = escenario.celda(2, 2);
+        celda.setOscura(true);
+        celda.setSueloMadera(true);
+        celda.setFuenteAgua(true);
+        celda.setNivelFuego(2);
+        EscenarioDefinicion.ObjetoDef componente = new EscenarioDefinicion.ObjetoDef();
+        componente.setTipo("componente");
+        componente.setNombre("Piezas");
+        componente.setDescripcion("Material de crafting");
+        componente.setFila(2);
+        componente.setColumna(2);
+        escenario.agregarObjeto(componente);
+
+        SerializadorEscenarioJson.guardar(escenario, temporal);
+        Juego juego = new CargadorJuegoJson(TestFixtures.consola(), "Tecla", "marine",
+                temporal, Dificultad.NORMAL, null, false).cargarJuego();
+
+        var cargada = juego.getMapa().getCelda(new Posicion(2, 2));
+        assertEquals(2, cargada.getNivelFuego());
+        assertEquals(com.legendoftecla.model.world.TipoSuelo.MADERA, cargada.getTipoSuelo());
+        assertTrue(cargada.hasFuenteAgua());
+        assertInstanceOf(Componente.class, cargada.getObjetos().get(0));
     }
 }

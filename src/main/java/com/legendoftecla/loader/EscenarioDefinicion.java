@@ -327,6 +327,7 @@ public class EscenarioDefinicion {
         private boolean sueloMadera;
         private boolean antorchaMural;
         private boolean fuenteAgua;
+        private int nivelFuego;
         private String elementoTipo;
         private String elementoId;
         private String elementoEstado;
@@ -342,6 +343,7 @@ public class EscenarioDefinicion {
             setSueloMadera(false);
             setAntorchaMural(false);
             setFuenteAgua(false);
+            setNivelFuego(0);
             setElementoTipo(null);
             setElementoId(null);
             setElementoEstado(null);
@@ -359,7 +361,9 @@ public class EscenarioDefinicion {
          * @param transitable transitabilidad
          */
         public CeldaDef(int fila, int columna, String descripcion, boolean transitable) {
-            super(fila, columna);
+            this();
+            setFila(fila);
+            setColumna(columna);
             setDescripcion(descripcion);
             setTransitable(transitable);
         }
@@ -394,6 +398,10 @@ public class EscenarioDefinicion {
         public boolean hasFuenteAgua() { return fuenteAgua; }
         public boolean isFuenteAgua() { return fuenteAgua; }
         public void setFuenteAgua(boolean fuenteAgua) { this.fuenteAgua = fuenteAgua; }
+        public int getNivelFuego() { return nivelFuego; }
+        public void setNivelFuego(int nivelFuego) {
+            this.nivelFuego = Validaciones.enteroEntre(nivelFuego, 0, 3, "Nivel de fuego");
+        }
         public String getElementoTipo() { return elementoTipo; }
         public void setElementoTipo(String elementoTipo) { this.elementoTipo = elementoTipo; }
         public String getElementoId() { return elementoId; }
@@ -415,6 +423,7 @@ public class EscenarioDefinicion {
             setSueloMadera(sueloMadera);
             setAntorchaMural(antorchaMural);
             setFuenteAgua(fuenteAgua);
+            setNivelFuego(nivelFuego);
             setElementoTipo(elementoTipo);
             setElementoId(elementoId);
             setElementoEstado(elementoEstado);

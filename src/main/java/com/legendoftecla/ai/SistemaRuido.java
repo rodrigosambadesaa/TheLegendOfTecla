@@ -14,6 +14,7 @@ public final class SistemaRuido implements AutoCloseable {
     private final BusEventos eventos;
     private final Supplier<List<Enemigo>> enemigos;
     private final com.legendoftecla.events.Suscripcion suscripcion;
+    private RuidoGenerado ultimoRuido;
     public SistemaRuido(BusEventos eventos, List<Enemigo> enemigos) {
         this(eventos, () -> List.copyOf(enemigos));
     }
@@ -30,7 +31,12 @@ public final class SistemaRuido implements AutoCloseable {
         eventos.publicar(new RuidoGenerado(eventos.ahora(), origen,
                 fuente.intensidad(), fuente.name()));
     }
+    /** @return ultimo estimulo sonoro publicado, si existe */
+    public java.util.Optional<RuidoGenerado> getUltimoRuido() {
+        return java.util.Optional.ofNullable(ultimoRuido);
+    }
     private void distribuir(RuidoGenerado ruido) {
+        ultimoRuido = ruido;
         enemigos.get().stream().filter(enemigo -> enemigo.getSalud() > 0)
                 .forEach(enemigo -> enemigo.getControladorIA().percibir(ruido));
     }

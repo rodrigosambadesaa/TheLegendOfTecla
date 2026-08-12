@@ -348,7 +348,8 @@ public final class PanelEditorMapa extends JPanel {
     private void anadirObjeto(int fila, int columna) {
         exigirSuelo(fila, columna);
         JComboBox<String> tipo = new JComboBox<>(new String[]{
-                "botiquin", "arma", "armadura", "binocular", "torito", "explosivo"});
+                "botiquin", "arma", "armadura", "binocular", "torito", "explosivo",
+                "granada", "linterna", "cuboagua", "municion", "credencial", "componente"});
         JTextField nombreObjeto = new JTextField("Objeto");
         JTextField descripcionObjeto = new JTextField("Objeto personalizado");
         JSpinner peso = new JSpinner(new SpinnerNumberModel(1.0, 0.0, 1000.0, 0.1));
@@ -356,7 +357,17 @@ public final class PanelEditorMapa extends JPanel {
         JSpinner valor2 = new JSpinner(new SpinnerNumberModel(0, 0, 5000, 1));
         JSpinner valor3 = new JSpinner(new SpinnerNumberModel(0, 0, 5000, 1));
         JCheckBox dosManos = new JCheckBox("Arma a dos manos");
-        JLabel ayuda = new JLabel("Valor: cura/danio/defensa/rango/energia; valores 2 y 3: bonus salud y energia de armadura");
+        JComboBox<String> categoria = new JComboBox<>(new String[]{
+                "", "MELE", "ARROJADIZA", "ARCO", "BALLESTA", "FUEGO"});
+        JComboBox<String> municion = new JComboBox<>(new String[]{
+                "", "INFINITA", "CUCHILLO_ARROJADIZO", "FLECHA", "VIROTE",
+                "PISTOLA", "RIFLE", "PESADA", "COHETE", "ENERGIA"});
+        JSpinner cargador = new JSpinner(new SpinnerNumberModel(0, 0, 5000, 1));
+        JSpinner carga = new JSpinner(new SpinnerNumberModel(0, 0, 5000, 1));
+        JSpinner cantidad = new JSpinner(new SpinnerNumberModel(0, 0, 5000, 1));
+        JComboBox<String> granada = new JComboBox<>(new String[]{
+                "FRAGMENTACION", "INCENDIARIA", "HUMO", "ATURDIDORA"});
+        JLabel ayuda = new JLabel("Para armas finitas indica familia, municion y cargador; cantidad se usa en paquetes.");
         JPanel formulario = formulario(
                 new JLabel("Tipo:"), tipo,
                 new JLabel("Nombre:"), nombreObjeto,
@@ -366,6 +377,11 @@ public final class PanelEditorMapa extends JPanel {
                 new JLabel("Valor secundario:"), valor2,
                 new JLabel("Valor terciario:"), valor3,
                 new JLabel("Opciones:"), dosManos,
+                new JLabel("Categoria de arma:"), categoria,
+                new JLabel("Tipo de municion:"), municion,
+                new JLabel("Capacidad / carga:"), formulario(cargador, carga),
+                new JLabel("Cantidad de municion:"), cantidad,
+                new JLabel("Tipo de granada:"), granada,
                 new JLabel("Ayuda:"), ayuda);
         int respuesta = JOptionPane.showConfirmDialog(this, formulario, "Configurar objeto",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
@@ -386,13 +402,30 @@ public final class PanelEditorMapa extends JPanel {
         objeto.setValorSecundario(numero(valor2));
         objeto.setValorTerciario(numero(valor3));
         objeto.setDosManos(dosManos.isSelected());
+        objeto.setCategoriaArma(textoOpcional(categoria));
+        objeto.setTipoMunicion(textoOpcional(municion));
+        objeto.setCapacidadCargador(numero(cargador));
+        objeto.setMunicionActual(numero(carga));
+        objeto.setCantidad(numero(cantidad));
+        objeto.setTipoGranada((String) granada.getSelectedItem());
         escenario.agregarObjeto(objeto);
     }
 
     private void editarCelda(EscenarioDefinicion.CeldaDef celda) {
         JTextField texto = new JTextField(celda.getDescripcion(), 25);
         JCheckBox transitable = new JCheckBox("Transitable", celda.isTransitable());
-        JPanel formulario = formulario(new JLabel("Descripcion:"), texto, new JLabel("Tipo:"), transitable);
+        JCheckBox oscura = new JCheckBox("Oscuridad permanente", celda.isOscura());
+        JCheckBox madera = new JCheckBox("Suelo de madera", celda.isSueloMadera());
+        JCheckBox antorcha = new JCheckBox("Antorcha mural", celda.hasAntorchaMural());
+        JCheckBox fuente = new JCheckBox("Fuente de agua", celda.hasFuenteAgua());
+        JSpinner fuego = new JSpinner(new SpinnerNumberModel(celda.getNivelFuego(), 0, 3, 1));
+        JPanel formulario = formulario(new JLabel("Descripcion:"), texto,
+                new JLabel("Tipo:"), transitable,
+                new JLabel("Ambiente:"), oscura,
+                new JLabel("Suelo:"), madera,
+                new JLabel("Iluminacion:"), antorcha,
+                new JLabel("Agua:"), fuente,
+                new JLabel("Fuego inicial (0-3):"), fuego);
         if (JOptionPane.showConfirmDialog(this, formulario, "Editar celda",
                 JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
             if (!transitable.isSelected()
@@ -402,6 +435,11 @@ public final class PanelEditorMapa extends JPanel {
             }
             celda.setDescripcion(texto.getText());
             celda.setTransitable(transitable.isSelected());
+            celda.setOscura(oscura.isSelected());
+            celda.setSueloMadera(madera.isSelected());
+            celda.setAntorchaMural(antorcha.isSelected());
+            celda.setFuenteAgua(fuente.isSelected());
+            celda.setNivelFuego(numero(fuego));
             if (!celda.isTransitable()) {
                 borrarContenido(celda.getFila(), celda.getColumna());
             }
@@ -529,6 +567,11 @@ public final class PanelEditorMapa extends JPanel {
 
     private int numero(JSpinner spinner) {
         return ControlesNumericos.valorEntero(spinner);
+    }
+
+    private String textoOpcional(JComboBox<String> selector) {
+        String valor = (String) selector.getSelectedItem();
+        return valor == null || valor.isBlank() ? null : valor;
     }
 
     private JPanel formulario(java.awt.Component... componentes) {

@@ -189,6 +189,9 @@ public final class PanelEditorMapa extends JPanel {
         JButton guardarComo = new JButton("Guardar como...");
         guardarComo.addActionListener(e -> guardarEscenario(true));
         barra.add(guardarComo);
+        JButton mision = new JButton("Configurar mision");
+        mision.addActionListener(e -> configurarMision());
+        barra.add(mision);
         JButton validar = new JButton("Validar escenario");
         validar.addActionListener(e -> validarEscenario());
         barra.add(validar);
@@ -409,6 +412,72 @@ public final class PanelEditorMapa extends JPanel {
         objeto.setCantidad(numero(cantidad));
         objeto.setTipoGranada((String) granada.getSelectedItem());
         escenario.agregarObjeto(objeto);
+    }
+
+    private void configurarMision() {
+        EscenarioDefinicion.MisionDef actual = escenario.getMision();
+        JCheckBox victoriaClasica = new JCheckBox("Usar victoria clasica (sin mision)",
+                actual == null);
+        JTextField id = new JTextField(actual == null ? "mision-1" : actual.getId());
+        JTextField nombreMision = new JTextField(
+                actual == null ? "Operacion Tecla" : actual.getNombre());
+        JComboBox<String> tipo = new JComboBox<>(new String[]{"alcanzar_salida",
+                "eliminar_enemigo", "eliminar_jefe", "rescatar", "recuperar_objeto",
+                "activar_terminal", "sobrevivir_turnos", "escoltar", "apagar_incendio",
+                "no_perder_aliados", "sin_disparar"});
+        if (actual != null) tipo.setSelectedItem(actual.getPrincipal().getTipo());
+        JTextField argumento = new JTextField(actual == null ? "" : actual.getPrincipal().getArgumento());
+        JSpinner valor = new JSpinner(new SpinnerNumberModel(
+                actual == null ? 1 : actual.getPrincipal().getValor(), 0, 100000, 1));
+        int filaInicial = actual != null && actual.getPrincipal().getPosicion() != null
+                ? actual.getPrincipal().getPosicion().getFila() : escenario.getObjetivo().getFila();
+        int columnaInicial = actual != null && actual.getPrincipal().getPosicion() != null
+                ? actual.getPrincipal().getPosicion().getColumna() : escenario.getObjetivo().getColumna();
+        JSpinner filaObjetivo = new JSpinner(new SpinnerNumberModel(
+                filaInicial, 0, escenario.getFilas() - 1, 1));
+        JSpinner columnaObjetivo = new JSpinner(new SpinnerNumberModel(
+                columnaInicial, 0, escenario.getColumnas() - 1, 1));
+        JCheckBox sinBajas = new JCheckBox("Secundario: no perder aliados",
+                actual != null && actual.getSecundarios().stream()
+                        .anyMatch(o -> "no_perder_aliados".equalsIgnoreCase(o.getTipo())));
+        JTextField recompensas = new JTextField(actual == null ? ""
+                : String.join(", ", actual.getRecompensas()));
+        JPanel formulario = formulario(
+                new JLabel("Modo:"), victoriaClasica,
+                new JLabel("ID:"), id,
+                new JLabel("Nombre:"), nombreMision,
+                new JLabel("Objetivo principal:"), tipo,
+                new JLabel("Nombre/ID asociado:"), argumento,
+                new JLabel("Turnos/valor:"), valor,
+                new JLabel("Fila/columna:"), formulario(filaObjetivo, columnaObjetivo),
+                new JLabel("Objetivo secundario:"), sinBajas,
+                new JLabel("Recompensas (coma):"), recompensas);
+        if (JOptionPane.showConfirmDialog(this, formulario, "Configurar mision",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) != JOptionPane.OK_OPTION) {
+            return;
+        }
+        if (victoriaClasica.isSelected()) {
+            escenario.setMision(null);
+            return;
+        }
+        EscenarioDefinicion.ObjetivoDef principal = new EscenarioDefinicion.ObjetivoDef();
+        principal.setTipo((String) tipo.getSelectedItem());
+        principal.setArgumento(argumento.getText().trim());
+        principal.setValor(numero(valor));
+        principal.setPosicion(new EscenarioDefinicion.Punto(
+                numero(filaObjetivo), numero(columnaObjetivo)));
+        EscenarioDefinicion.MisionDef mision = new EscenarioDefinicion.MisionDef();
+        mision.setId(id.getText().trim());
+        mision.setNombre(nombreMision.getText().trim());
+        mision.setPrincipal(principal);
+        if (sinBajas.isSelected()) {
+            EscenarioDefinicion.ObjetivoDef secundario = new EscenarioDefinicion.ObjetivoDef();
+            secundario.setTipo("no_perder_aliados");
+            mision.setSecundarios(java.util.List.of(secundario));
+        }
+        mision.setRecompensas(java.util.Arrays.stream(recompensas.getText().split(","))
+                .map(String::trim).filter(valorTexto -> !valorTexto.isEmpty()).toList());
+        escenario.setMision(mision);
     }
 
     private void editarCelda(EscenarioDefinicion.CeldaDef celda) {

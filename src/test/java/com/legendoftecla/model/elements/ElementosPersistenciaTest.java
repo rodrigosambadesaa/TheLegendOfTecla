@@ -91,4 +91,30 @@ class ElementosPersistenciaTest {
         assertTrue(cargada.hasFuenteAgua());
         assertInstanceOf(Componente.class, cargada.getObjetos().get(0));
     }
+
+    @Test
+    void jsonDelEditorCargaMisionPrincipalYSecundaria() throws Exception {
+        EscenarioDefinicion escenario = EscenarioDefinicion.nuevo(5, 5);
+        EscenarioDefinicion.ObjetivoDef principal = new EscenarioDefinicion.ObjetivoDef();
+        principal.setTipo("sobrevivir_turnos");
+        principal.setValor(4);
+        EscenarioDefinicion.ObjetivoDef secundario = new EscenarioDefinicion.ObjetivoDef();
+        secundario.setTipo("no_perder_aliados");
+        EscenarioDefinicion.MisionDef mision = new EscenarioDefinicion.MisionDef();
+        mision.setId("resistencia");
+        mision.setNombre("Resistir");
+        mision.setPrincipal(principal);
+        mision.setSecundarios(java.util.List.of(secundario));
+        mision.setRecompensas(java.util.List.of("100 XP"));
+        escenario.setMision(mision);
+
+        SerializadorEscenarioJson.guardar(escenario, temporal);
+        Juego juego = new CargadorJuegoJson(TestFixtures.consola(), "Tecla", "marine",
+                temporal, Dificultad.NORMAL, null, false).cargarJuego();
+
+        assertEquals("resistencia", juego.getMision().getId());
+        assertEquals("Sobrevivir 4 turnos", juego.getMision().getPrincipal().descripcion());
+        assertEquals(1, juego.getMision().getSecundarios().size());
+        assertEquals(java.util.List.of("100 XP"), juego.getMision().getRecompensas());
+    }
 }

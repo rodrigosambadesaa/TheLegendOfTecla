@@ -10,7 +10,9 @@ import com.legendoftecla.constants.FormacionAliada;
 import com.legendoftecla.console.TipoMensaje;
 import com.legendoftecla.audio.EventoSonido;
 import com.legendoftecla.audio.GestorSonido;
+import com.legendoftecla.audio.SuscriptorAudioEventos;
 import com.legendoftecla.exceptions.ComandoException;
+import com.legendoftecla.events.MisionCompletada;
 import com.legendoftecla.model.characters.Aliado;
 import com.legendoftecla.model.characters.Enemigo;
 import com.legendoftecla.model.characters.Personaje;
@@ -63,6 +65,7 @@ public final class MotorPartida {
      */
     public MotorPartida(Juego juego) {
         setJuego(juego);
+        SuscriptorAudioEventos.registrar(juego);
         setContexto(new CommandContext(juego));
         setParser(new CommandParser(contexto));
         setRandom(new Random());
@@ -382,6 +385,10 @@ public final class MotorPartida {
         }
         setFinalizada(true);
         setEstadoFinal(Validaciones.noNulo(estado, "Estado final"));
+        if (estado == SistemaPuntuacion.EstadoFinalPartida.VICTORIA) {
+            juego.publicarEvento(new MisionCompletada(
+                    juego.getBusEventos().ahora(), "victoria-original"));
+        }
         switch (estado) {
             case VICTORIA -> juego.getConsola().imprimir("Has llegado al objetivo. Victoria.", TipoMensaje.EXITO);
             case MUERTE -> juego.getConsola().imprimir(

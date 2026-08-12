@@ -4,8 +4,8 @@ import com.legendoftecla.exceptions.AccionInvalidaException;
 import com.legendoftecla.exceptions.ComandoException;
 import com.legendoftecla.model.world.Direccion;
 import com.legendoftecla.validation.Validaciones;
-import com.legendoftecla.audio.EventoSonido;
-import com.legendoftecla.audio.GestorSonido;
+import com.legendoftecla.events.PersonajeMovido;
+import com.legendoftecla.events.RuidoGenerado;
 
 
 /**
@@ -44,11 +44,17 @@ public class ComandoMover implements Comando {
      */
     public void ejecutar() throws ComandoException {
         try {
+            var origen = context.getJuego().getJugador().getPosicion();
             context.getJuego().getJugador().mover(direccion, context.getJuego());
             context.getJuego().registrarPaso();
             context.getJuego().getJugador().registrarPosicion();
             context.getJuego().getConsola().imprimir("Te mueves a " + direccion + ".");
-            GestorSonido.reproducir(EventoSonido.MOVIMIENTO);
+            var destino = context.getJuego().getJugador().getPosicion();
+            context.getJuego().publicarEvento(new PersonajeMovido(
+                    context.getJuego().getBusEventos().ahora(),
+                    context.getJuego().getJugador().getNombre(), origen, destino));
+            context.getJuego().publicarEvento(new RuidoGenerado(
+                    context.getJuego().getBusEventos().ahora(), destino, 1, "movimiento"));
         } catch (AccionInvalidaException e) {
             throw new ComandoException(e.getMessage());
         }

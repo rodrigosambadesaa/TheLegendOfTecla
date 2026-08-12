@@ -2,6 +2,8 @@ package com.legendoftecla.commands;
 
 import com.legendoftecla.exceptions.ComandoException;
 import com.legendoftecla.exceptions.JuegoException;
+import com.legendoftecla.events.ObjetoUsado;
+import com.legendoftecla.events.PersonajeCurado;
 import com.legendoftecla.model.characters.Jugador;
 import com.legendoftecla.model.items.Binocular;
 import com.legendoftecla.model.items.Objeto;
@@ -50,6 +52,7 @@ public class ComandoUsar implements Comando {
      */
     public void ejecutar() throws ComandoException {
         Jugador jugador = context.getJuego().getJugador();
+        int saludAntes = jugador.getSalud();
         Objeto obj = jugador.getMochila().quitarPorNombre(nombreObjeto);
         boolean estabaEquipado = false;
         Binocular equipado = jugador.getBinocularEquipado();
@@ -73,6 +76,15 @@ public class ComandoUsar implements Comando {
             String detalle = obj instanceof Linterna
                     ? (jugador.isLinternaActiva() ? " encendida." : " apagada.") : ".";
             context.getJuego().getConsola().imprimir("Usas " + obj.getNombre() + detalle);
+            context.getJuego().publicarEvento(new ObjetoUsado(
+                    context.getJuego().getBusEventos().ahora(), jugador.getNombre(),
+                    obj.getNombre(), jugador.getPosicion()));
+            int curacion = jugador.getSalud() - saludAntes;
+            if (curacion > 0) {
+                context.getJuego().publicarEvento(new PersonajeCurado(
+                        context.getJuego().getBusEventos().ahora(), jugador.getNombre(),
+                        curacion, jugador.getPosicion()));
+            }
         } catch (ComandoException e) {
             devolverObjeto(jugador, obj, estabaEquipado);
             throw e;

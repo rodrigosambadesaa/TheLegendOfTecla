@@ -1,6 +1,11 @@
 package com.legendoftecla.commands;
 
 import com.legendoftecla.exceptions.ComandoException;
+import com.legendoftecla.events.ObjetoUsado;
+import com.legendoftecla.events.PersonajeAtacado;
+import com.legendoftecla.events.PersonajeDanado;
+import com.legendoftecla.events.PersonajeMuerto;
+import com.legendoftecla.events.RuidoGenerado;
 import com.legendoftecla.model.characters.Enemigo;
 import com.legendoftecla.model.characters.Zapador;
 import com.legendoftecla.model.items.Explosivo;
@@ -11,8 +16,6 @@ import com.legendoftecla.model.world.Mapa;
 import com.legendoftecla.model.world.Posicion;
 import com.legendoftecla.validation.Limites;
 import com.legendoftecla.validation.Validaciones;
-import com.legendoftecla.audio.EventoSonido;
-import com.legendoftecla.audio.GestorSonido;
 import com.legendoftecla.engine.SistemaIncendios;
 
 import java.util.List;
@@ -86,7 +89,14 @@ public final class ComandoLanzarExplosivo implements Comando {
 
         context.getJuego().getJugador().getMochila().quitarPorNombre(explosivo.getNombre());
         List<Integer> vidasAntes = objetivos.stream().map(Enemigo::getSalud).toList();
-        GestorSonido.reproducir(EventoSonido.ATAQUE, origen, origen);
+        objetivos.forEach(enemigo -> context.getJuego().publicarEvento(new PersonajeAtacado(
+                context.getJuego().getBusEventos().ahora(),
+                context.getJuego().getJugador().getNombre(), enemigo.getNombre(), origen, destino)));
+        context.getJuego().publicarEvento(new ObjetoUsado(
+                context.getJuego().getBusEventos().ahora(),
+                context.getJuego().getJugador().getNombre(), explosivo.getNombre(), origen));
+        context.getJuego().publicarEvento(new RuidoGenerado(
+                context.getJuego().getBusEventos().ahora(), destino, 10, "explosion"));
         objetivos.forEach(enemigo -> enemigo.recibirDanio(explosivo.getDanio()));
         context.getJuego().getConsola().imprimir("Lanzas " + explosivo.getNombre() + " a " + destino
                 + " y causas " + explosivo.getDanio() + " de dano a " + objetivos.size() + " enemigo(s).");
@@ -97,8 +107,15 @@ public final class ComandoLanzarExplosivo implements Comando {
                     + " ataca a " + enemigo.getNombre() + " con " + explosivo.getNombre()
                     + ": quita " + quitada + " de vida; quedan " + enemigo.getSalud()
                     + "/" + enemigo.getSaludMaxima() + ".");
-            GestorSonido.reproducir(enemigo.getSalud() <= 0
-                    ? EventoSonido.MUERTE_ENEMIGO : EventoSonido.DANIO, destino, origen);
+            if (quitada > 0) {
+                context.getJuego().publicarEvento(new PersonajeDanado(
+                        context.getJuego().getBusEventos().ahora(), enemigo.getNombre(),
+                        quitada, destino));
+            }
+            if (vidasAntes.get(i) > 0 && enemigo.getSalud() <= 0) {
+                context.getJuego().publicarEvento(new PersonajeMuerto(
+                        context.getJuego().getBusEventos().ahora(), enemigo.getNombre(), destino));
+            }
         }
         SistemaIncendios.intentarDerribarAntorcha(
                 context.getJuego(), destino, ThreadLocalRandom.current());

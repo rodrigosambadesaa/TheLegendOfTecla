@@ -1,5 +1,6 @@
 package com.legendoftecla.commands;
 
+import com.legendoftecla.events.PersonajeCurado;
 import com.legendoftecla.model.characters.Jugador;
 import com.legendoftecla.validation.Validaciones;
 
@@ -34,6 +35,11 @@ public final class ComandoDescansar implements Comando {
                 (int) Math.ceil(jugador.getEnergiaMaxima() * PROPORCION_RECUPERADA)));
         int saludRecuperada = jugador.getSalud() - saludAnterior;
         int energiaRecuperada = jugador.getEnergia() - energiaAnterior;
+        if (saludRecuperada > 0) {
+            context.getJuego().publicarEvento(new PersonajeCurado(
+                    context.getJuego().getBusEventos().ahora(), jugador.getNombre(),
+                    saludRecuperada, jugador.getPosicion()));
+        }
         context.getJuego().getConsola().imprimir(
                 "Descansas sin moverte: recuperas " + saludRecuperada
                         + " de salud y " + energiaRecuperada

@@ -3,6 +3,10 @@ package com.legendoftecla.model.world;
 import com.legendoftecla.console.Consola;
 import com.legendoftecla.constants.CondicionVictoria;
 import com.legendoftecla.constants.FormacionAliada;
+import com.legendoftecla.events.AliadoEvacuado;
+import com.legendoftecla.events.BusEventos;
+import com.legendoftecla.events.CeldaInspeccionada;
+import com.legendoftecla.events.EventoJuego;
 import com.legendoftecla.model.characters.Aliado;
 import com.legendoftecla.model.characters.Enemigo;
 import com.legendoftecla.model.characters.Jugador;
@@ -37,6 +41,7 @@ public class Juego {
     private Map<Aliado, Set<Posicion>> celdasInspeccionadasAliados;
     private CondicionVictoria condicionVictoria;
     private FormacionAliada formacionAliada;
+    private BusEventos busEventos;
 
     /**
      * Ejecuta Juego.
@@ -65,6 +70,7 @@ public class Juego {
         setCeldasInspeccionadasAliados(Map.of());
         setCondicionVictoria(CondicionVictoria.JUGADOR_Y_ALIADOS);
         setFormacionAliada(FormacionAliada.SIN_FORMACION);
+        setBusEventos(new BusEventos());
     }
 
     /**
@@ -302,6 +308,8 @@ public class Juego {
         extraidos.add(aliado);
         setAliadosExtraidosDetalle(extraidos);
         setAliadosExtraidos(aliadosExtraidos + 1);
+        publicarEvento(new AliadoEvacuado(busEventos.ahora(), aliado.getNombre(),
+                aliado.getPosicion()));
         return true;
     }
 
@@ -364,8 +372,13 @@ public class Juego {
     /** Registra que el jugador ha mirado la celda en la que se encuentra. */
     public void inspeccionarCeldaActual() {
         Set<Posicion> inspeccionadas = new HashSet<>(celdasInspeccionadas);
-        inspeccionadas.add(jugador.getPosicion());
+        Posicion posicion = jugador.getPosicion();
+        boolean nueva = inspeccionadas.add(posicion);
         setCeldasInspeccionadas(inspeccionadas);
+        if (nueva) {
+            publicarEvento(new CeldaInspeccionada(busEventos.ahora(),
+                    jugador.getNombre(), posicion));
+        }
     }
 
     /**
@@ -414,6 +427,10 @@ public class Juego {
         Set<Posicion> posiciones = inspecciones.computeIfAbsent(validado, clave -> new HashSet<>());
         boolean nueva = posiciones.add(validado.getPosicion());
         setCeldasInspeccionadasAliados(inspecciones);
+        if (nueva) {
+            publicarEvento(new CeldaInspeccionada(busEventos.ahora(),
+                    validado.getNombre(), validado.getPosicion()));
+        }
         return nueva;
     }
 
@@ -455,6 +472,25 @@ public class Juego {
     /** @param formacionAliada estrategia no nula */
     public void setFormacionAliada(FormacionAliada formacionAliada) {
         this.formacionAliada = Validaciones.noNulo(formacionAliada, "Formacion aliada");
+    }
+
+    /** @return bus de eventos propio de esta partida */
+    public BusEventos getBusEventos() {
+        return busEventos;
+    }
+
+    /** @param busEventos bus no nulo que sustituye al adaptador de la partida */
+    public void setBusEventos(BusEventos busEventos) {
+        this.busEventos = Validaciones.noNulo(busEventos, "Bus de eventos");
+    }
+
+    /**
+     * Publica un hecho observable sin exponer detalles del despacho a los servicios.
+     *
+     * @param evento evento no nulo
+     */
+    public void publicarEvento(EventoJuego evento) {
+        busEventos.publicar(Validaciones.noNulo(evento, "Evento de juego"));
     }
 
     /**

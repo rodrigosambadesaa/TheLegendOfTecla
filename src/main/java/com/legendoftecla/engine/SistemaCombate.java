@@ -1,8 +1,10 @@
 package com.legendoftecla.engine;
 
-import com.legendoftecla.audio.EventoSonido;
-import com.legendoftecla.audio.GestorSonido;
 import com.legendoftecla.console.TipoMensaje;
+import com.legendoftecla.events.PersonajeAtacado;
+import com.legendoftecla.events.PersonajeDanado;
+import com.legendoftecla.events.PersonajeMuerto;
+import com.legendoftecla.events.RuidoGenerado;
 import com.legendoftecla.model.characters.Aliado;
 import com.legendoftecla.model.characters.Enemigo;
 import com.legendoftecla.model.characters.Jugador;
@@ -19,7 +21,7 @@ public final class SistemaCombate {
 
     public static ResultadoAtaque atacar(Juego juego, Personaje atacante, Personaje objetivo, Random random) {
         int vidaAntes = objetivo.getSalud();
-        GestorSonido.reproducir(EventoSonido.ATAQUE, atacante.getPosicion(), juego.getJugador().getPosicion());
+        publicarAtaque(juego, atacante, objetivo);
         atacante.atacar(objetivo);
         ResultadoAtaque resultado = resultado(atacante, objetivo, vidaAntes);
         informar(juego, resultado, objetivo);
@@ -30,7 +32,11 @@ public final class SistemaCombate {
     public static List<ResultadoAtaque> atacarTodos(Juego juego, Personaje atacante,
             List<? extends Personaje> objetivos, Random random) {
         List<Integer> vidas = objetivos.stream().map(Personaje::getSalud).toList();
-        GestorSonido.reproducir(EventoSonido.ATAQUE, atacante.getPosicion(), juego.getJugador().getPosicion());
+        objetivos.forEach(objetivo -> juego.publicarEvento(new PersonajeAtacado(
+                juego.getBusEventos().ahora(), atacante.getNombre(), objetivo.getNombre(),
+                atacante.getPosicion(), objetivo.getPosicion())));
+        juego.publicarEvento(new RuidoGenerado(juego.getBusEventos().ahora(),
+                atacante.getPosicion(), 7, "ataque"));
         atacante.atacar(objetivos);
         List<ResultadoAtaque> resultados = new ArrayList<>();
         for (int i = 0; i < objetivos.size(); i++) {
@@ -56,12 +62,22 @@ public final class SistemaCombate {
                 + ": quita " + resultado.vidaQuitada() + " de vida; quedan "
                 + resultado.vidaRestante() + "/" + resultado.vidaMaxima() + ".";
         juego.getConsola().imprimir(texto, resultado.mortal() ? TipoMensaje.EXITO : TipoMensaje.INFO);
-        GestorSonido.reproducir(EventoSonido.DANIO, objetivo.getPosicion(), juego.getJugador().getPosicion());
+        if (resultado.vidaQuitada() > 0) {
+            juego.publicarEvento(new PersonajeDanado(juego.getBusEventos().ahora(),
+                    objetivo.getNombre(), resultado.vidaQuitada(), objetivo.getPosicion()));
+        }
         if (resultado.mortal()) {
-            EventoSonido muerte = objetivo instanceof Jugador ? EventoSonido.MUERTE_JUGADOR
-                    : objetivo instanceof Aliado ? EventoSonido.MUERTE_ALIADO : EventoSonido.MUERTE_ENEMIGO;
-            GestorSonido.reproducir(muerte, objetivo.getPosicion(), juego.getJugador().getPosicion());
+            juego.publicarEvento(new PersonajeMuerto(juego.getBusEventos().ahora(),
+                    objetivo.getNombre(), objetivo.getPosicion()));
             juego.getConsola().imprimir(resultado.objetivo() + " muere.", TipoMensaje.ADVERTENCIA);
         }
+    }
+
+    private static void publicarAtaque(Juego juego, Personaje atacante, Personaje objetivo) {
+        juego.publicarEvento(new PersonajeAtacado(juego.getBusEventos().ahora(),
+                atacante.getNombre(), objetivo.getNombre(), atacante.getPosicion(),
+                objetivo.getPosicion()));
+        juego.publicarEvento(new RuidoGenerado(juego.getBusEventos().ahora(),
+                atacante.getPosicion(), 7, "ataque"));
     }
 }

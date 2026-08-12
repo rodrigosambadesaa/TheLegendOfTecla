@@ -1,8 +1,12 @@
 package com.legendoftecla.engine;
 
-import com.legendoftecla.audio.EventoSonido;
-import com.legendoftecla.audio.GestorSonido;
 import com.legendoftecla.console.TipoMensaje;
+import com.legendoftecla.events.IncendioExtinguido;
+import com.legendoftecla.events.IncendioIniciado;
+import com.legendoftecla.events.IncendioPropagado;
+import com.legendoftecla.events.PersonajeDanado;
+import com.legendoftecla.events.PersonajeMuerto;
+import com.legendoftecla.events.RuidoGenerado;
 import com.legendoftecla.model.characters.Personaje;
 import com.legendoftecla.model.characters.Jugador;
 import com.legendoftecla.model.characters.Aliado;
@@ -38,11 +42,10 @@ public final class SistemaIncendios {
     }
 
     public static void iniciar(Juego juego, Posicion posicion, int intensidad) {
-        Celda celda = juego.getMapa().getCelda(posicion);
-        if (celda.getNivelFuego() >= intensidad) return;
-        celda.setNivelFuego(Math.min(3, intensidad));
-        juego.getConsola().imprimir("INCENDIO iniciado en " + posicion + ".", TipoMensaje.ERROR);
-        GestorSonido.reproducir(EventoSonido.INCENDIO, posicion, juego.getJugador().getPosicion());
+        if (establecerFuego(juego, posicion, intensidad)) {
+            juego.publicarEvento(new IncendioIniciado(juego.getBusEventos().ahora(), posicion));
+            publicarRuidoFuego(juego, posicion);
+        }
     }
 
     public static boolean apagar(Juego juego, Posicion posicion) {
@@ -50,7 +53,7 @@ public final class SistemaIncendios {
         if (!celda.estaArdiendo()) return false;
         celda.setNivelFuego(0);
         juego.getConsola().imprimirExito("Fuego apagado en " + posicion + ".");
-        GestorSonido.reproducir(EventoSonido.APAGAR_FUEGO, posicion, juego.getJugador().getPosicion());
+        juego.publicarEvento(new IncendioExtinguido(juego.getBusEventos().ahora(), posicion));
         return true;
     }
 
@@ -74,7 +77,12 @@ public final class SistemaIncendios {
                 Celda destino = juego.getMapa().getCelda(vecina);
                 if (!destino.estaArdiendo() && destino.getTipoSuelo() == TipoSuelo.MADERA
                         && random.nextDouble() < PROBABILIDAD_PROPAGACION) {
-                    iniciar(juego, vecina, Math.max(1, celda.getNivelFuego() - 1));
+                    if (establecerFuego(juego, vecina,
+                            Math.max(1, celda.getNivelFuego() - 1))) {
+                        juego.publicarEvento(new IncendioPropagado(juego.getBusEventos().ahora(),
+                                posicion, vecina));
+                        publicarRuidoFuego(juego, vecina);
+                    }
                 }
             }
             celda.setNivelFuego(Math.max(0, celda.getNivelFuego() - 1));
@@ -89,12 +97,29 @@ public final class SistemaIncendios {
         juego.getConsola().imprimir("El fuego daña a " + personaje.getNombre() + ": quita " + quitada
                 + " de vida; quedan " + personaje.getSalud() + "/" + personaje.getSaludMaxima() + ".",
                 TipoMensaje.ERROR);
-        GestorSonido.reproducir(EventoSonido.DANIO, posicion, juego.getJugador().getPosicion());
+        if (quitada > 0) {
+            juego.publicarEvento(new PersonajeDanado(juego.getBusEventos().ahora(),
+                    personaje.getNombre(), quitada, posicion));
+        }
         if (antes > 0 && personaje.getSalud() <= 0) {
-            EventoSonido muerte = personaje instanceof Jugador ? EventoSonido.MUERTE_JUGADOR
-                    : personaje instanceof Aliado ? EventoSonido.MUERTE_ALIADO : EventoSonido.MUERTE_ENEMIGO;
-            GestorSonido.reproducir(muerte, posicion, juego.getJugador().getPosicion());
+            juego.publicarEvento(new PersonajeMuerto(juego.getBusEventos().ahora(),
+                    personaje.getNombre(), posicion));
             juego.getConsola().imprimir(personaje.getNombre() + " muere por el incendio.", TipoMensaje.ERROR);
         }
+    }
+
+    private static boolean establecerFuego(Juego juego, Posicion posicion, int intensidad) {
+        Celda celda = juego.getMapa().getCelda(posicion);
+        if (celda.getNivelFuego() >= intensidad) {
+            return false;
+        }
+        celda.setNivelFuego(Math.min(3, intensidad));
+        juego.getConsola().imprimir("INCENDIO iniciado en " + posicion + ".", TipoMensaje.ERROR);
+        return true;
+    }
+
+    private static void publicarRuidoFuego(Juego juego, Posicion posicion) {
+        juego.publicarEvento(new RuidoGenerado(juego.getBusEventos().ahora(),
+                posicion, 5, "incendio"));
     }
 }

@@ -2,6 +2,7 @@ package com.legendoftecla.commands;
 
 import com.legendoftecla.exceptions.AccionInvalidaException;
 import com.legendoftecla.exceptions.ComandoException;
+import com.legendoftecla.events.ObjetoRecogido;
 import com.legendoftecla.model.items.Objeto;
 import com.legendoftecla.model.world.Celda;
 import com.legendoftecla.validation.Limites;
@@ -54,6 +55,9 @@ public class ComandoCoger implements Comando {
         try {
             context.getJuego().getJugador().coger(objeto);
             context.getJuego().getConsola().imprimir("Recoges " + objeto.getNombre() + ".");
+            context.getJuego().publicarEvento(new ObjetoRecogido(
+                    context.getJuego().getBusEventos().ahora(),
+                    context.getJuego().getJugador().getNombre(), objeto.getNombre(), posicion));
         } catch (AccionInvalidaException e) {
             celda.agregarObjeto(objeto);
             throw new ComandoException(e.getMessage());

@@ -12,7 +12,14 @@ public enum EventoSonido {
     MUERTE_ALIADO("ally-death.wav"),
     MUERTE_JUGADOR("player-death.wav"),
     INCENDIO("fire-start.wav"),
-    APAGAR_FUEGO("fire-out.wav");
+    APAGAR_FUEGO("fire-out.wav"),
+    PUERTA("door.wav"),
+    RECARGA("reload.wav"),
+    TRAMPA("trap.wav"),
+    ALARMA("alarm.wav"),
+    AGUA("water.wav"),
+    DESCUBRIMIENTO("discover.wav"),
+    MISION("mission.wav");
 
     private final String archivo;
 

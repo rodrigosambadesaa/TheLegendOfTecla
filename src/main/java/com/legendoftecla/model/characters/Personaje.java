@@ -2,6 +2,7 @@ package com.legendoftecla.model.characters;
 
 import com.legendoftecla.exceptions.AccionInvalidaException;
 import com.legendoftecla.effects.GestorEstados;
+import com.legendoftecla.engine.SistemaTrampas;
 import com.legendoftecla.model.items.Arma;
 import com.legendoftecla.model.items.Armadura;
 import com.legendoftecla.model.items.Binocular;
@@ -384,6 +385,7 @@ public abstract class Personaje {
         int coste = calcularCosteMovimiento();
         gastarEnergia(coste);
         setPosicion(destino);
+        SistemaTrampas.activarAlEntrar(juego, destino, this);
         estados.alMover();
     }
 

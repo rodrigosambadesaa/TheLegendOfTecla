@@ -36,6 +36,16 @@ public final class PanelEditorMapa extends JPanel {
         OBJETIVO("Objetivo"),
         ENEMIGO("Anadir enemigo"),
         OBJETO("Anadir objeto"),
+        PUERTA("Anadir puerta"),
+        TERMINAL("Anadir terminal"),
+        INTERRUPTOR("Anadir interruptor"),
+        COFRE("Anadir cofre"),
+        MINA("Anadir mina"),
+        TRAMPA_FUEGO("Anadir trampa de fuego"),
+        TRAMPA_VENENO("Anadir trampa de veneno"),
+        TRAMPA_ELECTRICA("Anadir trampa electrica"),
+        ALARMA("Anadir alarma"),
+        COBERTURA("Anadir cobertura completa"),
         EDITAR_CELDA("Editar celda"),
         BORRAR("Borrar contenido");
 
@@ -178,6 +188,9 @@ public final class PanelEditorMapa extends JPanel {
         JButton guardarComo = new JButton("Guardar como...");
         guardarComo.addActionListener(e -> guardarEscenario(true));
         barra.add(guardarComo);
+        JButton validar = new JButton("Validar escenario");
+        validar.addActionListener(e -> validarEscenario());
+        barra.add(validar);
         barra.addSeparator();
         JButton regresar = new JButton("Volver al menu");
         regresar.addActionListener(e -> volver.run());
@@ -247,12 +260,41 @@ public final class PanelEditorMapa extends JPanel {
                 }
                 case ENEMIGO -> anadirPersonaje(fila, columna);
                 case OBJETO -> anadirObjeto(fila, columna);
+                case PUERTA -> configurarElemento(celda, "puerta", "CERRADA");
+                case TERMINAL -> configurarElemento(celda, "terminal", null);
+                case INTERRUPTOR -> configurarElemento(celda, "interruptor", null);
+                case COFRE -> configurarElemento(celda, "cofre", null);
+                case MINA -> configurarElemento(celda, "mina", null);
+                case TRAMPA_FUEGO -> configurarElemento(celda, "trampa_fuego", null);
+                case TRAMPA_VENENO -> configurarElemento(celda, "trampa_veneno", null);
+                case TRAMPA_ELECTRICA -> configurarElemento(celda, "trampa_electrica", null);
+                case ALARMA -> configurarElemento(celda, "alarma", null);
+                case COBERTURA -> configurarElemento(celda, "cobertura", null);
                 case EDITAR_CELDA -> editarCelda(celda);
                 case BORRAR -> borrarContenido(fila, columna);
             }
             reconstruirCuadricula();
         } catch (IllegalArgumentException e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Operacion no valida", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void configurarElemento(EscenarioDefinicion.CeldaDef celda,
+            String tipo, String estado) {
+        celda.setElementoTipo(tipo);
+        celda.setElementoId(tipo + "-" + celda.getFila() + "-" + celda.getColumna());
+        celda.setElementoEstado(estado);
+        celda.setTransitable(true);
+    }
+
+    private void validarEscenario() {
+        try {
+            sincronizarMetadatos();
+            SerializadorEscenarioJson.validar(escenario);
+            JOptionPane.showMessageDialog(this, "Escenario valido y objetivo alcanzable.");
+        } catch (JuegoException | IllegalArgumentException error) {
+            JOptionPane.showMessageDialog(this, error.getMessage(), "Escenario no valido",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -268,7 +310,9 @@ public final class PanelEditorMapa extends JPanel {
 
     private void anadirPersonaje(int fila, int columna) {
         exigirSuelo(fila, columna);
-        JComboBox<String> tipo = new JComboBox<>(new String[]{"sectoid", "lightfloater", "heavyfloater"});
+        JComboBox<String> tipo = new JComboBox<>(new String[]{"sectoid", "lightfloater",
+                "heavyfloater", "berserker", "medic", "sniper", "pyro", "scout",
+                "commander", "commanderprime", "pyrooverlord"});
         JTextField nombrePersonaje = new JTextField("Enemigo");
         JSpinner salud = new JSpinner(new SpinnerNumberModel(70, 1, 5000, 5));
         JSpinner energia = new JSpinner(new SpinnerNumberModel(70, 1, 5000, 5));

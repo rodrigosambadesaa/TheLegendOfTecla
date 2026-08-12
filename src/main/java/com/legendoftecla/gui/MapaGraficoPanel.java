@@ -59,9 +59,9 @@ public final class MapaGraficoPanel extends JPanel {
 
                 Color suelo = celda.getTipoSuelo() == TipoSuelo.MADERA
                         ? new Color(104, 73, 43) : new Color(49, 57, 66);
-                g.setColor(celda.isTransitable() ? suelo : new Color(20, 23, 28));
+                g.setColor(celda.isTerrenoTransitable() ? suelo : new Color(20, 23, 28));
                 g.fillRect(x, y, TAMANO_CELDA, TAMANO_CELDA);
-                if (celda.isTransitable() && celda.getTipoSuelo() == TipoSuelo.MADERA) {
+                if (celda.isTerrenoTransitable() && celda.getTipoSuelo() == TipoSuelo.MADERA) {
                     g.setColor(new Color(139, 96, 55));
                     g.drawLine(x + 3, y + 9, x + 29, y + 9);
                     g.drawLine(x + 3, y + 20, x + 29, y + 20);
@@ -69,7 +69,26 @@ public final class MapaGraficoPanel extends JPanel {
                 g.setColor(new Color(76, 86, 96));
                 g.drawRect(x, y, TAMANO_CELDA, TAMANO_CELDA);
 
-                if (!celda.isTransitable()) {
+                if (!celda.getElementos().isEmpty()) {
+                    var elemento = celda.getElementos().get(0);
+                    if (elemento instanceof com.legendoftecla.model.elements.Puerta) {
+                        g.setColor(new Color(154, 101, 54));
+                        g.fillRect(x + 11, y + 2, 10, 28);
+                    } else if (elemento instanceof com.legendoftecla.model.elements.Trampa trampa
+                            && trampa.isDetectada()) {
+                        g.setColor(new Color(255, 120, 50));
+                        g.drawPolygon(new int[]{x + 16, x + 5, x + 27},
+                                new int[]{y + 5, y + 27, y + 27}, 3);
+                    } else if (elemento instanceof com.legendoftecla.model.elements.Barricada) {
+                        g.setColor(new Color(124, 93, 65));
+                        g.fillRect(x + 3, y + 12, 26, 9);
+                    } else if (elemento instanceof com.legendoftecla.model.elements.Terminal) {
+                        g.setColor(new Color(70, 190, 205));
+                        g.fillRect(x + 7, y + 7, 18, 18);
+                    }
+                }
+
+                if (!celda.isTerrenoTransitable()) {
                     g.setColor(new Color(95, 103, 112));
                     g.fillRect(x + 5, y + 5, TAMANO_CELDA - 10, TAMANO_CELDA - 10);
                     continue;
@@ -170,6 +189,8 @@ public final class MapaGraficoPanel extends JPanel {
         if (celda.hasFuenteAgua()) detalle.append("<br>Fuente de agua");
         if (celda.estaArdiendo()) detalle.append("<br><b>INCENDIO nivel ")
                 .append(celda.getNivelFuego()).append("</b>");
+        if (!celda.getElementos().isEmpty()) detalle.append("<br>Elemento: ")
+                .append(celda.getElementos().get(0).getClass().getSimpleName());
         if (!celda.getObjetos().isEmpty() && motor.getJuego().isCeldaInspeccionada(posicion)) {
             detalle.append("<br>Objetos: ").append(celda.getObjetos());
         }

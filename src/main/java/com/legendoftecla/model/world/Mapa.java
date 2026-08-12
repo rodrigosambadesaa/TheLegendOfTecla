@@ -213,12 +213,12 @@ public class Mapa {
         }
         Posicion cursor = new Posicion(origen.getFila() + df, origen.getColumna() + dc);
         while (!cursor.equals(destino)) {
-            if (!esTransitable(cursor)) {
+            if (getCelda(cursor).bloqueaVision()) {
                 return false;
             }
             cursor = new Posicion(cursor.getFila() + df, cursor.getColumna() + dc);
         }
-        return esTransitable(destino);
+        return !getCelda(destino).bloqueaVision();
     }
 
     /**
@@ -294,6 +294,8 @@ public class Mapa {
                     sb.append('?');
                 } else if (actual.equals(objetivo)) {
                     sb.append('X');
+                } else if (celdas[f][c].simboloElemento() != 0) {
+                    sb.append(celdas[f][c].simboloElemento());
                 } else if (!celdas[f][c].isTransitable()) {
                     sb.append('#');
                 } else if (!celdas[f][c].getEnemigos().isEmpty() && enemigosVisibles.contains(actual)) {

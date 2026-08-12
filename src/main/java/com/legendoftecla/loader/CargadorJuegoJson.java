@@ -21,6 +21,7 @@ import com.legendoftecla.model.items.Explosivo;
 import com.legendoftecla.model.items.Objeto;
 import com.legendoftecla.model.items.ToritoRojo;
 import com.legendoftecla.model.items.CuboAgua;
+import com.legendoftecla.model.items.Credencial;
 import com.legendoftecla.model.items.Linterna;
 import com.legendoftecla.model.world.Celda;
 import com.legendoftecla.model.world.DimensionesMapa;
@@ -88,6 +89,7 @@ public final class CargadorJuegoJson extends CargadorJuegoBase {
             cargada.setTipoSuelo(celda.isSueloMadera() ? TipoSuelo.MADERA : TipoSuelo.PIEDRA);
             cargada.setAntorchaMural(celda.hasAntorchaMural());
             cargada.setFuenteAgua(celda.hasFuenteAgua());
+            cargarElemento(cargada, celda);
             mapa.setCelda(celda.getFila(), celda.getColumna(), cargada);
         }
 
@@ -154,6 +156,42 @@ public final class CargadorJuegoJson extends CargadorJuegoBase {
         return enemigo;
     }
 
+    private void cargarElemento(Celda destino, EscenarioDefinicion.CeldaDef origen) {
+        if (origen.getElementoTipo() == null || origen.getElementoTipo().isBlank()) {
+            return;
+        }
+        String id = origen.getElementoId() == null ? "elemento-" + origen.getFila()
+                + "-" + origen.getColumna() : origen.getElementoId();
+        String tipo = origen.getElementoTipo().toLowerCase(Locale.ROOT);
+        com.legendoftecla.model.elements.ElementoMapa elemento = switch (tipo) {
+            case "puerta" -> new com.legendoftecla.model.elements.Puerta(id,
+                    origen.getElementoEstado() == null
+                            ? com.legendoftecla.model.elements.EstadoPuerta.CERRADA
+                            : com.legendoftecla.model.elements.EstadoPuerta.valueOf(
+                                    origen.getElementoEstado().toUpperCase(Locale.ROOT)),
+                    origen.getReferencia(), true, origen.getResistencia());
+            case "terminal" -> new com.legendoftecla.model.elements.Terminal(
+                    id, origen.getDificultad(), origen.getReferencia());
+            case "interruptor" -> new com.legendoftecla.model.elements.Interruptor(
+                    id, false, origen.getReferencia());
+            case "cofre" -> new com.legendoftecla.model.elements.Cofre(id, java.util.List.of());
+            case "barricada", "cobertura" -> new com.legendoftecla.model.elements.Barricada(
+                    id, origen.getResistencia(),
+                    com.legendoftecla.model.elements.TipoCobertura.COMPLETA,
+                    com.legendoftecla.model.elements.OrientacionCobertura.TODAS);
+            case "mina", "trampa" -> new com.legendoftecla.model.elements.Mina(
+                    id, 20, 1, false);
+            case "trampa_fuego" -> new com.legendoftecla.model.elements.TrampaFuego(id);
+            case "trampa_veneno" -> new com.legendoftecla.model.elements.TrampaVeneno(id);
+            case "trampa_electrica" -> new com.legendoftecla.model.elements.TrampaElectrica(id);
+            case "alarma" -> new com.legendoftecla.model.elements.Alarma(id);
+            default -> null;
+        };
+        if (elemento != null) {
+            destino.agregarElemento(elemento);
+        }
+    }
+
     private Objeto crearObjeto(EscenarioDefinicion.ObjetoDef definicion) {
         String tipo = definicion.getTipo().toLowerCase(Locale.ROOT);
         String descripcion = definicion.getDescripcion();
@@ -175,6 +213,8 @@ public final class CargadorJuegoJson extends CargadorJuegoBase {
                     definicion.getPeso(), Math.max(1, definicion.getValor()));
             case "cubo", "cuboagua", "cubo_agua" -> new CuboAgua(definicion.getNombre(), descripcion,
                     definicion.getPeso(), definicion.getValor() > 0);
+            case "credencial", "llave", "tarjeta" -> new Credencial(
+                    definicion.getNombre(), descripcion, definicion.getPeso(), definicion.getNombre());
             default -> new Botiquin(definicion.getNombre(), descripcion, definicion.getPeso(),
                     Math.max(1, definicion.getValor()));
         };

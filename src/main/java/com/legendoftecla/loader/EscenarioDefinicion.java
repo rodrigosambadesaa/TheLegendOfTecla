@@ -327,6 +327,12 @@ public class EscenarioDefinicion {
         private boolean sueloMadera;
         private boolean antorchaMural;
         private boolean fuenteAgua;
+        private String elementoTipo;
+        private String elementoId;
+        private String elementoEstado;
+        private String referencia;
+        private int resistencia;
+        private int dificultad;
 
         /** Crea una celda predeterminada. */
         public CeldaDef() {
@@ -336,6 +342,12 @@ public class EscenarioDefinicion {
             setSueloMadera(false);
             setAntorchaMural(false);
             setFuenteAgua(false);
+            setElementoTipo(null);
+            setElementoId(null);
+            setElementoEstado(null);
+            setReferencia(null);
+            setResistencia(10);
+            setDificultad(5);
         }
 
         /**
@@ -382,6 +394,18 @@ public class EscenarioDefinicion {
         public boolean hasFuenteAgua() { return fuenteAgua; }
         public boolean isFuenteAgua() { return fuenteAgua; }
         public void setFuenteAgua(boolean fuenteAgua) { this.fuenteAgua = fuenteAgua; }
+        public String getElementoTipo() { return elementoTipo; }
+        public void setElementoTipo(String elementoTipo) { this.elementoTipo = elementoTipo; }
+        public String getElementoId() { return elementoId; }
+        public void setElementoId(String elementoId) { this.elementoId = elementoId; }
+        public String getElementoEstado() { return elementoEstado; }
+        public void setElementoEstado(String elementoEstado) { this.elementoEstado = elementoEstado; }
+        public String getReferencia() { return referencia; }
+        public void setReferencia(String referencia) { this.referencia = referencia; }
+        public int getResistencia() { return resistencia; }
+        public void setResistencia(int resistencia) { this.resistencia = Math.max(1, resistencia); }
+        public int getDificultad() { return dificultad; }
+        public void setDificultad(int dificultad) { this.dificultad = Math.max(0, dificultad); }
 
         void normalizar() {
             super.normalizar();
@@ -391,6 +415,12 @@ public class EscenarioDefinicion {
             setSueloMadera(sueloMadera);
             setAntorchaMural(antorchaMural);
             setFuenteAgua(fuenteAgua);
+            setElementoTipo(elementoTipo);
+            setElementoId(elementoId);
+            setElementoEstado(elementoEstado);
+            setReferencia(referencia);
+            setResistencia(resistencia <= 0 ? 10 : resistencia);
+            setDificultad(dificultad);
         }
     }
 

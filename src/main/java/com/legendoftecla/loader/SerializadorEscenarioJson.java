@@ -86,6 +86,10 @@ public final class SerializadorEscenarioJson {
         }
         for (EscenarioDefinicion.CeldaDef celda : escenario.getCeldas()) {
             validarPunto(escenario, celda, "celda");
+            if (celda.getElementoTipo() != null && !celda.getElementoTipo().isBlank()
+                    && (celda.getElementoId() == null || celda.getElementoId().isBlank())) {
+                throw new JuegoException("Cada elemento de mapa necesita un ID.");
+            }
         }
         for (EscenarioDefinicion.PersonajeDef enemigo : escenario.getEnemigos()) {
             validarPersonaje(escenario, enemigo, "enemigo");
@@ -104,6 +108,62 @@ public final class SerializadorEscenarioJson {
                 || (objetivo != null && !objetivo.isTransitable())) {
             throw new JuegoException("Las celdas de inicio y objetivo deben ser transitables.");
         }
+        java.util.List<String> ids = escenario.getCeldas().stream()
+                .map(EscenarioDefinicion.CeldaDef::getElementoId)
+                .filter(java.util.Objects::nonNull).filter(id -> !id.isBlank()).toList();
+        if (ids.stream().distinct().count() != ids.size()) {
+            throw new JuegoException("Los IDs de elementos no pueden estar duplicados.");
+        }
+        java.util.Set<String> idsConocidos = new java.util.HashSet<>(ids);
+        java.util.Set<String> tipos = java.util.Set.of("puerta", "terminal", "interruptor",
+                "cofre", "barricada", "cobertura", "mina", "trampa",
+                "trampa_fuego", "trampa_veneno", "trampa_electrica", "alarma");
+        for (EscenarioDefinicion.CeldaDef celda : escenario.getCeldas()) {
+            String tipo = celda.getElementoTipo();
+            if (tipo == null || tipo.isBlank()) continue;
+            String normalizado = tipo.toLowerCase(java.util.Locale.ROOT);
+            if (!tipos.contains(normalizado)) {
+                throw new JuegoException("Tipo de elemento desconocido: " + tipo);
+            }
+            if ((normalizado.equals("terminal") || normalizado.equals("interruptor"))
+                    && celda.getReferencia() != null && !celda.getReferencia().isBlank()
+                    && !idsConocidos.contains(celda.getReferencia())) {
+                throw new JuegoException("Referencia de elemento inexistente: "
+                        + celda.getReferencia());
+            }
+            if (normalizado.equals("puerta") && celda.getElementoEstado() != null) {
+                try {
+                    com.legendoftecla.model.elements.EstadoPuerta.valueOf(
+                            celda.getElementoEstado().toUpperCase(java.util.Locale.ROOT));
+                } catch (IllegalArgumentException error) {
+                    throw new JuegoException("Estado de puerta invalido: "
+                            + celda.getElementoEstado());
+                }
+            }
+        }
+        validarConectividad(escenario);
+    }
+
+    private static void validarConectividad(EscenarioDefinicion escenario) throws JuegoException {
+        java.util.Set<String> bloqueadas = escenario.getCeldas().stream()
+                .filter(c -> !c.isTransitable()).map(c -> c.getFila() + ":" + c.getColumna())
+                .collect(java.util.stream.Collectors.toSet());
+        java.util.ArrayDeque<EscenarioDefinicion.Punto> pendientes = new java.util.ArrayDeque<>();
+        java.util.Set<String> visitadas = new java.util.HashSet<>();
+        pendientes.add(escenario.getInicio());
+        while (!pendientes.isEmpty()) {
+            EscenarioDefinicion.Punto actual = pendientes.remove();
+            String clave = actual.getFila() + ":" + actual.getColumna();
+            if (!visitadas.add(clave) || bloqueadas.contains(clave)) continue;
+            for (int[] d : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
+                int f = actual.getFila() + d[0]; int c = actual.getColumna() + d[1];
+                if (f >= 0 && f < escenario.getFilas() && c >= 0 && c < escenario.getColumnas()) {
+                    pendientes.add(new EscenarioDefinicion.Punto(f, c));
+                }
+            }
+        }
+        String objetivo = escenario.getObjetivo().getFila() + ":" + escenario.getObjetivo().getColumna();
+        if (!visitadas.contains(objetivo)) throw new JuegoException("El objetivo no es alcanzable.");
     }
 
     private static void validarPersonaje(EscenarioDefinicion escenario,

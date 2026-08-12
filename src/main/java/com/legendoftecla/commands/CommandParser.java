@@ -113,10 +113,7 @@ public class CommandParser {
             requiereArg(partes);
             return new ComandoTirar(context, unir(partes, 1));
         }, "tirar");
-        registrar(comandos, partes -> {
-            requiereArg(partes);
-            return new ComandoUsar(context, unir(partes, 1));
-        }, "usar");
+        registrar(comandos, this::parseUsar, "usar");
         registrar(comandos, this::parseEquipar, "equipar");
         registrar(comandos, partes -> {
             requiereArg(partes);
@@ -129,6 +126,18 @@ public class CommandParser {
             return new ComandoCargar(context, unir(partes, 1));
         }, "cargar");
         registrar(comandos, this::parsePedirAyuda, "pedir");
+        registrar(comandos, partes -> new ComandoPuerta(context, true), "abrir");
+        registrar(comandos, partes -> new ComandoPuerta(context, false), "cerrar");
+        registrar(comandos, partes -> new ComandoTrampa(
+                context, ComandoTrampa.Operacion.DETECTAR), "inspeccionar");
+        registrar(comandos, partes -> new ComandoTrampa(
+                context, ComandoTrampa.Operacion.DESACTIVAR), "desactivar");
+        registrar(comandos, partes -> new ComandoTrampa(
+                context, ComandoTrampa.Operacion.DETONAR), "detonar");
+        registrar(comandos, partes -> new ComandoTrampa(
+                context, ComandoTrampa.Operacion.DISPARAR), "disparar");
+        registrar(comandos, partes -> new ComandoTerminal(context, true), "hackear");
+        registrar(comandos, partes -> new ComandoTerminal(context, false), "activar");
         registrar(comandos, partes -> new ComandoPedirAyuda(context), "socorro", "asistir");
         registrar(comandos, this::parseReagrupar, "reagrupar", "formacion");
         registrar(comandos, partes -> new ComandoSalir(), "salir");
@@ -258,6 +267,15 @@ public class CommandParser {
             throw new ComandoException("Uso: pedir ayuda");
         }
         return new ComandoPedirAyuda(context);
+    }
+
+    private Comando parseUsar(String[] partes) throws ComandoException {
+        requiereArg(partes);
+        if (partes.length == 2 && ("llave".equalsIgnoreCase(partes[1])
+                || "tarjeta".equalsIgnoreCase(partes[1]))) {
+            return new ComandoPuerta(context, true);
+        }
+        return new ComandoUsar(context, unir(partes, 1));
     }
 
     private Comando parseReagrupar(String[] partes) throws ComandoException {

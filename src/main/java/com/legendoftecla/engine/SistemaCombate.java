@@ -9,6 +9,8 @@ import com.legendoftecla.model.characters.Aliado;
 import com.legendoftecla.model.characters.Enemigo;
 import com.legendoftecla.model.characters.Jugador;
 import com.legendoftecla.model.characters.Personaje;
+import com.legendoftecla.model.elements.SistemaCobertura;
+import com.legendoftecla.model.elements.TipoCobertura;
 import com.legendoftecla.model.world.Juego;
 
 import java.util.ArrayList;
@@ -22,6 +24,19 @@ public final class SistemaCombate {
     public static ResultadoAtaque atacar(Juego juego, Personaje atacante, Personaje objetivo, Random random) {
         int vidaAntes = objetivo.getSalud();
         publicarAtaque(juego, atacante, objetivo);
+        SistemaCobertura cobertura = new SistemaCobertura(random);
+        SistemaCobertura.Proteccion proteccion = cobertura.proteccion(
+                juego.getMapa(), atacante.getPosicion(), objetivo.getPosicion());
+        if (proteccion.tipo() != TipoCobertura.NINGUNA) {
+            double probabilidad = cobertura.probabilidadImpacto(0.85, proteccion.tipo(),
+                    proteccion.flanqueada(), atacante.getEstados().multiplicadorPrecision());
+            if (!cobertura.impacta(probabilidad)) {
+                ResultadoAtaque fallo = resultado(atacante, objetivo, vidaAntes);
+                juego.getConsola().imprimir(atacante.getNombre() + " falla contra "
+                        + objetivo.getNombre() + " por la cobertura.", TipoMensaje.INFO);
+                return fallo;
+            }
+        }
         atacante.atacar(objetivo);
         ResultadoAtaque resultado = resultado(atacante, objetivo, vidaAntes);
         informar(juego, resultado, objetivo);

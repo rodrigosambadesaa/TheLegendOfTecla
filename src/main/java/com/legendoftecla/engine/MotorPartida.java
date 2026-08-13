@@ -11,7 +11,6 @@ import com.legendoftecla.console.TipoMensaje;
 import com.legendoftecla.audio.EventoSonido;
 import com.legendoftecla.audio.GestorSonido;
 import com.legendoftecla.audio.SuscriptorAudioEventos;
-import com.legendoftecla.ai.EnemigoTactico;
 import com.legendoftecla.ai.SistemaTurnosIA;
 import com.legendoftecla.ai.SistemaRuido;
 import com.legendoftecla.exceptions.ComandoException;
@@ -41,12 +40,10 @@ import com.legendoftecla.validation.Validaciones;
 import java.util.HashSet;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.StringJoiner;
 
 /**
  * Controla una partida completa sin conocer si se muestra en consola o en GUI.
@@ -57,8 +54,7 @@ public final class MotorPartida {
     private CommandContext contexto;
     private CommandParser parser;
     private Random random;
-    private Map<Aliado, SituacionAliado> situacionesAliados;
-    private Map<Aliado, Boolean> aliadosEnCombate;
+    private RegistroEstadoAliados registroAliados;
     private boolean finalizada;
     private boolean modoEspectador;
     private SistemaPuntuacion.EstadoFinalPartida estadoFinal;
@@ -68,6 +64,7 @@ public final class MotorPartida {
     private boolean cooperacionInventarioActiva;
     private SistemaTurnosIA sistemaTurnosIA;
     private SistemaRuido sistemaRuido;
+    private IndiceEspacialPersonajes<Enemigo> indiceEnemigos;
 
     /**
      * Crea una instancia de {@code MotorPartida}.
@@ -81,14 +78,9 @@ public final class MotorPartida {
         setContexto(new CommandContext(juego));
         setParser(new CommandParser(contexto));
         setRandom(new Random());
-        Map<Aliado, SituacionAliado> situacionesIniciales = new HashMap<>();
-        Map<Aliado, Boolean> combatesIniciales = new HashMap<>();
-        juego.getAliadosRegistrados().forEach(aliado -> {
-            situacionesIniciales.put(aliado, SituacionAliado.ACTIVO);
-            combatesIniciales.put(aliado, false);
-        });
-        setSituacionesAliados(situacionesIniciales);
-        setAliadosEnCombate(combatesIniciales);
+        setRegistroAliados(new RegistroEstadoAliados());
+        registroAliados.inicializar(juego.getAliadosRegistrados());
+        setIndiceEnemigos(new IndiceEspacialPersonajes<>(List.of()));
         setFinalizada(false);
         setModoEspectador(false);
         setEstadoFinal(null);
@@ -146,29 +138,31 @@ public final class MotorPartida {
     public void setRandom(Random random) {
         this.random = Validaciones.noNulo(random, "Generador aleatorio");
     }
+    /** @return registro mutable encapsulado de los estados aliados */
+    public RegistroEstadoAliados getRegistroAliados() { return registroAliados; }
+    /** @param registroAliados registro no nulo */
+    public void setRegistroAliados(RegistroEstadoAliados registroAliados) {
+        this.registroAliados = Validaciones.noNulo(registroAliados, "Registro de aliados");
+    }
+    /** @return indice espacial vigente, reconstruido en cada turno aliado */
+    public IndiceEspacialPersonajes<Enemigo> getIndiceEnemigos() { return indiceEnemigos; }
+    /** @param indiceEnemigos indice espacial no nulo */
+    public void setIndiceEnemigos(IndiceEspacialPersonajes<Enemigo> indiceEnemigos) {
+        this.indiceEnemigos = Validaciones.noNulo(indiceEnemigos, "Indice de enemigos");
+    }
     /** @return copia de las situaciones aliadas */
     public Map<Aliado, SituacionAliado> getSituacionesAliados() {
-        return Map.copyOf(situacionesAliados);
+        return registroAliados.getSituaciones();
     }
     /** @param situacionesAliados estados no nulos y acotados */
     public void setSituacionesAliados(Map<Aliado, SituacionAliado> situacionesAliados) {
-        Validaciones.noNulo(situacionesAliados, "Situaciones aliadas");
-        if (situacionesAliados.size() > Limites.ESTADISTICA || situacionesAliados.entrySet().stream()
-                .anyMatch(e -> e.getKey() == null || e.getValue() == null)) {
-            throw new IllegalArgumentException("Las situaciones aliadas no son validas.");
-        }
-        this.situacionesAliados = new HashMap<>(situacionesAliados);
+        registroAliados.setSituaciones(situacionesAliados);
     }
     /** @return copia del estado de combate aliado */
-    public Map<Aliado, Boolean> getAliadosEnCombate() { return Map.copyOf(aliadosEnCombate); }
+    public Map<Aliado, Boolean> getAliadosEnCombate() { return registroAliados.getCombates(); }
     /** @param aliadosEnCombate estados no nulos y acotados */
     public void setAliadosEnCombate(Map<Aliado, Boolean> aliadosEnCombate) {
-        Validaciones.noNulo(aliadosEnCombate, "Combates aliados");
-        if (aliadosEnCombate.size() > Limites.ESTADISTICA || aliadosEnCombate.entrySet().stream()
-                .anyMatch(e -> e.getKey() == null || e.getValue() == null)) {
-            throw new IllegalArgumentException("Los estados de combate aliado no son validos.");
-        }
-        this.aliadosEnCombate = new HashMap<>(aliadosEnCombate);
+        registroAliados.setCombates(aliadosEnCombate);
     }
 
     /**
@@ -258,36 +252,7 @@ public final class MotorPartida {
      * @return resumen con vida, energia, posicion, objetos, equipo y situacion de cada aliado
      */
     public String getEstadoAliados() {
-        List<Aliado> aliados = juego.getAliadosRegistrados();
-        if (aliados.isEmpty()) {
-            return "Aliados: ninguno.";
-        }
-        long evacuados = aliados.stream().filter(juego::estaAliadoExtraido).count();
-        long caidos = aliados.stream().filter(aliado -> aliado.getSalud() <= 0).count();
-        long enCombate = aliados.stream().filter(this::estaAliadoEnCombate).count();
-        int puntuacionTotal = aliados.stream().mapToInt(aliado ->
-                SistemaPuntuacion.calcularAliado(juego, aliado).total()).sum();
-        StringJoiner lineas = new StringJoiner("\n");
-        lineas.add("ALIADOS " + aliados.size() + " | activos=" + (aliados.size() - evacuados - caidos)
-                + " | en combate=" + enCombate + " | evacuados=" + evacuados + " | caidos=" + caidos
-                + " | puntuacion total=" + puntuacionTotal);
-        for (Aliado aliado : aliados) {
-            SituacionAliado situacion = obtenerSituacionAliado(aliado);
-            String posicion = juego.estaAliadoExtraido(aliado)
-                    ? "salida " + aliado.getPosicion()
-                    : aliado.getPosicion().toString();
-            lineas.add("- " + aliado.getNombre() + " | Estado " + situacion.etiqueta
-                    + " | Combate " + (estaAliadoEnCombate(aliado) ? "EN COMBATE" : "FUERA DE COMBATE")
-                    + " | Nivel " + aliado.getNivel()
-                    + " | Rol " + aliado.getRol().getEtiqueta()
-                    + " | Vida " + aliado.getSalud() + "/" + aliado.getSaludMaxima()
-                    + " | Energia " + aliado.getEnergia() + "/" + aliado.getEnergiaMaxima()
-                    + " | Puntuacion " + SistemaPuntuacion.calcularAliado(juego, aliado).total()
-                    + " | Posicion " + posicion
-                    + " | Efectos " + SistemaEstados.resumen(aliado));
-            lineas.add("  Objetos: " + listarObjetos(aliado) + " | Equipo: " + listarEquipo(aliado));
-        }
-        return lineas.toString();
+        return registroAliados.resumen(juego);
     }
 
     /**
@@ -346,14 +311,7 @@ public final class MotorPartida {
         setJuego(cargado);
         setSistemaRuido(new SistemaRuido(cargado));
         SuscriptorAudioEventos.registrar(cargado);
-        Map<Aliado, SituacionAliado> situaciones = new HashMap<>();
-        Map<Aliado, Boolean> combates = new HashMap<>();
-        cargado.getAliadosRegistrados().forEach(aliado -> {
-            situaciones.put(aliado, SituacionAliado.ACTIVO);
-            combates.put(aliado, false);
-        });
-        setSituacionesAliados(situaciones);
-        setAliadosEnCombate(combates);
+        registroAliados.inicializar(cargado.getAliadosRegistrados());
         setTurnosAyudaAliados(0);
         setAvisoRescateEnergia(false);
         setEstadoFinal(null);
@@ -583,74 +541,11 @@ public final class MotorPartida {
     }
 
     private void ejecutarTurnoNPC(boolean jugadorDescansando) {
-        List<Enemigo> snapshot = List.copyOf(juego.getEnemigos());
-        for (Enemigo enemigo : snapshot) {
-            if (enemigo.getSalud() <= 0) {
-                continue;
-            }
-            if (enemigo.getEstados().consumirBloqueoAccion()) {
-                continue;
-            }
-            if (enemigo instanceof EnemigoTactico
-                    || enemigo instanceof com.legendoftecla.model.characters.Jefe) {
-                sistemaTurnosIA.ejecutar(juego, enemigo, random);
-                continue;
-            }
-            boolean formacionDetectada = enemigoDetectaFormacion(enemigo);
-            Personaje objetivoTactico = formacionDetectada ? seleccionarObjetivoTactico(enemigo) : null;
-            if (formacionDetectada) {
-                String despliegue = juego.getFormacionAliada() == FormacionAliada.SIN_FORMACION
-                        ? "el escuadron aliado"
-                        : "la formacion " + juego.getFormacionAliada().getEtiqueta();
-                juego.getConsola().imprimirInfo(enemigo.getNombre() + " detecta "
-                        + despliegue + " y coordina su ataque.");
-            }
-            int movimientos = jugadorDescansando || formacionDetectada
-                    ? Math.max(1, random.nextInt(3)) : random.nextInt(3);
-            for (int i = 0; i < movimientos; i++) {
-                Personaje objetivo = objetivoTactico == null
-                        ? objetivoEnemigoPorDefecto(enemigo) : objetivoTactico;
-                if (objetivo == null) {
-                    break;
-                }
-                int distancia = enemigo.getPosicion().distanciaManhattan(objetivo.getPosicion());
-                if (distancia <= enemigo.getRangoVision()
-                        && juego.getMapa().hayLineaAtaque(enemigo.getPosicion(), objetivo.getPosicion())) {
-                    if (!enemigo.puedeAtacar()) {
-                        intentarRecargar(enemigo);
-                        break;
-                    }
-                    SistemaCombate.atacar(juego, enemigo, objetivo, random);
-                    break;
-                }
-                Direccion direccion = jugadorDescansando || formacionDetectada
-                        ? buscarPrimerPasoEnemigo(enemigo.getPosicion(), objetivo.getPosicion())
-                        : Direccion.values()[random.nextInt(Direccion.values().length)];
-                if (direccion == null) {
-                    break;
-                }
-                Posicion origen = enemigo.getPosicion();
-                Posicion destino = origen.mover(direccion);
-                if (juego.getMapa().esTransitable(destino)) {
-                    juego.getMapa().getCelda(origen).quitarEnemigo(enemigo);
-                    try {
-                        enemigo.mover(direccion, juego);
-                        juego.getMapa().getCelda(enemigo.getPosicion()).agregarEnemigo(enemigo);
-                        GestorSonido.reproducir(EventoSonido.MOVIMIENTO,
-                                enemigo.getPosicion(), juego.getJugador().getPosicion());
-                        if (jugadorDescansando && !formacionDetectada) {
-                            juego.getConsola().imprimirInfo(
-                                    enemigo.getNombre() + " se acerca mientras descansas.");
-                        }
-                    } catch (Exception ignored) {
-                        juego.getMapa().getCelda(origen).agregarEnemigo(enemigo);
-                    }
-                }
-            }
-        }
+        TurnoEnemigos.ejecutar(juego, sistemaTurnosIA, random, jugadorDescansando);
     }
 
     private void ejecutarTurnoAliados() {
+        setIndiceEnemigos(new IndiceEspacialPersonajes<>(juego.getEnemigos()));
         List<Aliado> aliados = List.copyOf(juego.getAliados());
         for (Aliado aliado : aliados) {
             if (aliado.getSalud() <= 0) {
@@ -667,7 +562,7 @@ public final class MotorPartida {
             gestionarLinternaAliada(aliado);
             usarBinocularSiConviene(aliado);
             marcarCombate(aliado, false);
-            SituacionAliado anterior = situacionesAliados.getOrDefault(aliado, SituacionAliado.ACTIVO);
+            SituacionAliado anterior = registroAliados.situacion(juego, aliado);
             cambiarSituacion(aliado, anterior == SituacionAliado.EN_COMBATE
                     || anterior == SituacionAliado.FUERA_DE_COMBATE
                             ? SituacionAliado.FUERA_DE_COMBATE
@@ -708,7 +603,7 @@ public final class MotorPartida {
             }
             Enemigo objetivo = buscarEnemigoMasCercano(aliado);
             if (objetivo == null) {
-                if (situacionesAliados.get(aliado) != SituacionAliado.FUERA_DE_COMBATE) {
+                if (registroAliados.situacion(juego, aliado) != SituacionAliado.FUERA_DE_COMBATE) {
                     cambiarSituacion(aliado, SituacionAliado.ACOMPANANDO);
                 }
                 Posicion destino = modoEspectador
@@ -1511,14 +1406,12 @@ public final class MotorPartida {
 
     private Enemigo buscarAmenazaDeFormacion(Aliado aliado) {
         Posicion jugador = juego.getJugador().getPosicion();
-        return juego.getEnemigos().stream().filter(enemigo -> enemigo.getSalud() > 0)
-                .filter(enemigo -> SistemaIluminacion.hayLuz(juego, enemigo.getPosicion()))
-                .filter(enemigo -> juego.getFormacionAliada() == FormacionAliada.OFENSIVA
+        return indiceEnemigos.masCercano(aliado.getPosicion(), enemigo ->
+                enemigo.getSalud() > 0
+                        && SistemaIluminacion.hayLuz(juego, enemigo.getPosicion())
+                        && (juego.getFormacionAliada() == FormacionAliada.OFENSIVA
                         || enemigo.getPosicion().distanciaManhattan(jugador) <= 3
-                        || enemigo.getPosicion().distanciaManhattan(aliado.getPosicion()) <= 2)
-                .min(java.util.Comparator.comparingInt(enemigo ->
-                        enemigo.getPosicion().distanciaManhattan(aliado.getPosicion())))
-                .orElse(null);
+                        || enemigo.getPosicion().distanciaManhattan(aliado.getPosicion()) <= 2));
     }
 
     private boolean hayEscasezSuministros() {
@@ -1609,52 +1502,6 @@ public final class MotorPartida {
         return null;
     }
 
-    private boolean enemigoDetectaFormacion(Enemigo enemigo) {
-        if (juego.getAliados().stream().noneMatch(aliado -> aliado.getSalud() > 0)) {
-            return false;
-        }
-        if (vePersonaje(enemigo, juego.getJugador())) {
-            return true;
-        }
-        return juego.getAliados().stream().filter(aliado -> aliado.getSalud() > 0)
-                .anyMatch(aliado -> vePersonaje(enemigo, aliado));
-    }
-
-    private boolean vePersonaje(Enemigo enemigo, Personaje personaje) {
-        return personaje.getSalud() > 0
-                && enemigo.getPosicion().distanciaManhattan(
-                        personaje.getPosicion()) <= enemigo.getRangoVision()
-                && juego.getMapa().hayLineaAtaque(enemigo.getPosicion(), personaje.getPosicion());
-    }
-
-    private Personaje seleccionarObjetivoTactico(Enemigo enemigo) {
-        List<Personaje> visibles = new ArrayList<>();
-        if (juego.getJugador().getSalud() > 0 && vePersonaje(enemigo, juego.getJugador())) {
-            visibles.add(juego.getJugador());
-        }
-        juego.getAliados().stream().filter(aliado -> aliado.getSalud() > 0)
-                .filter(aliado -> vePersonaje(enemigo, aliado)).forEach(visibles::add);
-        if (visibles.isEmpty()) {
-            return objetivoEnemigoPorDefecto(enemigo);
-        }
-        if (juego.getFormacionAliada() == FormacionAliada.DEFENSIVA) {
-            return visibles.stream().min(java.util.Comparator.comparingDouble(personaje ->
-                    (double) personaje.getSalud() / Math.max(1, personaje.getSaludMaxima()))).orElseThrow();
-        }
-        return visibles.stream().min(java.util.Comparator.comparingInt(personaje ->
-                enemigo.getPosicion().distanciaManhattan(personaje.getPosicion()))).orElseThrow();
-    }
-
-    private Personaje objetivoEnemigoPorDefecto(Enemigo enemigo) {
-        if (juego.getJugador().getSalud() > 0) {
-            return juego.getJugador();
-        }
-        return juego.getAliados().stream().filter(aliado -> aliado.getSalud() > 0)
-                .min(java.util.Comparator.comparingInt(aliado -> enemigo.getPosicion()
-                        .distanciaManhattan(aliado.getPosicion())))
-                .orElse(null);
-    }
-
     private int estimarRiesgoRecibido(Aliado aliado) {
         int defensa = aliado.getArmaduraEquipada() != null ? aliado.getArmaduraEquipada().getDefensa() : 0;
         int golpeEstimado = Math.max(1, 4 - defensa);
@@ -1670,19 +1517,10 @@ public final class MotorPartida {
     }
 
     private Enemigo buscarEnemigoMasCercano(Aliado aliado) {
-        Enemigo mejor = null;
-        int mejorDistancia = Integer.MAX_VALUE;
-        for (Enemigo enemigo : juego.getEnemigos()) {
-            if (enemigo.getSalud() <= 0) {
-                continue;
-            }
-            int distancia = aliado.getPosicion().distanciaManhattan(enemigo.getPosicion());
-            if (distancia < mejorDistancia) {
-                mejorDistancia = distancia;
-                mejor = enemigo;
-            }
+        if (indiceEnemigos == null) {
+            setIndiceEnemigos(new IndiceEspacialPersonajes<>(juego.getEnemigos()));
         }
-        return mejor;
+        return indiceEnemigos.masCercano(aliado.getPosicion(), enemigo -> enemigo.getSalud() > 0);
     }
 
     private void moverAliadoHaciaObjetivo(Aliado aliado, Posicion objetivo) {
@@ -1796,166 +1634,26 @@ public final class MotorPartida {
     }
 
     private int calcularDistanciaRutaAliado(Posicion origen, Posicion objetivo) {
-        if (origen.equals(objetivo)) {
-            return 0;
-        }
-        ArrayDeque<Posicion> pendientes = new ArrayDeque<>();
-        Map<Posicion, Integer> distancias = new HashMap<>();
-        pendientes.add(origen);
-        distancias.put(origen, 0);
-        while (!pendientes.isEmpty()) {
-            Posicion actual = pendientes.removeFirst();
-            int distancia = distancias.get(actual);
-            for (Direccion direccion : Direccion.values()) {
-                Posicion candidata = actual.mover(direccion);
-                if (distancias.containsKey(candidata) || !juego.getMapa().esTransitable(candidata)) {
-                    continue;
-                }
-                if (candidata.equals(objetivo)) {
-                    return distancia + 1;
-                }
-                distancias.put(candidata, distancia + 1);
-                pendientes.addLast(candidata);
-            }
-        }
-        return -1;
+        return NavegacionTactica.distancia(juego.getMapa(), origen, objetivo);
     }
 
     private Direccion buscarPrimerPasoAliado(Posicion origen, Posicion objetivo) {
-        if (origen.equals(objetivo)) {
-            return null;
-        }
-        ArrayDeque<Posicion> pendientes = new ArrayDeque<>();
-        Map<Posicion, Posicion> anterior = new HashMap<>();
-        Map<Posicion, Direccion> direccionEntrada = new HashMap<>();
-        pendientes.add(origen);
-        anterior.put(origen, null);
-
-        while (!pendientes.isEmpty() && !anterior.containsKey(objetivo)) {
-            Posicion actual = pendientes.removeFirst();
-            for (Direccion direccion : Direccion.values()) {
-                Posicion candidata = actual.mover(direccion);
-                if (anterior.containsKey(candidata) || !juego.getMapa().esTransitable(candidata)) {
-                    continue;
-                }
-                anterior.put(candidata, actual);
-                direccionEntrada.put(candidata, direccion);
-                pendientes.addLast(candidata);
-            }
-        }
-        if (!anterior.containsKey(objetivo)) {
-            return null;
-        }
-        Posicion paso = objetivo;
-        while (anterior.get(paso) != null && !anterior.get(paso).equals(origen)) {
-            paso = anterior.get(paso);
-        }
-        return direccionEntrada.get(paso);
-    }
-
-    private Direccion buscarPrimerPasoEnemigo(Posicion origen, Posicion objetivo) {
-        if (origen.equals(objetivo)) {
-            return null;
-        }
-        ArrayDeque<Posicion> pendientes = new ArrayDeque<>();
-        Map<Posicion, Posicion> anterior = new HashMap<>();
-        Map<Posicion, Direccion> direccionEntrada = new HashMap<>();
-        pendientes.add(origen);
-        anterior.put(origen, null);
-
-        while (!pendientes.isEmpty() && !anterior.containsKey(objetivo)) {
-            Posicion actual = pendientes.removeFirst();
-            for (Direccion direccion : Direccion.values()) {
-                Posicion candidata = actual.mover(direccion);
-                if (anterior.containsKey(candidata) || !juego.getMapa().esTransitable(candidata)) {
-                    continue;
-                }
-                anterior.put(candidata, actual);
-                direccionEntrada.put(candidata, direccion);
-                pendientes.addLast(candidata);
-            }
-        }
-        if (!anterior.containsKey(objetivo)) {
-            return null;
-        }
-        Posicion paso = objetivo;
-        while (anterior.get(paso) != null && !anterior.get(paso).equals(origen)) {
-            paso = anterior.get(paso);
-        }
-        return direccionEntrada.get(paso);
+        return NavegacionTactica.primerPaso(juego.getMapa(), origen, objetivo);
     }
 
     private void cambiarSituacion(Aliado aliado, SituacionAliado situacion) {
-        Map<Aliado, SituacionAliado> estados = new HashMap<>(situacionesAliados);
-        estados.put(Validaciones.noNulo(aliado, "Aliado"),
-                Validaciones.noNulo(situacion, "Situacion aliada"));
-        setSituacionesAliados(estados);
+        registroAliados.cambiar(aliado, situacion);
     }
 
     private void marcarCombate(Aliado aliado, boolean enCombate) {
-        Map<Aliado, Boolean> combates = new HashMap<>(aliadosEnCombate);
-        combates.put(Validaciones.noNulo(aliado, "Aliado"), enCombate);
-        setAliadosEnCombate(combates);
+        registroAliados.marcarCombate(aliado, enCombate);
     }
 
     private SituacionAliado obtenerSituacionAliado(Aliado aliado) {
-        if (juego.estaAliadoExtraido(aliado)) {
-            return SituacionAliado.EVACUADO;
-        }
-        if (aliado.getSalud() <= 0) {
-            return SituacionAliado.CAIDO;
-        }
-        return situacionesAliados.getOrDefault(aliado, SituacionAliado.ACTIVO);
+        return registroAliados.situacion(juego, aliado);
     }
 
     private boolean estaAliadoEnCombate(Aliado aliado) {
-        return aliado.getSalud() > 0
-                && !juego.estaAliadoExtraido(aliado)
-                && aliadosEnCombate.getOrDefault(aliado, false);
-    }
-
-    private String listarObjetos(Aliado aliado) {
-        if (aliado.getMochila().getObjetos().isEmpty()) {
-            return "ninguno";
-        }
-        StringJoiner nombres = new StringJoiner(", ");
-        aliado.getMochila().getObjetos().forEach(objeto -> nombres.add(objeto.getNombre()));
-        return nombres.toString();
-    }
-
-    private String listarEquipo(Aliado aliado) {
-        List<String> equipo = new ArrayList<>();
-        aliado.getArmasEquipadas().forEach(arma -> equipo.add("arma " + arma.getNombre()));
-        if (aliado.getArmaduraEquipada() != null) {
-            equipo.add("armadura " + aliado.getArmaduraEquipada().getNombre());
-        }
-        if (aliado.getBinocularEquipado() != null) {
-            equipo.add("binocular " + aliado.getBinocularEquipado().getNombre());
-        }
-        return equipo.isEmpty() ? "ninguno" : String.join(", ", equipo);
-    }
-
-    private enum SituacionAliado {
-        ACTIVO("ACTIVO"),
-        ACOMPANANDO("ACOMPANANDO AL JUGADOR"),
-        ACUDIENDO("ACUDIENDO A LA LLAMADA"),
-        PROTEGIENDO("PROTEGIENDO AL JUGADOR"),
-        ASISTIENDO_JUGADOR("ASISTIENDO AL JUGADOR"),
-        ASISTIENDO_ALIADO("ASISTIENDO A OTRO ALIADO"),
-        REABASTECIENDOSE("REPONIENDO SU VIDA O ENERGIA"),
-        BUSCANDO_SUMINISTROS("BUSCANDO SUMINISTROS"),
-        EN_COMBATE("EN COMBATE"),
-        FUERA_DE_COMBATE("FUERA DE COMBATE"),
-        EN_ESPERA_POR_RIESGO("EN ESPERA: VIDA EN PELIGRO"),
-        EN_ESPERA_POR_RECURSOS("EN ESPERA: RECURSOS INSUFICIENTES"),
-        SIN_RUTA("EN ESPERA: SIN RUTA AL JUGADOR"),
-        EVACUADO("EVACUADO: LLEGO A LA SALIDA"),
-        CAIDO("CAIDO: FUERA DE COMBATE");
-
-        private final String etiqueta;
-
-        SituacionAliado(String etiqueta) {
-            this.etiqueta = etiqueta;
-        }
+        return registroAliados.estaEnCombate(juego, aliado);
     }
 }

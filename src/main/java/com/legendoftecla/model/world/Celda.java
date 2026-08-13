@@ -192,10 +192,7 @@ public class Celda {
         for (int i = 0; i < objetos.size(); i++) {
             Objeto objeto = objetos.get(i);
             if (objeto.getNombre().equalsIgnoreCase(nombreValidado)) {
-                List<Objeto> restantes = new ArrayList<>(objetos);
-                Objeto retirado = restantes.remove(i);
-                setObjetos(restantes);
-                return retirado;
+                return objetos.remove(i);
             }
         }
         return null;
@@ -217,9 +214,7 @@ public class Celda {
       * @param enemigo valor de {@code enemigo}
      */
     public void quitarEnemigo(Enemigo enemigo) {
-        List<Enemigo> restantes = new ArrayList<>(enemigos);
-        restantes.remove(Validaciones.noNulo(enemigo, "Enemigo"));
-        setEnemigos(restantes);
+        enemigos.remove(Validaciones.noNulo(enemigo, "Enemigo"));
     }
 
     /**
@@ -238,9 +233,7 @@ public class Celda {
       * @param aliado valor de {@code aliado}
      */
     public void quitarAliado(Aliado aliado) {
-        List<Aliado> restantes = new ArrayList<>(aliados);
-        restantes.remove(Validaciones.noNulo(aliado, "Aliado"));
-        setAliados(restantes);
+        aliados.remove(Validaciones.noNulo(aliado, "Aliado"));
     }
 
     private <T> List<T> copiarValidada(List<T> valores, String campo) {

@@ -57,6 +57,16 @@ class MemoriaEntidadesTest {
         System.out.print(resultado.salida());
     }
 
+    @Test
+    void turnoCompletoMaximoRespondeBajoPresupuestoControlado() throws Exception {
+        ResultadoProceso resultado = ejecutarAislado(
+                "turno", "512m", temporal.resolve("turno.save.json"));
+
+        assertEquals(0, resultado.codigo(), resultado.salida());
+        assertTrue(resultado.salida().contains("TURN_MAX_OK"), resultado.salida());
+        System.out.print(resultado.salida());
+    }
+
     private ResultadoProceso ejecutarAislado(String modo, String heap, Path guardado)
             throws Exception {
         String ejecutable = Path.of(System.getProperty("java.home"), "bin",
@@ -92,6 +102,8 @@ class MemoriaEntidadesTest {
             ejecutarMaximo(Path.of(argumentos[1]));
         } else if ("repetido".equals(argumentos[0])) {
             ejecutarRepetido();
+        } else if ("turno".equals(argumentos[0])) {
+            ejecutarTurnoMaximo();
         } else {
             throw new IllegalArgumentException("Modo de memoria desconocido.");
         }
@@ -129,6 +141,19 @@ class MemoriaEntidadesTest {
             mayorUso = Math.max(mayorUso, memoriaUsada());
         }
         imprimirMemoria("MEMORY_REUSE_OK runs=6 peakAfterGcMiB=" + mib(mayorUso));
+    }
+
+    private static void ejecutarTurnoMaximo() throws Exception {
+        Juego juego = crearJuego(ALIADOS_MAXIMOS, Dificultad.DEMENTE, 9001L);
+        MotorPartida motor = new MotorPartida(juego);
+        long inicio = System.nanoTime();
+        motor.ejecutarComando("mirar");
+        long milisegundos = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - inicio);
+        exigir(milisegundos < 10_000,
+                "El turno maximo excedio 10 segundos: " + milisegundos + " ms");
+        imprimirMemoria("TURN_MAX_OK millis=" + milisegundos
+                + " allies=" + juego.getAliadosRegistrados().size()
+                + " enemies=" + juego.getEnemigos().size());
     }
 
     private static Juego crearJuego(int aliados, Dificultad dificultad, long seed)

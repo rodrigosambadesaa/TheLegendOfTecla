@@ -32,6 +32,7 @@ public class Juego {
     private List<Aliado> aliados;
     private List<Aliado> aliadosRegistrados;
     private List<Aliado> aliadosExtraidosDetalle;
+    private Set<Aliado> aliadosExtraidosIndice;
     private int pasosMaximos;
     private int aliadosIniciales;
     private int aliadosExtraidos;
@@ -282,6 +283,27 @@ public class Juego {
     /** @param extraidos aliados evacuados no nulos */
     public void setAliadosExtraidosDetalle(List<Aliado> extraidos) {
         this.aliadosExtraidosDetalle = copiarPersonajes(extraidos, "Aliados extraidos");
+        setAliadosExtraidosIndice(new HashSet<>(this.aliadosExtraidosDetalle));
+    }
+
+    /** @return copia del indice de evacuados usado para consultas O(1) */
+    public Set<Aliado> getAliadosExtraidosIndice() {
+        return Set.copyOf(aliadosExtraidosIndice);
+    }
+
+    /**
+     * Sustituye el indice derivado; sus miembros deben coincidir con el historial.
+     * @param indice aliados evacuados sin duplicados
+     */
+    public void setAliadosExtraidosIndice(Set<Aliado> indice) {
+        Validaciones.noNulo(indice, "Indice de aliados extraidos");
+        if (indice.stream().anyMatch(java.util.Objects::isNull)
+                || aliadosExtraidosDetalle != null
+                && (indice.size() != aliadosExtraidosDetalle.size()
+                || !indice.containsAll(aliadosExtraidosDetalle))) {
+            throw new IllegalArgumentException("El indice de evacuados no coincide con el historial.");
+        }
+        aliadosExtraidosIndice = new HashSet<>(indice);
     }
 
     /**
@@ -291,7 +313,7 @@ public class Juego {
      * @return {@code true} cuando el aliado ya fue evacuado
      */
     public boolean estaAliadoExtraido(Aliado aliado) {
-        return aliadosExtraidosDetalle.contains(aliado);
+        return aliadosExtraidosIndice.contains(aliado);
     }
 
     /**
@@ -334,12 +356,9 @@ public class Juego {
         if (!aliados.contains(aliado)) {
             return false;
         }
-        List<Aliado> activos = new ArrayList<>(aliados);
-        activos.remove(aliado);
-        setAliados(activos);
-        List<Aliado> extraidos = new ArrayList<>(aliadosExtraidosDetalle);
-        extraidos.add(aliado);
-        setAliadosExtraidosDetalle(extraidos);
+        aliados.remove(aliado);
+        aliadosExtraidosDetalle.add(aliado);
+        aliadosExtraidosIndice.add(aliado);
         setAliadosExtraidos(aliadosExtraidos + 1);
         publicarEvento(new AliadoEvacuado(busEventos.ahora(), aliado.getNombre(),
                 aliado.getPosicion()));
@@ -456,10 +475,9 @@ public class Juego {
     public boolean inspeccionarCeldaAliado(Aliado aliado) {
         Aliado validado = Validaciones.noNulo(aliado, "Aliado");
         validarPosicionPersonaje(validado.getPosicion(), "aliado");
-        Map<Aliado, Set<Posicion>> inspecciones = getCeldasInspeccionadasAliados();
-        Set<Posicion> posiciones = inspecciones.computeIfAbsent(validado, clave -> new HashSet<>());
+        Set<Posicion> posiciones = celdasInspeccionadasAliados
+                .computeIfAbsent(validado, clave -> new HashSet<>());
         boolean nueva = posiciones.add(validado.getPosicion());
-        setCeldasInspeccionadasAliados(inspecciones);
         if (nueva) {
             publicarEvento(new CeldaInspeccionada(busEventos.ahora(),
                     validado.getNombre(), validado.getPosicion()));

@@ -74,7 +74,12 @@ final class GeneradorAliados {
             mapa.getCelda(despliegue).agregarAliado(aliado);
             juego.agregarAliado(aliado);
         }
-        DistribucionEnemigaEscuadron.endurecer(juego, random, cantidad);
+        DistribucionEnemigaEscuadron.ResultadoEquilibrio equilibrio =
+                DistribucionEnemigaEscuadron.equilibrar(
+                        juego, random, cantidad, dificultad);
+        juego.getConsola().imprimirInfo("Equilibrio de escuadron: aliados=" + cantidad
+                + " | enemigos " + equilibrio.originales() + " -> " + equilibrio.finales()
+                + " | objetivo=" + equilibrio.objetivo());
         return cantidad;
     }
 

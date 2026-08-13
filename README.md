@@ -55,6 +55,9 @@ Implementacion en Java del proyecto de POO por entregas (P1, P2, P3) y con ampli
 - Coordinacion enemiga adaptativa solo contra escuadrones: sanitarios, exploradores y mandos
   curan, alertan, protegen y concentran fuego sobre miembros vulnerables; en solitario cada
   enemigo conserva unicamente su conducta individual.
+- Escalado numerico justo: la fuerza enemiga nunca baja de la amenaza original y crece
+  proporcionalmente con los aliados (`50` aliados generan `50` enemigos en dificultad normal),
+  aplicando despues el multiplicador de dificultad y distribuyendo refuerzos en celdas transitables.
 
 ## Especificaciones y validación
 
@@ -225,6 +228,11 @@ El juego asigna automaticamente un rol medico a uno de cada cuatro aliados
 guardar la partida. Los medicos buscan primero pacientes, botiquines y Toritos
 Rojos conocidos; los combatientes les dejan esos suministros cuando hay un
 medico activo en el escuadron.
+
+La cantidad enemiga tambien se adapta a la cantidad aliada. En dificultad
+normal se usa una proporcion 1:1; muy facil aplica `x0.5`, facil `x0.75`,
+dificil `x1.25`, muy dificil `x1.5`, pesadilla `x1.8` y demente `x2.2`.
+Nunca se eliminan los enemigos propios del escenario si ya superan ese minimo.
 
 El estado del escuadron muestra la puntuacion individual de cada aliado y su
 total. Cada puntuacion se actualiza durante la partida a partir de salud, energia,

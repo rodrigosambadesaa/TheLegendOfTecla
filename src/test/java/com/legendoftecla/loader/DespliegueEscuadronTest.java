@@ -79,6 +79,7 @@ class DespliegueEscuadronTest {
         Juego juego = FabricaJuego.crear(TestFixtures.consola(), configuracion);
 
         assertEquals(23, juego.getAliados().size());
+        assertEquals(23, juego.getEnemigos().size());
         assertTrue(juego.getAliados().stream().allMatch(aliado -> aliado.getNivel() == 12));
         assertTrue(juego.getAliados().stream().allMatch(aliado -> aliado.getSaludMaxima() > 90));
         assertEquals(6, juego.getAliados().stream().filter(aliado -> aliado.esMedico()).count());
@@ -92,9 +93,44 @@ class DespliegueEscuadronTest {
                 aliado.getPosicion().equals(juego.getMapa().getInicio())));
     }
 
+    @Test
+    void cincuentaAliadosRecibenUnaAmenazaNumericaJustaYValida() throws Exception {
+        Juego juego = proceduralConAliados(50, Dificultad.NORMAL, 91);
+
+        assertEquals(50, juego.getAliados().size());
+        assertEquals(50, juego.getEnemigos().size());
+        assertTrue(juego.getEnemigos().stream().allMatch(enemigo ->
+                juego.getMapa().esTransitable(enemigo.getPosicion())
+                        && !enemigo.getPosicion().equals(juego.getMapa().getInicio())
+                        && !enemigo.getPosicion().equals(juego.getMapa().getObjetivo())));
+        assertTrue(juego.getEnemigos().stream().allMatch(enemigo ->
+                !enemigo.getArmasEquipadas().isEmpty()
+                        && enemigo.getArmaduraEquipada() != null));
+    }
+
+    @Test
+    void laProporcionDeEnemigosRespetaLaDificultadElegida() throws Exception {
+        assertEquals(10, proceduralConAliados(20, Dificultad.MUY_FACIL, 92)
+                .getEnemigos().size());
+        assertEquals(20, proceduralConAliados(20, Dificultad.NORMAL, 92)
+                .getEnemigos().size());
+        assertEquals(44, proceduralConAliados(20, Dificultad.DEMENTE, 92)
+                .getEnemigos().size());
+    }
+
     private Juego procedural(boolean aliados) throws Exception {
         return new CargadorJuegoProcedural(TestFixtures.consola(), "Tecla", "marine",
                 Dificultad.NORMAL, new DimensionesMapa(15, 21), aliados, 77).cargarJuego();
+    }
+
+    private Juego proceduralConAliados(int cantidad, Dificultad dificultad,
+            long seed) throws Exception {
+        ConfiguracionPartida configuracion = new ConfiguracionPartida(
+                "Tecla", "marine", "procedural", dificultad,
+                new DimensionesMapa(15, 21), null, false, 1);
+        configuracion.setCantidadAliados(cantidad);
+        configuracion.setSeed(seed);
+        return FabricaJuego.crear(TestFixtures.consola(), configuracion);
     }
 
     private int distanciaTotal(Juego juego) {

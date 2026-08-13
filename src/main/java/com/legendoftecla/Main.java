@@ -84,9 +84,12 @@ public final class Main {
             directorio = Path.of(consola.leer(
                     "Ruta del directorio con escenario.json o mapa.txt, objetos.txt y enemigos.txt:"));
         }
-        boolean conAliados = opciones.conAliados() != null
-                ? opciones.conAliados()
+        int cantidadAliados = opciones.cantidadAliados() != null
+                ? opciones.cantidadAliados()
                 : leerAliados(consola);
+        boolean conAliados = cantidadAliados != 0;
+        int nivelAliados = !conAliados ? 0 : opciones.nivelAliados() != null
+                ? opciones.nivelAliados() : leerNivelAliados(consola);
         CondicionVictoria condicionVictoria = opciones.condicionVictoria() != null
                 ? opciones.condicionVictoria()
                 : (conAliados ? leerCondicionVictoria(consola) : CondicionVictoria.JUGADOR_Y_ALIADOS);
@@ -96,8 +99,9 @@ public final class Main {
 
         try {
             ConfiguracionPartida configuracion = new ConfiguracionPartida(
-                    nombre, clase, modo, dificultad, dimensiones, directorio, conAliados,
+                    nombre, clase, modo, dificultad, dimensiones, directorio, cantidadAliados,
                     condicionVictoria, varianteMapa);
+            configuracion.setNivelAliados(nivelAliados);
             if (opciones.seed() != null) configuracion.setSeed(opciones.seed());
             Juego juego = FabricaJuego.crear(consola, configuracion);
             MotorPartida motor = new MotorPartida(juego);
@@ -200,16 +204,30 @@ public final class Main {
         }
     }
 
-    private static boolean leerAliados(Consola consola) {
+    private static int leerAliados(Consola consola) {
         while (true) {
-            String entrada = consola.leer("¿Incluir aliados calculados automaticamente? (si/no) [no]:");
+            String entrada = consola.leer(
+                    "Aliados (no=ninguno, auto=calculados, o escribe una cantidad) [no]:");
             if (entrada == null || entrada.isBlank() || "no".equalsIgnoreCase(entrada.trim())) {
-                return false;
+                return 0;
             }
-            if ("si".equalsIgnoreCase(entrada.trim()) || "sí".equalsIgnoreCase(entrada.trim())) {
-                return true;
+            String normalizada = entrada.trim();
+            if ("si".equalsIgnoreCase(normalizada) || "sí".equalsIgnoreCase(normalizada)
+                    || "auto".equalsIgnoreCase(normalizada)
+                    || "automatico".equalsIgnoreCase(normalizada)
+                    || "automático".equalsIgnoreCase(normalizada)) {
+                return -1;
             }
-            consola.imprimir("Respuesta invalida. Escribe si o no.", TipoMensaje.ERROR);
+            try {
+                int cantidad = Integer.parseInt(normalizada);
+                if (cantidad >= 1 && cantidad <= com.legendoftecla.validation.Limites.ALIADOS_MAXIMOS) {
+                    return cantidad;
+                }
+            } catch (NumberFormatException ignored) {
+                // El mensaje comun explica las alternativas admitidas.
+            }
+            consola.imprimir("Respuesta invalida. Escribe no, auto o una cantidad entre 1 y "
+                    + com.legendoftecla.validation.Limites.ALIADOS_MAXIMOS + ".", TipoMensaje.ERROR);
         }
     }
 
@@ -225,6 +243,28 @@ public final class Main {
                 return condicion;
             }
             consola.imprimir("Condicion invalida. Escribe 1 o 2.", TipoMensaje.ERROR);
+        }
+    }
+
+    private static int leerNivelAliados(Consola consola) {
+        while (true) {
+            String entrada = consola.leer(
+                    "Nivel de todos los aliados (auto o 1-100) [auto]:");
+            if (entrada == null || entrada.isBlank() || "auto".equalsIgnoreCase(entrada.trim())) {
+                return 0;
+            }
+            try {
+                int nivel = Integer.parseInt(entrada.trim());
+                if (nivel >= 1
+                        && nivel <= com.legendoftecla.validation.Limites.NIVEL_ALIADO_MAXIMO) {
+                    return nivel;
+                }
+            } catch (NumberFormatException ignored) {
+                // El mensaje comun informa del formato valido.
+            }
+            consola.imprimir("Nivel invalido. Escribe auto o un valor entre 1 y "
+                    + com.legendoftecla.validation.Limites.NIVEL_ALIADO_MAXIMO + ".",
+                    TipoMensaje.ERROR);
         }
     }
 

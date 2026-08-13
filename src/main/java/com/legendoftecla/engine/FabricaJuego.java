@@ -7,6 +7,7 @@ import com.legendoftecla.loader.CargadorJuegoDeFicheros;
 import com.legendoftecla.loader.CargadorJuegoGrandeConAliados;
 import com.legendoftecla.loader.CargadorJuegoPorDefecto;
 import com.legendoftecla.loader.CargadorJuegoProcedural;
+import com.legendoftecla.loader.CargadorJuegoBase;
 import com.legendoftecla.model.world.Juego;
 
 /** Construye el mismo juego para la interfaz de consola y para la grafica. */
@@ -26,7 +27,7 @@ public final class FabricaJuego {
             case "procedural" -> new CargadorJuegoProcedural(
                     consola, configuracion.nombreJugador(), configuracion.clase(),
                     configuracion.dificultad(), configuracion.dimensiones(),
-                    configuracion.conAliados(), configuracion.seed());
+                    configuracion.cantidadAliados(), configuracion.seed());
             case "ficheros" -> new CargadorJuegoDeFicheros(
                     consola,
                     configuracion.nombreJugador(),
@@ -34,14 +35,14 @@ public final class FabricaJuego {
                     configuracion.directorioDatos(),
                     configuracion.dificultad(),
                     configuracion.dimensiones(),
-                    configuracion.conAliados());
+                    configuracion.cantidadAliados());
             case "grande" -> new CargadorJuegoGrandeConAliados(
                     consola,
                     configuracion.nombreJugador(),
                     configuracion.clase(),
                     configuracion.dificultad(),
                     configuracion.dimensiones(),
-                    configuracion.conAliados(),
+                    configuracion.cantidadAliados(),
                     configuracion.varianteMapa());
             default -> new CargadorJuegoPorDefecto(
                     consola,
@@ -49,8 +50,11 @@ public final class FabricaJuego {
                     configuracion.clase(),
                     configuracion.dificultad(),
                     configuracion.dimensiones(),
-                    configuracion.conAliados());
+                    configuracion.cantidadAliados());
         };
+        if (cargador instanceof CargadorJuegoBase base) {
+            base.setNivelAliados(configuracion.nivelAliados());
+        }
         Juego juego = cargador.cargarJuego();
         juego.setCondicionVictoria(configuracion.condicionVictoria());
         EscaladorEnergiaMapa.aplicar(juego);

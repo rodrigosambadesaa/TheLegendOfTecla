@@ -132,9 +132,10 @@ java -jar target/the-legend-of-tecla.jar --editor
 ```
 
 La GUI permite seleccionar los modos predeterminado, grande y desde ficheros,
-activar aliados mediante una casilla, decidir si basta con que llegue el jugador
-o deben llegar tambien todos los aliados, y elegir una de las 50 variantes del
-mapa grande. La version de consola ofrece las mismas opciones y utiliza el mismo motor.
+activar aliados mediante una casilla y elegir entre la cantidad calculada por el
+juego o una cantidad exacta indicada por el jugador. Tambien permite decidir si
+basta con que llegue el jugador o deben llegar todos los aliados, y elegir una de
+las 50 variantes del mapa grande. La consola ofrece las mismas opciones.
 
 El campo de comandos acepta también las formas históricas compuestas, entre ellas
 `mover este 3`, `atacar 4e 2`, `atacar 4e alien_azul 2` y
@@ -204,10 +205,17 @@ Al iniciar el juego, el modo se elige con:
 - `3`: carga desde ficheros.
 - `4`: mapa procedural reproducible (por CLI: `--modo procedural --seed 12345`).
 
-En los tres modos se pregunta si se desean aliados. Solo se elige `si` o `no`:
-el juego calcula su cantidad, posiciones, salud, energia, vision y equipo segun
-el mapa y la dificultad. Si se activan, se elige tambien entre victoria de
+En todos los modos puede elegirse `no`, `auto` o una cantidad entre 1 y 1000.
+`auto` calcula el numero segun el mapa y la dificultad; una cifra despliega
+exactamente esa cantidad. Por CLI se usan, por ejemplo, `--aliados auto` y
+`--aliados 12`. El nivel comun puede dejarse automatico o personalizarse entre
+1 y 100 con `--nivel-aliados 15`; cada nivel mejora salud, energia, vision de
+forma gradual y capacidad de carga. Si se activan, se elige tambien entre victoria de
 `solo_jugador` o de `jugador_y_aliados`, sin importar el orden de llegada.
+
+El estado del escuadron muestra la puntuacion individual de cada aliado y su
+total. Cada puntuacion se actualiza durante la partida a partir de salud, energia,
+progreso hacia la salida y supervivencia; evacuar al aliado concede el mayor bonus.
 
 ## Formato basico de ficheros (modo ficheros)
 

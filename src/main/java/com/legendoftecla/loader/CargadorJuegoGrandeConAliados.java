@@ -41,6 +41,13 @@ public class CargadorJuegoGrandeConAliados extends CargadorJuegoBase {
         setVarianteMapa(varianteMapa);
     }
 
+    /** Crea el mapa grande con cantidad automatica ({@code -1}), nula o explicita. */
+    public CargadorJuegoGrandeConAliados(Consola consola, String nombreJugador, String clase,
+            Dificultad dificultad, DimensionesMapa dimensiones, int cantidadAliados, int varianteMapa) {
+        super(consola, nombreJugador, clase, dificultad, dimensiones, cantidadAliados);
+        setVarianteMapa(varianteMapa);
+    }
+
     /** @return variante determinista seleccionada */
     public int getVarianteMapa() {
         return varianteMapa;
@@ -106,13 +113,14 @@ public class CargadorJuegoGrandeConAliados extends CargadorJuegoBase {
         GeneradorSuministrosDificultad.poblar(
                 mapa, dificultad, new Random(6200L + varianteMapa));
         poblarEnemigos(juego, mapa, random);
-        int cantidadAliados = conAliados
+        int aliadosGenerados = conAliados
                 ? GeneradorAliados.poblar(juego, mapa, dificultad,
-                        new Random(5200L + varianteMapa), "AliadoAtlasV" + varianteMapa)
+                        new Random(5200L + varianteMapa), "AliadoAtlasV" + varianteMapa,
+                        cantidadAliados, nivelAliados)
                 : 0;
         consola.imprimirInfo("Dificultad: " + dificultad.getEtiqueta()
                 + " | variante=" + varianteMapa
-                + " | aliados=" + cantidadAliados
+                + " | aliados=" + aliadosGenerados
                 + " | salud x" + dificultad.getMultiplicadorSaludEnemigo()
                 + " | danio x" + dificultad.getMultiplicadorDanioEnemigo());
 

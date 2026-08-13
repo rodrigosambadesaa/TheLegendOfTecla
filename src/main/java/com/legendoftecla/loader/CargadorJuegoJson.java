@@ -53,6 +53,13 @@ public final class CargadorJuegoJson extends CargadorJuegoBase {
         setDirectorio(directorio);
     }
 
+    /** Crea el cargador JSON con cantidad automatica ({@code -1}), nula o explicita. */
+    public CargadorJuegoJson(Consola consola, String nombreJugador, String clase, Path directorio,
+            Dificultad dificultad, DimensionesMapa dimensiones, int cantidadAliados) {
+        super(consola, nombreJugador, clase, dificultad, dimensiones, cantidadAliados);
+        setDirectorio(directorio);
+    }
+
     /** @return directorio JSON normalizado */
     public Path getDirectorio() {
         return directorio;
@@ -120,8 +127,9 @@ public final class CargadorJuegoJson extends CargadorJuegoBase {
             juego.agregarEnemigo(enemigo);
         }
 
-        int cantidadAliados = conAliados
-                ? GeneradorAliados.poblar(juego, mapa, dificultad, new Random(303), "AliadoJson")
+        int aliadosGenerados = conAliados
+                ? GeneradorAliados.poblar(juego, mapa, dificultad, new Random(303),
+                        "AliadoJson", cantidadAliados, nivelAliados)
                 : 0;
         if (definicion.getMision() != null) {
             juego.setMision(crearMision(definicion.getMision(), juego));
@@ -130,7 +138,7 @@ public final class CargadorJuegoJson extends CargadorJuegoBase {
         consola.imprimirInfo("Escenario JSON cargado: " + definicion.getNombre()
                 + " | dificultad=" + dificultad.getEtiqueta()
                 + " | enemigos=" + cantidadEnemigos
-                + " | aliados=" + cantidadAliados);
+                + " | aliados=" + aliadosGenerados);
         return juego;
     }
 

@@ -7,6 +7,7 @@ import com.legendoftecla.model.world.Posicion;
  * Representa la entidad Aliado del juego.
  */
 public final class Aliado extends Personaje {
+    private int nivel = 1;
     /**
      * Ejecuta Aliado.
       * @param mochila valor de {@code mochila}
@@ -16,6 +17,15 @@ public final class Aliado extends Personaje {
      */
     public Aliado(String nombre, Posicion posicion, Mochila mochila, int visionBase) {
         super(nombre, 90, 140, posicion, mochila, visionBase);
+    }
+
+    /** @return nivel tactico del aliado */
+    public int getNivel() { return nivel; }
+
+    /** @param nivel nivel entre uno y el limite defensivo */
+    public void setNivel(int nivel) {
+        this.nivel = com.legendoftecla.validation.Validaciones.enteroEntre(nivel, 1,
+                com.legendoftecla.validation.Limites.NIVEL_ALIADO_MAXIMO, "Nivel del aliado");
     }
 
     @Override

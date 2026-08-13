@@ -1,6 +1,7 @@
 package com.legendoftecla.model.world;
 
 import com.legendoftecla.model.characters.Jugador;
+import com.legendoftecla.model.characters.Aliado;
 import com.legendoftecla.validation.Limites;
 import com.legendoftecla.validation.Validaciones;
 
@@ -14,6 +15,7 @@ public final class SistemaPuntuacion {
     private static final int MAX_PUNTOS_PASOS = 250;
     private static final int MAX_PUNTOS_PROGRESO = 150;
     private static final int MAX_PUNTOS_ENEMIGOS = 100;
+    private static final int MAX_PUNTOS_PROGRESO_ALIADO = 200;
 
     private SistemaPuntuacion() {
     }
@@ -55,6 +57,46 @@ public final class SistemaPuntuacion {
 
         return new ResultadoPuntuacion(total, puntosSalud, puntosEnergia, puntosPasos, puntosProgreso, puntosEnemigos,
                 bonusResultado, derrotados);
+    }
+
+    /**
+     * Calcula la puntuacion individual y actual de un aliado.
+     *
+     * @param juego partida que determina progreso y evacuacion
+     * @param aliado participante evaluado
+     * @return desglose inmutable entre cero y mil puntos
+     */
+    public static PuntuacionAliado calcularAliado(Juego juego, Aliado aliado) {
+        Validaciones.noNulo(juego, "Juego");
+        Validaciones.noNulo(aliado, "Aliado");
+        int salud = Math.round(MAX_PUNTOS_SALUD
+                * porcentajeSeguro(aliado.getSalud(), aliado.getSaludMaxima()));
+        int energia = Math.round(MAX_PUNTOS_ENERGIA
+                * porcentajeSeguro(aliado.getEnergia(), aliado.getEnergiaMaxima()));
+        Mapa mapa = juego.getMapa();
+        int distanciaInicial = mapa.getInicio().distanciaManhattan(mapa.getObjetivo());
+        int distanciaActual = aliado.getPosicion().distanciaManhattan(mapa.getObjetivo());
+        float avance = distanciaInicial <= 0 ? 1.0f
+                : 1.0f - (float) distanciaActual / distanciaInicial;
+        int progreso = Math.round(MAX_PUNTOS_PROGRESO_ALIADO * clamp01(avance));
+        int supervivencia = juego.estaAliadoExtraido(aliado) ? 300
+                : aliado.getSalud() > 0 ? 100 : -100;
+        int total = Math.max(0, salud + energia + progreso + supervivencia);
+        return new PuntuacionAliado(total, salud, energia, progreso, supervivencia);
+    }
+
+    /** Desglose de puntuacion individual visible durante y al terminar la partida. */
+    public record PuntuacionAliado(
+            int total, int salud, int energia, int progreso, int supervivencia) {
+        /** Valida que el desglose respete los limites defensivos del dominio. */
+        public PuntuacionAliado {
+            Validaciones.enteroEntre(total, 0, Limites.ESTADISTICA, "Puntuacion aliada");
+            Validaciones.enteroEntre(salud, 0, MAX_PUNTOS_SALUD, "Salud aliada");
+            Validaciones.enteroEntre(energia, 0, MAX_PUNTOS_ENERGIA, "Energia aliada");
+            Validaciones.enteroEntre(progreso, 0, MAX_PUNTOS_PROGRESO_ALIADO,
+                    "Progreso aliado");
+            Validaciones.enteroEntre(supervivencia, -100, 300, "Supervivencia aliada");
+        }
     }
 
     private static float porcentajeSeguro(int actual, int maximo) {

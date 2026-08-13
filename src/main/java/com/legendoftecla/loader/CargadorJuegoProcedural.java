@@ -31,6 +31,13 @@ public final class CargadorJuegoProcedural extends CargadorJuegoBase {
         super(consola, nombre, clase, dificultad, dimensiones, aliados);
         this.seed = seed;
     }
+
+    /** Crea el cargador procedural con cantidad automatica ({@code -1}), nula o explicita. */
+    public CargadorJuegoProcedural(Consola consola, String nombre, String clase,
+            Dificultad dificultad, DimensionesMapa dimensiones, int cantidadAliados, long seed) {
+        super(consola, nombre, clase, dificultad, dimensiones, cantidadAliados);
+        this.seed = seed;
+    }
     @Override public Juego cargarJuego() throws JuegoException {
         int filas = dimensiones == null ? 15 : dimensiones.getFilas();
         int columnas = dimensiones == null ? 25 : dimensiones.getColumnas();
@@ -51,13 +58,14 @@ public final class CargadorJuegoProcedural extends CargadorJuegoBase {
         }
         Juego juego = new Juego(consola, mapa, jugador, Math.max(50, filas * columnas));
         poblar(juego, new Random(seed ^ 0x5EED5EEDL));
-        int cantidadAliados = conAliados
+        int aliadosGenerados = conAliados
                 ? GeneradorAliados.poblar(juego, mapa, dificultad,
-                        new Random(seed ^ 0xA11AD05L), "AliadoProcedural")
+                        new Random(seed ^ 0xA11AD05L), "AliadoProcedural", cantidadAliados,
+                        nivelAliados)
                 : 0;
         consola.imprimirInfo("Mapa procedural: seed=" + seed
                 + " | enemigos=" + juego.getEnemigos().size()
-                + " | aliados=" + cantidadAliados);
+                + " | aliados=" + aliadosGenerados);
         return juego;
     }
 

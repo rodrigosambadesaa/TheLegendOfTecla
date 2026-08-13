@@ -16,6 +16,8 @@ public abstract class CargadorJuegoBase implements CargadorJuego {
     protected Dificultad dificultad;
     protected DimensionesMapa dimensiones;
     protected boolean conAliados;
+    protected int cantidadAliados;
+    protected int nivelAliados;
 
     /**
      * Inicializa los atributos comunes exclusivamente mediante setters.
@@ -29,12 +31,19 @@ public abstract class CargadorJuegoBase implements CargadorJuego {
      */
     protected CargadorJuegoBase(Consola consola, String nombreJugador, String clase,
             Dificultad dificultad, DimensionesMapa dimensiones, boolean conAliados) {
+        this(consola, nombreJugador, clase, dificultad, dimensiones, conAliados ? -1 : 0);
+    }
+
+    /** Inicializa el cargador con cantidad automatica ({@code -1}), nula o explicita. */
+    protected CargadorJuegoBase(Consola consola, String nombreJugador, String clase,
+            Dificultad dificultad, DimensionesMapa dimensiones, int cantidadAliados) {
         setConsola(consola);
         setNombreJugador(nombreJugador);
         setClase(clase);
         setDificultad(dificultad);
         setDimensiones(dimensiones);
-        setConAliados(conAliados);
+        setCantidadAliados(cantidadAliados);
+        setNivelAliados(0);
     }
 
     /** @return consola asociada */
@@ -80,5 +89,22 @@ public abstract class CargadorJuegoBase implements CargadorJuego {
     /** @return si se generan aliados */
     public boolean isConAliados() { return conAliados; }
     /** @param conAliados estado solicitado */
-    public void setConAliados(boolean conAliados) { this.conAliados = conAliados; }
+    public void setConAliados(boolean conAliados) { setCantidadAliados(conAliados ? -1 : 0); }
+    /** @return menos uno para automatico, cero para ninguno o cantidad explicita */
+    public int getCantidadAliados() { return cantidadAliados; }
+    /** @param cantidadAliados politica validada de generacion */
+    public void setCantidadAliados(int cantidadAliados) {
+        if (cantidadAliados < -1 || cantidadAliados > Limites.ALIADOS_MAXIMOS) {
+            throw new IllegalArgumentException("Cantidad de aliados fuera de limites.");
+        }
+        this.cantidadAliados = cantidadAliados;
+        this.conAliados = cantidadAliados != 0;
+    }
+    /** @return cero para automatico o nivel exacto */
+    public int getNivelAliados() { return nivelAliados; }
+    /** @param nivelAliados cero o nivel configurable */
+    public void setNivelAliados(int nivelAliados) {
+        this.nivelAliados = Validaciones.enteroEntre(nivelAliados, 0,
+                Limites.NIVEL_ALIADO_MAXIMO, "Nivel de aliados");
+    }
 }

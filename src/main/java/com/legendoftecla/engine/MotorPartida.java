@@ -237,9 +237,12 @@ public final class MotorPartida {
         long evacuados = aliados.stream().filter(juego::estaAliadoExtraido).count();
         long caidos = aliados.stream().filter(aliado -> aliado.getSalud() <= 0).count();
         long enCombate = aliados.stream().filter(this::estaAliadoEnCombate).count();
+        int puntuacionTotal = aliados.stream().mapToInt(aliado ->
+                SistemaPuntuacion.calcularAliado(juego, aliado).total()).sum();
         StringJoiner lineas = new StringJoiner("\n");
         lineas.add("ALIADOS " + aliados.size() + " | activos=" + (aliados.size() - evacuados - caidos)
-                + " | en combate=" + enCombate + " | evacuados=" + evacuados + " | caidos=" + caidos);
+                + " | en combate=" + enCombate + " | evacuados=" + evacuados + " | caidos=" + caidos
+                + " | puntuacion total=" + puntuacionTotal);
         for (Aliado aliado : aliados) {
             SituacionAliado situacion = obtenerSituacionAliado(aliado);
             String posicion = juego.estaAliadoExtraido(aliado)
@@ -247,8 +250,10 @@ public final class MotorPartida {
                     : aliado.getPosicion().toString();
             lineas.add("- " + aliado.getNombre() + " | Estado " + situacion.etiqueta
                     + " | Combate " + (estaAliadoEnCombate(aliado) ? "EN COMBATE" : "FUERA DE COMBATE")
+                    + " | Nivel " + aliado.getNivel()
                     + " | Vida " + aliado.getSalud() + "/" + aliado.getSaludMaxima()
                     + " | Energia " + aliado.getEnergia() + "/" + aliado.getEnergiaMaxima()
+                    + " | Puntuacion " + SistemaPuntuacion.calcularAliado(juego, aliado).total()
                     + " | Posicion " + posicion
                     + " | Efectos " + SistemaEstados.resumen(aliado));
             lineas.add("  Objetos: " + listarObjetos(aliado) + " | Equipo: " + listarEquipo(aliado));

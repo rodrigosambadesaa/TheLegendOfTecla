@@ -40,6 +40,13 @@ public class CargadorJuegoDeFicheros extends CargadorJuegoBase {
         setDirectorio(directorio);
     }
 
+    /** Crea el cargador de ficheros con cantidad automatica ({@code -1}), nula o explicita. */
+    public CargadorJuegoDeFicheros(Consola consola, String nombreJugador, String clase, Path directorio,
+            Dificultad dificultad, DimensionesMapa dimensiones, int cantidadAliados) {
+        super(consola, nombreJugador, clase, dificultad, dimensiones, cantidadAliados);
+        setDirectorio(directorio);
+    }
+
     /** @return directorio de datos normalizado */
     public Path getDirectorio() {
         return directorio;
@@ -57,8 +64,10 @@ public class CargadorJuegoDeFicheros extends CargadorJuegoBase {
      */
     public Juego cargarJuego() throws JuegoException {
         if (Files.exists(directorio.resolve(SerializadorEscenarioJson.NOMBRE_ARCHIVO))) {
-            return new CargadorJuegoJson(consola, nombreJugador, clase, directorio,
-                    dificultad, dimensiones, conAliados).cargarJuego();
+            CargadorJuegoJson cargador = new CargadorJuegoJson(consola, nombreJugador, clase,
+                    directorio, dificultad, dimensiones, cantidadAliados);
+            cargador.setNivelAliados(nivelAliados);
+            return cargador.cargarJuego();
         }
         try {
             Path mapaPath = directorio.resolve("mapa.txt");
@@ -162,10 +171,11 @@ public class CargadorJuegoDeFicheros extends CargadorJuegoBase {
                     + " | salud x" + dificultad.getMultiplicadorSaludEnemigo()
                     + " | danio x" + dificultad.getMultiplicadorDanioEnemigo());
 
-            int cantidadAliados = conAliados
-                    ? GeneradorAliados.poblar(juego, mapa, dificultad, new Random(77), "AliadoFichero")
+            int aliadosGenerados = conAliados
+                    ? GeneradorAliados.poblar(juego, mapa, dificultad, new Random(77),
+                            "AliadoFichero", cantidadAliados, nivelAliados)
                     : 0;
-            consola.imprimirInfo("Aliados automaticos=" + cantidadAliados);
+            consola.imprimirInfo("Aliados generados=" + aliadosGenerados);
 
             return juego;
         } catch (IOException | RuntimeException e) {

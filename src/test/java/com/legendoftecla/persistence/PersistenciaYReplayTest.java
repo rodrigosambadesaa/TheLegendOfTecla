@@ -16,6 +16,8 @@ import com.legendoftecla.model.items.Municion;
 import com.legendoftecla.model.items.TipoMunicion;
 import com.legendoftecla.model.world.Juego;
 import com.legendoftecla.model.world.Posicion;
+import com.legendoftecla.model.characters.Aliado;
+import com.legendoftecla.model.characters.Mochila;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -62,6 +64,11 @@ class PersistenciaYReplayTest {
         juego.setMision(new Mision("mision-1", "Hackeo", new ActivarTerminal(terminal),
                 List.of(), List.of("100 XP")));
         juego.setPuntuacion(321);
+        Aliado aliado = new Aliado("Veterano", juego.getMapa().getInicio(),
+                new Mochila(4, 20), 3);
+        aliado.setNivel(14);
+        juego.agregarAliado(aliado);
+        juego.getMapa().getCelda(aliado.getPosicion()).agregarAliado(aliado);
         Path archivo = temporal.resolve("partida.json");
 
         PersistenciaPartida.guardar(juego, archivo, 77);
@@ -94,6 +101,7 @@ class PersistenciaYReplayTest {
         assertEquals(1, cargado.getEstadisticas().getDisparos());
         assertTrue(cargado.getLogros().getDesbloqueados().contains("primer-contacto"));
         assertEquals(321, cargado.getPuntuacion());
+        assertEquals(14, cargado.getAliados().get(0).getNivel());
         assertEquals("mision-1", cargado.getMision().getId());
         assertTrue(cargado.getMision().completada(cargado));
     }

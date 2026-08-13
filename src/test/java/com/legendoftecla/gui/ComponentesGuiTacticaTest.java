@@ -40,6 +40,7 @@ class ComponentesGuiTacticaTest {
         JTextArea estado = (JTextArea) buscar(panel[0], "estado.aliados");
         assertNotNull(estado);
         assertTrue(estado.getText().contains("A"));
+        assertTrue(estado.getText().contains("Puntuacion"));
     }
 
     @Test

@@ -18,21 +18,39 @@ final class GeneradorAliados {
     }
 
     static int poblar(Juego juego, Mapa mapa, Dificultad dificultad, Random random, String prefijo) {
+        return poblar(juego, mapa, dificultad, random, prefijo, -1);
+    }
+
+    static int poblar(Juego juego, Mapa mapa, Dificultad dificultad, Random random,
+            String prefijo, int cantidadSolicitada) {
+        return poblar(juego, mapa, dificultad, random, prefijo, cantidadSolicitada, 0);
+    }
+
+    static int poblar(Juego juego, Mapa mapa, Dificultad dificultad, Random random,
+            String prefijo, int cantidadSolicitada, int nivelSolicitado) {
         Posicion despliegue = mapa.getInicio();
         if (!mapa.esTransitable(despliegue)) {
             throw new IllegalStateException(
                     "La casilla inicial debe ser transitable para desplegar el escuadron.");
         }
 
-        int cantidad = calcularCantidad(mapa, dificultad);
+        int cantidad = cantidadSolicitada < 0
+                ? calcularCantidad(mapa, dificultad)
+                : cantidadSolicitada;
         int area = mapa.getFilas() * mapa.getColumnas();
         int salud = 90 + Math.min(30, area / 500 * 5);
         int energia = 140 + Math.min(160, (mapa.getFilas() + mapa.getColumnas()) * 2);
         int vision = area >= 1600 ? 4 : 3;
+        int nivel = nivelSolicitado <= 0 ? 1 : nivelSolicitado;
+        int bonusNivel = nivel - 1;
+        salud += bonusNivel * 8;
+        energia += bonusNivel * 10;
+        vision = Math.min(12, vision + bonusNivel / 5);
 
         for (int indice = 0; indice < cantidad; indice++) {
             Aliado aliado = new Aliado(prefijo + "_" + (indice + 1), despliegue,
-                    new Mochila(4, 12), vision);
+                    new Mochila(4 + bonusNivel / 4, 12 + bonusNivel * 1.5), vision);
+            aliado.setNivel(nivel);
             aliado.configurarEstadisticas(salud, energia, vision);
             aliado.getMochila().guardar(new Botiquin("botiquin_apoyo_" + prefijo + "_" + (indice + 1),
                     "Botiquin reservado para asistencia prioritaria", 1.0, 25));

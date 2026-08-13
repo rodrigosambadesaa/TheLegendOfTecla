@@ -2,6 +2,8 @@ package com.legendoftecla.loader;
 
 import com.legendoftecla.TestFixtures;
 import com.legendoftecla.constants.Dificultad;
+import com.legendoftecla.engine.ConfiguracionPartida;
+import com.legendoftecla.engine.FabricaJuego;
 import com.legendoftecla.model.world.DimensionesMapa;
 import com.legendoftecla.model.world.Juego;
 import com.legendoftecla.model.world.Posicion;
@@ -60,6 +62,22 @@ class DespliegueEscuadronTest {
         assertTrue(distanciaTotal(escuadron) < distanciaTotal(solitario));
         assertTrue(escuadron.getEnemigos().stream()
                 .allMatch(enemigo -> escuadron.getMapa().esTransitable(enemigo.getPosicion())));
+    }
+
+    @Test
+    void respetaLaCantidadExactaIndicadaPorElJugador() throws Exception {
+        ConfiguracionPartida configuracion = new ConfiguracionPartida("Tecla", "marine",
+                "procedural", Dificultad.NORMAL, new DimensionesMapa(15, 21), null, false, 1);
+        configuracion.setCantidadAliados(23);
+        configuracion.setNivelAliados(12);
+        configuracion.setSeed(77);
+        Juego juego = FabricaJuego.crear(TestFixtures.consola(), configuracion);
+
+        assertEquals(23, juego.getAliados().size());
+        assertTrue(juego.getAliados().stream().allMatch(aliado -> aliado.getNivel() == 12));
+        assertTrue(juego.getAliados().stream().allMatch(aliado -> aliado.getSaludMaxima() > 90));
+        assertTrue(juego.getAliados().stream().allMatch(aliado ->
+                aliado.getPosicion().equals(juego.getMapa().getInicio())));
     }
 
     private Juego procedural(boolean aliados) throws Exception {

@@ -65,7 +65,18 @@ public final class PanelConfiguracion extends JPanel {
     /** Selector editable para el numero de columnas del mapa. */
     private final JSpinner columnas = ControlesNumericos.entero("dimensiones.columnas", 10, 3, 100, 1);
     /** Selector para activar aliados calculados automaticamente. */
-    private final JCheckBox conAliados = new JCheckBox("Incluir aliados automaticos");
+    private final JCheckBox conAliados = new JCheckBox("Incluir aliados");
+    /** Permite elegir entre el calculo del juego y una cantidad indicada. */
+    private final JComboBox<Opcion> modoAliados = new JComboBox<>(new Opcion[]{
+            new Opcion("Cantidad calculada por el juego", "auto"),
+            new Opcion("Cantidad especificada", "manual")
+    });
+    /** Cantidad exacta cuando se selecciona el modo manual. */
+    private final JSpinner cantidadAliados = ControlesNumericos.entero(
+            "aliados.cantidad", 1, 1, com.legendoftecla.validation.Limites.ALIADOS_MAXIMOS, 1);
+    /** Nivel comun; cero conserva el nivel automatico. */
+    private final JSpinner nivelAliados = ControlesNumericos.entero(
+            "aliados.nivel", 0, 0, com.legendoftecla.validation.Limites.NIVEL_ALIADO_MAXIMO, 1);
     /** Selector de los participantes que deben alcanzar la salida. */
     private final JComboBox<CondicionVictoria> condicionVictoria =
             new JComboBox<>(CondicionVictoria.values());
@@ -90,6 +101,7 @@ public final class PanelConfiguracion extends JPanel {
     public PanelConfiguracion(Consumer<ConfiguracionPartida> iniciar, Runnable abrirEditor) {
         super(new BorderLayout());
         conAliados.setName("aliados.activados");
+        modoAliados.setName("aliados.modo");
         condicionVictoria.setName("victoria.condicion");
         setBorder(BorderFactory.createEmptyBorder(30, 50, 30, 50));
 
@@ -131,7 +143,13 @@ public final class PanelConfiguracion extends JPanel {
         dimensiones.add(columnas);
         dimensiones.add(new JLabel("columnas (3-100, se puede escribir)"));
         agregarFila(formulario, fila++, "Dimensiones", dimensiones);
-        agregarFila(formulario, fila++, "Aliados", conAliados);
+        JPanel aliados = new JPanel();
+        aliados.add(conAliados);
+        aliados.add(modoAliados);
+        aliados.add(cantidadAliados);
+        aliados.add(new JLabel("Nivel (0=auto)"));
+        aliados.add(nivelAliados);
+        agregarFila(formulario, fila++, "Aliados", aliados);
         agregarFila(formulario, fila++, "Variante del mapa", varianteMapa);
         agregarFila(formulario, fila++, "Semilla procedural", seed);
 
@@ -143,6 +161,7 @@ public final class PanelConfiguracion extends JPanel {
 
         examinar.addActionListener(e -> seleccionarDirectorioConDialogo());
         conAliados.addActionListener(e -> actualizarAliados());
+        modoAliados.addActionListener(e -> actualizarAliados());
         modo.addActionListener(e -> actualizarModo());
         actualizarModo();
         actualizarAliados();
@@ -188,6 +207,7 @@ public final class PanelConfiguracion extends JPanel {
     public void seleccionarDirectorio(Path ruta, boolean usarAliados) {
         directorio.setText(ruta.toAbsolutePath().toString());
         conAliados.setSelected(usarAliados);
+        modoAliados.setSelectedIndex(0);
         actualizarAliados();
         modo.setSelectedIndex(2);
     }
@@ -199,6 +219,11 @@ public final class PanelConfiguracion extends JPanel {
                 ControlesNumericos.valorEntero(filas),
                 ControlesNumericos.valorEntero(columnas));
         Path ruta = directorio.getText().isBlank() ? null : Path.of(directorio.getText().trim());
+        Opcion modoAliadosElegido = (Opcion) modoAliados.getSelectedItem();
+        int aliadosSolicitados = !conAliados.isSelected() ? 0
+                : modoAliadosElegido != null && "manual".equals(modoAliadosElegido.valor())
+                        ? ControlesNumericos.valorEntero(cantidadAliados)
+                        : -1;
         ConfiguracionPartida configuracion = new ConfiguracionPartida(
                 nombre.getText().trim(),
                 claseElegida.valor(),
@@ -206,10 +231,11 @@ public final class PanelConfiguracion extends JPanel {
                 (Dificultad) dificultad.getSelectedItem(),
                 dimensiones,
                 ruta,
-                conAliados.isSelected(),
+                aliadosSolicitados,
                 (CondicionVictoria) condicionVictoria.getSelectedItem(),
                 ControlesNumericos.valorEntero(varianteMapa));
         configuracion.setSeed(ControlesNumericos.valorEntero(seed));
+        configuracion.setNivelAliados(ControlesNumericos.valorEntero(nivelAliados));
         return configuracion;
     }
 
@@ -242,6 +268,11 @@ public final class PanelConfiguracion extends JPanel {
 
     private void actualizarAliados() {
         condicionVictoria.setEnabled(conAliados.isSelected());
+        modoAliados.setEnabled(conAliados.isSelected());
+        Opcion opcion = (Opcion) modoAliados.getSelectedItem();
+        cantidadAliados.setEnabled(conAliados.isSelected()
+                && opcion != null && "manual".equals(opcion.valor()));
+        nivelAliados.setEnabled(conAliados.isSelected());
     }
 
     private void agregarFila(JPanel panel, int fila, String etiqueta, Component componente) {

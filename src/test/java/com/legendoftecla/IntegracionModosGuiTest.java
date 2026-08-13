@@ -601,15 +601,24 @@ class IntegracionModosGuiTest {
             JSpinner filasConfiguracion = (JSpinner) buscarPorNombre(panel, "dimensiones.filas");
             JSpinner columnasConfiguracion = (JSpinner) buscarPorNombre(panel, "dimensiones.columnas");
             JCheckBox aliadosConfiguracion = (JCheckBox) buscarPorNombre(panel, "aliados.activados");
+            JComboBox<?> modoAliados = (JComboBox<?>) buscarPorNombre(panel, "aliados.modo");
+            JSpinner cantidadAliados = (JSpinner) buscarPorNombre(panel, "aliados.cantidad");
+            JSpinner nivelAliados = (JSpinner) buscarPorNombre(panel, "aliados.nivel");
             JComboBox<?> victoriaConfiguracion = (JComboBox<?>) buscarPorNombre(panel, "victoria.condicion");
             assertNotNull(filasConfiguracion);
             assertNotNull(columnasConfiguracion);
             assertNotNull(aliadosConfiguracion);
+            assertNotNull(modoAliados);
+            assertNotNull(cantidadAliados);
+            assertNotNull(nivelAliados);
             assertNotNull(victoriaConfiguracion);
             assertFalse(victoriaConfiguracion.isEnabled());
             escribirNumero(filasConfiguracion, "37");
             escribirNumero(columnasConfiguracion, "42");
             aliadosConfiguracion.doClick();
+            modoAliados.setSelectedIndex(1);
+            cantidadAliados.setValue(17);
+            nivelAliados.setValue(9);
             assertTrue(victoriaConfiguracion.isEnabled());
             victoriaConfiguracion.setSelectedItem(CondicionVictoria.SOLO_JUGADOR);
             renderizarComponente(panel, captura, 1100, 720);
@@ -632,6 +641,8 @@ class IntegracionModosGuiTest {
         assertEquals(37, resultado.get().dimensiones().filas());
         assertEquals(42, resultado.get().dimensiones().columnas());
         assertTrue(resultado.get().conAliados());
+        assertEquals(17, resultado.get().cantidadAliados());
+        assertEquals(9, resultado.get().nivelAliados());
         assertEquals(CondicionVictoria.SOLO_JUGADOR, resultado.get().condicionVictoria());
         assertTrue(Files.size(captura) > 1000);
     }

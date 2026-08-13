@@ -24,6 +24,10 @@ public final class Limites {
     public static final int MENSAJE = 100_000;
     /** Numero maximo de mensajes retenidos por la consola grafica. */
     public static final int HISTORIAL_MENSAJES = 100_000;
+    /** Numero maximo de aliados solicitables para preservar un turno procesable. */
+    public static final int ALIADOS_MAXIMOS = 1_000;
+    /** Nivel maximo configurable para un aliado generado. */
+    public static final int NIVEL_ALIADO_MAXIMO = 100;
 
     private Limites() {
     }

@@ -116,7 +116,8 @@ public final class PersistenciaPartida {
     }
 
     private static PersonajeEstado personaje(Personaje personaje) {
-        int nivel = personaje instanceof Jugador jugador ? jugador.getProgresion().getNivel() : 0;
+        int nivel = personaje instanceof Jugador jugador ? jugador.getProgresion().getNivel()
+                : personaje instanceof Aliado aliado ? aliado.getNivel() : 0;
         int experiencia = personaje instanceof Jugador jugador
                 ? jugador.getProgresion().getExperiencia() : 0;
         java.util.Set<String> habilidades = personaje instanceof Jugador jugador
@@ -163,6 +164,8 @@ public final class PersistenciaPartida {
         if (personaje instanceof Jugador jugador && estado.nivel() > 0) {
             jugador.getProgresion().restaurar(estado.nivel(), estado.experiencia(),
                     estado.habilidades());
+        } else if (personaje instanceof Aliado aliado && estado.nivel() > 0) {
+            aliado.setNivel(estado.nivel());
         }
         return personaje;
     }

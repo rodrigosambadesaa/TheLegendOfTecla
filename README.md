@@ -234,6 +234,12 @@ normal se usa una proporcion 1:1; muy facil aplica `x0.5`, facil `x0.75`,
 dificil `x1.25`, muy dificil `x1.5`, pesadilla `x1.8` y demente `x2.2`.
 Nunca se eliminan los enemigos propios del escenario si ya superan ese minimo.
 
+La suite incluye pruebas de memoria en JVM aisladas. El escenario defensivo
+maximo (1.000 aliados y 2.200 enemigos armados) debe generarse, mostrar su
+estado y completar guardado/carga con un heap de 256 MiB. Otra prueba crea y
+libera seis partidas grandes consecutivas con 128 MiB para detectar retenciones
+de entidades. Ambas se ejecutan automaticamente con `mvn clean verify`.
+
 El estado del escuadron muestra la puntuacion individual de cada aliado y su
 total. Cada puntuacion se actualiza durante la partida a partir de salud, energia,
 progreso hacia la salida y supervivencia; evacuar al aliado concede el mayor bonus.

@@ -13,6 +13,6 @@ public final class GeneradorLaberinto extends GeneradorBase {
                 if (c != paso) mapa.getCelda(new Posicion(f, c)).setTransitable(false);
             }
         }
-        garantizarRuta(mapa); decorar(mapa, config, random); return mapa;
+        garantizarRuta(mapa); decorar(mapa, config, random); return finalizar(mapa);
     }
 }

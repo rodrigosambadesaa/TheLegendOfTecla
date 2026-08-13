@@ -13,6 +13,6 @@ public final class GeneradorCuevas extends GeneradorBase {
                         random.nextDouble() >= config.densidadMuros());
             }
         }
-        garantizarRuta(mapa); decorar(mapa, config, random); return mapa;
+        garantizarRuta(mapa); decorar(mapa, config, random); return finalizar(mapa);
     }
 }

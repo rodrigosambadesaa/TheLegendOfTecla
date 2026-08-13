@@ -19,6 +19,6 @@ public final class GeneradorHabitaciones extends GeneradorBase {
                 }
             }
         }
-        garantizarRuta(mapa); decorar(mapa, config, random); return mapa;
+        garantizarRuta(mapa); decorar(mapa, config, random); return finalizar(mapa);
     }
 }

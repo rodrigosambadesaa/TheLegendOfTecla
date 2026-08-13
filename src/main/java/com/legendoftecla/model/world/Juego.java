@@ -113,6 +113,7 @@ public class Juego {
                 .flatMap(Set::stream).anyMatch(posicion -> !validado.estaDentro(posicion))) {
             throw new IllegalArgumentException("El nuevo mapa dejaria inspecciones aliadas fuera de sus limites.");
         }
+        AmbientacionMapa.completar(validado);
         this.mapa = validado;
     }
 

@@ -11,6 +11,7 @@ import com.legendoftecla.model.items.Explosivo;
 import com.legendoftecla.model.items.Objeto;
 import com.legendoftecla.model.items.ToritoRojo;
 import com.legendoftecla.model.world.Celda;
+import com.legendoftecla.model.world.AmbientacionMapa;
 import com.legendoftecla.model.world.Direccion;
 import com.legendoftecla.model.world.Mapa;
 import com.legendoftecla.model.world.Posicion;
@@ -108,7 +109,8 @@ public class ComandoMirar implements Comando {
         if (!SistemaIluminacion.hayLuz(context.getJuego(), observada)) {
             throw new ComandoException("La zona esta oscura; necesitas una linterna o una fuente de luz.");
         }
-        context.getJuego().getConsola().imprimir(celda.getDescripcion());
+        context.getJuego().getConsola().imprimir(
+                AmbientacionMapa.describir(context.getJuego().getMapa(), observada));
         if (direccion == null) {
             context.getJuego().inspeccionarCeldaActual();
             if (detalle != null) {

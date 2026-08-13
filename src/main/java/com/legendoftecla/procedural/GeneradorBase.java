@@ -4,6 +4,7 @@ import com.legendoftecla.model.elements.EstadoPuerta;
 import com.legendoftecla.model.elements.Mina;
 import com.legendoftecla.model.elements.Puerta;
 import com.legendoftecla.model.world.Celda;
+import com.legendoftecla.model.world.AmbientacionMapa;
 import com.legendoftecla.model.world.Mapa;
 import com.legendoftecla.model.world.Posicion;
 
@@ -59,6 +60,12 @@ abstract class GeneradorBase implements GeneradorMapa {
             mapa.getCelda(candidatas.get(indice)).agregarElemento(
                     new Mina("mina-" + i, 12, 1, false));
         }
+    }
+
+    /** Completa la descripcion narrativa de todas las celdas del mapa generado. */
+    protected Mapa finalizar(Mapa mapa) {
+        AmbientacionMapa.completar(mapa);
+        return mapa;
     }
 
     private void mezclar(List<Posicion> posiciones, RandomGenerator random) {

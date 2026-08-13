@@ -10,6 +10,8 @@ import com.legendoftecla.model.characters.Mochila;
 import com.legendoftecla.model.characters.Zapador;
 import com.legendoftecla.model.characters.Sectoid;
 import com.legendoftecla.model.items.Botiquin;
+import com.legendoftecla.model.items.CatalogoArmas;
+import com.legendoftecla.model.items.ClaseArma;
 import com.legendoftecla.model.items.Arma;
 import com.legendoftecla.model.items.Municion;
 import com.legendoftecla.model.items.TipoMunicion;
@@ -49,15 +51,23 @@ public final class CargadorJuegoProcedural extends CargadorJuegoBase {
             case "zapador" -> new Zapador(nombreJugador, mapa.getInicio(), mochila, 4);
             default -> new Marine(nombreJugador, mapa.getInicio(), mochila, 4);
         };
+        ClaseArma claseInicial = switch (clase) {
+                case "francotirador" -> ClaseArma.RIFLE_PRECISION;
+                case "zapador" -> ClaseArma.ESCOPETA;
+                default -> ClaseArma.RIFLE_ASALTO;
+        };
+        TipoMunicion municionInicial;
         try {
-            jugador.equipar(new Arma("Rifle expedicionario", "Arma procedural",
-                    3, 9, true, TipoMunicion.RIFLE, 6, 6));
+            Arma inicial = CatalogoArmas.crearDeClase(
+                    claseInicial, new Random(seed ^ 0xA24A5L), "inicial");
+            municionInicial = inicial.getTipoMunicion();
+            jugador.equipar(inicial);
         } catch (com.legendoftecla.exceptions.AccionInvalidaException error) {
             throw new JuegoException("No se pudo equipar el arma procedural: "
                     + error.getMessage());
         }
         Juego juego = new Juego(consola, mapa, jugador, Math.max(50, filas * columnas));
-        poblar(juego, new Random(seed ^ 0x5EED5EEDL));
+        poblar(juego, new Random(seed ^ 0x5EED5EEDL), municionInicial);
         int aliadosGenerados = conAliados
                 ? GeneradorAliados.poblar(juego, mapa, dificultad,
                         new Random(seed ^ 0xA11AD05L), "AliadoProcedural", cantidadAliados,
@@ -70,7 +80,7 @@ public final class CargadorJuegoProcedural extends CargadorJuegoBase {
         return juego;
     }
 
-    private void poblar(Juego juego, Random random) {
+    private void poblar(Juego juego, Random random, TipoMunicion municionInicial) {
         List<com.legendoftecla.model.world.Posicion> libres = new ArrayList<>();
         for (int fila = 1; fila < juego.getMapa().getFilas() - 1; fila++) {
             for (int columna = 1; columna < juego.getMapa().getColumnas() - 1; columna++) {
@@ -105,7 +115,7 @@ public final class CargadorJuegoProcedural extends CargadorJuegoBase {
                 dificultad.calcularMunicionExtra(libres.size()));
         for (int numero = 0; numero < paquetes; numero++, indice++) {
             juego.getMapa().getCelda(libres.get(indice)).agregarObjeto(new Municion(
-                    "Municion rifle " + numero, 0.5, TipoMunicion.RIFLE, 12));
+                    "Municion inicial " + numero, 0.5, municionInicial, 12));
         }
     }
 

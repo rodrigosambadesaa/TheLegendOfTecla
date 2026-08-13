@@ -21,9 +21,11 @@ import java.util.Set;
 /** Tabla central y testeable de competencias de jugador, aliados y enemigos. */
 public final class ReglasArmamento {
     private static final Set<TipoMunicion> FUEGO_COMUN = EnumSet.of(
-            TipoMunicion.PISTOLA, TipoMunicion.RIFLE, TipoMunicion.ENERGIA);
+            TipoMunicion.PISTOLA, TipoMunicion.SUBFUSIL, TipoMunicion.ESCOPETA,
+            TipoMunicion.RIFLE, TipoMunicion.ENERGIA);
     private static final Set<TipoMunicion> FUEGO_COMPLETO = EnumSet.of(
-            TipoMunicion.PISTOLA, TipoMunicion.RIFLE, TipoMunicion.PESADA,
+            TipoMunicion.PISTOLA, TipoMunicion.SUBFUSIL, TipoMunicion.ESCOPETA,
+            TipoMunicion.RIFLE, TipoMunicion.PESADA,
             TipoMunicion.COHETE, TipoMunicion.ENERGIA);
 
     private ReglasArmamento() { }

@@ -23,6 +23,7 @@ class OpcionesInicioTest {
         assertEquals(Dificultad.NORMAL, opciones.dificultad());
         assertEquals(Boolean.FALSE, opciones.conAliados());
         assertEquals(0, opciones.cantidadAliados());
+        assertEquals(1, opciones.nivelJugador());
         assertEquals(CondicionVictoria.JUGADOR_Y_ALIADOS, opciones.condicionVictoria());
         assertEquals(1, opciones.varianteMapa());
         assertTrue(opciones.rapido());
@@ -35,7 +36,8 @@ class OpcionesInicioTest {
             "--rapido", "--nombre", "Ada", "--clase", "ZAPADOR",
             "--modo", "3", "--dificultad", "muy_dificil",
             "--dimensiones", "12x20", "--datos", "data/../data/escenario_json",
-            "--aliados", "sí", "--nivel-aliados", "12",
+            "--aliados", "sí", "--nivel-aliados", "12", "--nivel-jugador", "27",
+            "--sin-mejoras-aliados", "--sin-municion-aliada",
             "--victoria", "solo_jugador", "--variante", "50", "--editor"
         });
 
@@ -49,6 +51,9 @@ class OpcionesInicioTest {
         assertEquals(Boolean.TRUE, opciones.getConAliados());
         assertEquals(-1, opciones.getCantidadAliados());
         assertEquals(12, opciones.getNivelAliados());
+        assertEquals(27, opciones.getNivelJugador());
+        assertFalse(opciones.isMejorasEquipoAliado());
+        assertFalse(opciones.isMunicionAliadaAutomatica());
         assertEquals(CondicionVictoria.SOLO_JUGADOR, opciones.getCondicionVictoria());
         assertEquals(50, opciones.getVarianteMapa());
         assertTrue(opciones.isEditor());
@@ -68,9 +73,11 @@ class OpcionesInicioTest {
         assertEquals(0, OpcionesInicio.desdeArgumentos(
                 new String[] { "--nivel-aliados", "auto" }).nivelAliados());
         assertThrows(IllegalArgumentException.class,
-                () -> OpcionesInicio.desdeArgumentos(new String[] { "--aliados", "1001" }));
+                () -> OpcionesInicio.desdeArgumentos(new String[] { "--aliados", "5000" }));
         assertThrows(IllegalArgumentException.class,
                 () -> OpcionesInicio.desdeArgumentos(new String[] { "--nivel-aliados", "101" }));
+        assertThrows(IllegalArgumentException.class,
+                () -> OpcionesInicio.desdeArgumentos(new String[] { "--nivel-jugador", "0" }));
     }
 
     @Test

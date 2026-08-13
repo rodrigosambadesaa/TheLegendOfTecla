@@ -90,6 +90,8 @@ public final class Main {
         boolean conAliados = cantidadAliados != 0;
         int nivelAliados = !conAliados ? 0 : opciones.nivelAliados() != null
                 ? opciones.nivelAliados() : leerNivelAliados(consola);
+        int nivelJugador = opciones.nivelJugador() != null
+                ? opciones.nivelJugador() : leerNivelJugador(consola);
         CondicionVictoria condicionVictoria = opciones.condicionVictoria() != null
                 ? opciones.condicionVictoria()
                 : (conAliados ? leerCondicionVictoria(consola) : CondicionVictoria.JUGADOR_Y_ALIADOS);
@@ -102,6 +104,9 @@ public final class Main {
                     nombre, clase, modo, dificultad, dimensiones, directorio, cantidadAliados,
                     condicionVictoria, varianteMapa);
             configuracion.setNivelAliados(nivelAliados);
+            configuracion.setNivelJugador(nivelJugador);
+            configuracion.setMejorasEquipoAliado(opciones.isMejorasEquipoAliado());
+            configuracion.setMunicionAliadaAutomatica(opciones.isMunicionAliadaAutomatica());
             if (opciones.seed() != null) configuracion.setSeed(opciones.seed());
             Juego juego = FabricaJuego.crear(consola, configuracion);
             MotorPartida motor = new MotorPartida(juego);
@@ -265,6 +270,20 @@ public final class Main {
             consola.imprimir("Nivel invalido. Escribe auto o un valor entre 1 y "
                     + com.legendoftecla.validation.Limites.NIVEL_ALIADO_MAXIMO + ".",
                     TipoMensaje.ERROR);
+        }
+    }
+
+    private static int leerNivelJugador(Consola consola) {
+        while (true) {
+            String entrada = consola.leer("Nivel inicial del jugador (1-100) [1]:").trim();
+            if (entrada.isBlank()) return 1;
+            try {
+                int nivel = Integer.parseInt(entrada);
+                if (nivel >= 1 && nivel <= 100) return nivel;
+            } catch (NumberFormatException ignored) {
+                // Se informa de forma uniforme bajo estas lineas.
+            }
+            consola.imprimir("Nivel invalido: indica un valor entre 1 y 100.", TipoMensaje.ERROR);
         }
     }
 

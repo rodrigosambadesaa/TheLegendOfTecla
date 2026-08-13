@@ -606,6 +606,10 @@ class IntegracionModosGuiTest {
             JComboBox<?> modoAliados = (JComboBox<?>) buscarPorNombre(panel, "aliados.modo");
             JSpinner cantidadAliados = (JSpinner) buscarPorNombre(panel, "aliados.cantidad");
             JSpinner nivelAliados = (JSpinner) buscarPorNombre(panel, "aliados.nivel");
+            JSpinner nivelJugador = (JSpinner) buscarPorNombre(panel, "jugador.nivel");
+            JCheckBox mejorasAliados = (JCheckBox) buscarPorNombre(panel, "aliados.mejorasEquipo");
+            JCheckBox municionAliada = (JCheckBox) buscarPorNombre(
+                    panel, "aliados.municionAutomatica");
             JComboBox<?> victoriaConfiguracion = (JComboBox<?>) buscarPorNombre(panel, "victoria.condicion");
             assertNotNull(filasConfiguracion);
             assertNotNull(columnasConfiguracion);
@@ -613,6 +617,9 @@ class IntegracionModosGuiTest {
             assertNotNull(modoAliados);
             assertNotNull(cantidadAliados);
             assertNotNull(nivelAliados);
+            assertNotNull(nivelJugador);
+            assertNotNull(mejorasAliados);
+            assertNotNull(municionAliada);
             assertNotNull(victoriaConfiguracion);
             assertFalse(victoriaConfiguracion.isEnabled());
             escribirNumero(filasConfiguracion, "37");
@@ -621,6 +628,9 @@ class IntegracionModosGuiTest {
             modoAliados.setSelectedIndex(1);
             cantidadAliados.setValue(17);
             nivelAliados.setValue(9);
+            nivelJugador.setValue(23);
+            assertTrue(mejorasAliados.isSelected());
+            assertTrue(municionAliada.isSelected());
             assertTrue(victoriaConfiguracion.isEnabled());
             victoriaConfiguracion.setSelectedItem(CondicionVictoria.SOLO_JUGADOR);
             renderizarComponente(panel, captura, 1100, 720);
@@ -645,6 +655,9 @@ class IntegracionModosGuiTest {
         assertTrue(resultado.get().conAliados());
         assertEquals(17, resultado.get().cantidadAliados());
         assertEquals(9, resultado.get().nivelAliados());
+        assertEquals(23, resultado.get().nivelJugador());
+        assertTrue(resultado.get().isMejorasEquipoAliado());
+        assertTrue(resultado.get().isMunicionAliadaAutomatica());
         assertEquals(CondicionVictoria.SOLO_JUGADOR, resultado.get().condicionVictoria());
         assertTrue(Files.size(captura) > 1000);
     }

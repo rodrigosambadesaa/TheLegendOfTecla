@@ -56,6 +56,10 @@ public final class FabricaJuego {
             base.setNivelAliados(configuracion.nivelAliados());
         }
         Juego juego = cargador.cargarJuego();
+        ServicioNivelInicial.aplicar(juego.getJugador(), configuracion.nivelJugador());
+        juego.setMejorasEquipoAliadoPermitidas(configuracion.isMejorasEquipoAliado());
+        juego.setMunicionAliadaAutomatica(configuracion.isMunicionAliadaAutomatica());
+        EquilibradorBandos.aplicar(juego);
         juego.setCondicionVictoria(configuracion.condicionVictoria());
         EscaladorEnergiaMapa.aplicar(juego);
         return juego;

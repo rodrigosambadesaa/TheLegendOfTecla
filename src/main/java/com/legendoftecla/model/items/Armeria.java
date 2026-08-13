@@ -35,6 +35,16 @@ public final class Armeria {
         return new Arma(nombre, "Pistola de fuego", 1.2, 10, false,
                 CategoriaArma.FUEGO, TipoMunicion.PISTOLA, cargador, actual);
     }
+    public static Arma subfusil(String nombre, int cargador, int actual) {
+        return new Arma(nombre, "Subfusil tactico", 2.5, 12, true,
+                CategoriaArma.FUEGO, TipoMunicion.SUBFUSIL, cargador, actual,
+                FaccionEquipo.HUMANA, ClaseArma.SUBFUSIL, 4);
+    }
+    public static Arma escopeta(String nombre, int cargador, int actual) {
+        return new Arma(nombre, "Escopeta tactica", 3.5, 25, true,
+                CategoriaArma.FUEGO, TipoMunicion.ESCOPETA, cargador, actual,
+                FaccionEquipo.HUMANA, ClaseArma.ESCOPETA, 7);
+    }
     public static Arma pesada(String nombre, int cargador, int actual) {
         return new Arma(nombre, "Arma pesada", 7.0, 24, true,
                 CategoriaArma.FUEGO, TipoMunicion.PESADA, cargador, actual);

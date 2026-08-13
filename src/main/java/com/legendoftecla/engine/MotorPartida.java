@@ -95,7 +95,8 @@ public final class MotorPartida {
         setResultadoBatalla(null);
         setTurnosAyudaAliados(0);
         setAvisoRescateEnergia(false);
-        setCooperacionInventarioActiva(true);
+        setCooperacionInventarioActiva(juego.isMunicionAliadaAutomatica()
+                || juego.isMejorasEquipoAliadoPermitidas());
         anunciarPartida();
         evaluarFinNatural();
     }
@@ -241,6 +242,7 @@ public final class MotorPartida {
      */
     public String getEstadoJugador() {
         return juego.getJugador().getNombre()
+                + "  Nivel " + juego.getJugador().getProgresion().getNivel()
                 + "  Salud " + juego.getJugador().getSalud() + "/" + juego.getJugador().getSaludMaxima()
                 + "  Energia " + juego.getJugador().getEnergia() + "/" + juego.getJugador().getEnergiaMaxima()
                 + "  Pasos " + juego.getPasos() + "/" + juego.getPasosMaximos()
@@ -1055,6 +1057,10 @@ public final class MotorPartida {
             equiparDesdeCelda(aliado, candidata, celda);
             return;
         }
+        if (!juego.isMejorasEquipoAliadoPermitidas()) {
+            recogerObjetoAliado(aliado, candidata, celda);
+            return;
+        }
 
         List<Arma> aSustituir = new ArrayList<>();
         if (candidata.isDosManos()) {
@@ -1080,6 +1086,10 @@ public final class MotorPartida {
         Armadura actual = aliado.getArmaduraEquipada();
         if (actual == null) {
             equiparDesdeCelda(aliado, candidata, celda);
+            return;
+        }
+        if (!juego.isMejorasEquipoAliadoPermitidas()) {
+            recogerObjetoAliado(aliado, candidata, celda);
             return;
         }
         if (valorArmadura(candidata) <= valorArmadura(actual)
@@ -1235,8 +1245,12 @@ public final class MotorPartida {
             return false;
         }
         CooperacionInventario cooperacion = new CooperacionInventario(1);
-        return cooperacion.compartirMunicion(donante, destinatario)
-                || cooperacion.transferirMejorArma(donante, destinatario);
+        if (juego.isMunicionAliadaAutomatica()
+                && cooperacion.compartirMunicion(donante, destinatario)) {
+            return true;
+        }
+        return juego.isMejorasEquipoAliadoPermitidas()
+                && cooperacion.transferirMejorArma(donante, destinatario);
     }
 
     private boolean usarBotiquin(Aliado donante, Personaje destinatario) {

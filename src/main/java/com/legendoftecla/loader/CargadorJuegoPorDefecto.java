@@ -103,9 +103,9 @@ public class CargadorJuegoPorDefecto extends CargadorJuegoBase {
             switch (tipo) {
                 case 0 -> mapa.getCelda(p).agregarObjeto(new Botiquin("botiquin_" + i, "Cura 20 de salud", 1.0, 20));
                 case 1 -> mapa.getCelda(p).agregarObjeto(new ToritoRojo("torito_" + i, "Subida de energia", 0.5, 25));
-                case 2 -> mapa.getCelda(p).agregarObjeto(new Arma(
-                        "escopeta_" + i, "Arma de corto alcance", 4.0, 18, false,
-                        TipoMunicion.RIFLE, 6, 6));
+                case 2 -> mapa.getCelda(p).agregarObjeto(
+                        com.legendoftecla.model.items.CatalogoArmas.crearPorIndice(
+                                11L, i, "botin-" + i));
                 case 3 ->
                     mapa.getCelda(p).agregarObjeto(new Armadura("chaleco_" + i, "Proteccion ligera", 6.0, 4, 10, 10));
                 case 4 -> mapa.getCelda(p).agregarObjeto(new Binocular("binocular_" + i, "Amplia vision", 1.2, 2));

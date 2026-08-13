@@ -22,6 +22,12 @@ public final class ConfiguracionPartida {
     private int cantidadAliados = 0;
     /** Cero mantiene el nivel automatico; un valor positivo lo personaliza. */
     private int nivelAliados = 0;
+    /** Nivel inicial elegido para el jugador, tanto en solitario como en escuadron. */
+    private int nivelJugador = 1;
+    /** Los aliados pueden sustituir automaticamente su equipo por otro mejor. */
+    private boolean mejorasEquipoAliado = true;
+    /** Los aliados entregan automaticamente municion compatible cuando pueden. */
+    private boolean municionAliadaAutomatica = true;
     private CondicionVictoria condicionVictoria;
     private int varianteMapa;
     private long seed = 1L;
@@ -230,6 +236,25 @@ public final class ConfiguracionPartida {
     }
     /** @return nivel solicitado conservando acceso compacto */
     public int nivelAliados() { return getNivelAliados(); }
+    /** @return nivel inicial solicitado para el jugador */
+    public int getNivelJugador() { return nivelJugador; }
+    /** @param nivelJugador nivel entre uno y cien */
+    public void setNivelJugador(int nivelJugador) {
+        this.nivelJugador = Validaciones.enteroEntre(nivelJugador, 1,
+                Limites.NIVEL_ALIADO_MAXIMO, "Nivel del jugador");
+    }
+    /** @return nivel inicial conservando acceso compacto */
+    public int nivelJugador() { return getNivelJugador(); }
+    /** @return permiso para optimizar automaticamente el equipo aliado */
+    public boolean isMejorasEquipoAliado() { return mejorasEquipoAliado; }
+    /** @param permitido permiso explicito */
+    public void setMejorasEquipoAliado(boolean permitido) { mejorasEquipoAliado = permitido; }
+    /** @return permiso para compartir municion automaticamente */
+    public boolean isMunicionAliadaAutomatica() { return municionAliadaAutomatica; }
+    /** @param permitido permiso explicito */
+    public void setMunicionAliadaAutomatica(boolean permitido) {
+        municionAliadaAutomatica = permitido;
+    }
     /** @return condicion de victoria, conservando el estilo de acceso compacto */
     public CondicionVictoria condicionVictoria() { return getCondicionVictoria(); }
     /** @return variante, conservando la API anterior */

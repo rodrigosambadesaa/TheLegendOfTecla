@@ -151,6 +151,20 @@ class MunicionEIntercambioTest {
     }
 
     @Test
+    void cooperacionComparteReservaAunqueElCargadorEsteLleno() {
+        Personaje receptor = TestFixtures.juegoBasico(TestFixtures.consola()).getJugador();
+        receptor.setArmasEquipadas(List.of(new Arma(
+                "Viper", "", 2, 10, true, TipoMunicion.SUBFUSIL, 30, 30)));
+        Aliado donante = new Aliado("A", new Posicion(0, 1), new Mochila(3, 10), 2);
+        Municion paquete = new Municion("9mm tactico", 1, TipoMunicion.SUBFUSIL, 20);
+        donante.getMochila().guardar(paquete);
+
+        assertTrue(new CooperacionInventario(1).compartirMunicion(donante, receptor));
+        assertEquals(List.of(paquete), receptor.getMochila().getObjetos());
+        assertTrue(donante.getMochila().getObjetos().isEmpty());
+    }
+
+    @Test
     void parserReconoceComandosDeRecargaEIntercambio() throws Exception {
         CommandParser parser = new CommandParser(new CommandContext(
                 TestFixtures.juegoBasico(TestFixtures.consola())));

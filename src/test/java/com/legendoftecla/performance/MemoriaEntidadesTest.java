@@ -26,21 +26,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Pruebas de memoria reales ejecutadas en procesos con heap deliberadamente reducido. */
 class MemoriaEntidadesTest {
-    private static final int ALIADOS_MAXIMOS = 1_000;
-    private static final int ENEMIGOS_MAXIMOS = 2_200;
-    private static final Duration LIMITE_PROCESO = Duration.ofSeconds(90);
+    private static final int ALIADOS_MAXIMOS = 4_999;
+    private static final int ENEMIGOS_MAXIMOS = 5_000;
+    private static final Duration LIMITE_PROCESO = Duration.ofSeconds(120);
 
     @TempDir
     Path temporal;
 
     @Test
-    void escenarioMaximoSeGuardaYCargaConUnHeapDe256MiB() throws Exception {
+    void escenarioMaximoSeGuardaYCargaConUnHeapDe512MiB() throws Exception {
         ResultadoProceso resultado = ejecutarAislado(
-                "maximo", "256m", temporal.resolve("maximo.save.json"));
+                "maximo", "512m", temporal.resolve("maximo.save.json"));
 
         assertEquals(0, resultado.codigo(), resultado.salida());
         assertTrue(resultado.salida().contains(
-                "MEMORY_OK allies=1000 enemies=2200"), resultado.salida());
+                "MEMORY_OK allies=4999 enemies=5000"), resultado.salida());
         assertTrue(!resultado.salida().contains("OutOfMemoryError"), resultado.salida());
         System.out.print(resultado.salida());
     }
@@ -107,7 +107,7 @@ class MemoriaEntidadesTest {
         exigir(objetos >= 4_400, "Los suministros escalados estan incompletos");
         MotorPartida motor = new MotorPartida(juego);
         String estado = motor.getEstadoAliados();
-        exigir(estado.contains("ALIADOS 1000"), "Estado aliado incompleto");
+        exigir(estado.contains("ALIADOS 4999"), "Estado aliado incompleto");
 
         PersistenciaPartida.guardar(juego, guardado, 7001L);
         Juego cargado = PersistenciaPartida.cargar(guardado, new ConsolaNula());
@@ -115,7 +115,7 @@ class MemoriaEntidadesTest {
                 "La carga perdio aliados");
         exigir(cargado.getEnemigos().size() == ENEMIGOS_MAXIMOS,
                 "La carga perdio enemigos");
-        imprimirMemoria("MEMORY_OK allies=1000 enemies=2200 objects=" + objetos);
+        imprimirMemoria("MEMORY_OK allies=4999 enemies=5000 objects=" + objetos);
     }
 
     private static void ejecutarRepetido() throws Exception {
@@ -123,7 +123,7 @@ class MemoriaEntidadesTest {
         for (int indice = 0; indice < 6; indice++) {
             Juego juego = crearJuego(300, Dificultad.DIFICIL, 8000L + indice);
             exigir(juego.getAliados().size() == 300, "Cantidad aliada incompleta");
-            exigir(juego.getEnemigos().size() == 375, "Cantidad enemiga incompleta");
+            exigir(juego.getEnemigos().size() == 301, "Cantidad enemiga incompleta");
             juego = null;
             System.gc();
             mayorUso = Math.max(mayorUso, memoriaUsada());

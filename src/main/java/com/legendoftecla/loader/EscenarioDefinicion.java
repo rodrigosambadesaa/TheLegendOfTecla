@@ -534,6 +534,8 @@ public class EscenarioDefinicion {
         private int municionActual;
         private int cantidad;
         private String categoriaArma;
+        private String claseArma;
+        private int penetracionArmadura;
         private String tipoGranada;
 
         /** Crea una definicion de objeto predeterminada. */
@@ -551,6 +553,8 @@ public class EscenarioDefinicion {
             setMunicionActual(0);
             setCantidad(0);
             setCategoriaArma(null);
+            setClaseArma(null);
+            setPenetracionArmadura(0);
             setTipoGranada(null);
         }
 
@@ -665,6 +669,17 @@ public class EscenarioDefinicion {
         public String getCategoriaArma() { return categoriaArma; }
         /** @param categoriaArma categoria opcional compatible con {@code CategoriaArma} */
         public void setCategoriaArma(String categoriaArma) { this.categoriaArma = categoriaArma; }
+        /** @return subfamilia tactica opcional */
+        public String getClaseArma() { return claseArma; }
+        /** @param claseArma valor compatible con {@code ClaseArma} */
+        public void setClaseArma(String claseArma) { this.claseArma = claseArma; }
+        /** @return defensa ignorada por impacto */
+        public int getPenetracionArmadura() { return penetracionArmadura; }
+        /** @param penetracionArmadura defensa ignorada no negativa */
+        public void setPenetracionArmadura(int penetracionArmadura) {
+            this.penetracionArmadura = Validaciones.enteroEntre(penetracionArmadura,
+                    0, Limites.ESTADISTICA, "Penetracion de armadura");
+        }
         /** @return variante opcional de granada */
         public String getTipoGranada() { return tipoGranada; }
         /** @param tipoGranada variante opcional compatible con {@code TipoGranada} */
@@ -685,6 +700,8 @@ public class EscenarioDefinicion {
             setMunicionActual(municionActual);
             setCantidad(cantidad);
             setCategoriaArma(categoriaArma);
+            setClaseArma(claseArma);
+            setPenetracionArmadura(penetracionArmadura);
             setTipoGranada(tipoGranada);
         }
     }

@@ -15,15 +15,14 @@ public final class CooperacionInventario {
     }
 
     /**
-     * Entrega un paquete compatible si el receptor tiene un cargador incompleto.
+     * Entrega un paquete compatible si el receptor necesita recarga o reserva.
      *
      * @return si se transfirio un paquete finito
      */
     public boolean compartirMunicion(Personaje donante, Personaje receptor) {
         Arma arma = receptor.getArmasEquipadas().stream()
                 .filter(candidata -> !candidata.usaMunicionInfinita())
-                .filter(candidata -> candidata.getMunicionActual()
-                        < candidata.getCapacidadCargador())
+                .filter(candidata -> necesitaMunicion(receptor, candidata))
                 .findFirst()
                 .orElse(null);
         if (arma == null) {
@@ -45,6 +44,17 @@ public final class CooperacionInventario {
         } catch (AccionInvalidaException error) {
             return false;
         }
+    }
+
+    private boolean necesitaMunicion(Personaje receptor, Arma arma) {
+        if (arma.getMunicionActual() < arma.getCapacidadCargador()) return true;
+        int reserva = receptor.getMochila().getObjetos().stream()
+                .filter(Municion.class::isInstance)
+                .map(Municion.class::cast)
+                .filter(municion -> municion.getTipo() == arma.getTipoMunicion())
+                .mapToInt(Municion::getCantidad)
+                .sum();
+        return reserva < arma.getCapacidadCargador();
     }
 
     /**

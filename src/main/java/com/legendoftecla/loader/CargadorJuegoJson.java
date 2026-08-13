@@ -269,6 +269,18 @@ public final class CargadorJuegoJson extends CargadorJuegoBase {
                     tipoMunicion(definicion), definicion.getCapacidadCargador(),
                     definicion.getMunicionActual());
         }
+        if (definicion.getClaseArma() != null && !definicion.getClaseArma().isBlank()) {
+            return new Arma(definicion.getNombre(), descripcion, definicion.getPeso(),
+                    Math.max(1, definicion.getValor()), definicion.isDosManos(),
+                    com.legendoftecla.model.items.CategoriaArma.valueOf(
+                            definicion.getCategoriaArma().toUpperCase(Locale.ROOT)),
+                    tipoMunicion(definicion), definicion.getCapacidadCargador(),
+                    definicion.getMunicionActual(),
+                    com.legendoftecla.model.items.FaccionEquipo.HUMANA,
+                    com.legendoftecla.model.items.ClaseArma.valueOf(
+                            definicion.getClaseArma().toUpperCase(Locale.ROOT)),
+                    definicion.getPenetracionArmadura());
+        }
         return new Arma(definicion.getNombre(), descripcion, definicion.getPeso(),
                 Math.max(1, definicion.getValor()), definicion.isDosManos(),
                 com.legendoftecla.model.items.CategoriaArma.valueOf(

@@ -66,6 +66,7 @@ public final class SistemaJefes {
     }
 
     private static boolean invocarScout(Juego juego, Jefe jefe, Random random) {
+        if (!juego.puedeAgregarEnemigo()) return false;
         java.util.List<Posicion> libres = java.util.Arrays.stream(Direccion.values())
                 .map(jefe.getPosicion()::mover)
                 .filter(juego.getMapa()::esTransitable)

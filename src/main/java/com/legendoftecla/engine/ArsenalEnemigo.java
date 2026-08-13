@@ -17,6 +17,7 @@ import com.legendoftecla.model.characters.Sectoid;
 import com.legendoftecla.model.items.Arma;
 import com.legendoftecla.model.items.Armadura;
 import com.legendoftecla.model.items.CategoriaArma;
+import com.legendoftecla.model.items.ClaseArma;
 import com.legendoftecla.model.items.FaccionEquipo;
 import com.legendoftecla.model.items.Municion;
 import com.legendoftecla.model.items.TipoMunicion;
@@ -110,9 +111,32 @@ public final class ArsenalEnemigo {
     private static Arma arma(Enemigo enemigo, String nombre, String descripcion,
             double peso, int danio, boolean dosManos, CategoriaArma categoria,
             TipoMunicion municion, int cargador) {
-        return new Arma(nombre + " de " + enemigo.getNombre(), descripcion, peso,
-                danio, dosManos, categoria, municion, cargador, cargador,
-                FaccionEquipo.ENEMIGA);
+        int variante = Math.floorMod(enemigo.getNombre().hashCode(), 3);
+        String serie = switch (variante) {
+            case 0 -> " Alfa";
+            case 1 -> " Sigma";
+            default -> " Omega";
+        };
+        int capacidad = municion == TipoMunicion.INFINITA ? 0 : cargador + variante;
+        ClaseArma clase = switch (categoria) {
+            case MELE -> dosManos ? ClaseArma.ESPADA_DOS_MANOS : ClaseArma.CUCHILLO;
+            case ARROJADIZA -> ClaseArma.CUCHILLO_ARROJADIZO;
+            case ARCO -> ClaseArma.ARCO;
+            case BALLESTA -> ClaseArma.BALLESTA;
+            case FUEGO -> switch (municion) {
+                case PISTOLA -> ClaseArma.PISTOLA;
+                case SUBFUSIL -> ClaseArma.SUBFUSIL;
+                case ESCOPETA -> ClaseArma.ESCOPETA;
+                case RIFLE -> enemigo instanceof Sniper
+                        ? ClaseArma.RIFLE_PRECISION : ClaseArma.RIFLE_ASALTO;
+                case PESADA -> ClaseArma.AMETRALLADORA;
+                case COHETE -> ClaseArma.LANZACOHETES;
+                default -> ClaseArma.ENERGIA;
+            };
+        };
+        return new Arma(nombre + serie + " de " + enemigo.getNombre(), descripcion, peso,
+                danio + variante * 2, dosManos, categoria, municion, capacidad, capacidad,
+                FaccionEquipo.ENEMIGA, clase, 4 + variante * 3);
     }
 
     private static Armadura crearArmadura(Enemigo enemigo) {

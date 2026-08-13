@@ -32,6 +32,7 @@ final class ControlesNumericos {
             }
         });
         campo.addActionListener(evento -> confirmar(spinner));
+        SoporteTecladoNumerico.instalar(campo);
         spinner.setEditor(editor);
         return spinner;
     }

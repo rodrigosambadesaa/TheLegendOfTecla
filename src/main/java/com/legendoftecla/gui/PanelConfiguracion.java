@@ -78,6 +78,13 @@ public final class PanelConfiguracion extends JPanel {
     /** Nivel comun; cero conserva el nivel automatico. */
     private final JSpinner nivelAliados = ControlesNumericos.entero(
             "aliados.nivel", 0, 0, com.legendoftecla.validation.Limites.NIVEL_ALIADO_MAXIMO, 1);
+    /** Nivel inicial del jugador, disponible en solitario y con aliados. */
+    private final JSpinner nivelJugador = ControlesNumericos.entero(
+            "jugador.nivel", 1, 1, com.legendoftecla.validation.Limites.NIVEL_ALIADO_MAXIMO, 1);
+    /** Autoriza por defecto la sustitucion de armas y armaduras aliadas. */
+    private final JCheckBox mejorasAliados = new JCheckBox("Sustituir equipo por mejoras", true);
+    /** Autoriza por defecto la entrega automatica de municion al jugador. */
+    private final JCheckBox municionAliada = new JCheckBox("Compartir municion", true);
     /** Selector de los participantes que deben alcanzar la salida. */
     private final JComboBox<CondicionVictoria> condicionVictoria =
             new JComboBox<>(CondicionVictoria.values());
@@ -104,6 +111,8 @@ public final class PanelConfiguracion extends JPanel {
         conAliados.setName("aliados.activados");
         modoAliados.setName("aliados.modo");
         condicionVictoria.setName("victoria.condicion");
+        mejorasAliados.setName("aliados.mejorasEquipo");
+        municionAliada.setName("aliados.municionAutomatica");
         JPanel contenidoFormulario = new JPanel(new BorderLayout());
         contenidoFormulario.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
 
@@ -121,6 +130,7 @@ public final class PanelConfiguracion extends JPanel {
         int fila = 0;
         agregarFila(formulario, fila++, "Nombre del personaje", nombre);
         agregarFila(formulario, fila++, "Clase", clase);
+        agregarFila(formulario, fila++, "Nivel inicial", nivelJugador);
         agregarFila(formulario, fila++, "Modo", modo);
         dificultad.setSelectedItem(Dificultad.NORMAL);
         dificultad.setRenderer((lista, valor, indice, seleccionado, foco) -> {
@@ -151,6 +161,8 @@ public final class PanelConfiguracion extends JPanel {
         aliados.add(cantidadAliados);
         aliados.add(new JLabel("Nivel (0=auto)"));
         aliados.add(nivelAliados);
+        aliados.add(mejorasAliados);
+        aliados.add(municionAliada);
         agregarFila(formulario, fila++, "Aliados", aliados);
         agregarFila(formulario, fila++, "Variante del mapa", varianteMapa);
         agregarFila(formulario, fila++, "Semilla procedural", seed);
@@ -195,6 +207,7 @@ public final class PanelConfiguracion extends JPanel {
         desplazamiento.getVerticalScrollBar().setUnitIncrement(20);
         desplazamiento.getHorizontalScrollBar().setUnitIncrement(20);
         add(desplazamiento, BorderLayout.CENTER);
+        SoporteTecladoNumerico.instalar(this);
     }
 
     /**
@@ -249,6 +262,9 @@ public final class PanelConfiguracion extends JPanel {
                 ControlesNumericos.valorEntero(varianteMapa));
         configuracion.setSeed(ControlesNumericos.valorEntero(seed));
         configuracion.setNivelAliados(ControlesNumericos.valorEntero(nivelAliados));
+        configuracion.setNivelJugador(ControlesNumericos.valorEntero(nivelJugador));
+        configuracion.setMejorasEquipoAliado(mejorasAliados.isSelected());
+        configuracion.setMunicionAliadaAutomatica(municionAliada.isSelected());
         return configuracion;
     }
 
@@ -286,6 +302,8 @@ public final class PanelConfiguracion extends JPanel {
         cantidadAliados.setEnabled(conAliados.isSelected()
                 && opcion != null && "manual".equals(opcion.valor()));
         nivelAliados.setEnabled(conAliados.isSelected());
+        mejorasAliados.setEnabled(conAliados.isSelected());
+        municionAliada.setEnabled(conAliados.isSelected());
     }
 
     private void agregarFila(JPanel panel, int fila, String etiqueta, Component componente) {

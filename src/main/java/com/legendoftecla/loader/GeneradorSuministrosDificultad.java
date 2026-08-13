@@ -18,6 +18,12 @@ import java.util.Random;
 final class GeneradorSuministrosDificultad {
     private static final int CURACION_BOTIQUIN = 20;
     private static final int ENERGIA_TORITO = 30;
+    private static final TipoMunicion[] MUNICIONES = {
+        TipoMunicion.PISTOLA, TipoMunicion.SUBFUSIL, TipoMunicion.ESCOPETA,
+        TipoMunicion.RIFLE, TipoMunicion.PESADA, TipoMunicion.COHETE,
+        TipoMunicion.ENERGIA, TipoMunicion.FLECHA, TipoMunicion.VIROTE,
+        TipoMunicion.CUCHILLO_ARROJADIZO
+    };
 
     private GeneradorSuministrosDificultad() {
     }
@@ -66,10 +72,13 @@ final class GeneradorSuministrosDificultad {
         }
         for (int indice = 0; indice < paquetesMunicion; indice++) {
             Posicion posicion = posiciones.get((cantidad * 2 + indice) % posiciones.size());
+            TipoMunicion tipo = MUNICIONES[indice % MUNICIONES.length];
             mapa.getCelda(posicion).agregarObjeto(new Municion(
-                    "municion_rifle_" + dificultad.name().toLowerCase(Locale.ROOT)
+                    "municion_" + tipo.name().toLowerCase(Locale.ROOT) + "_"
+                            + dificultad.name().toLowerCase(Locale.ROOT)
                             + "_" + indice,
-                    0.8, TipoMunicion.RIFLE, 6));
+                    tipo == TipoMunicion.COHETE ? 1.5 : 0.8, tipo,
+                    tipo == TipoMunicion.COHETE ? 1 : 6));
         }
     }
 

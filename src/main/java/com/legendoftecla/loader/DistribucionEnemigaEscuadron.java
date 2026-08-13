@@ -37,8 +37,8 @@ final class DistribucionEnemigaEscuadron {
         if (cantidadAliados <= 0) {
             return new ResultadoEquilibrio(originales, originales, 0, originales);
         }
-        int objetivo = Math.max(originales,
-                dificultad.ajustarCantidadEnemigos(cantidadAliados));
+        int objetivo = Math.min(com.legendoftecla.validation.Limites.COMBATIENTES_POR_BANDO,
+                Math.max(originales, dificultad.ajustarCantidadEnemigos(cantidadAliados)));
         int agregados = agregarRefuerzos(
                 juego, random, dificultad, objetivo - originales);
         dispersar(juego, random);

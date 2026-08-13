@@ -23,6 +23,9 @@ import com.legendoftecla.model.characters.Sectoid;
 import com.legendoftecla.constants.Dificultad;
 import com.legendoftecla.engine.ArsenalEnemigo;
 import com.legendoftecla.model.items.FaccionEquipo;
+import com.legendoftecla.model.items.Arma;
+import com.legendoftecla.model.items.CatalogoArmas;
+import com.legendoftecla.model.items.ClaseArma;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -32,6 +35,7 @@ import java.time.Instant;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -69,6 +73,11 @@ class PersistenciaYReplayTest {
         juego.setMision(new Mision("mision-1", "Hackeo", new ActivarTerminal(terminal),
                 List.of(), List.of("100 XP")));
         juego.setPuntuacion(321);
+        Arma subfusil = CatalogoArmas.crearDeClase(
+                ClaseArma.SUBFUSIL, new java.util.Random(3), "persistente");
+        juego.getJugador().setArmasEquipadas(List.of(subfusil));
+        juego.setMejorasEquipoAliadoPermitidas(false);
+        juego.setMunicionAliadaAutomatica(false);
         Aliado aliado = new Aliado("Veterano", juego.getMapa().getInicio(),
                 new Mochila(4, 20), 3);
         aliado.setNivel(14);
@@ -119,6 +128,12 @@ class PersistenciaYReplayTest {
         assertEquals(FaccionEquipo.ENEMIGA,
                 cargado.getEnemigos().get(0).getArmaduraEquipada().getFaccion());
         assertEquals("mision-1", cargado.getMision().getId());
+        Arma armaCargada = cargado.getJugador().getArmasEquipadas().get(0);
+        assertEquals(ClaseArma.SUBFUSIL, armaCargada.getClaseArma());
+        assertEquals(subfusil.getPenetracionArmadura(), armaCargada.getPenetracionArmadura());
+        assertEquals(subfusil.getCapacidadCargador(), armaCargada.getCapacidadCargador());
+        assertFalse(cargado.isMejorasEquipoAliadoPermitidas());
+        assertFalse(cargado.isMunicionAliadaAutomatica());
         assertTrue(cargado.getMision().completada(cargado));
     }
 

@@ -208,9 +208,7 @@ public class Celda {
     public void agregarEnemigo(Enemigo enemigo) {
         Enemigo validado = Validaciones.noNulo(enemigo, "Enemigo");
         if (!enemigos.contains(validado)) {
-            List<Enemigo> nuevos = new ArrayList<>(enemigos);
-            nuevos.add(validado);
-            setEnemigos(nuevos);
+            enemigos.add(validado);
         }
     }
 
@@ -231,9 +229,7 @@ public class Celda {
     public void agregarAliado(Aliado aliado) {
         Aliado validado = Validaciones.noNulo(aliado, "Aliado");
         if (!aliados.contains(validado)) {
-            List<Aliado> nuevos = new ArrayList<>(aliados);
-            nuevos.add(validado);
-            setAliados(nuevos);
+            aliados.add(validado);
         }
     }
 

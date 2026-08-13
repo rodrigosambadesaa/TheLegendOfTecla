@@ -12,7 +12,8 @@ public record PartidaGuardada(int version, long seed, int turnos, int pasosMaxim
         MapaEstado mapa, PersonajeEstado jugador, List<PersonajeEstado> aliados,
         List<PersonajeEstado> enemigos, Set<Posicion> inspeccionadas,
         String misionId, int puntuacion, EstadisticasPartida.Snapshot estadisticas,
-        Set<String> logros, MisionEstado mision) {
+        Set<String> logros, MisionEstado mision, Boolean mejorasEquipoAliado,
+        Boolean municionAliadaAutomatica) {
     public static final int VERSION_ACTUAL = 1;
 
     public record MapaEstado(String nombre, String descripcion, int filas, int columnas,
@@ -29,7 +30,8 @@ public record PartidaGuardada(int version, long seed, int turnos, int pasosMaxim
             int nivel, int experiencia, Set<String> habilidades, String rolAliado) { }
     public record ObjetoEstado(String tipo, String nombre, String descripcion,
             double peso, int valor, int valor2, int valor3, boolean bandera,
-            String subtipo, String faccion, String categoria) { }
+            String subtipo, String faccion, String categoria, String claseArma,
+            int penetracionArmadura) { }
     /** Estado generico y versionable de elementos interactivos del mapa. */
     public record ElementoEstado(String tipo, String id, String estado,
             String referencia, int resistencia, boolean destructible,

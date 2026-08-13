@@ -137,9 +137,9 @@ public class CargadorJuegoGrandeConAliados extends CargadorJuegoBase {
                 case 0 -> mapa.getCelda(p).agregarObjeto(new Botiquin("botiquin_" + i, "Curacion media", 1.0, 20));
                 case 1, 2 -> mapa.getCelda(p).agregarObjeto(new ToritoRojo(
                         "torito_" + i, "Energia instantanea", 0.5, ENERGIA_TORITO_GRANDE));
-                case 3 -> mapa.getCelda(p).agregarObjeto(new Arma(
-                        "rifle_" + i, "Arma tactica", 3.5, 14, false,
-                        TipoMunicion.RIFLE, 8, 8));
+                case 3 -> mapa.getCelda(p).agregarObjeto(
+                        com.legendoftecla.model.items.CatalogoArmas.crearPorIndice(
+                                4200L + varianteMapa, i, "gran-mapa-" + i));
                 case 4 ->
                     mapa.getCelda(p).agregarObjeto(new Armadura("armadura_" + i, "Blindaje compuesto", 5.5, 3, 8, 8));
                 default -> mapa.getCelda(p).agregarObjeto(new Binocular("binocular_" + i, "Vision ampliada", 1.0, 2));

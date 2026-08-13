@@ -525,9 +525,10 @@ public abstract class Personaje {
      */
     public void atacar(Personaje objetivo) {
         Validaciones.noNulo(objetivo, "Objetivo");
-        consumirMunicionAtaque(posicion.distanciaManhattan(objetivo.getPosicion()));
-        int danio = calcularDanio(objetivo);
-        objetivo.recibirDanio(danio);
+        int distancia = posicion.distanciaManhattan(objetivo.getPosicion());
+        Arma arma = prepararArmaAtaque(distancia);
+        int danio = calcularDanio(objetivo, arma);
+        objetivo.recibirDanio(danio, arma == null ? 0 : arma.getPenetracionArmadura());
     }
 
     /**
@@ -539,12 +540,12 @@ public abstract class Personaje {
         if (objetivos.isEmpty()) {
             return;
         }
-        consumirMunicionAtaque(posicion.distanciaManhattan(
-                objetivos.get(0).getPosicion()));
-        int danio = Math.max(1, calcularDanio(objetivos.get(0)) / objetivos.size());
+        int distancia = posicion.distanciaManhattan(objetivos.get(0).getPosicion());
+        Arma arma = prepararArmaAtaque(distancia);
+        int danio = Math.max(1, calcularDanio(objetivos.get(0), arma) / objetivos.size());
         for (Personaje personaje : objetivos) {
             Validaciones.noNulo(personaje, "Objetivo");
-            personaje.recibirDanio(danio);
+            personaje.recibirDanio(danio, arma == null ? 0 : arma.getPenetracionArmadura());
         }
     }
 
@@ -554,10 +555,12 @@ public abstract class Personaje {
       * @return resultado de la operacion
      */
     protected int calcularDanio(Personaje objetivo) {
-        int base = armasEquipadas.stream().mapToInt(Arma::getDanio).sum();
-        if (base <= 0) {
-            base = 4;
-        }
+        int distancia = posicion.distanciaManhattan(objetivo.getPosicion());
+        return calcularDanio(objetivo, armaDisponiblePara(distancia).orElse(null));
+    }
+
+    private int calcularDanio(Personaje objetivo, Arma arma) {
+        int base = arma == null ? 4 : arma.getDanio();
         return Math.max(1, aplicarModificadorDanio(base, objetivo));
     }
 
@@ -579,12 +582,12 @@ public abstract class Personaje {
                 arma.puedeDisparar() && arma.alcanza(distancia)).findFirst();
     }
 
-    private void consumirMunicionAtaque(int distancia) {
+    private Arma prepararArmaAtaque(int distancia) {
         // Los personajes historicos sin equipo conservan su ataque natural/implicito.
         // Solo las armas explicitas quedan sujetas a cargador y tipo de municion.
-        if (armasEquipadas.isEmpty() && distancia <= getRangoVision()) return;
+        if (armasEquipadas.isEmpty() && distancia <= getRangoVision()) return null;
         for (Arma arma : armasEquipadas) {
-            if (arma.alcanza(distancia) && arma.consumirDisparo()) return;
+            if (arma.alcanza(distancia) && arma.consumirDisparo()) return arma;
         }
         throw new IllegalStateException("No hay un arma cargada con alcance suficiente.");
     }
@@ -706,10 +709,24 @@ public abstract class Personaje {
       * @param danio valor de {@code danio}
      */
     public void recibirDanio(int danio) {
+        recibirDanio(danio, 0);
+    }
+
+    /**
+     * Recibe dano descontando la defensa no atravesada por el arma.
+     *
+     * @param danio dano bruto
+     * @param penetracionArmadura puntos de defensa ignorados
+     */
+    public void recibirDanio(int danio, int penetracionArmadura) {
         Validaciones.enteroEntre(danio, 0, Limites.ESTADISTICA, "Dano recibido");
+        Validaciones.enteroEntre(penetracionArmadura, 0, Limites.ESTADISTICA,
+                "Penetracion de armadura");
         int mitigado = danio;
         if (armaduraEquipada != null) {
-            mitigado = Math.max(0, danio - armaduraEquipada.getDefensa());
+            int defensaEfectiva = Math.max(0,
+                    armaduraEquipada.getDefensa() - penetracionArmadura);
+            mitigado = Math.max(0, danio - defensaEfectiva);
         }
         setSalud(salud - mitigado);
     }

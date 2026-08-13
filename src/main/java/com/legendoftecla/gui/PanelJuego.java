@@ -128,6 +128,7 @@ public final class PanelJuego extends JPanel {
 
         comando = new JTextField();
         comando.setName("comando.entrada");
+        SoporteTecladoNumerico.instalar(comando);
         comando.addActionListener(e -> ejecutarTexto());
         ejecutar = new JButton("Ejecutar comando");
         ejecutar.addActionListener(e -> ejecutarTexto());
@@ -399,6 +400,16 @@ public final class PanelJuego extends JPanel {
     }
 
     private String describir(Objeto objeto) {
+        if (objeto instanceof Arma arma) {
+            return arma.estadoArma() + " | " + arma.getClaseArma().name().toLowerCase()
+                    + " | " + String.format("%.1f", arma.getPeso()) + " kg";
+        }
+        if (objeto instanceof Armadura armadura) {
+            return armadura.getNombre() + " | defensa " + armadura.getDefensa()
+                    + " | salud +" + armadura.getBonusSalud() + " | energia +"
+                    + armadura.getBonusEnergia() + " | "
+                    + String.format("%.1f", armadura.getPeso()) + " kg";
+        }
         return objeto.getNombre() + " (" + objeto.getClass().getSimpleName() + ", "
                 + String.format("%.1f", objeto.getPeso()) + " kg)";
     }

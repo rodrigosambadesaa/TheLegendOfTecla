@@ -129,6 +129,7 @@ public final class PanelEditorMapa extends JPanel {
         add(crearLeyenda(), BorderLayout.SOUTH);
         cargarCamposDesdeModelo();
         reconstruirCuadricula();
+        SoporteTecladoNumerico.instalar(this);
     }
 
     /** @return escenario actualmente editado */
@@ -364,7 +365,12 @@ public final class PanelEditorMapa extends JPanel {
                 "", "MELE", "ARROJADIZA", "ARCO", "BALLESTA", "FUEGO"});
         JComboBox<String> municion = new JComboBox<>(new String[]{
                 "", "INFINITA", "CUCHILLO_ARROJADIZO", "FLECHA", "VIROTE",
-                "PISTOLA", "RIFLE", "PESADA", "COHETE", "ENERGIA"});
+                "PISTOLA", "SUBFUSIL", "ESCOPETA", "RIFLE", "PESADA", "COHETE", "ENERGIA"});
+        JComboBox<String> claseArma = new JComboBox<>(new String[]{"",
+                "ESPADA_UNA_MANO", "ESPADA_DOS_MANOS", "CUCHILLO", "CUCHILLO_ARROJADIZO",
+                "ARCO", "BALLESTA", "PISTOLA", "SUBFUSIL", "ESCOPETA", "RIFLE_ASALTO",
+                "RIFLE_PRECISION", "AMETRALLADORA", "LANZACOHETES", "ENERGIA"});
+        JSpinner penetracion = new JSpinner(new SpinnerNumberModel(0, 0, 5000, 1));
         JSpinner cargador = new JSpinner(new SpinnerNumberModel(0, 0, 5000, 1));
         JSpinner carga = new JSpinner(new SpinnerNumberModel(0, 0, 5000, 1));
         JSpinner cantidad = new JSpinner(new SpinnerNumberModel(0, 0, 5000, 1));
@@ -382,6 +388,7 @@ public final class PanelEditorMapa extends JPanel {
                 new JLabel("Opciones:"), dosManos,
                 new JLabel("Categoria de arma:"), categoria,
                 new JLabel("Tipo de municion:"), municion,
+                new JLabel("Clase / penetracion:"), formulario(claseArma, penetracion),
                 new JLabel("Capacidad / carga:"), formulario(cargador, carga),
                 new JLabel("Cantidad de municion:"), cantidad,
                 new JLabel("Tipo de granada:"), granada,
@@ -407,6 +414,8 @@ public final class PanelEditorMapa extends JPanel {
         objeto.setDosManos(dosManos.isSelected());
         objeto.setCategoriaArma(textoOpcional(categoria));
         objeto.setTipoMunicion(textoOpcional(municion));
+        objeto.setClaseArma(textoOpcional(claseArma));
+        objeto.setPenetracionArmadura(numero(penetracion));
         objeto.setCapacidadCargador(numero(cargador));
         objeto.setMunicionActual(numero(carga));
         objeto.setCantidad(numero(cantidad));
@@ -650,6 +659,7 @@ public final class PanelEditorMapa extends JPanel {
                 panel.add(componente);
             }
         }
+        SoporteTecladoNumerico.instalar(panel);
         return panel;
     }
 }

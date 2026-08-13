@@ -33,7 +33,8 @@ public final class SistemaCombate {
         SistemaCobertura.Proteccion proteccion = cobertura.proteccion(
                 juego.getMapa(), atacante.getPosicion(), objetivo.getPosicion());
         if (proteccion.tipo() != TipoCobertura.NINGUNA) {
-            double probabilidad = cobertura.probabilidadImpacto(0.85, proteccion.tipo(),
+            double probabilidad = cobertura.probabilidadImpacto(
+                    PrecisionTirador.calcular(atacante), proteccion.tipo(),
                     proteccion.flanqueada(), atacante.getEstados().multiplicadorPrecision());
             if (!cobertura.impacta(probabilidad)) {
                 ResultadoAtaque fallo = resultado(atacante, objetivo, vidaAntes);

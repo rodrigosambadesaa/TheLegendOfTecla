@@ -47,7 +47,8 @@ final class GeneradorSuministrosPoblacion {
         int total = lotes * TIPOS_RECURSO;
         for (int indice = 0; indice < total; indice++) {
             Posicion posicion = posiciones.get(indice % posiciones.size());
-            juego.getMapa().getCelda(posicion).agregarObjeto(crear(indice, indice % TIPOS_RECURSO));
+            juego.getMapa().getCelda(posicion).agregarObjeto(
+                    crear(indice, indice % TIPOS_RECURSO));
         }
         juego.getConsola().imprimirInfo("Suministros por poblacion: entidades=" + entidades
                 + " | lotes=" + lotes + " | objetos=" + total);
@@ -61,10 +62,9 @@ final class GeneradorSuministrosPoblacion {
                     "Curacion para despliegues numerosos", 1.0, 25);
             case 1 -> new ToritoRojo("torito_poblacion_" + sufijo,
                     "Energia para despliegues numerosos", 0.5, 30);
-            case 2 -> new Municion("municion_poblacion_" + sufijo,
-                    0.8, TipoMunicion.RIFLE, 12);
-            case 3 -> new Arma("rifle_poblacion_" + sufijo,
-                    "Arma humana de reserva", 3.0, 10, true, TipoMunicion.RIFLE, 8, 8);
+            case 2 -> municionVariada(indice, sufijo);
+            case 3 -> com.legendoftecla.model.items.CatalogoArmas.crearPorIndice(
+                    0x5A1D05L, indice, "poblacion-" + sufijo);
             case 4 -> new Armadura("armadura_poblacion_" + sufijo,
                     "Blindaje humano de reserva", 5.0, 3, 10, 10);
             case 5 -> new Explosivo("explosivo_poblacion_" + sufijo,
@@ -80,6 +80,17 @@ final class GeneradorSuministrosPoblacion {
             default -> new Componente("componente_poblacion_" + sufijo,
                     "Material para fabricacion de campaña", 0.5);
         };
+    }
+
+    private static Municion municionVariada(int indice, String sufijo) {
+        TipoMunicion[] tipos = {TipoMunicion.PISTOLA, TipoMunicion.SUBFUSIL,
+            TipoMunicion.ESCOPETA, TipoMunicion.RIFLE, TipoMunicion.PESADA,
+            TipoMunicion.COHETE, TipoMunicion.ENERGIA, TipoMunicion.FLECHA,
+            TipoMunicion.VIROTE, TipoMunicion.CUCHILLO_ARROJADIZO};
+        TipoMunicion tipo = tipos[Math.floorMod(indice / TIPOS_RECURSO, tipos.length)];
+        return new Municion("municion_" + tipo.name().toLowerCase(java.util.Locale.ROOT)
+                + "_poblacion_" + sufijo, tipo == TipoMunicion.COHETE ? 1.5 : 0.8,
+                tipo, tipo == TipoMunicion.COHETE ? 2 : 12);
     }
 
     private static List<Posicion> posicionesTransitables(Mapa mapa) {

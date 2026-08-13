@@ -22,6 +22,10 @@ public final class OpcionesInicio {
     private Integer cantidadAliados;
     /** {@code null} sin indicar, cero automatico o nivel exacto. */
     private Integer nivelAliados;
+    /** {@code null} sin indicar o nivel inicial exacto del jugador. */
+    private Integer nivelJugador;
+    private boolean mejorasEquipoAliado = true;
+    private boolean municionAliadaAutomatica = true;
     private CondicionVictoria condicionVictoria;
     private Integer varianteMapa;
     private boolean rapido;
@@ -191,6 +195,25 @@ public final class OpcionesInicio {
     }
     /** @return nivel aliado conservando acceso compacto */
     public Integer nivelAliados() { return getNivelAliados(); }
+    /** @return nivel inicial opcional del jugador */
+    public Integer getNivelJugador() { return nivelJugador; }
+    /** @param nivelJugador nivel opcional entre uno y cien */
+    public void setNivelJugador(Integer nivelJugador) {
+        this.nivelJugador = nivelJugador == null ? null : Validaciones.enteroEntre(
+                nivelJugador, 1, Limites.NIVEL_ALIADO_MAXIMO, "Nivel del jugador");
+    }
+    /** @return nivel inicial opcional conservando acceso compacto */
+    public Integer nivelJugador() { return getNivelJugador(); }
+    /** @return permiso predeterminado de mejora de equipo aliado */
+    public boolean isMejorasEquipoAliado() { return mejorasEquipoAliado; }
+    /** @param permitido permiso solicitado */
+    public void setMejorasEquipoAliado(boolean permitido) { mejorasEquipoAliado = permitido; }
+    /** @return permiso predeterminado de entrega de municion */
+    public boolean isMunicionAliadaAutomatica() { return municionAliadaAutomatica; }
+    /** @param permitido permiso solicitado */
+    public void setMunicionAliadaAutomatica(boolean permitido) {
+        municionAliadaAutomatica = permitido;
+    }
     /** @return condicion de victoria conservando el estilo de acceso compacto */
     public CondicionVictoria condicionVictoria() { return getCondicionVictoria(); }
     /** @return variante conservando la API anterior */
@@ -223,6 +246,9 @@ public final class OpcionesInicio {
         Path directorioDatos = null;
         Integer cantidadAliados = null;
         Integer nivelAliados = null;
+        Integer nivelJugador = null;
+        boolean mejorasEquipoAliado = true;
+        boolean municionAliadaAutomatica = true;
         CondicionVictoria condicionVictoria = null;
         Integer varianteMapa = null;
         boolean rapido = false;
@@ -249,6 +275,10 @@ public final class OpcionesInicio {
                         siguienteValor(args, ++i, argumento));
                 case "--nivel-aliados" -> nivelAliados = parsearNivelAliados(
                         siguienteValor(args, ++i, argumento));
+                case "--nivel-jugador" -> nivelJugador = parsearNivelJugador(
+                        siguienteValor(args, ++i, argumento));
+                case "--sin-mejoras-aliados" -> mejorasEquipoAliado = false;
+                case "--sin-municion-aliada" -> municionAliadaAutomatica = false;
                 case "--victoria" -> condicionVictoria = parsearCondicionVictoria(
                         siguienteValor(args, ++i, argumento));
                 case "--variante" -> varianteMapa = parsearVariante(siguienteValor(args, ++i, argumento));
@@ -264,6 +294,7 @@ public final class OpcionesInicio {
             dificultad = dificultad == null ? Dificultad.NORMAL : dificultad;
             cantidadAliados = cantidadAliados == null ? 0 : cantidadAliados;
             nivelAliados = nivelAliados == null ? 0 : nivelAliados;
+            nivelJugador = nivelJugador == null ? 1 : nivelJugador;
             condicionVictoria = condicionVictoria == null
                     ? CondicionVictoria.JUGADOR_Y_ALIADOS
                     : condicionVictoria;
@@ -279,6 +310,9 @@ public final class OpcionesInicio {
                 rapido, mostrarAyuda, gui, editor);
         opciones.setCantidadAliados(cantidadAliados);
         opciones.setNivelAliados(nivelAliados);
+        opciones.setNivelJugador(nivelJugador);
+        opciones.setMejorasEquipoAliado(mejorasEquipoAliado);
+        opciones.setMunicionAliadaAutomatica(municionAliadaAutomatica);
         opciones.setSeed(seed);
         return opciones;
     }
@@ -299,8 +333,11 @@ public final class OpcionesInicio {
                                             muy_dificil, pesadilla o demente
                   --dimensiones <FxC>       Tamano del mapa; por ejemplo, 12x20
                   --datos <directorio>      Directorio con escenario.json o los tres ficheros TXT
-                  --aliados <no|auto|N>     Sin aliados, calculados o cantidad exacta (1-1000)
+                  --aliados <no|auto|N>     Sin aliados, calculados o cantidad exacta (1-4999)
                   --nivel-aliados <auto|N>  Nivel automatico o exacto para todos (1-100)
+                  --nivel-jugador <1-100>   Nivel inicial, con o sin aliados
+                  --sin-mejoras-aliados     Impide que los aliados sustituyan su equipo
+                  --sin-municion-aliada     Desactiva la entrega automatica de municion
                   --victoria <condicion>    solo_jugador o jugador_y_aliados
                   --variante <1-50>         Variante determinista del mapa grande
                   --seed <entero>           Semilla del modo procedural
@@ -393,6 +430,16 @@ public final class OpcionesInicio {
             throw new IllegalArgumentException(
                     "Nivel de aliados invalido: usa auto o un valor entre 1 y "
                             + Limites.NIVEL_ALIADO_MAXIMO + ".", error);
+        }
+    }
+
+    private static int parsearNivelJugador(String valor) {
+        try {
+            return Validaciones.enteroEntre(Integer.parseInt(valor.trim()), 1,
+                    Limites.NIVEL_ALIADO_MAXIMO, "Nivel del jugador");
+        } catch (NumberFormatException error) {
+            throw new IllegalArgumentException("Nivel del jugador invalido: usa un valor entre 1 y "
+                    + Limites.NIVEL_ALIADO_MAXIMO + ".", error);
         }
     }
 

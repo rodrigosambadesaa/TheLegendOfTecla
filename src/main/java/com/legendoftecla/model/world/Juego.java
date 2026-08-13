@@ -46,6 +46,10 @@ public class Juego {
     private com.legendoftecla.stats.EstadisticasPartida estadisticas;
     private com.legendoftecla.achievements.GestorLogros logros;
     private int puntuacion;
+    private boolean mejorasEquipoAliadoPermitidas;
+    private boolean municionAliadaAutomatica;
+    private boolean equilibrioBandosSellado;
+    private int limiteEnemigos;
 
     /**
      * Ejecuta Juego.
@@ -76,6 +80,10 @@ public class Juego {
         setFormacionAliada(FormacionAliada.SIN_FORMACION);
         setBusEventos(new BusEventos());
         setPuntuacion(0);
+        setMejorasEquipoAliadoPermitidas(true);
+        setMunicionAliadaAutomatica(true);
+        equilibrioBandosSellado = false;
+        limiteEnemigos = Limites.COMBATIENTES_POR_BANDO;
     }
 
     /**
@@ -183,9 +191,12 @@ public class Juego {
         Enemigo validado = Validaciones.noNulo(enemigo, "Enemigo");
         validarPosicionPersonaje(validado.getPosicion(), "enemigo");
         if (!enemigos.contains(validado)) {
-            List<Enemigo> nuevos = new ArrayList<>(enemigos);
-            nuevos.add(validado);
-            setEnemigos(nuevos);
+            if (enemigos.size() >= limiteEnemigos) {
+                throw new IllegalStateException("El bando enemigo ya alcanzo su limite de "
+                        + limiteEnemigos + " combatientes.");
+            }
+            enemigos.add(validado);
+            if (busEventos != null) validado.getEstados().setBusEventos(busEventos);
         }
     }
 
@@ -199,7 +210,12 @@ public class Juego {
 
     /** @param enemigos enemigos no nulos situados dentro del mapa */
     public void setEnemigos(List<Enemigo> enemigos) {
-        this.enemigos = copiarPersonajes(enemigos, "Enemigos");
+        List<Enemigo> copia = copiarPersonajes(enemigos, "Enemigos");
+        if (copia.size() > limiteEnemigos) {
+            throw new IllegalArgumentException("Demasiados enemigos: maximo "
+                    + limiteEnemigos + ".");
+        }
+        this.enemigos = copia;
         if (busEventos != null) {
             this.enemigos.forEach(enemigo -> enemigo.getEstados().setBusEventos(busEventos));
         }
@@ -213,16 +229,14 @@ public class Juego {
         Aliado validado = Validaciones.noNulo(aliado, "Aliado");
         validarPosicionPersonaje(validado.getPosicion(), "aliado");
         if (!aliadosRegistrados.contains(validado)) {
-            List<Aliado> activos = new ArrayList<>(aliados);
-            activos.add(validado);
-            setAliados(activos);
-            List<Aliado> registrados = new ArrayList<>(aliadosRegistrados);
-            registrados.add(validado);
-            setAliadosRegistrados(registrados);
+            if (aliadosRegistrados.size() >= Limites.ALIADOS_MAXIMOS) {
+                throw new IllegalStateException("El bando aliado ya alcanzo su limite.");
+            }
+            aliados.add(validado);
+            aliadosRegistrados.add(validado);
+            if (busEventos != null) validado.getEstados().setBusEventos(busEventos);
             setAliadosIniciales(aliadosIniciales + 1);
-            Map<Aliado, Set<Posicion>> inspecciones = getCeldasInspeccionadasAliados();
-            inspecciones.put(validado, Set.of());
-            setCeldasInspeccionadasAliados(inspecciones);
+            celdasInspeccionadasAliados.put(validado, new HashSet<>());
         }
     }
 
@@ -527,6 +541,53 @@ public class Juego {
     public void setPuntuacion(int puntuacion) {
         this.puntuacion = Validaciones.enteroEntre(puntuacion,
                 -Limites.ESTADISTICA, Limites.ESTADISTICA, "Puntuacion");
+    }
+
+    /** @return si los aliados pueden sustituir sus armas y armaduras por mejoras */
+    public boolean isMejorasEquipoAliadoPermitidas() { return mejorasEquipoAliadoPermitidas; }
+    /** @param permitidas permiso del jugador, activado por defecto */
+    public void setMejorasEquipoAliadoPermitidas(boolean permitidas) {
+        mejorasEquipoAliadoPermitidas = permitidas;
+    }
+    /** @return si los aliados pueden entregar municion compatible automaticamente */
+    public boolean isMunicionAliadaAutomatica() { return municionAliadaAutomatica; }
+    /** @param automatica permiso del jugador, activado por defecto */
+    public void setMunicionAliadaAutomatica(boolean automatica) {
+        municionAliadaAutomatica = automatica;
+    }
+
+    /** @return si aun cabe un enemigo sin romper el equilibrio de bandos */
+    public boolean puedeAgregarEnemigo() { return enemigos.size() < limiteEnemigos; }
+    /**
+     * Cierra el despliegue y limita refuerzos al tamaño aliado inicial, contando
+     * siempre al jugador como un combatiente.
+     */
+    public void sellarEquilibrioBandos() {
+        limiteEnemigos = Math.min(Limites.COMBATIENTES_POR_BANDO,
+                1 + aliadosRegistrados.size());
+        equilibrioBandosSellado = true;
+    }
+    /** @return si el despliegue inicial ya quedo equilibrado */
+    public boolean isEquilibrioBandosSellado() { return equilibrioBandosSellado; }
+    /** @param sellado activa el limite equilibrado o reabre el despliegue inicial */
+    public void setEquilibrioBandosSellado(boolean sellado) {
+        if (sellado) {
+            sellarEquilibrioBandos();
+        } else {
+            equilibrioBandosSellado = false;
+            limiteEnemigos = Limites.COMBATIENTES_POR_BANDO;
+        }
+    }
+    /** @return maximo de enemigos activos/iniciales permitido */
+    public int getLimiteEnemigos() { return limiteEnemigos; }
+    /** @param limiteEnemigos limite entre cero y cinco mil */
+    public void setLimiteEnemigos(int limiteEnemigos) {
+        int validado = Validaciones.enteroEntre(limiteEnemigos, 0,
+                Limites.COMBATIENTES_POR_BANDO, "Limite de enemigos");
+        if (enemigos != null && enemigos.size() > validado) {
+            throw new IllegalArgumentException("El limite no puede ser menor que los enemigos actuales.");
+        }
+        this.limiteEnemigos = validado;
     }
 
     /** @param logros gestor no nulo asociado a esta partida */

@@ -112,7 +112,7 @@ class DespliegueEscuadronTest {
                 .getEnemigos().size());
         assertEquals(20, proceduralConAliados(20, Dificultad.NORMAL, 92)
                 .getEnemigos().size());
-        assertEquals(44, proceduralConAliados(20, Dificultad.DEMENTE, 92)
+        assertEquals(21, proceduralConAliados(20, Dificultad.DEMENTE, 92)
                 .getEnemigos().size());
     }
 

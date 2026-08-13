@@ -251,6 +251,7 @@ public final class MotorPartida {
             lineas.add("- " + aliado.getNombre() + " | Estado " + situacion.etiqueta
                     + " | Combate " + (estaAliadoEnCombate(aliado) ? "EN COMBATE" : "FUERA DE COMBATE")
                     + " | Nivel " + aliado.getNivel()
+                    + " | Rol " + aliado.getRol().getEtiqueta()
                     + " | Vida " + aliado.getSalud() + "/" + aliado.getSaludMaxima()
                     + " | Energia " + aliado.getEnergia() + "/" + aliado.getEnergiaMaxima()
                     + " | Puntuacion " + SistemaPuntuacion.calcularAliado(juego, aliado).total()
@@ -479,8 +480,11 @@ public final class MotorPartida {
             boolean formacionDetectada = enemigoDetectaFormacion(enemigo);
             Personaje objetivoTactico = formacionDetectada ? seleccionarObjetivoTactico(enemigo) : null;
             if (formacionDetectada) {
-                juego.getConsola().imprimirInfo(enemigo.getNombre() + " detecta la formacion "
-                        + juego.getFormacionAliada().getEtiqueta() + " y adapta su ataque.");
+                String despliegue = juego.getFormacionAliada() == FormacionAliada.SIN_FORMACION
+                        ? "el escuadron aliado"
+                        : "la formacion " + juego.getFormacionAliada().getEtiqueta();
+                juego.getConsola().imprimirInfo(enemigo.getNombre() + " detecta "
+                        + despliegue + " y coordina su ataque.");
             }
             int movimientos = jugadorDescansando || formacionDetectada
                     ? Math.max(1, random.nextInt(3)) : random.nextInt(3);
@@ -552,6 +556,9 @@ public final class MotorPartida {
             if (evacuarAliadoSiTieneLaSalidaAlAlcance(aliado)) {
                 continue;
             }
+            if (priorizarRolMedico(aliado)) {
+                continue;
+            }
             if (turnosAyudaAliados > 0 && prepararAliadoParaAyuda(aliado)) {
                 continue;
             }
@@ -604,6 +611,65 @@ public final class MotorPartida {
                 moverAliadoHaciaObjetivo(aliado, objetivo.getPosicion());
             }
         }
+    }
+
+    private boolean priorizarRolMedico(Aliado medico) {
+        if (!medico.esMedico()) {
+            return false;
+        }
+        if (asistirJugador(medico) || asistirAliadoPrioritario(medico)) {
+            return true;
+        }
+        Personaje paciente = buscarPacientePara(medico);
+        if (paciente != null
+                && medico.getPosicion().distanciaManhattan(paciente.getPosicion()) > 1) {
+            cambiarSituacion(medico, SituacionAliado.ACUDIENDO);
+            moverAliadoHaciaObjetivo(medico, paciente.getPosicion());
+            juego.getConsola().imprimirInfo(medico.getNombre()
+                    + " prioriza asistir a " + paciente.getNombre() + ".");
+            return true;
+        }
+        long botiquines = medico.getMochila().getObjetos().stream()
+                .filter(Botiquin.class::isInstance).count();
+        long toritos = medico.getMochila().getObjetos().stream()
+                .filter(ToritoRojo.class::isInstance).count();
+        if (botiquines < 2 && moverAliadoHaciaSuministro(medico, Botiquin.class)) {
+            return true;
+        }
+        if (toritos < 2 && moverAliadoHaciaSuministro(medico, ToritoRojo.class)) {
+            return true;
+        }
+        return (botiquines < 2 || toritos < 2)
+                && explorarSuministrosDesconocidos(medico);
+    }
+
+    private Personaje buscarPacientePara(Aliado medico) {
+        List<Personaje> candidatos = new ArrayList<>();
+        candidatos.add(juego.getJugador());
+        juego.getAliados().stream().filter(aliado -> aliado.getSalud() > 0)
+                .forEach(candidatos::add);
+        boolean tieneBotiquin = medico.getMochila().getObjetos().stream()
+                .anyMatch(Botiquin.class::isInstance);
+        boolean tieneTorito = medico.getMochila().getObjetos().stream()
+                .anyMatch(ToritoRojo.class::isInstance);
+        return candidatos.stream()
+                .filter(personaje -> (tieneBotiquin
+                        && personaje.getSalud() < personaje.getSaludMaxima())
+                        || (tieneTorito
+                        && personaje.getEnergia() < personaje.getEnergiaMaxima()))
+                .min(java.util.Comparator
+                        .comparingDouble(this::necesidadMedica)
+                        .thenComparingInt(personaje -> medico.getPosicion()
+                                .distanciaManhattan(personaje.getPosicion())))
+                .orElse(null);
+    }
+
+    private double necesidadMedica(Personaje personaje) {
+        double salud = (double) personaje.getSalud()
+                / Math.max(1, personaje.getSaludMaxima());
+        double energia = (double) personaje.getEnergia()
+                / Math.max(1, personaje.getEnergiaMaxima());
+        return Math.min(salud, energia);
     }
 
     private boolean priorizarAyudaJugador(Aliado aliado) {
@@ -829,6 +895,14 @@ public final class MotorPartida {
     }
 
     private void recogerObjetoAliado(Aliado aliado, Objeto objeto, Celda celda) {
+        boolean suministroMedico = objeto instanceof Botiquin
+                || objeto instanceof ToritoRojo;
+        boolean hayMedicoActivo = juego.getAliados().stream()
+                .anyMatch(candidato -> candidato != aliado && candidato.getSalud() > 0
+                        && candidato.esMedico());
+        if (suministroMedico && !aliado.esMedico() && hayMedicoActivo) {
+            return;
+        }
         if (!aliado.getMochila().puedeGuardar(objeto)) {
             return;
         }
@@ -1390,7 +1464,7 @@ public final class MotorPartida {
     }
 
     private boolean enemigoDetectaFormacion(Enemigo enemigo) {
-        if (juego.getFormacionAliada() == FormacionAliada.SIN_FORMACION) {
+        if (juego.getAliados().stream().noneMatch(aliado -> aliado.getSalud() > 0)) {
             return false;
         }
         if (vePersonaje(enemigo, juego.getJugador())) {

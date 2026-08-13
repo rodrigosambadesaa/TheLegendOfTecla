@@ -14,6 +14,7 @@ import com.legendoftecla.model.characters.Commander;
 import com.legendoftecla.model.characters.Enemigo;
 import com.legendoftecla.model.characters.Jefe;
 import com.legendoftecla.model.characters.Medic;
+import com.legendoftecla.model.characters.Personaje;
 import com.legendoftecla.model.items.Granada;
 import com.legendoftecla.model.items.TipoGranada;
 import com.legendoftecla.model.elements.SistemaCobertura;
@@ -34,13 +35,14 @@ public final class EjecutorAccionIA {
             SistemaJefes.activarFase(juego, jefe, random);
         }
         return switch (accion.tipo()) {
-            case ATACAR -> atacar(juego, enemigo, random);
+            case ATACAR -> atacar(juego, enemigo, accion.objetivo(), random);
             case RECARGAR -> recargar(enemigo);
             case CURAR -> curar(juego, enemigo);
             case INCENDIAR -> incendiar(juego, enemigo, accion.objetivo());
-            case ALERTAR -> alertar(juego, enemigo);
+            case ALERTAR -> alertar(juego, enemigo, accion.objetivo());
             case PROTEGER -> proteger(juego, enemigo);
-            case BUSCAR_COBERTURA -> buscarCobertura(juego, enemigo, random);
+            case BUSCAR_COBERTURA -> buscarCobertura(
+                    juego, enemigo, accion.objetivo(), random);
             case ALEJARSE -> mover(juego, enemigo, accion.objetivo(), false, random);
             case ACERCARSE, INVESTIGAR, BUSCAR ->
                     mover(juego, enemigo, accion.objetivo(), true, random);
@@ -49,13 +51,16 @@ public final class EjecutorAccionIA {
         };
     }
 
-    private boolean atacar(Juego juego, Enemigo enemigo, Random random) {
-        Posicion objetivo = juego.getJugador().getPosicion();
-        if (enemigo.getPosicion().distanciaManhattan(objetivo) > enemigo.getRangoVision()
-                || !juego.getMapa().hayLineaAtaque(enemigo.getPosicion(), objetivo)) {
+    private boolean atacar(Juego juego, Enemigo enemigo,
+            Posicion posicionObjetivo, Random random) {
+        Personaje objetivo = resolverObjetivo(juego, posicionObjetivo);
+        if (objetivo == null || enemigo.getPosicion().distanciaManhattan(
+                objetivo.getPosicion()) > enemigo.getRangoVision()
+                || !juego.getMapa().hayLineaAtaque(
+                        enemigo.getPosicion(), objetivo.getPosicion())) {
             return false;
         }
-        SistemaCombate.atacar(juego, enemigo, juego.getJugador(), random);
+        SistemaCombate.atacar(juego, enemigo, objetivo, random);
         return true;
     }
 
@@ -69,7 +74,7 @@ public final class EjecutorAccionIA {
     }
 
     private boolean curar(Juego juego, Enemigo enemigo) {
-        if (!(enemigo instanceof Medic medic)) {
+        if (!(enemigo instanceof Medic medic) || !coordinacionActiva(juego)) {
             return false;
         }
         Enemigo objetivo = juego.getEnemigos().stream()
@@ -151,13 +156,15 @@ public final class EjecutorAccionIA {
         }
     }
 
-    private boolean alertar(Juego juego, Enemigo origen) {
-        Posicion jugador = juego.getJugador().getPosicion();
+    private boolean alertar(Juego juego, Enemigo origen, Posicion objetivo) {
+        if (!coordinacionActiva(juego)) return false;
+        Posicion comunicada = objetivo == null
+                ? juego.getJugador().getPosicion() : objetivo;
         boolean comunicado = false;
         for (Enemigo enemigo : juego.getEnemigos()) {
             if (enemigo != origen && enemigo.getSalud() > 0
                     && origen.getPosicion().distanciaManhattan(enemigo.getPosicion()) <= 5) {
-                enemigo.getControladorIA().alertar(jugador, 3);
+                enemigo.getControladorIA().alertar(comunicada, 3);
                 comunicado = true;
             }
         }
@@ -167,7 +174,7 @@ public final class EjecutorAccionIA {
     }
 
     private boolean proteger(Juego juego, Enemigo origen) {
-        if (!(origen instanceof Commander commander)) {
+        if (!(origen instanceof Commander commander) || !coordinacionActiva(juego)) {
             return false;
         }
         boolean aplicado = false;
@@ -181,15 +188,17 @@ public final class EjecutorAccionIA {
         return aplicado && commander.bonificacionAliados() > 1.0;
     }
 
-    private boolean buscarCobertura(Juego juego, Enemigo enemigo, Random random) {
+    private boolean buscarCobertura(Juego juego, Enemigo enemigo,
+            Posicion objetivo, Random random) {
         SistemaCobertura cobertura = new SistemaCobertura(random);
-        Posicion jugador = juego.getJugador().getPosicion();
+        Posicion amenaza = objetivo == null
+                ? juego.getJugador().getPosicion() : objetivo;
         List<Posicion> candidatas = candidatas(juego, enemigo).stream()
                 .filter(posicion -> cobertura.proteccion(
-                        juego.getMapa(), jugador, posicion).tipo() != TipoCobertura.NINGUNA)
+                        juego.getMapa(), amenaza, posicion).tipo() != TipoCobertura.NINGUNA)
                 .toList();
         if (candidatas.isEmpty()) {
-            return mover(juego, enemigo, jugador, false, random);
+            return mover(juego, enemigo, amenaza, false, random);
         }
         return desplazar(juego, enemigo, candidatas.get(random.nextInt(candidatas.size())));
     }
@@ -247,5 +256,22 @@ public final class EjecutorAccionIA {
             juego.getMapa().getCelda(origen).agregarEnemigo(enemigo);
             return false;
         }
+    }
+
+    private Personaje resolverObjetivo(Juego juego, Posicion posicion) {
+        Posicion buscada = posicion == null
+                ? juego.getJugador().getPosicion() : posicion;
+        if (juego.getJugador().getSalud() > 0
+                && juego.getJugador().getPosicion().equals(buscada)) {
+            return juego.getJugador();
+        }
+        return juego.getAliados().stream()
+                .filter(aliado -> aliado.getSalud() > 0
+                        && aliado.getPosicion().equals(buscada))
+                .findFirst().orElse(null);
+    }
+
+    private boolean coordinacionActiva(Juego juego) {
+        return juego.getAliados().stream().anyMatch(aliado -> aliado.getSalud() > 0);
     }
 }

@@ -11,15 +11,19 @@ import com.legendoftecla.model.characters.Enemigo;
 import com.legendoftecla.model.characters.Francotirador;
 import com.legendoftecla.model.characters.Marine;
 import com.legendoftecla.model.characters.Medic;
+import com.legendoftecla.model.characters.LightFloater;
+import com.legendoftecla.model.characters.HeavyFloater;
 import com.legendoftecla.model.characters.Mochila;
 import com.legendoftecla.model.characters.Pyro;
 import com.legendoftecla.model.characters.PyroOverlord;
 import com.legendoftecla.model.characters.Scout;
 import com.legendoftecla.model.characters.Sniper;
+import com.legendoftecla.model.characters.Sectoid;
 import com.legendoftecla.model.characters.Zapador;
 import com.legendoftecla.model.items.Arma;
 import com.legendoftecla.model.items.Armeria;
 import com.legendoftecla.model.items.Explosivo;
+import com.legendoftecla.model.items.FaccionEquipo;
 import com.legendoftecla.model.items.TipoMunicion;
 import com.legendoftecla.model.world.Celda;
 import com.legendoftecla.model.world.Posicion;
@@ -50,7 +54,10 @@ class CompetenciasArmamentoTest {
         assertEquals(1, enemigo.getArmasEquipadas().size());
         Arma arma = enemigo.getArmasEquipadas().get(0);
         assertTrue(enemigo.puedeUsar(arma));
+        assertEquals(FaccionEquipo.ENEMIGA, arma.getFaccion());
         assertTrue(arma.puedeDisparar());
+        assertEquals(FaccionEquipo.ENEMIGA,
+                enemigo.getArmaduraEquipada().getFaccion());
         if (!arma.usaMunicionInfinita()) {
             assertTrue(enemigo.getMochila().getObjetos().stream()
                     .anyMatch(objeto -> objeto instanceof com.legendoftecla.model.items.Municion));
@@ -92,17 +99,44 @@ class CompetenciasArmamentoTest {
         int primero = ServicioBotinEnemigo.soltar(celda, sniper);
         int segundo = ServicioBotinEnemigo.soltar(celda, sniper);
 
-        assertEquals(2, primero);
+        assertEquals(3, primero);
         assertEquals(0, segundo);
-        assertEquals(2, celda.getObjetos().size());
+        assertEquals(3, celda.getObjetos().size());
         assertTrue(celda.getObjetos().stream().anyMatch(Arma.class::isInstance));
+        assertTrue(celda.getObjetos().stream()
+                .anyMatch(com.legendoftecla.model.items.Armadura.class::isInstance));
         assertTrue(celda.getObjetos().stream().anyMatch(objeto ->
                 objeto instanceof com.legendoftecla.model.items.Municion municion
                         && municion.getTipo() == TipoMunicion.RIFLE));
     }
 
+    @Test
+    void ningunBandoPuedeUsarElEquipoPropioDelContrario() throws Exception {
+        Sniper enemigo = new Sniper("S", POSICION, new Mochila(3, 20), 5);
+        ArsenalEnemigo.asignar(enemigo, Dificultad.NORMAL);
+        Marine marine = new Marine("M", POSICION, new Mochila(5, 40), 4);
+        Arma xeno = enemigo.getArmasEquipadas().get(0);
+        var armaduraXeno = enemigo.getArmaduraEquipada();
+        Arma humana = Armeria.rifle("Rifle humano", 4, 4);
+
+        assertFalse(marine.puedeUsar(xeno));
+        assertFalse(marine.puedeUsar(armaduraXeno));
+        assertFalse(marine.puedeCoger(xeno));
+        assertThrows(com.legendoftecla.exceptions.AccionInvalidaException.class,
+                () -> marine.equipar(xeno));
+        assertFalse(enemigo.puedeUsar(humana));
+        assertThrows(com.legendoftecla.exceptions.AccionInvalidaException.class,
+                () -> enemigo.equipar(humana));
+    }
+
     private static Stream<Arguments> enemigosArmados() {
         return Stream.of(
+                Arguments.of((Supplier<Enemigo>) () -> new Sectoid(
+                        "SE", POSICION, new Mochila(3, 10), 3)),
+                Arguments.of((Supplier<Enemigo>) () -> new LightFloater(
+                        "LF", POSICION, new Mochila(3, 10), 3)),
+                Arguments.of((Supplier<Enemigo>) () -> new HeavyFloater(
+                        "HF", POSICION, new Mochila(3, 10), 3)),
                 Arguments.of((Supplier<Enemigo>) () -> new Berserker(
                         "B", POSICION, new Mochila(3, 10), 3)),
                 Arguments.of((Supplier<Enemigo>) () -> new Medic(

@@ -430,8 +430,10 @@ class IntegracionModosGuiTest {
                 "Un lanzamiento invalido no debe consumir el explosivo");
 
         int saludInicial = juego.getEnemigos().get(0).getSalud();
+        int defensa = juego.getEnemigos().get(0).getArmaduraEquipada().getDefensa();
         motor.ejecutarComando("lanzar 2e carga prueba");
-        assertEquals(saludInicial - explosivo.getDanio(), juego.getEnemigos().get(0).getSalud());
+        assertEquals(saludInicial - Math.max(0, explosivo.getDanio() - defensa),
+                juego.getEnemigos().get(0).getSalud());
         assertFalse(juego.getJugador().getMochila().getObjetos().contains(explosivo));
     }
 

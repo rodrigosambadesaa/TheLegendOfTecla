@@ -3,6 +3,7 @@ package com.legendoftecla.loader;
 import com.legendoftecla.constants.Dificultad;
 import com.legendoftecla.model.characters.Aliado;
 import com.legendoftecla.model.characters.Mochila;
+import com.legendoftecla.model.characters.RolAliado;
 import com.legendoftecla.model.items.Binocular;
 import com.legendoftecla.model.items.Botiquin;
 import com.legendoftecla.model.items.ToritoRojo;
@@ -48,15 +49,25 @@ final class GeneradorAliados {
         vision = Math.min(12, vision + bonusNivel / 5);
 
         for (int indice = 0; indice < cantidad; indice++) {
+            boolean medico = indice % 4 == 0;
             Aliado aliado = new Aliado(prefijo + "_" + (indice + 1), despliegue,
-                    new Mochila(4 + bonusNivel / 4, 12 + bonusNivel * 1.5), vision);
+                    new Mochila((medico ? 5 : 4) + bonusNivel / 4,
+                            12 + bonusNivel * 1.5), vision);
             aliado.setNivel(nivel);
+            aliado.setRol(medico ? RolAliado.MEDICO : RolAliado.COMBATIENTE);
             aliado.configurarEstadisticas(salud, energia, vision);
             aliado.getMochila().guardar(new Botiquin("botiquin_apoyo_" + prefijo + "_" + (indice + 1),
                     "Botiquin reservado para asistencia prioritaria", 1.0, 25));
             aliado.getMochila().guardar(new ToritoRojo("torito_apoyo_" + prefijo + "_" + (indice + 1),
                     "Suministro energetico reservado para asistencia", 0.5, 30));
-            if (indice % 2 == 0) {
+            if (medico) {
+                aliado.getMochila().guardar(new Botiquin(
+                        "botiquin_reserva_" + prefijo + "_" + (indice + 1),
+                        "Reserva del sanitario de escuadron", 1.0, 25));
+                aliado.getMochila().guardar(new ToritoRojo(
+                        "torito_reserva_" + prefijo + "_" + (indice + 1),
+                        "Reserva energetica del sanitario", 0.5, 30));
+            } else if (indice % 2 == 0) {
                 aliado.getMochila().guardar(new Binocular("radar_tactico_" + prefijo + "_" + (indice + 1),
                         "Radar tactico asignado automaticamente", 1.0, 2));
             }

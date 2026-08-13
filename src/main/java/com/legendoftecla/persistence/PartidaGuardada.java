@@ -26,10 +26,10 @@ public record PartidaGuardada(int version, long seed, int turnos, int pasosMaxim
             Posicion posicion, int capacidad, double pesoMax,
             List<ObjetoEstado> inventario, List<ObjetoEstado> armas,
             ObjetoEstado armadura, List<EstadoActivo> estados,
-            int nivel, int experiencia, Set<String> habilidades) { }
+            int nivel, int experiencia, Set<String> habilidades, String rolAliado) { }
     public record ObjetoEstado(String tipo, String nombre, String descripcion,
             double peso, int valor, int valor2, int valor3, boolean bandera,
-            String subtipo) { }
+            String subtipo, String faccion, String categoria) { }
     /** Estado generico y versionable de elementos interactivos del mapa. */
     public record ElementoEstado(String tipo, String id, String estado,
             String referencia, int resistencia, boolean destructible,

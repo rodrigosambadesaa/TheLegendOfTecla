@@ -4,6 +4,7 @@ import com.legendoftecla.TestFixtures;
 import com.legendoftecla.events.BusEventos;
 import com.legendoftecla.engine.MotorPartida;
 import com.legendoftecla.model.characters.Berserker;
+import com.legendoftecla.model.characters.Aliado;
 import com.legendoftecla.model.characters.Commander;
 import com.legendoftecla.model.characters.CommanderPrime;
 import com.legendoftecla.model.characters.FaseJefe;
@@ -52,6 +53,8 @@ class InteligenciaTacticaTest {
     @Test
     void cadaRolTieneUnaDecisionDistinguible() {
         Juego juego = TestFixtures.juegoBasico(TestFixtures.consola());
+        juego.agregarAliado(new Aliado("A", juego.getJugador().getPosicion(),
+                new Mochila(2, 10), 3));
         Posicion p = new Posicion(1, 1);
         Mochila mochila = new Mochila(6, 40);
         Berserker berserker = new Berserker("B", p, mochila, 3);
@@ -74,6 +77,34 @@ class InteligenciaTacticaTest {
         assertEquals(TipoAccionIA.PROTEGER, commander.decidirTactica(
                 new ContextoIA(commander, juego, true, null, false, false)).tipo());
         assertTrue(commander.bonificacionAliados() > 1);
+    }
+
+    @Test
+    void exploradorYComandanteSoloCoordinanContraUnEscuadron() {
+        Juego solo = TestFixtures.juegoBasico(TestFixtures.consola());
+        Scout scoutSolo = new Scout("S1", new Posicion(1, 1),
+                new Mochila(2, 10), 6);
+        Commander commanderSolo = new Commander("C1", new Posicion(1, 1),
+                new Mochila(2, 10), 6);
+        ContextoIA contextoSolo = new ContextoIA(
+                scoutSolo, solo, true, null, false, false);
+
+        assertEquals(TipoAccionIA.ATACAR, scoutSolo.decidirTactica(contextoSolo).tipo());
+        assertEquals(TipoAccionIA.ATACAR, commanderSolo.decidirTactica(new ContextoIA(
+                commanderSolo, solo, true, null, false, false)).tipo());
+
+        Juego escuadron = TestFixtures.juegoBasico(TestFixtures.consola());
+        escuadron.agregarAliado(new Aliado("A", escuadron.getJugador().getPosicion(),
+                new Mochila(2, 10), 3));
+        Scout scoutGrupo = new Scout("S2", new Posicion(1, 1),
+                new Mochila(2, 10), 6);
+        Commander commanderGrupo = new Commander("C2", new Posicion(1, 1),
+                new Mochila(2, 10), 6);
+
+        assertEquals(TipoAccionIA.ALERTAR, scoutGrupo.decidirTactica(new ContextoIA(
+                scoutGrupo, escuadron, true, null, false, false)).tipo());
+        assertEquals(TipoAccionIA.PROTEGER, commanderGrupo.decidirTactica(new ContextoIA(
+                commanderGrupo, escuadron, true, null, false, false)).tipo());
     }
 
     @Test

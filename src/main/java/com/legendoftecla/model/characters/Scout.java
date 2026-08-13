@@ -13,13 +13,13 @@ public final class Scout extends Enemigo implements EnemigoTactico {
         TipoAccionIA tipo;
         if (!contexto.veJugador()) {
             tipo = TipoAccionIA.PATRULLAR;
-        } else if (!contactoComunicado) {
+        } else if (contexto.coordinacionActiva() && !contactoComunicado) {
             contactoComunicado = true;
             tipo = TipoAccionIA.ALERTAR;
         } else {
             tipo = TipoAccionIA.ATACAR;
         }
         return new AccionIA(tipo,
-                contexto.juego().getJugador().getPosicion(), "reconocimiento rapido");
+                contexto.posicionObjetivo(), "reconocimiento rapido");
     }
 }

@@ -13,6 +13,7 @@ public final class Armadura extends Objeto {
     private int defensa;
     private int bonusSalud;
     private int bonusEnergia;
+    private FaccionEquipo faccion;
 
     /**
      * Ejecuta Armadura.
@@ -24,10 +25,18 @@ public final class Armadura extends Objeto {
       * @param peso valor de {@code peso}
      */
     public Armadura(String nombre, String descripcion, double peso, int defensa, int bonusSalud, int bonusEnergia) {
+        this(nombre, descripcion, peso, defensa, bonusSalud, bonusEnergia,
+                FaccionEquipo.HUMANA);
+    }
+
+    /** Crea una proteccion vinculada a una faccion concreta. */
+    public Armadura(String nombre, String descripcion, double peso, int defensa,
+            int bonusSalud, int bonusEnergia, FaccionEquipo faccion) {
         super(nombre, descripcion, peso);
         setDefensa(defensa);
         setBonusSalud(bonusSalud);
         setBonusEnergia(bonusEnergia);
+        this.faccion = Validaciones.noNulo(faccion, "Faccion de la armadura");
     }
 
     /**
@@ -63,6 +72,21 @@ public final class Armadura extends Objeto {
      */
     public int getBonusEnergia() {
         return bonusEnergia;
+    }
+
+    /** @return bando capaz de utilizar esta proteccion */
+    public FaccionEquipo getFaccion() {
+        return faccion;
+    }
+
+    /** @param faccion nueva procedencia biologica o tecnologica */
+    public void setFaccion(FaccionEquipo faccion) {
+        this.faccion = Validaciones.noNulo(faccion, "Faccion de la armadura");
+    }
+
+    /** @return si la proteccion es biologica o tecnologicamente enemiga */
+    public boolean esEnemiga() {
+        return faccion == FaccionEquipo.ENEMIGA;
     }
 
     /** @param bonusEnergia bonificacion no negativa y acotada */

@@ -16,9 +16,9 @@ public final class PyroOverlord extends Jefe implements EnemigoTactico {
     }
     public AccionIA decidirTactica(ContextoIA contexto) {
         boolean objetivoArdiendo = contexto.juego().getMapa().getCelda(
-                contexto.juego().getJugador().getPosicion()).estaArdiendo();
+                contexto.posicionObjetivo()).estaArdiendo();
         return new AccionIA(objetivoArdiendo ? TipoAccionIA.ATACAR
                 : TipoAccionIA.INCENDIAR,
-                contexto.juego().getJugador().getPosicion(), habilidadActual());
+                contexto.posicionObjetivo(), habilidadActual());
     }
 }

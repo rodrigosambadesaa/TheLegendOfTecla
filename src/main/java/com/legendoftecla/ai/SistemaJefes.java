@@ -25,6 +25,10 @@ public final class SistemaJefes {
 
     /** @return si la habilidad de la fase actual modifico partida o entorno */
     public static boolean activarFase(Juego juego, Jefe jefe, Random random) {
+        if (jefe instanceof CommanderPrime
+                && juego.getAliados().stream().noneMatch(aliado -> aliado.getSalud() > 0)) {
+            return false;
+        }
         if (!jefe.consumirHabilidadDeFase()) {
             return false;
         }

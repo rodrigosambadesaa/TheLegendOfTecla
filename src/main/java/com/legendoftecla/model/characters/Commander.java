@@ -10,10 +10,10 @@ public class Commander extends Enemigo implements EnemigoTactico {
     }
     public double bonificacionAliados() { return 1.15; }
     public AccionIA decidirTactica(ContextoIA contexto) {
-        TipoAccionIA tipo = ordenEmitida ? TipoAccionIA.ATACAR
-                : TipoAccionIA.PROTEGER;
+        TipoAccionIA tipo = !contexto.coordinacionActiva() || ordenEmitida
+                ? TipoAccionIA.ATACAR : TipoAccionIA.PROTEGER;
         ordenEmitida = true;
         return new AccionIA(tipo,
-                contexto.juego().getJugador().getPosicion(), "coordinacion de escuadra");
+                contexto.posicionObjetivo(), "coordinacion de escuadra");
     }
 }

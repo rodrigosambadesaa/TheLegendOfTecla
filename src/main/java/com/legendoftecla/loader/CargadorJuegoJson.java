@@ -178,9 +178,7 @@ public final class CargadorJuegoJson extends CargadorJuegoBase {
                     nombre, posicion, mochila, definicion.getVision());
             default -> new Sectoid(nombre, posicion, mochila, definicion.getVision());
         };
-        if (enemigo instanceof com.legendoftecla.ai.EnemigoTactico) {
-            com.legendoftecla.engine.ArsenalEnemigo.asignar(enemigo, dificultad);
-        }
+        com.legendoftecla.engine.ArsenalEnemigo.asignar(enemigo, dificultad);
         enemigo.configurarEstadisticas(
                 definicion.getSalud(), definicion.getEnergia(), definicion.getVision());
         return enemigo;

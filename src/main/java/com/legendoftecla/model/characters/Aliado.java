@@ -8,6 +8,7 @@ import com.legendoftecla.model.world.Posicion;
  */
 public final class Aliado extends Personaje {
     private int nivel = 1;
+    private RolAliado rol = RolAliado.COMBATIENTE;
     /**
      * Ejecuta Aliado.
       * @param mochila valor de {@code mochila}
@@ -27,6 +28,17 @@ public final class Aliado extends Personaje {
         this.nivel = com.legendoftecla.validation.Validaciones.enteroEntre(nivel, 1,
                 com.legendoftecla.validation.Limites.NIVEL_ALIADO_MAXIMO, "Nivel del aliado");
     }
+
+    /** @return especializacion operativa del aliado */
+    public RolAliado getRol() { return rol; }
+
+    /** @param rol especializacion no nula */
+    public void setRol(RolAliado rol) {
+        this.rol = java.util.Objects.requireNonNull(rol, "Rol del aliado");
+    }
+
+    /** @return si el aliado prioriza asistencia y suministros */
+    public boolean esMedico() { return rol == RolAliado.MEDICO; }
 
     @Override
     /**

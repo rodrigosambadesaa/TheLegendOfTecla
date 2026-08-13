@@ -37,7 +37,7 @@ public final class ControladorIA {
             estado = NivelAlerta.HUYENDO;
         } else if (contexto.veJugador()) {
             estado = NivelAlerta.COMBATE;
-            ultimaPosicionConocida = contexto.juego().getJugador().getPosicion();
+            ultimaPosicionConocida = contexto.posicionObjetivo();
             turnosMemoria = 3;
         } else if (estado == NivelAlerta.COMBATE) {
             estado = NivelAlerta.BUSQUEDA;
@@ -73,11 +73,11 @@ public final class ControladorIA {
                 TipoAccionIA.ALERTAR, ultimaPosicionConocida, "amenaza intensa"));
         estrategias.put(NivelAlerta.COMBATE, contexto -> accion(
                 contexto.armaVacia() ? TipoAccionIA.RECARGAR : TipoAccionIA.ATACAR,
-                contexto.juego().getJugador().getPosicion(), "objetivo visible"));
+                contexto.posicionObjetivo(), "objetivo visible"));
         estrategias.put(NivelAlerta.BUSQUEDA, contexto -> accion(
                 TipoAccionIA.BUSCAR, ultimaPosicionConocida, "vision perdida"));
         estrategias.put(NivelAlerta.HUYENDO, contexto -> accion(
-                TipoAccionIA.ALEJARSE, contexto.juego().getJugador().getPosicion(), "salud critica"));
+                TipoAccionIA.ALEJARSE, contexto.posicionObjetivo(), "salud critica"));
         estrategias.put(NivelAlerta.PROTEGIENDO, contexto -> accion(
                 TipoAccionIA.PROTEGER, ultimaPosicionConocida, "proteger objetivo"));
     }

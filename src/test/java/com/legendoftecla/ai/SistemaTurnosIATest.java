@@ -14,6 +14,7 @@ import com.legendoftecla.model.characters.Pyro;
 import com.legendoftecla.model.characters.PyroOverlord;
 import com.legendoftecla.model.characters.Scout;
 import com.legendoftecla.model.characters.Sniper;
+import com.legendoftecla.model.characters.Sectoid;
 import com.legendoftecla.model.items.Arma;
 import com.legendoftecla.model.items.Municion;
 import com.legendoftecla.model.world.Juego;
@@ -55,6 +56,7 @@ class SistemaTurnosIATest {
     @Test
     void cadaRolEjecutaSuComportamientoYConservaRecursosFinitos() {
         Juego juego = juegoConJugadorEn(new Posicion(1, 2));
+        agregarAliado(juego, "Escuadra");
         Medic medic = agregar(juego, new Medic("M", new Posicion(0, 0),
                 new Mochila(5, 30), 8));
         Pyro pyro = agregar(juego, new Pyro("P", new Posicion(1, 0),
@@ -112,6 +114,7 @@ class SistemaTurnosIATest {
     @Test
     void jefesActivanCadaFaseUnaSolaVezYLosRefuerzosLleganArmados() {
         Juego juego = juegoConJugadorEn(new Posicion(0, 0));
+        agregarAliado(juego, "Apoyo");
         CommanderPrime prime = agregar(juego, new CommanderPrime("Prime",
                 new Posicion(1, 1), new Mochila(5, 40), 8));
         ArsenalEnemigo.asignar(prime, Dificultad.NORMAL);
@@ -153,6 +156,28 @@ class SistemaTurnosIATest {
         assertEquals(objetosAntes - 1, pyro.getMochila().getObjetos().size());
     }
 
+    @Test
+    void elEscuadronEnemigoConcentraFuegoEnElAliadoMasVulnerable() {
+        Juego juego = juegoConJugadorEn(new Posicion(0, 2));
+        Aliado vulnerable = new Aliado("Vulnerable", new Posicion(0, 1),
+                new Mochila(3, 10), 4);
+        vulnerable.setSalud(20);
+        juego.agregarAliado(vulnerable);
+        juego.getMapa().getCelda(vulnerable.getPosicion()).agregarAliado(vulnerable);
+        Sectoid enemigo = agregar(juego, new Sectoid("S", new Posicion(0, 0),
+                new Mochila(4, 20), 8));
+        ArsenalEnemigo.asignar(enemigo, Dificultad.NORMAL);
+        int saludJugador = juego.getJugador().getSalud();
+
+        ResultadoTurnoIA resultado = new SistemaTurnosIA().ejecutar(
+                juego, enemigo, new Random(0));
+
+        assertEquals(TipoAccionIA.ATACAR, resultado.accion().tipo());
+        assertEquals(vulnerable.getPosicion(), resultado.accion().objetivo());
+        assertTrue(vulnerable.getSalud() < 20);
+        assertEquals(saludJugador, juego.getJugador().getSalud());
+    }
+
     private Juego juegoConJugadorEn(Posicion posicion) {
         Juego juego = TestFixtures.juegoBasico(TestFixtures.consola());
         juego.getJugador().setPosicion(posicion);
@@ -170,5 +195,12 @@ class SistemaTurnosIATest {
         return enemigo.getMochila().getObjetos().stream()
                 .filter(Municion.class::isInstance).map(Municion.class::cast)
                 .mapToInt(Municion::getCantidad).sum();
+    }
+
+    private void agregarAliado(Juego juego, String nombre) {
+        Aliado aliado = new Aliado(nombre, juego.getJugador().getPosicion(),
+                new Mochila(3, 10), 4);
+        juego.agregarAliado(aliado);
+        juego.getMapa().getCelda(aliado.getPosicion()).agregarAliado(aliado);
     }
 }

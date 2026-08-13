@@ -17,7 +17,7 @@ public final class Medic extends Enemigo implements EnemigoTactico {
         } else {
             tipo = TipoAccionIA.ATACAR;
         }
-        return new AccionIA(tipo, contexto.juego().getJugador().getPosicion(),
+        return new AccionIA(tipo, contexto.posicionObjetivo(),
                 "apoyo sanitario");
     }
     /** @return distancia maxima a la que puede asistir a otro enemigo */

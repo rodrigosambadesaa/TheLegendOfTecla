@@ -7,6 +7,8 @@ import com.legendoftecla.engine.FabricaJuego;
 import com.legendoftecla.model.world.DimensionesMapa;
 import com.legendoftecla.model.world.Juego;
 import com.legendoftecla.model.world.Posicion;
+import com.legendoftecla.model.items.Botiquin;
+import com.legendoftecla.model.items.ToritoRojo;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -26,6 +28,9 @@ class DespliegueEscuadronTest {
         assertTrue(juego.getMapa().esTransitable(inicio));
         assertTrue(juego.getAliados().stream()
                 .allMatch(aliado -> aliado.getPosicion().equals(inicio)));
+        assertTrue(juego.getEnemigos().stream()
+                .allMatch(enemigo -> !enemigo.getArmasEquipadas().isEmpty()
+                        && enemigo.getArmaduraEquipada() != null));
         assertEquals(juego.getAliados().size(),
                 juego.getMapa().getCelda(inicio).getAliados().size());
     }
@@ -76,6 +81,13 @@ class DespliegueEscuadronTest {
         assertEquals(23, juego.getAliados().size());
         assertTrue(juego.getAliados().stream().allMatch(aliado -> aliado.getNivel() == 12));
         assertTrue(juego.getAliados().stream().allMatch(aliado -> aliado.getSaludMaxima() > 90));
+        assertEquals(6, juego.getAliados().stream().filter(aliado -> aliado.esMedico()).count());
+        assertTrue(juego.getAliados().stream().filter(aliado -> aliado.esMedico())
+                .allMatch(aliado -> aliado.getMochila().getObjetos().stream()
+                        .filter(Botiquin.class::isInstance).count() >= 2));
+        assertTrue(juego.getAliados().stream().filter(aliado -> aliado.esMedico())
+                .allMatch(aliado -> aliado.getMochila().getObjetos().stream()
+                        .filter(ToritoRojo.class::isInstance).count() >= 2));
         assertTrue(juego.getAliados().stream().allMatch(aliado ->
                 aliado.getPosicion().equals(juego.getMapa().getInicio())));
     }

@@ -129,7 +129,8 @@ public final class PersistenciaPartida {
                 personaje.getMochila().getObjetos().stream().map(PersistenciaPartida::objeto).toList(),
                 personaje.getArmasEquipadas().stream().map(PersistenciaPartida::objeto).toList(),
                 personaje.getArmaduraEquipada() == null ? null : objeto(personaje.getArmaduraEquipada()),
-                personaje.getEstados().getActivos(), nivel, experiencia, habilidades);
+                personaje.getEstados().getActivos(), nivel, experiencia, habilidades,
+                personaje instanceof Aliado aliado ? aliado.getRol().name() : null);
     }
 
     private static Personaje crearPersonaje(PersonajeEstado estado) {
@@ -155,17 +156,22 @@ public final class PersistenciaPartida {
         };
         personaje.configurarEstadisticas(estado.saludMaxima(), estado.energiaMaxima(), estado.vision());
         personaje.setSalud(estado.salud()); personaje.setEnergia(estado.energia());
-        personaje.setArmasEquipadas(lista(estado.armas()).stream().map(PersistenciaPartida::crearObjeto)
+        FaccionEquipo faccionHistorica = personaje instanceof Enemigo
+                ? FaccionEquipo.ENEMIGA : FaccionEquipo.HUMANA;
+        personaje.setArmasEquipadas(lista(estado.armas()).stream()
+                .map(objeto -> crearObjeto(objeto, faccionHistorica))
                 .map(Arma.class::cast).toList());
         if (estado.armadura() != null) personaje.setArmaduraEquipada(
-                (Armadura) crearObjeto(estado.armadura()));
+                (Armadura) crearObjeto(estado.armadura(), faccionHistorica));
         lista(estado.estados()).forEach(activo -> personaje.getEstados().restaurar(
                 efecto(activo.tipo()), activo.turnosRestantes(), activo.acumulaciones()));
         if (personaje instanceof Jugador jugador && estado.nivel() > 0) {
             jugador.getProgresion().restaurar(estado.nivel(), estado.experiencia(),
                     estado.habilidades());
-        } else if (personaje instanceof Aliado aliado && estado.nivel() > 0) {
-            aliado.setNivel(estado.nivel());
+        } else if (personaje instanceof Aliado aliado) {
+            if (estado.nivel() > 0) aliado.setNivel(estado.nivel());
+            if (estado.rolAliado() != null) aliado.setRol(
+                    RolAliado.valueOf(estado.rolAliado()));
         }
         return personaje;
     }
@@ -173,35 +179,47 @@ public final class PersistenciaPartida {
     private static ObjetoEstado objeto(Objeto objeto) {
         if (objeto instanceof Arma arma) return new ObjetoEstado("Arma", arma.getNombre(),
                 arma.getDescripcion(), arma.getPeso(), arma.getDanio(), arma.getCapacidadCargador(),
-                arma.getMunicionActual(), arma.isDosManos(), arma.getTipoMunicion().name());
+                arma.getMunicionActual(), arma.isDosManos(), arma.getTipoMunicion().name(),
+                arma.getFaccion().name(), arma.getCategoria().name());
         if (objeto instanceof Armadura a) return new ObjetoEstado("Armadura", a.getNombre(),
                 a.getDescripcion(), a.getPeso(), a.getDefensa(), a.getBonusSalud(),
-                a.getBonusEnergia(), false, null);
+                a.getBonusEnergia(), false, null, a.getFaccion().name(), null);
         if (objeto instanceof Botiquin b) return simple(objeto, "Botiquin", b.getCuracion());
         if (objeto instanceof Binocular b) return simple(objeto, "Binocular", b.getRango());
         if (objeto instanceof Linterna l) return simple(objeto, "Linterna", l.getAlcance());
         if (objeto instanceof ToritoRojo t) return simple(objeto, "ToritoRojo", t.getEnergiaTurno());
         if (objeto instanceof CuboAgua c) return new ObjetoEstado("CuboAgua", c.getNombre(),
-                c.getDescripcion(), c.getPeso(), 0, 0, 0, c.isLleno(), null);
+                c.getDescripcion(), c.getPeso(), 0, 0, 0, c.isLleno(), null, null, null);
         if (objeto instanceof Municion m) return new ObjetoEstado("Municion", m.getNombre(),
-                m.getDescripcion(), m.getPeso(), m.getCantidad(), 0, 0, false, m.getTipo().name());
+                m.getDescripcion(), m.getPeso(), m.getCantidad(), 0, 0, false,
+                m.getTipo().name(), null, null);
         if (objeto instanceof Credencial c) return new ObjetoEstado("Credencial", c.getNombre(),
-                c.getDescripcion(), c.getPeso(), 0, 0, 0, false, c.getCodigo());
+                c.getDescripcion(), c.getPeso(), 0, 0, 0, false,
+                c.getCodigo(), null, null);
         if (objeto instanceof Componente) return simple(objeto, "Componente", 0);
         return simple(objeto, "Explosivo", 0);
     }
 
     private static ObjetoEstado simple(Objeto o, String tipo, int valor) {
         return new ObjetoEstado(tipo, o.getNombre(), o.getDescripcion(), o.getPeso(),
-                valor, 0, 0, false, null);
+                valor, 0, 0, false, null, null, null);
     }
 
     private static Objeto crearObjeto(ObjetoEstado o) {
+        return crearObjeto(o, FaccionEquipo.HUMANA);
+    }
+
+    private static Objeto crearObjeto(ObjetoEstado o, FaccionEquipo porDefecto) {
+        FaccionEquipo faccion = o.faccion() == null
+                ? porDefecto : FaccionEquipo.valueOf(o.faccion());
         return switch (o.tipo()) {
             case "Arma" -> new Arma(o.nombre(), o.descripcion(), o.peso(), o.valor(), o.bandera(),
-                    TipoMunicion.valueOf(o.subtipo()), o.valor2(), o.valor3());
+                    o.categoria() == null
+                            ? inferirCategoria(TipoMunicion.valueOf(o.subtipo()), o.nombre())
+                            : CategoriaArma.valueOf(o.categoria()),
+                    TipoMunicion.valueOf(o.subtipo()), o.valor2(), o.valor3(), faccion);
             case "Armadura" -> new Armadura(o.nombre(), o.descripcion(), o.peso(),
-                    o.valor(), o.valor2(), o.valor3());
+                    o.valor(), o.valor2(), o.valor3(), faccion);
             case "Botiquin" -> new Botiquin(o.nombre(), o.descripcion(), o.peso(), o.valor());
             case "Binocular" -> new Binocular(o.nombre(), o.descripcion(), o.peso(), o.valor());
             case "Linterna" -> new Linterna(o.nombre(), o.descripcion(), o.peso(), o.valor());
@@ -212,6 +230,18 @@ public final class PersistenciaPartida {
             case "Credencial" -> new Credencial(o.nombre(), o.descripcion(), o.peso(), o.subtipo());
             case "Componente" -> new Componente(o.nombre(), o.descripcion(), o.peso());
             default -> new Explosivo(o.nombre(), o.descripcion(), o.peso());
+        };
+    }
+
+    private static CategoriaArma inferirCategoria(TipoMunicion tipo, String nombre) {
+        return switch (tipo) {
+            case FLECHA -> CategoriaArma.ARCO;
+            case VIROTE -> CategoriaArma.BALLESTA;
+            case CUCHILLO_ARROJADIZO -> CategoriaArma.ARROJADIZA;
+            case INFINITA -> nombre != null && nombre.toLowerCase(java.util.Locale.ROOT)
+                    .matches(".*(espada|mandoble|garra).*")
+                            ? CategoriaArma.MELE : CategoriaArma.FUEGO;
+            default -> CategoriaArma.FUEGO;
         };
     }
 

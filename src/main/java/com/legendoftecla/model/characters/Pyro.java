@@ -8,9 +8,9 @@ public final class Pyro extends Enemigo implements EnemigoTactico {
     }
     public AccionIA decidirTactica(ContextoIA contexto) {
         boolean puedeIncendiar = !contexto.juego().getMapa().getCelda(
-                contexto.juego().getJugador().getPosicion()).estaArdiendo();
+                contexto.posicionObjetivo()).estaArdiendo();
         return new AccionIA(puedeIncendiar ? TipoAccionIA.INCENDIAR
                 : TipoAccionIA.ATACAR,
-                contexto.juego().getJugador().getPosicion(), "control incendiario");
+                contexto.posicionObjetivo(), "control incendiario");
     }
 }

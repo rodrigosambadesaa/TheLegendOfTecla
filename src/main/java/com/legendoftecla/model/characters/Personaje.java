@@ -318,6 +318,10 @@ public abstract class Personaje {
         if (armas.size() > 2 || armas.stream().anyMatch(java.util.Objects::isNull)) {
             throw new IllegalArgumentException("Solo se admiten dos armas equipadas y ninguna puede ser nula.");
         }
+        if (armas.stream().anyMatch(arma -> !faccionCompatible(arma.getFaccion()))) {
+            throw new IllegalArgumentException(
+                    "El armamento equipado no es compatible con la faccion o el rol.");
+        }
         this.armasEquipadas = new ArrayList<>(armas);
     }
 
@@ -335,6 +339,10 @@ public abstract class Personaje {
      * @param armadura nueva armadura
      */
     public void setArmaduraEquipada(Armadura armadura) {
+        if (armadura != null && !puedeUsar(armadura)) {
+            throw new IllegalArgumentException(
+                    "La armadura equipada no es compatible con la faccion.");
+        }
         this.armaduraEquipada = armadura;
     }
 
@@ -419,6 +427,12 @@ public abstract class Personaje {
     }
 
     private boolean admitePorClase(Objeto objeto) {
+        if (objeto instanceof Arma arma && !puedeUsar(arma)) {
+            return false;
+        }
+        if (objeto instanceof Armadura armadura && !puedeUsar(armadura)) {
+            return false;
+        }
         if (objeto instanceof Granada) {
             return getPerfilArmamento().permiteGranadas();
         }
@@ -638,7 +652,22 @@ public abstract class Personaje {
 
     /** @param arma arma que se desea equipar */
     public boolean puedeUsar(Arma arma) {
-        return getPerfilArmamento().permite(Validaciones.noNulo(arma, "Arma"));
+        Arma validada = Validaciones.noNulo(arma, "Arma");
+        return faccionCompatible(validada.getFaccion())
+                && getPerfilArmamento().permite(validada);
+    }
+
+    /** @param armadura proteccion que se desea equipar */
+    public boolean puedeUsar(Armadura armadura) {
+        Armadura validada = Validaciones.noNulo(armadura, "Armadura");
+        return faccionCompatible(validada.getFaccion());
+    }
+
+    private boolean faccionCompatible(
+            com.legendoftecla.model.items.FaccionEquipo faccion) {
+        return this instanceof Enemigo
+                ? faccion == com.legendoftecla.model.items.FaccionEquipo.ENEMIGA
+                : faccion == com.legendoftecla.model.items.FaccionEquipo.HUMANA;
     }
 
     /**
@@ -647,6 +676,10 @@ public abstract class Personaje {
      */
     protected void equiparArmadura(Armadura armadura) throws AccionInvalidaException {
         Validaciones.noNulo(armadura, "Armadura");
+        if (!puedeUsar(armadura)) {
+            throw new AccionInvalidaException(
+                    "La biologia o tecnologia de esta armadura pertenece a otra faccion.");
+        }
         if (armaduraEquipada != null) {
             throw new AccionInvalidaException("Ya hay una armadura equipada.");
         }

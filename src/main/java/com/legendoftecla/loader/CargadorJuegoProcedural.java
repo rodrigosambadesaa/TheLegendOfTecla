@@ -89,6 +89,8 @@ public final class CargadorJuegoProcedural extends CargadorJuegoBase {
             var posicion = libres.get(indice);
             Sectoid enemigo = new Sectoid("Sectoid-procedural-" + numero, posicion,
                     new Mochila(3, 12), 4);
+            enemigo.escalarSalud(dificultad.getMultiplicadorSaludEnemigo());
+            com.legendoftecla.engine.ArsenalEnemigo.asignar(enemigo, dificultad);
             juego.agregarEnemigo(enemigo);
             juego.getMapa().getCelda(posicion).agregarEnemigo(enemigo);
         }

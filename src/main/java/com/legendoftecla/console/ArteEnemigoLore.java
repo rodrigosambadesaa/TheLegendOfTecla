@@ -24,6 +24,11 @@ public final class ArteEnemigoLore {
                 "Tipo: " + tipoLore(enemigo),
                 arte(enemigo),
                 "Lore: " + descripcionLore(enemigo),
+                "Arma propia: " + enemigo.getArmasEquipadas().stream()
+                        .map(com.legendoftecla.model.items.Arma::getNombre)
+                        .findFirst().orElse("ataque biologico"),
+                "Armadura propia: " + (enemigo.getArmaduraEquipada() == null
+                        ? "proteccion natural" : enemigo.getArmaduraEquipada().getNombre()),
                 "------------------------------");
     }
 
@@ -37,7 +42,17 @@ public final class ArteEnemigoLore {
         if (enemigo instanceof HeavyFloater) {
             return "Heavy Floater";
         }
-        return "Hostil desconocido";
+        return switch (enemigo.getClass().getSimpleName()) {
+            case "Berserker" -> "Berserker";
+            case "Medic" -> "Sanitario xeno";
+            case "Sniper" -> "Francotirador xeno";
+            case "Pyro" -> "Incendiario xeno";
+            case "Scout" -> "Explorador xeno";
+            case "Commander" -> "Comandante xeno";
+            case "CommanderPrime" -> "Commander Prime";
+            case "PyroOverlord" -> "Pyro Overlord";
+            default -> "Hostil desconocido";
+        };
     }
 
     private static String descripcionLore(Enemigo enemigo) {
@@ -50,7 +65,25 @@ public final class ArteEnemigoLore {
         if (enemigo instanceof HeavyFloater) {
             return "Variante blindada de floater con armadura reforzada y mayor resistencia.";
         }
-        return "Entidad hostil sin clasificar en base de datos tactica.";
+        return switch (enemigo.getClass().getSimpleName()) {
+            case "Berserker" ->
+                    "Unidad de asalto con dermoplacas y garras oseas para romper la linea.";
+            case "Medic" ->
+                    "Simbionte sanitario que repara a su escuadra durante combates coordinados.";
+            case "Sniper" ->
+                    "Tirador de aguja de vacio que busca cobertura y objetivos vulnerables.";
+            case "Pyro" ->
+                    "Especialista termico que separa al escuadron rival mediante fuego.";
+            case "Scout" ->
+                    "Infiltrador sensorial que transmite contactos a la red enemiga.";
+            case "Commander" ->
+                    "Nodo de mando que sincroniza, protege y concentra el fuego de su grupo.";
+            case "CommanderPrime" ->
+                    "Centro de una red tactica capaz de fortificar e invocar refuerzos.";
+            case "PyroOverlord" ->
+                    "Jefe termico acorazado que convierte el terreno en un arma.";
+            default -> "Entidad hostil sin clasificar en base de datos tactica.";
+        };
     }
 
     private static String arte(Enemigo enemigo) {

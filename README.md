@@ -43,11 +43,18 @@ Implementacion en Java del proyecto de POO por entregas (P1, P2, P3) y con ampli
 - Puertas, credenciales, terminales, interruptores, barricadas, cobertura y cinco clases de trampas.
 - Municion finita, cargadores, recarga, intercambio atomico entre personajes y crafting extensible.
 - IA State/Strategy con ruido, memoria y ocho estados de alerta; seis roles enemigos y dos jefes por fases.
+- Arsenal enemigo exclusivo por lore: cada arquetipo usa su propia arma y armadura xeno,
+  incompatibles con jugador y aliados incluso cuando quedan como botin.
 - Misiones/objetivos opcionales, campana, XP, niveles, habilidades, logros y estadisticas por eventos.
 - Tres generadores procedurales reproducibles, savegames versionados y replay con validacion SHA-256.
 - Despliegue de escuadron unificado: jugador y aliados parten de la casilla inicial transitable;
   los aliados priorizan asistir al jugador y despues explorar, mientras los enemigos forman
   anillos de intercepcion mas exigentes cuando la partida incluye aliados.
+- Roles de escuadron: uno de cada cuatro aliados es medico, conserva reservas adicionales,
+  prioriza pacientes, botiquines y Toritos Rojos, y deja el combate en segundo plano.
+- Coordinacion enemiga adaptativa solo contra escuadrones: sanitarios, exploradores y mandos
+  curan, alertan, protegen y concentran fuego sobre miembros vulnerables; en solitario cada
+  enemigo conserva unicamente su conducta individual.
 
 ## Especificaciones y validación
 
@@ -212,6 +219,12 @@ exactamente esa cantidad. Por CLI se usan, por ejemplo, `--aliados auto` y
 1 y 100 con `--nivel-aliados 15`; cada nivel mejora salud, energia, vision de
 forma gradual y capacidad de carga. Si se activan, se elige tambien entre victoria de
 `solo_jugador` o de `jugador_y_aliados`, sin importar el orden de llegada.
+
+El juego asigna automaticamente un rol medico a uno de cada cuatro aliados
+(con un minimo de uno). El rol aparece en el panel de estado y se conserva al
+guardar la partida. Los medicos buscan primero pacientes, botiquines y Toritos
+Rojos conocidos; los combatientes les dejan esos suministros cuando hay un
+medico activo en el escuadron.
 
 El estado del escuadron muestra la puntuacion individual de cada aliado y su
 total. Cada puntuacion se actualiza durante la partida a partir de salud, energia,

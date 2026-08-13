@@ -16,6 +16,7 @@ public final class Arma extends Objeto {
     private int municionActual;
     private TipoMunicion tipoMunicion;
     private CategoriaArma categoria;
+    private FaccionEquipo faccion;
 
     /**
      * Ejecuta Arma.
@@ -43,11 +44,21 @@ public final class Arma extends Objeto {
     public Arma(String nombre, String descripcion, double peso, int danio,
             boolean dosManos, CategoriaArma categoria, TipoMunicion tipoMunicion,
             int capacidadCargador, int municionActual) {
+        this(nombre, descripcion, peso, danio, dosManos, categoria,
+                tipoMunicion, capacidadCargador, municionActual,
+                FaccionEquipo.HUMANA);
+    }
+
+    /** Crea un arma vinculada a una faccion concreta. */
+    public Arma(String nombre, String descripcion, double peso, int danio,
+            boolean dosManos, CategoriaArma categoria, TipoMunicion tipoMunicion,
+            int capacidadCargador, int municionActual, FaccionEquipo faccion) {
         super(nombre, descripcion, peso);
         setDanio(danio);
         setDosManos(dosManos);
         this.categoria = Validaciones.noNulo(categoria, "Categoria de arma");
         this.tipoMunicion = Validaciones.noNulo(tipoMunicion, "Tipo de municion");
+        this.faccion = Validaciones.noNulo(faccion, "Faccion del arma");
         validarCompatibilidad(categoria, tipoMunicion);
         if (tipoMunicion == TipoMunicion.INFINITA) {
             this.capacidadCargador = 0;
@@ -92,6 +103,14 @@ public final class Arma extends Objeto {
     public int getMunicionActual() { return municionActual; }
     public TipoMunicion getTipoMunicion() { return tipoMunicion; }
     public CategoriaArma getCategoria() { return categoria; }
+    /** @return bando capaz de utilizar la tecnologia del arma */
+    public FaccionEquipo getFaccion() { return faccion; }
+    /** @param faccion nueva procedencia tecnologica del arma */
+    public void setFaccion(FaccionEquipo faccion) {
+        this.faccion = Validaciones.noNulo(faccion, "Faccion del arma");
+    }
+    /** @return si el arma esta vinculada a anatomia o tecnologia enemiga */
+    public boolean esEnemiga() { return faccion == FaccionEquipo.ENEMIGA; }
     /** @param categoria nueva categoria compatible con la municion configurada */
     public void setCategoria(CategoriaArma categoria) {
         CategoriaArma validada = Validaciones.noNulo(categoria, "Categoria de arma");

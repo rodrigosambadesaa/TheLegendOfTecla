@@ -12,7 +12,7 @@ public final class EvaluadorTactico {
         AccionIA estado = enemigo.getControladorIA().decidir(contexto);
         if (enemigo instanceof EnemigoTactico tactico
                 && ((enemigo instanceof Medic && contexto.aliadoHerido())
-                || enemigo instanceof Commander
+                || (enemigo instanceof Commander && contexto.coordinacionActiva())
                 || (contexto.veJugador() && !contexto.armaVacia()))) {
             return tactico.decidirTactica(contexto);
         }

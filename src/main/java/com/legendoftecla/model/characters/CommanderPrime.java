@@ -15,12 +15,13 @@ public final class CommanderPrime extends Jefe implements EnemigoTactico {
         };
     }
     public AccionIA decidirTactica(ContextoIA contexto) {
-        TipoAccionIA accion = switch (getFase()) {
+        TipoAccionIA accion = !contexto.coordinacionActiva()
+                ? TipoAccionIA.ATACAR : switch (getFase()) {
             case UNO, TRES -> TipoAccionIA.PROTEGER;
             case DOS -> TipoAccionIA.ALERTAR;
             case FINAL -> TipoAccionIA.ATACAR;
         };
-        return new AccionIA(accion, contexto.juego().getJugador().getPosicion(),
+        return new AccionIA(accion, contexto.posicionObjetivo(),
                 habilidadActual());
     }
 }

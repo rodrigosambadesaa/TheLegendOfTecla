@@ -8,6 +8,6 @@ public final class Berserker extends Enemigo implements EnemigoTactico {
     }
     public AccionIA decidirTactica(ContextoIA contexto) {
         return new AccionIA(contexto.distanciaJugador() <= 1 ? TipoAccionIA.ATACAR
-                : TipoAccionIA.ACERCARSE, contexto.juego().getJugador().getPosicion(), "furia cuerpo a cuerpo");
+                : TipoAccionIA.ACERCARSE, contexto.posicionObjetivo(), "furia cuerpo a cuerpo");
     }
 }

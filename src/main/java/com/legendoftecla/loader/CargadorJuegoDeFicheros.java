@@ -151,6 +151,7 @@ public class CargadorJuegoDeFicheros extends CargadorJuegoBase {
                 String[] p = line.split(";");
                 Enemigo enemigo = crearEnemigoDesdePartes(mapa, p, procesados, randomEnemigos);
                 enemigo.escalarSalud(dificultad.getMultiplicadorSaludEnemigo());
+                com.legendoftecla.engine.ArsenalEnemigo.asignar(enemigo, dificultad);
                 mapa.getCelda(enemigo.getPosicion()).agregarEnemigo(enemigo);
                 juego.agregarEnemigo(enemigo);
                 procesados++;
@@ -161,6 +162,7 @@ public class CargadorJuegoDeFicheros extends CargadorJuegoBase {
                 String[] partes = new String[] { tipo, "Auto_" + procesados, "-1", "-1" };
                 Enemigo enemigo = crearEnemigoDesdePartes(mapa, partes, procesados, randomEnemigos);
                 enemigo.escalarSalud(dificultad.getMultiplicadorSaludEnemigo());
+                com.legendoftecla.engine.ArsenalEnemigo.asignar(enemigo, dificultad);
                 mapa.getCelda(enemigo.getPosicion()).agregarEnemigo(enemigo);
                 juego.agregarEnemigo(enemigo);
                 procesados++;

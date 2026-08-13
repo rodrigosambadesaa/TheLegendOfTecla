@@ -3,7 +3,7 @@ package com.legendoftecla.engine;
 import com.legendoftecla.model.characters.Enemigo;
 import com.legendoftecla.model.world.Celda;
 
-/** Deposita equipo y reservas exactamente una vez al morir un enemigo. */
+/** Deposita equipo xeno inutilizable y reservas exactamente una vez al morir. */
 public final class ServicioBotinEnemigo {
     private ServicioBotinEnemigo() { }
 
@@ -15,6 +15,11 @@ public final class ServicioBotinEnemigo {
             total++;
         }
         enemigo.setArmasEquipadas(java.util.List.of());
+        if (enemigo.getArmaduraEquipada() != null) {
+            celda.agregarObjeto(enemigo.getArmaduraEquipada());
+            enemigo.setArmaduraEquipada(null);
+            total++;
+        }
         for (var objeto : java.util.List.copyOf(enemigo.getMochila().getObjetos())) {
             celda.agregarObjeto(objeto);
             enemigo.getMochila().quitar(objeto);

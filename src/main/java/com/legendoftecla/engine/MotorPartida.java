@@ -60,6 +60,7 @@ public final class MotorPartida {
     private Map<Aliado, SituacionAliado> situacionesAliados;
     private Map<Aliado, Boolean> aliadosEnCombate;
     private boolean finalizada;
+    private boolean modoEspectador;
     private SistemaPuntuacion.EstadoFinalPartida estadoFinal;
     private int turnosAyudaAliados;
     private boolean avisoRescateEnergia;
@@ -88,6 +89,7 @@ public final class MotorPartida {
         setSituacionesAliados(situacionesIniciales);
         setAliadosEnCombate(combatesIniciales);
         setFinalizada(false);
+        setModoEspectador(false);
         setEstadoFinal(null);
         setTurnosAyudaAliados(0);
         setAvisoRescateEnergia(false);
@@ -177,6 +179,19 @@ public final class MotorPartida {
     /** @param finalizada estado de finalizacion */
     public void setFinalizada(boolean finalizada) { this.finalizada = finalizada; }
 
+    /** @return si la IA puede continuar la partida tras la muerte del jugador */
+    public boolean isModoEspectadorDisponible() {
+        return modoEspectador && !finalizada && hayAliadosActivos();
+    }
+
+    /** @return estado persistente del modo espectador */
+    public boolean isModoEspectador() { return modoEspectador; }
+
+    /** @param modoEspectador activa o desactiva la continuacion automatica */
+    public void setModoEspectador(boolean modoEspectador) {
+        this.modoEspectador = modoEspectador;
+    }
+
     /**
      * Obtiene el valor de {@code EstadoFinal}.
       * @return resultado de la operacion
@@ -221,7 +236,8 @@ public final class MotorPartida {
                 + "  Pasos " + juego.getPasos() + "/" + juego.getPasosMaximos()
                 + "  Formacion " + juego.getFormacionAliada().getEtiqueta()
                 + "  Efectos " + SistemaEstados.resumen(juego.getJugador())
-                + (turnosAyudaAliados > 0 ? "  Ayuda aliada " + turnosAyudaAliados : "");
+                + (turnosAyudaAliados > 0 ? "  Ayuda aliada " + turnosAyudaAliados : "")
+                + (modoEspectador ? "  MODO ESPECTADOR" : "");
     }
 
     /**
@@ -268,7 +284,7 @@ public final class MotorPartida {
       * @return resultado de la operacion
      */
     public boolean ejecutarComando(String linea) {
-        if (finalizada) {
+        if (finalizada || modoEspectador) {
             return false;
         }
         juego.getJugador().resetTurno();
@@ -330,6 +346,28 @@ public final class MotorPartida {
         setAvisoRescateEnergia(false);
         setEstadoFinal(null);
         setFinalizada(false);
+        setModoEspectador(false);
+    }
+
+    /**
+     * Ejecuta un turno completo de aliados, enemigos y entorno sin accion del jugador.
+     *
+     * @return {@code true} mientras la simulacion pueda seguir reproduciendose
+     */
+    public boolean avanzarTurnoEspectador() {
+        if (!isModoEspectadorDisponible()) {
+            evaluarFinEspectador();
+            return false;
+        }
+        SistemaEstados.iniciarTurno(juego);
+        ejecutarTurnoAliados();
+        ejecutarTurnoNPC(false);
+        avanzarOrdenAyuda();
+        SistemaIncendios.avanzarTurno(juego, random);
+        SistemaEstados.finalizarTurno(juego);
+        juego.registrarPaso();
+        evaluarFinEspectador();
+        return isModoEspectadorDisponible();
     }
 
     /**
@@ -360,6 +398,10 @@ public final class MotorPartida {
       * @return resultado de la operacion
      */
     public Set<Posicion> getEnemigosVisibles() {
+        if (modoEspectador) {
+            return juego.getEnemigos().stream().filter(enemigo -> enemigo.getSalud() > 0)
+                    .map(Enemigo::getPosicion).collect(java.util.stream.Collectors.toSet());
+        }
         Set<Posicion> visibles = new HashSet<>();
         Posicion jugadorPos = juego.getJugador().getPosicion();
         int vision = juego.getJugador().getRangoVision();
@@ -379,7 +421,9 @@ public final class MotorPartida {
         for (int f = 0; f < juego.getMapa().getFilas(); f++) {
             for (int c = 0; c < juego.getMapa().getColumnas(); c++) {
                 Posicion posicion = new Posicion(f, c);
-                if (SistemaIluminacion.hayLuz(juego, posicion)) iluminadas.add(posicion);
+                if (modoEspectador || SistemaIluminacion.hayLuz(juego, posicion)) {
+                    iluminadas.add(posicion);
+                }
             }
         }
         return iluminadas;
@@ -411,7 +455,11 @@ public final class MotorPartida {
             return;
         }
         if (juego.getJugador().getSalud() <= 0) {
-            finalizar(SistemaPuntuacion.EstadoFinalPartida.MUERTE);
+            if (hayAliadosActivos()) {
+                activarModoEspectador();
+            } else {
+                finalizar(SistemaPuntuacion.EstadoFinalPartida.MUERTE);
+            }
             return;
         }
         if (juego.getJugador().getEnergia() <= 0) {
@@ -432,11 +480,44 @@ public final class MotorPartida {
         }
     }
 
+    private void activarModoEspectador() {
+        if (modoEspectador) {
+            return;
+        }
+        setModoEspectador(true);
+        setTurnosAyudaAliados(0);
+        juego.getConsola().imprimirAdvertencia(
+                "El jugador ha caido. Pulsa Play para observar como los aliados continuan la partida.");
+    }
+
+    private void evaluarFinEspectador() {
+        if (finalizada || !modoEspectador) {
+            return;
+        }
+        if (!hayAliadosActivos()) {
+            if (juego.getAliadosExtraidos() > 0) {
+                juego.getConsola().imprimirInfo("La simulacion aliada termina con "
+                        + juego.getAliadosExtraidos() + " superviviente(s) evacuado(s).");
+            } else {
+                juego.getConsola().imprimirAdvertencia(
+                        "La simulacion aliada termina: no queda ningun miembro activo.");
+            }
+            finalizar(SistemaPuntuacion.EstadoFinalPartida.MUERTE);
+        } else if (juego.excedioPasos()) {
+            finalizar(SistemaPuntuacion.EstadoFinalPartida.SIN_PASOS);
+        }
+    }
+
+    private boolean hayAliadosActivos() {
+        return juego.getAliados().stream().anyMatch(aliado -> aliado.getSalud() > 0);
+    }
+
     private void finalizar(SistemaPuntuacion.EstadoFinalPartida estado) {
         if (finalizada) {
             return;
         }
         setFinalizada(true);
+        setModoEspectador(false);
         setEstadoFinal(Validaciones.noNulo(estado, "Estado final"));
         if (estado == SistemaPuntuacion.EstadoFinalPartida.VICTORIA) {
             juego.publicarEvento(new MisionCompletada(
@@ -489,7 +570,11 @@ public final class MotorPartida {
             int movimientos = jugadorDescansando || formacionDetectada
                     ? Math.max(1, random.nextInt(3)) : random.nextInt(3);
             for (int i = 0; i < movimientos; i++) {
-                Personaje objetivo = objetivoTactico == null ? juego.getJugador() : objetivoTactico;
+                Personaje objetivo = objetivoTactico == null
+                        ? objetivoEnemigoPorDefecto(enemigo) : objetivoTactico;
+                if (objetivo == null) {
+                    break;
+                }
                 int distancia = enemigo.getPosicion().distanciaManhattan(objetivo.getPosicion());
                 if (distancia <= enemigo.getRangoVision()
                         && juego.getMapa().hayLineaAtaque(enemigo.getPosicion(), objetivo.getPosicion())) {
@@ -588,7 +673,9 @@ public final class MotorPartida {
                 if (situacionesAliados.get(aliado) != SituacionAliado.FUERA_DE_COMBATE) {
                     cambiarSituacion(aliado, SituacionAliado.ACOMPANANDO);
                 }
-                Posicion destino = juego.getJugador().getPosicion().equals(juego.getMapa().getObjetivo())
+                Posicion destino = modoEspectador
+                        ? juego.getMapa().getObjetivo()
+                        : juego.getJugador().getPosicion().equals(juego.getMapa().getObjetivo())
                         ? juego.getMapa().getObjetivo()
                         : juego.getJugador().getPosicion();
                 moverAliadoHaciaObjetivo(aliado, destino);
@@ -617,7 +704,8 @@ public final class MotorPartida {
         if (!medico.esMedico()) {
             return false;
         }
-        if (asistirJugador(medico) || asistirAliadoPrioritario(medico)) {
+        if ((juego.getJugador().getSalud() > 0 && asistirJugador(medico))
+                || asistirAliadoPrioritario(medico)) {
             return true;
         }
         Personaje paciente = buscarPacientePara(medico);
@@ -645,7 +733,9 @@ public final class MotorPartida {
 
     private Personaje buscarPacientePara(Aliado medico) {
         List<Personaje> candidatos = new ArrayList<>();
-        candidatos.add(juego.getJugador());
+        if (juego.getJugador().getSalud() > 0) {
+            candidatos.add(juego.getJugador());
+        }
         juego.getAliados().stream().filter(aliado -> aliado.getSalud() > 0)
                 .forEach(candidatos::add);
         boolean tieneBotiquin = medico.getMochila().getObjetos().stream()
@@ -674,6 +764,9 @@ public final class MotorPartida {
 
     private boolean priorizarAyudaJugador(Aliado aliado) {
         Personaje jugador = juego.getJugador();
+        if (jugador.getSalud() <= 0) {
+            return false;
+        }
         if (asistirJugador(aliado)) {
             return true;
         }
@@ -1063,6 +1156,9 @@ public final class MotorPartida {
 
     private boolean asistirJugador(Aliado aliado) {
         Personaje jugador = juego.getJugador();
+        if (jugador.getSalud() <= 0) {
+            return false;
+        }
         if (aliado.getPosicion().distanciaManhattan(jugador.getPosicion()) > 1) {
             return false;
         }
@@ -1475,19 +1571,21 @@ public final class MotorPartida {
     }
 
     private boolean vePersonaje(Enemigo enemigo, Personaje personaje) {
-        return enemigo.getPosicion().distanciaManhattan(personaje.getPosicion()) <= enemigo.getRangoVision()
+        return personaje.getSalud() > 0
+                && enemigo.getPosicion().distanciaManhattan(
+                        personaje.getPosicion()) <= enemigo.getRangoVision()
                 && juego.getMapa().hayLineaAtaque(enemigo.getPosicion(), personaje.getPosicion());
     }
 
     private Personaje seleccionarObjetivoTactico(Enemigo enemigo) {
         List<Personaje> visibles = new ArrayList<>();
-        if (vePersonaje(enemigo, juego.getJugador())) {
+        if (juego.getJugador().getSalud() > 0 && vePersonaje(enemigo, juego.getJugador())) {
             visibles.add(juego.getJugador());
         }
         juego.getAliados().stream().filter(aliado -> aliado.getSalud() > 0)
                 .filter(aliado -> vePersonaje(enemigo, aliado)).forEach(visibles::add);
         if (visibles.isEmpty()) {
-            return juego.getJugador();
+            return objetivoEnemigoPorDefecto(enemigo);
         }
         if (juego.getFormacionAliada() == FormacionAliada.DEFENSIVA) {
             return visibles.stream().min(java.util.Comparator.comparingDouble(personaje ->
@@ -1495,6 +1593,16 @@ public final class MotorPartida {
         }
         return visibles.stream().min(java.util.Comparator.comparingInt(personaje ->
                 enemigo.getPosicion().distanciaManhattan(personaje.getPosicion()))).orElseThrow();
+    }
+
+    private Personaje objetivoEnemigoPorDefecto(Enemigo enemigo) {
+        if (juego.getJugador().getSalud() > 0) {
+            return juego.getJugador();
+        }
+        return juego.getAliados().stream().filter(aliado -> aliado.getSalud() > 0)
+                .min(java.util.Comparator.comparingInt(aliado -> enemigo.getPosicion()
+                        .distanciaManhattan(aliado.getPosicion())))
+                .orElse(null);
     }
 
     private int estimarRiesgoRecibido(Aliado aliado) {

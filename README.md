@@ -35,6 +35,10 @@ Implementacion en Java del proyecto de POO por entregas (P1, P2, P3) y con ampli
 - Energia inicial proporcional a la ruta transitable real en mapas grandes, tanto para jugador como aliados.
 - Bucle principal con captura de excepciones.
 - Interfaz grafica completa en una unica ventana para los tres modos.
+- Escritorio tactico con mapa, estado, acciones, eventos y comandos en ventanas
+  movibles, redimensionables, minimizables y maximizables.
+- Modo espectador tras la muerte del jugador: si quedan aliados, el boton `Play`
+  reproduce a ritmo normal sus turnos y los enemigos hasta el desenlace.
 - Mapa grafico con celdas, jugador, objetivo, objetos, aliados y enemigos.
 - Botones para coger, usar, tirar, equipar, desequipar, atacar, descansar, lanzar explosivos y pedir ayuda.
 - Editor grafico de escenarios completos con persistencia JSON.

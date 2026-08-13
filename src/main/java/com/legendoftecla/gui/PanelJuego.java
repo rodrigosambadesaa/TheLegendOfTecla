@@ -15,14 +15,16 @@ import com.legendoftecla.model.world.Posicion;
 import com.legendoftecla.validation.Validaciones;
 
 import javax.swing.BorderFactory;
+import javax.swing.JDesktopPane;
 import javax.swing.JButton;
+import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.util.ArrayList;
@@ -61,6 +63,9 @@ public final class PanelJuego extends JPanel {
      * Valor publico {@code ejecutar} utilizado por el modelo del juego.
      */
     private final JButton ejecutar;
+    private final JButton reproducir;
+    private final Timer temporizadorEspectador;
+    private final JDesktopPane escritorio;
     /**
      * Valor publico {@code coger} utilizado por el modelo del juego.
      */
@@ -102,20 +107,15 @@ public final class PanelJuego extends JPanel {
         setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
         panelEstado = new PanelEstado();
-        add(panelEstado, BorderLayout.NORTH);
-
         mapaPanel = new MapaGraficoPanel(motor);
         scrollMapa = new JScrollPane(mapaPanel);
         scrollMapa.getViewport().setBackground(new Color(20, 24, 31));
 
         registro = new PanelRegistro();
-        panelAcciones = crearPanelAcciones(volver);
-
-        JPanel seguimiento = new JPanel(new BorderLayout(6, 6));
-        seguimiento.add(panelAcciones, BorderLayout.NORTH);
-        JPanel lateral = new JPanel(new BorderLayout(6, 6));
-        lateral.add(seguimiento, BorderLayout.NORTH);
-        lateral.add(registro, BorderLayout.CENTER);
+        panelAcciones = crearPanelAcciones(() -> {
+            detenerReproduccion();
+            volver.run();
+        });
 
         JLabel leyendaMapa = new JLabel("J jugador · △ aliado · ◆ enemigo · 🔥 fuego · ? oscuridad · "
                 + "antorcha naranja · fuente azul · suelo marrón madera");
@@ -123,20 +123,40 @@ public final class PanelJuego extends JPanel {
         JPanel mapaConLeyenda = new JPanel(new BorderLayout());
         mapaConLeyenda.add(scrollMapa, BorderLayout.CENTER);
         mapaConLeyenda.add(leyendaMapa, BorderLayout.SOUTH);
-        JSplitPane divisor = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, mapaConLeyenda, lateral);
-        divisor.setResizeWeight(0.72);
-        add(divisor, BorderLayout.CENTER);
 
         comando = new JTextField();
         comando.setName("comando.entrada");
         comando.addActionListener(e -> ejecutarTexto());
         ejecutar = new JButton("Ejecutar comando");
         ejecutar.addActionListener(e -> ejecutarTexto());
+        reproducir = new JButton("▶ Play");
+        reproducir.setName("espectador.play");
+        reproducir.addActionListener(e -> alternarReproduccion());
+        temporizadorEspectador = new Timer(900, e -> avanzarReproduccion());
+        temporizadorEspectador.setInitialDelay(0);
         JPanel entrada = new JPanel(new BorderLayout(6, 0));
         entrada.add(new JLabel("Comando:"), BorderLayout.WEST);
         entrada.add(comando, BorderLayout.CENTER);
-        entrada.add(ejecutar, BorderLayout.EAST);
-        add(entrada, BorderLayout.SOUTH);
+        JPanel controles = new JPanel(new java.awt.GridLayout(1, 2, 6, 0));
+        controles.add(reproducir);
+        controles.add(ejecutar);
+        entrada.add(controles, BorderLayout.EAST);
+
+        escritorio = new JDesktopPane();
+        escritorio.setName("juego.escritorio");
+        escritorio.setPreferredSize(new java.awt.Dimension(1460, 860));
+        escritorio.setBackground(new Color(31, 36, 46));
+        add(escritorio, BorderLayout.CENTER);
+        agregarVentana("Mapa tactico", "ventana.mapa", mapaConLeyenda,
+                8, 8, 870, 570);
+        agregarVentana("Estado del escuadron", "ventana.estado", panelEstado,
+                888, 8, 540, 210);
+        agregarVentana("Acciones", "ventana.acciones", new JScrollPane(panelAcciones),
+                888, 228, 540, 340);
+        agregarVentana("Registro de eventos", "ventana.registro", registro,
+                8, 588, 870, 230);
+        agregarVentana("Comandos y reproduccion", "ventana.comandos", entrada,
+                888, 588, 540, 150);
 
         consola.getHistorial().forEach(this::agregarMensaje);
         consola.setReceptor(this::agregarMensaje);
@@ -186,6 +206,29 @@ public final class PanelJuego extends JPanel {
     /** @param pedirAyuda boton no nulo */
     public void setPedirAyuda(JButton pedirAyuda) {
         this.pedirAyuda = Validaciones.noNulo(pedirAyuda, "Boton pedir ayuda");
+    }
+    /** @return boton que reproduce los turnos posteriores a la muerte del jugador */
+    public JButton getReproducir() { return reproducir; }
+
+    /** @return superficie que contiene todas las ventanas movibles */
+    public JDesktopPane getEscritorio() { return escritorio; }
+
+    private void agregarVentana(String titulo, String nombre, java.awt.Component contenido,
+            int x, int y, int ancho, int alto) {
+        JInternalFrame ventana = new JInternalFrame(titulo, true, false, true, true);
+        ventana.setName(nombre);
+        ventana.setContentPane(contenido instanceof java.awt.Container contenedor
+                ? contenedor : envolver(contenido));
+        ventana.setBounds(x, y, ancho, alto);
+        ventana.setMinimumSize(new java.awt.Dimension(260, 120));
+        ventana.setVisible(true);
+        escritorio.add(ventana);
+    }
+
+    private JPanel envolver(java.awt.Component componente) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(componente, BorderLayout.CENTER);
+        return panel;
     }
     private PanelAcciones crearPanelAcciones(Runnable volver) {
         PanelAcciones acciones = new PanelAcciones(this::ejecutar,
@@ -389,10 +432,45 @@ public final class PanelJuego extends JPanel {
         centrarJugador();
     }
 
+    private void alternarReproduccion() {
+        if (temporizadorEspectador.isRunning()) {
+            detenerReproduccion();
+        } else if (motor.isModoEspectadorDisponible()) {
+            reproducir.setText("⏸ Pausa");
+            temporizadorEspectador.start();
+        }
+    }
+
+    private void avanzarReproduccion() {
+        boolean continua = motor.avanzarTurnoEspectador();
+        actualizarVista();
+        centrarJugador();
+        if (!continua) {
+            detenerReproduccion();
+        }
+    }
+
+    private void detenerReproduccion() {
+        if (temporizadorEspectador != null) {
+            temporizadorEspectador.stop();
+        }
+        if (reproducir != null) {
+            reproducir.setText("▶ Play");
+        }
+    }
+
+    /** Actualiza controles y mapa tras un cambio de estado externo al panel. */
+    public void refrescarVista() {
+        actualizarVista();
+    }
+
     private void actualizarVista() {
         panelEstado.actualizar(motor);
         mapaPanel.repaint();
-        boolean activa = !motor.isFinalizada();
+        boolean espectador = motor.isModoEspectadorDisponible();
+        boolean activa = !motor.isFinalizada() && !espectador;
+        reproducir.setVisible(espectador || temporizadorEspectador.isRunning());
+        reproducir.setEnabled(espectador);
         comando.setEnabled(activa);
         ejecutar.setEnabled(activa);
         coger.setEnabled(activa && !objetosCeldaJugadorVisibles().isEmpty());
@@ -444,9 +522,13 @@ public final class PanelJuego extends JPanel {
     }
 
     private void centrarJugador() {
-        Posicion jugador = motor.getJuego().getJugador().getPosicion();
-        int x = jugador.getColumna() * 32;
-        int y = jugador.getFila() * 32;
+        Posicion centro = motor.isModoEspectadorDisponible()
+                ? motor.getJuego().getAliados().stream().filter(aliado -> aliado.getSalud() > 0)
+                        .map(Personaje::getPosicion).findFirst()
+                        .orElse(motor.getJuego().getJugador().getPosicion())
+                : motor.getJuego().getJugador().getPosicion();
+        int x = centro.getColumna() * 32;
+        int y = centro.getFila() * 32;
         mapaPanel.scrollRectToVisible(new java.awt.Rectangle(x - 160, y - 120, 352, 272));
     }
 

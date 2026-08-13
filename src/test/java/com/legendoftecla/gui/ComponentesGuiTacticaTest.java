@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.JTextArea;
+import javax.swing.JInternalFrame;
 import javax.swing.SwingUtilities;
 import java.awt.Component;
 import java.awt.Container;
@@ -55,6 +56,31 @@ class ComponentesGuiTacticaTest {
 
         assertEquals(java.util.List.of("pedir ayuda"), ejecutadas);
         assertNotNull(panel[0].getLanzarExplosivo());
+    }
+
+    @Test
+    void juegoExponeVentanasMoviblesYPlayParaContinuarConAliados() throws Exception {
+        Juego juego = TestFixtures.juegoBasico(TestFixtures.consola());
+        Aliado aliado = new Aliado("A", juego.getMapa().getInicio(), new Mochila(2, 10), 3);
+        juego.agregarAliado(aliado);
+        juego.getMapa().getCelda(aliado.getPosicion()).agregarAliado(aliado);
+        MotorPartida motor = new MotorPartida(juego);
+        juego.getJugador().recibirDanio(juego.getJugador().getSaludMaxima());
+        motor.ejecutarComando("mirar");
+        PanelJuego[] panel = new PanelJuego[1];
+
+        SwingUtilities.invokeAndWait(() -> panel[0] = new PanelJuego(
+                motor, new ConsolaGrafica(), () -> { }));
+
+        JInternalFrame[] ventanas = panel[0].getEscritorio().getAllFrames();
+        assertEquals(5, ventanas.length);
+        for (JInternalFrame ventana : ventanas) {
+            assertTrue(ventana.isResizable());
+            assertTrue(ventana.isMaximizable());
+            assertTrue(ventana.isIconifiable());
+        }
+        assertTrue(panel[0].getReproducir().isVisible());
+        assertTrue(panel[0].getReproducir().isEnabled());
     }
 
     private Component buscar(Container raiz, String nombre) {

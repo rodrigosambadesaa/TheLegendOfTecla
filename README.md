@@ -46,6 +46,13 @@ Implementacion en Java del proyecto de POO por entregas (P1, P2, P3) y con ampli
 - Nueve efectos temporales con duracion, acumulacion e interacciones entre fuego, agua y descanso.
 - Puertas, credenciales, terminales, interruptores, barricadas, cobertura y cinco clases de trampas.
 - Municion finita, cargadores, recarga, intercambio atomico entre personajes y crafting extensible.
+- Catalogo de mas de 30 armas diferenciadas: espadas de una y dos manos, cuchillos,
+  arrojadizas, arcos, ballestas, pistolas, subfusiles, escopetas, rifles de asalto y
+  precision, ametralladoras, lanzacohetes, energia y granadas. El botin recorre el
+  catalogo sin repetir modelo durante una vuelta completa.
+- La precision pertenece al tirador y escala por clase, nivel y estados; las armas
+  definen dano, alcance, peso, cargador, municion y penetracion. La armadura descuenta
+  su defensa efectiva despues de aplicar esa penetracion.
 - IA State/Strategy con ruido, memoria y ocho estados de alerta; seis roles enemigos y dos jefes por fases.
 - Arsenal enemigo exclusivo por lore: cada arquetipo usa su propia arma y armadura xeno,
   incompatibles con jugador y aliados incluso cuando quedan como botin.
@@ -59,9 +66,9 @@ Implementacion en Java del proyecto de POO por entregas (P1, P2, P3) y con ampli
 - Coordinacion enemiga adaptativa solo contra escuadrones: sanitarios, exploradores y mandos
   curan, alertan, protegen y concentran fuego sobre miembros vulnerables; en solitario cada
   enemigo conserva unicamente su conducta individual.
-- Escalado numerico justo: la fuerza enemiga nunca baja de la amenaza original y crece
-  proporcionalmente con los aliados (`50` aliados generan `50` enemigos en dificultad normal),
-  aplicando despues el multiplicador de dificultad y distribuyendo refuerzos en celdas transitables.
+- Escalado numerico justo: la fuerza enemiga crece proporcionalmente con los aliados,
+  pero al finalizar el despliegue nunca supera al bando aliado contando al jugador.
+  Cada bando admite como maximo 5.000 combatientes (4.999 aliados + jugador).
 - Suministros escalados por poblacion: al aumentar aliados y enemigos crecen todas las familias
   de objetos del mapa, con lotes equilibrados y distribuidos por celdas transitables.
 
@@ -221,13 +228,21 @@ Al iniciar el juego, el modo se elige con:
 - `3`: carga desde ficheros.
 - `4`: mapa procedural reproducible (por CLI: `--modo procedural --seed 12345`).
 
-En todos los modos puede elegirse `no`, `auto` o una cantidad entre 1 y 1000.
+En todos los modos puede elegirse `no`, `auto` o una cantidad entre 1 y 4.999.
 `auto` calcula el numero segun el mapa y la dificultad; una cifra despliega
 exactamente esa cantidad. Por CLI se usan, por ejemplo, `--aliados auto` y
 `--aliados 12`. El nivel comun puede dejarse automatico o personalizarse entre
 1 y 100 con `--nivel-aliados 15`; cada nivel mejora salud, energia, vision de
 forma gradual y capacidad de carga. Si se activan, se elige tambien entre victoria de
 `solo_jugador` o de `jugador_y_aliados`, sin importar el orden de llegada.
+
+El nivel inicial del jugador se elige siempre, también en solitario, con el selector
+de la GUI, el asistente de consola o `--nivel-jugador 25`. Por defecto los aliados
+pueden sustituir sus propias armas y armaduras por opciones mejores y entregar al
+jugador municion compatible incluso cuando este conserva un cargador lleno pero poca
+reserva. Puede desactivarse con `--sin-mejoras-aliados` y `--sin-municion-aliada`.
+Los campos numéricos y la entrada de comandos aceptan tanto la fila superior de
+números como `NumPad 0-9` (con Num Lock), sin duplicar dígitos.
 
 El juego asigna automaticamente un rol medico a uno de cada cuatro aliados
 (con un minimo de uno). El rol aparece en el panel de estado y se conserva al
@@ -236,13 +251,14 @@ Rojos conocidos; los combatientes les dejan esos suministros cuando hay un
 medico activo en el escuadron.
 
 La cantidad enemiga tambien se adapta a la cantidad aliada. En dificultad
-normal se usa una proporcion 1:1; muy facil aplica `x0.5`, facil `x0.75`,
+Antes del limite de bando se usa una proporcion 1:1; muy facil aplica `x0.5`, facil `x0.75`,
 dificil `x1.25`, muy dificil `x1.5`, pesadilla `x1.8` y demente `x2.2`.
-Nunca se eliminan los enemigos propios del escenario si ya superan ese minimo.
+Al cerrar el despliegue, los enemigos sobrantes se retiran deterministamente para
+cumplir `enemigos <= aliados + jugador`; los refuerzos tampoco pueden romperlo.
 
 La suite incluye pruebas de memoria en JVM aisladas. El escenario defensivo
-maximo (1.000 aliados y 2.200 enemigos armados) debe generarse, mostrar su
-estado y completar guardado/carga con un heap de 256 MiB. Otra prueba crea y
+maximo (4.999 aliados + jugador contra 5.000 enemigos armados) debe generarse,
+mostrar su estado y completar guardado/carga con un heap de 512 MiB. Otra prueba crea y
 libera seis partidas grandes consecutivas con 128 MiB para detectar retenciones
 de entidades. Ambas se ejecutan automaticamente con `mvn clean verify`.
 

@@ -76,6 +76,20 @@ class ServiciosMotorRefactorTest {
     }
 
     @Test
+    void registroSustituyeInstantaneasValidasSinExponerMutabilidad() {
+        Aliado aliado = new Aliado("Ada", new Posicion(1, 1), new Mochila(3, 10), 2);
+        RegistroEstadoAliados registro = new RegistroEstadoAliados();
+
+        registro.setSituaciones(Map.of(aliado, SituacionAliado.ACOMPANANDO));
+        registro.setCombates(Map.of(aliado, true));
+
+        assertEquals(SituacionAliado.ACOMPANANDO, registro.getSituaciones().get(aliado));
+        assertEquals(true, registro.getCombates().get(aliado));
+        assertThrows(UnsupportedOperationException.class,
+                () -> registro.getSituaciones().clear());
+    }
+
+    @Test
     void indiceEspacialBuscaPorDistanciaYRespetaRadio() {
         Aliado cercano = new Aliado("Cercano", new Posicion(2, 3), new Mochila(3, 10), 2);
         Aliado lejano = new Aliado("Lejano", new Posicion(8, 8), new Mochila(3, 10), 2);

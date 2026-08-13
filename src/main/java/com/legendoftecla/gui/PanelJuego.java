@@ -34,6 +34,7 @@ import java.util.Set;
 
 /** Vista completa de juego: mapa, estado, acciones, comandos y registro. */
 public final class PanelJuego extends JPanel {
+    private static final int RETARDO_TURBO_MS = 100;
     /**
      * Valor publico {@code motor} utilizado por el modelo del juego.
      */
@@ -64,6 +65,7 @@ public final class PanelJuego extends JPanel {
      */
     private final JButton ejecutar;
     private final JButton reproducir;
+    private final JLabel resultadoEspectador;
     private final Timer temporizadorEspectador;
     private final JDesktopPane escritorio;
     /**
@@ -129,11 +131,15 @@ public final class PanelJuego extends JPanel {
         comando.addActionListener(e -> ejecutarTexto());
         ejecutar = new JButton("Ejecutar comando");
         ejecutar.addActionListener(e -> ejecutarTexto());
-        reproducir = new JButton("▶ Play");
+        reproducir = new JButton("▶ Turbo");
         reproducir.setName("espectador.play");
         reproducir.addActionListener(e -> alternarReproduccion());
-        temporizadorEspectador = new Timer(900, e -> avanzarReproduccion());
+        temporizadorEspectador = new Timer(RETARDO_TURBO_MS, e -> avanzarReproduccion());
         temporizadorEspectador.setInitialDelay(0);
+        resultadoEspectador = new JLabel("", JLabel.CENTER);
+        resultadoEspectador.setName("espectador.resultado");
+        resultadoEspectador.setFont(resultadoEspectador.getFont().deriveFont(
+                java.awt.Font.BOLD, 17f));
         JPanel entrada = new JPanel(new BorderLayout(6, 0));
         entrada.add(new JLabel("Comando:"), BorderLayout.WEST);
         entrada.add(comando, BorderLayout.CENTER);
@@ -141,6 +147,7 @@ public final class PanelJuego extends JPanel {
         controles.add(reproducir);
         controles.add(ejecutar);
         entrada.add(controles, BorderLayout.EAST);
+        entrada.add(resultadoEspectador, BorderLayout.SOUTH);
 
         escritorio = new JDesktopPane();
         escritorio.setName("juego.escritorio");
@@ -209,6 +216,12 @@ public final class PanelJuego extends JPanel {
     }
     /** @return boton que reproduce los turnos posteriores a la muerte del jugador */
     public JButton getReproducir() { return reproducir; }
+
+    /** @return etiqueta persistente con el bando ganador */
+    public JLabel getResultadoEspectador() { return resultadoEspectador; }
+
+    /** @return intervalo en milisegundos de la reproduccion turbo */
+    public int getRetardoReproduccion() { return temporizadorEspectador.getDelay(); }
 
     /** @return superficie que contiene todas las ventanas movibles */
     public JDesktopPane getEscritorio() { return escritorio; }
@@ -436,7 +449,7 @@ public final class PanelJuego extends JPanel {
         if (temporizadorEspectador.isRunning()) {
             detenerReproduccion();
         } else if (motor.isModoEspectadorDisponible()) {
-            reproducir.setText("⏸ Pausa");
+            reproducir.setText("⏸ Pausa turbo");
             temporizadorEspectador.start();
         }
     }
@@ -455,7 +468,7 @@ public final class PanelJuego extends JPanel {
             temporizadorEspectador.stop();
         }
         if (reproducir != null) {
-            reproducir.setText("▶ Play");
+            reproducir.setText("▶ Turbo");
         }
     }
 
@@ -469,7 +482,13 @@ public final class PanelJuego extends JPanel {
         mapaPanel.repaint();
         boolean espectador = motor.isModoEspectadorDisponible();
         boolean activa = !motor.isFinalizada() && !espectador;
-        reproducir.setVisible(espectador || temporizadorEspectador.isRunning());
+        MotorPartida.ResultadoBatalla resultado = motor.getResultadoBatalla();
+        resultadoEspectador.setVisible(resultado != null);
+        resultadoEspectador.setText(resultado == null ? "" : resultado.getEtiqueta());
+        resultadoEspectador.setForeground(resultado == MotorPartida.ResultadoBatalla.VICTORIA_HUMANA
+                ? new Color(20, 125, 55) : new Color(190, 45, 45));
+        reproducir.setVisible(espectador
+                || temporizadorEspectador.isRunning() && resultado == null);
         reproducir.setEnabled(espectador);
         comando.setEnabled(activa);
         ejecutar.setEnabled(activa);

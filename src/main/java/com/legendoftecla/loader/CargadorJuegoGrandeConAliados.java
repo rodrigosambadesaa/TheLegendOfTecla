@@ -118,6 +118,8 @@ public class CargadorJuegoGrandeConAliados extends CargadorJuegoBase {
                         new Random(5200L + varianteMapa), "AliadoAtlasV" + varianteMapa,
                         cantidadAliados, nivelAliados)
                 : 0;
+        GeneradorSuministrosPoblacion.poblar(
+                juego, new Random(7200L + varianteMapa));
         consola.imprimirInfo("Dificultad: " + dificultad.getEtiqueta()
                 + " | variante=" + varianteMapa
                 + " | aliados=" + aliadosGenerados

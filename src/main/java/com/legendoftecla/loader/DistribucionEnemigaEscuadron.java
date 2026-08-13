@@ -20,7 +20,7 @@ import com.legendoftecla.model.world.Posicion;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +41,7 @@ final class DistribucionEnemigaEscuadron {
                 dificultad.ajustarCantidadEnemigos(cantidadAliados));
         int agregados = agregarRefuerzos(
                 juego, random, dificultad, objetivo - originales);
-        endurecer(juego, random, cantidadAliados);
+        dispersar(juego, random);
         return new ResultadoEquilibrio(
                 originales, objetivo, agregados, juego.getEnemigos().size());
     }
@@ -66,19 +66,29 @@ final class DistribucionEnemigaEscuadron {
 
     private static List<Posicion> posicionesDeDespliegue(Mapa mapa) {
         Map<Posicion, Integer> distancias = calcularDistancias(mapa);
-        int radioSeguro = Math.min(3, Math.max(1,
-                distancias.values().stream().mapToInt(Integer::intValue).max().orElse(0) / 8));
-        List<Posicion> posiciones = distancias.entrySet().stream()
-                .filter(entrada -> entrada.getValue() >= radioSeguro)
-                .map(Map.Entry::getKey)
-                .filter(posicion -> !posicion.equals(mapa.getInicio())
-                        && !posicion.equals(mapa.getObjetivo()))
-                .toList();
-        if (!posiciones.isEmpty()) return posiciones;
+        int radioDeseado = calcularRadioSeguro(distancias);
+        for (int radio = radioDeseado; radio >= 2; radio--) {
+            int distanciaMinima = radio;
+            List<Posicion> posiciones = distancias.entrySet().stream()
+                    .filter(entrada -> entrada.getValue() >= distanciaMinima)
+                    .map(Map.Entry::getKey)
+                    .filter(posicion -> posicion.distanciaManhattan(mapa.getInicio())
+                            >= distanciaMinima)
+                    .filter(posicion -> posicion.distanciaManhattan(mapa.getObjetivo()) >= 2)
+                    .filter(posicion -> !posicion.equals(mapa.getInicio())
+                            && !posicion.equals(mapa.getObjetivo()))
+                    .toList();
+            if (!posiciones.isEmpty()) return posiciones;
+        }
         return distancias.keySet().stream()
                 .filter(posicion -> !posicion.equals(mapa.getInicio())
                         && !posicion.equals(mapa.getObjetivo()))
                 .toList();
+    }
+
+    private static int calcularRadioSeguro(Map<Posicion, Integer> distancias) {
+        int alcanceMapa = distancias.values().stream().mapToInt(Integer::intValue).max().orElse(0);
+        return Math.min(20, Math.max(4, alcanceMapa / 4));
     }
 
     private static Posicion posicionMenosOcupada(Juego juego,
@@ -106,47 +116,52 @@ final class DistribucionEnemigaEscuadron {
         };
     }
 
-    private static void endurecer(Juego juego, Random random, int cantidadAliados) {
+    private static void dispersar(Juego juego, Random random) {
         if (juego.getEnemigos().isEmpty()) {
             return;
         }
         Mapa mapa = juego.getMapa();
-        Map<Posicion, Integer> distancias = calcularDistancias(mapa);
-        int distanciaMaxima = distancias.values().stream().mapToInt(Integer::intValue).max().orElse(0);
-        int radioSeguro = Math.min(3, Math.max(1, distanciaMaxima / 8));
-        int limitePresion = Math.max(radioSeguro + 2, distanciaMaxima / 2);
-
-        List<Posicion> destinos = new ArrayList<>();
-        for (Map.Entry<Posicion, Integer> entrada : distancias.entrySet()) {
-            Posicion posicion = entrada.getKey();
-            int distancia = entrada.getValue();
-            if (distancia >= radioSeguro && distancia <= limitePresion
-                    && !posicion.equals(mapa.getInicio())
-                    && !posicion.equals(mapa.getObjetivo())
-                    && mapa.getCelda(posicion).getAliados().isEmpty()
-                    && mapa.getCelda(posicion).getEnemigos().isEmpty()) {
-                destinos.add(posicion);
-            }
-        }
-        java.util.Collections.shuffle(destinos, random);
-        destinos.sort(Comparator.comparingInt(posicion -> distancias.get(posicion)));
-
-        List<Enemigo> candidatos = new ArrayList<>(juego.getEnemigos());
-        java.util.Collections.shuffle(candidatos, random);
-        candidatos.sort(Comparator.comparingInt((Enemigo enemigo) ->
-                distancias.getOrDefault(enemigo.getPosicion(), Integer.MAX_VALUE)).reversed());
-        int cantidad = Math.min(Math.min(cantidadAliados, candidatos.size()), destinos.size());
-        for (int indice = 0; indice < cantidad; indice++) {
-            Enemigo enemigo = candidatos.get(indice);
-            Posicion destino = destinos.get(indice);
-            int distanciaActual = distancias.getOrDefault(enemigo.getPosicion(), Integer.MAX_VALUE);
-            if (distancias.get(destino) >= distanciaActual) {
-                continue;
-            }
-            mapa.getCelda(enemigo.getPosicion()).quitarEnemigo(enemigo);
+        List<Posicion> destinos = distribuirPorSectores(
+                posicionesDeDespliegue(mapa), mapa, random);
+        if (destinos.isEmpty()) return;
+        List<Enemigo> enemigos = new ArrayList<>(juego.getEnemigos());
+        enemigos.forEach(enemigo -> mapa.getCelda(enemigo.getPosicion()).quitarEnemigo(enemigo));
+        for (int indice = 0; indice < enemigos.size(); indice++) {
+            Enemigo enemigo = enemigos.get(indice);
+            Posicion destino = destinos.get(indice % destinos.size());
             enemigo.setPosicion(destino);
             mapa.getCelda(destino).agregarEnemigo(enemigo);
         }
+    }
+
+    private static List<Posicion> distribuirPorSectores(List<Posicion> posiciones,
+            Mapa mapa, Random random) {
+        int divisiones = 4;
+        Map<Integer, List<Posicion>> sectores = new HashMap<>();
+        for (Posicion posicion : posiciones) {
+            int sectorFila = Math.min(divisiones - 1,
+                    posicion.getFila() * divisiones / mapa.getFilas());
+            int sectorColumna = Math.min(divisiones - 1,
+                    posicion.getColumna() * divisiones / mapa.getColumnas());
+            sectores.computeIfAbsent(sectorFila * divisiones + sectorColumna,
+                    clave -> new ArrayList<>()).add(posicion);
+        }
+        sectores.values().forEach(lista -> Collections.shuffle(lista, random));
+        List<Integer> claves = new ArrayList<>(sectores.keySet());
+        Collections.shuffle(claves, random);
+        List<Posicion> resultado = new ArrayList<>(posiciones.size());
+        boolean quedanPosiciones = true;
+        while (quedanPosiciones) {
+            quedanPosiciones = false;
+            for (Integer clave : claves) {
+                List<Posicion> sector = sectores.get(clave);
+                if (!sector.isEmpty()) {
+                    resultado.add(sector.remove(sector.size() - 1));
+                    quedanPosiciones = true;
+                }
+            }
+        }
+        return resultado;
     }
 
     /** Resumen del ajuste aplicado para consola, pruebas y telemetria. */

@@ -101,6 +101,9 @@ class ComponentesGuiTacticaTest {
         }
         assertTrue(panel[0].getReproducir().isVisible());
         assertTrue(panel[0].getReproducir().isEnabled());
+        assertTrue(panel[0].getReproducir().getText().contains("Turbo"));
+        assertEquals(100, panel[0].getRetardoReproduccion());
+        assertNotNull(panel[0].getResultadoEspectador());
     }
 
     private Component buscar(Container raiz, String nombre) {

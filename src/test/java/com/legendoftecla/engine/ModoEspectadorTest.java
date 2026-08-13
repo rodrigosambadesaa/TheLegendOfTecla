@@ -41,6 +41,30 @@ class ModoEspectadorTest {
         assertTrue(motor.isFinalizada());
         assertFalse(motor.isModoEspectadorDisponible());
         assertEquals(1, juego.getAliadosExtraidos());
+        assertEquals(SistemaPuntuacion.EstadoFinalPartida.VICTORIA, motor.getEstadoFinal());
+        assertEquals(MotorPartida.ResultadoBatalla.VICTORIA_HUMANA,
+                motor.getResultadoBatalla());
+        assertTrue(consola.salida().contains("VICTORIA HUMANA"));
+    }
+
+    @Test
+    void laEliminacionDelEscuadronProduceVictoriaEnemiga() {
+        TestFixtures.CapturingConsole consola = TestFixtures.consola();
+        Juego juego = TestFixtures.juegoBasico(consola);
+        Aliado aliado = new Aliado("Ultimo aliado", juego.getMapa().getInicio(),
+                new Mochila(4, 20), 3);
+        juego.agregarAliado(aliado);
+        juego.getMapa().getCelda(aliado.getPosicion()).agregarAliado(aliado);
+        MotorPartida motor = new MotorPartida(juego);
+
+        juego.getJugador().recibirDanio(juego.getJugador().getSaludMaxima());
+        motor.ejecutarComando("mirar");
+        aliado.recibirDanio(aliado.getSaludMaxima());
+
+        assertFalse(motor.avanzarTurnoEspectador());
         assertEquals(SistemaPuntuacion.EstadoFinalPartida.MUERTE, motor.getEstadoFinal());
+        assertEquals(MotorPartida.ResultadoBatalla.VICTORIA_ENEMIGA,
+                motor.getResultadoBatalla());
+        assertTrue(consola.salida().contains("VICTORIA ENEMIGA"));
     }
 }

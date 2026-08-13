@@ -177,6 +177,7 @@ public class CargadorJuegoDeFicheros extends CargadorJuegoBase {
                     ? GeneradorAliados.poblar(juego, mapa, dificultad, new Random(77),
                             "AliadoFichero", cantidadAliados, nivelAliados)
                     : 0;
+            GeneradorSuministrosPoblacion.poblar(juego, new Random(79));
             consola.imprimirInfo("Aliados generados=" + aliadosGenerados);
 
             return juego;

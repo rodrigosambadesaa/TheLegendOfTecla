@@ -62,6 +62,7 @@ public final class MotorPartida {
     private boolean finalizada;
     private boolean modoEspectador;
     private SistemaPuntuacion.EstadoFinalPartida estadoFinal;
+    private ResultadoBatalla resultadoBatalla;
     private int turnosAyudaAliados;
     private boolean avisoRescateEnergia;
     private boolean cooperacionInventarioActiva;
@@ -91,6 +92,7 @@ public final class MotorPartida {
         setFinalizada(false);
         setModoEspectador(false);
         setEstadoFinal(null);
+        setResultadoBatalla(null);
         setTurnosAyudaAliados(0);
         setAvisoRescateEnergia(false);
         setCooperacionInventarioActiva(true);
@@ -203,6 +205,14 @@ public final class MotorPartida {
     /** @param estadoFinal resultado final o {@code null} mientras continua */
     public void setEstadoFinal(SistemaPuntuacion.EstadoFinalPartida estadoFinal) {
         this.estadoFinal = estadoFinal;
+    }
+
+    /** @return bando ganador o {@code null} mientras la partida continua */
+    public ResultadoBatalla getResultadoBatalla() { return resultadoBatalla; }
+
+    /** @param resultadoBatalla bando ganador opcional */
+    public void setResultadoBatalla(ResultadoBatalla resultadoBatalla) {
+        this.resultadoBatalla = resultadoBatalla;
     }
 
     /** @return turnos restantes de la orden de ayuda */
@@ -345,6 +355,7 @@ public final class MotorPartida {
         setTurnosAyudaAliados(0);
         setAvisoRescateEnergia(false);
         setEstadoFinal(null);
+        setResultadoBatalla(null);
         setFinalizada(false);
         setModoEspectador(false);
     }
@@ -498,11 +509,12 @@ public final class MotorPartida {
             if (juego.getAliadosExtraidos() > 0) {
                 juego.getConsola().imprimirInfo("La simulacion aliada termina con "
                         + juego.getAliadosExtraidos() + " superviviente(s) evacuado(s).");
+                finalizar(SistemaPuntuacion.EstadoFinalPartida.VICTORIA);
             } else {
                 juego.getConsola().imprimirAdvertencia(
                         "La simulacion aliada termina: no queda ningun miembro activo.");
+                finalizar(SistemaPuntuacion.EstadoFinalPartida.MUERTE);
             }
-            finalizar(SistemaPuntuacion.EstadoFinalPartida.MUERTE);
         } else if (juego.excedioPasos()) {
             finalizar(SistemaPuntuacion.EstadoFinalPartida.SIN_PASOS);
         }
@@ -516,20 +528,29 @@ public final class MotorPartida {
         if (finalizada) {
             return;
         }
+        boolean cierreEspectador = modoEspectador;
         setFinalizada(true);
         setModoEspectador(false);
         setEstadoFinal(Validaciones.noNulo(estado, "Estado final"));
+        if (estado == SistemaPuntuacion.EstadoFinalPartida.VICTORIA) {
+            setResultadoBatalla(ResultadoBatalla.VICTORIA_HUMANA);
+        } else if (estado != SistemaPuntuacion.EstadoFinalPartida.SALIDA_MANUAL) {
+            setResultadoBatalla(ResultadoBatalla.VICTORIA_ENEMIGA);
+        }
         if (estado == SistemaPuntuacion.EstadoFinalPartida.VICTORIA) {
             juego.publicarEvento(new MisionCompletada(
                     juego.getBusEventos().ahora(), juego.getMision() == null
                             ? "victoria-original" : juego.getMision().getId()));
         }
         switch (estado) {
-            case VICTORIA -> juego.getConsola().imprimir("Has llegado al objetivo. Victoria.", TipoMensaje.EXITO);
-            case MUERTE -> juego.getConsola().imprimir(
-                    "Has muerto o te has quedado sin energia.", TipoMensaje.ERROR);
+            case VICTORIA -> juego.getConsola().imprimir(cierreEspectador
+                    ? "VICTORIA HUMANA: al menos un aliado ha logrado evacuar."
+                    : "VICTORIA HUMANA: has llegado al objetivo.", TipoMensaje.EXITO);
+            case MUERTE -> juego.getConsola().imprimir(cierreEspectador
+                    ? "VICTORIA ENEMIGA: el escuadron humano ha sido eliminado."
+                    : "VICTORIA ENEMIGA: has muerto o te has quedado sin energia.", TipoMensaje.ERROR);
             case SIN_PASOS -> juego.getConsola().imprimir(
-                    "Superaste el numero maximo de pasos.", TipoMensaje.ADVERTENCIA);
+                    "VICTORIA ENEMIGA: el escuadron humano agoto sus turnos.", TipoMensaje.ADVERTENCIA);
             case SALIDA_MANUAL -> juego.getConsola().imprimir("Partida finalizada.", TipoMensaje.INFO);
         }
         if (!juego.getAliadosRegistrados().isEmpty()) {
@@ -542,6 +563,21 @@ public final class MotorPartida {
             juego.getConsola().imprimir(linea, TipoMensaje.INFO);
         }
         new ComandoRecorrido(contexto).ejecutar();
+    }
+
+    /** Resultado binario mostrado al terminar la batalla. */
+    public enum ResultadoBatalla {
+        /** El jugador o al menos un aliado completo la evacuacion. */
+        VICTORIA_HUMANA("VICTORIA HUMANA"),
+        /** No queda ningun humano capaz de completar la partida. */
+        VICTORIA_ENEMIGA("VICTORIA ENEMIGA");
+
+        private final String etiqueta;
+
+        ResultadoBatalla(String etiqueta) { this.etiqueta = etiqueta; }
+
+        /** @return texto listo para presentar en la interfaz */
+        public String getEtiqueta() { return etiqueta; }
     }
 
     private void ejecutarTurnoNPC(boolean jugadorDescansando) {

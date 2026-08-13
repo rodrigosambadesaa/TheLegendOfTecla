@@ -845,13 +845,29 @@ class IntegracionModosGuiTest {
         int celdas = normal.getMapa().getFilas() * normal.getMapa().getColumnas();
         for (Class<?> tipo : List.of(Botiquin.class, ToritoRojo.class)) {
             long base = contarObjetos(normal.getMapa(), tipo);
-            assertEquals(base + Dificultad.FACIL.calcularSuministrosExtra(celdas),
+            long baseSinEscala = base - contarObjetosPoblacion(normal.getMapa(), tipo);
+            assertEquals(baseSinEscala + Dificultad.FACIL.calcularSuministrosExtra(celdas)
+                            + contarObjetosPoblacion(facil.getMapa(), tipo),
                     contarObjetos(facil.getMapa(), tipo),
                     "Facil debe agregar suministros " + tipo.getSimpleName() + " en " + modo);
-            assertEquals(base + Dificultad.MUY_FACIL.calcularSuministrosExtra(celdas),
+            assertEquals(baseSinEscala + Dificultad.MUY_FACIL.calcularSuministrosExtra(celdas)
+                            + contarObjetosPoblacion(muyFacil.getMapa(), tipo),
                     contarObjetos(muyFacil.getMapa(), tipo),
                     "Muy facil debe agregar suministros " + tipo.getSimpleName() + " en " + modo);
         }
+    }
+
+    private long contarObjetosPoblacion(Mapa mapa, Class<?> tipo) {
+        long cantidad = 0;
+        for (int fila = 0; fila < mapa.getFilas(); fila++) {
+            for (int columna = 0; columna < mapa.getColumnas(); columna++) {
+                cantidad += mapa.getCelda(new Posicion(fila, columna)).getObjetos().stream()
+                        .filter(tipo::isInstance)
+                        .filter(objeto -> objeto.getNombre().contains("_poblacion_"))
+                        .count();
+            }
+        }
+        return cantidad;
     }
 
     private long contarObjetos(Mapa mapa, Class<?> tipo) {

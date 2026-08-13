@@ -37,8 +37,8 @@ Implementacion en Java del proyecto de POO por entregas (P1, P2, P3) y con ampli
 - Interfaz grafica completa en una unica ventana para los tres modos.
 - Escritorio tactico con mapa, estado, acciones, eventos y comandos en ventanas
   movibles, redimensionables, minimizables y maximizables.
-- Modo espectador tras la muerte del jugador: si quedan aliados, el boton `Play`
-  reproduce a ritmo normal sus turnos y los enemigos hasta el desenlace.
+- Modo espectador tras la muerte del jugador: si quedan aliados, el boton `Turbo`
+  reproduce turnos cada 100 ms y muestra `VICTORIA HUMANA` o `VICTORIA ENEMIGA`.
 - Mapa grafico con celdas, jugador, objetivo, objetos, aliados y enemigos.
 - Botones para coger, usar, tirar, equipar, desequipar, atacar, descansar, lanzar explosivos y pedir ayuda.
 - Editor grafico de escenarios completos con persistencia JSON.
@@ -52,8 +52,8 @@ Implementacion en Java del proyecto de POO por entregas (P1, P2, P3) y con ampli
 - Misiones/objetivos opcionales, campana, XP, niveles, habilidades, logros y estadisticas por eventos.
 - Tres generadores procedurales reproducibles, savegames versionados y replay con validacion SHA-256.
 - Despliegue de escuadron unificado: jugador y aliados parten de la casilla inicial transitable;
-  los aliados priorizan asistir al jugador y despues explorar, mientras los enemigos forman
-  anillos de intercepcion mas exigentes cuando la partida incluye aliados.
+  los aliados priorizan asistir al jugador y despues explorar, mientras los enemigos se dispersan
+  por sectores fuera de un radio de preparacion que aumenta con el tamaño del mapa.
 - Roles de escuadron: uno de cada cuatro aliados es medico, conserva reservas adicionales,
   prioriza pacientes, botiquines y Toritos Rojos, y deja el combate en segundo plano.
 - Coordinacion enemiga adaptativa solo contra escuadrones: sanitarios, exploradores y mandos
@@ -62,6 +62,8 @@ Implementacion en Java del proyecto de POO por entregas (P1, P2, P3) y con ampli
 - Escalado numerico justo: la fuerza enemiga nunca baja de la amenaza original y crece
   proporcionalmente con los aliados (`50` aliados generan `50` enemigos en dificultad normal),
   aplicando despues el multiplicador de dificultad y distribuyendo refuerzos en celdas transitables.
+- Suministros escalados por poblacion: al aumentar aliados y enemigos crecen todas las familias
+  de objetos del mapa, con lotes equilibrados y distribuidos por celdas transitables.
 
 ## Especificaciones y validación
 

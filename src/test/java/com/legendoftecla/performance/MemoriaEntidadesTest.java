@@ -8,6 +8,7 @@ import com.legendoftecla.engine.FabricaJuego;
 import com.legendoftecla.engine.MotorPartida;
 import com.legendoftecla.model.world.DimensionesMapa;
 import com.legendoftecla.model.world.Juego;
+import com.legendoftecla.model.world.Posicion;
 import com.legendoftecla.persistence.PersistenciaPartida;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -102,6 +103,8 @@ class MemoriaEntidadesTest {
                 "Cantidad aliada incompleta");
         exigir(juego.getEnemigos().size() == ENEMIGOS_MAXIMOS,
                 "Cantidad enemiga incompleta");
+        int objetos = contarObjetosMapa(juego);
+        exigir(objetos >= 4_400, "Los suministros escalados estan incompletos");
         MotorPartida motor = new MotorPartida(juego);
         String estado = motor.getEstadoAliados();
         exigir(estado.contains("ALIADOS 1000"), "Estado aliado incompleto");
@@ -112,7 +115,7 @@ class MemoriaEntidadesTest {
                 "La carga perdio aliados");
         exigir(cargado.getEnemigos().size() == ENEMIGOS_MAXIMOS,
                 "La carga perdio enemigos");
-        imprimirMemoria("MEMORY_OK allies=1000 enemies=2200");
+        imprimirMemoria("MEMORY_OK allies=1000 enemies=2200 objects=" + objetos);
     }
 
     private static void ejecutarRepetido() throws Exception {
@@ -141,6 +144,17 @@ class MemoriaEntidadesTest {
 
     private static void exigir(boolean condicion, String mensaje) {
         if (!condicion) throw new IllegalStateException(mensaje);
+    }
+
+    private static int contarObjetosMapa(Juego juego) {
+        int objetos = 0;
+        for (int fila = 0; fila < juego.getMapa().getFilas(); fila++) {
+            for (int columna = 0; columna < juego.getMapa().getColumnas(); columna++) {
+                objetos += juego.getMapa().getCelda(new Posicion(fila, columna))
+                        .getObjetos().size();
+            }
+        }
+        return objetos;
     }
 
     private static void imprimirMemoria(String prefijo) {

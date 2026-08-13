@@ -63,6 +63,7 @@ public final class CargadorJuegoProcedural extends CargadorJuegoBase {
                         new Random(seed ^ 0xA11AD05L), "AliadoProcedural", cantidadAliados,
                         nivelAliados)
                 : 0;
+        GeneradorSuministrosPoblacion.poblar(juego, new Random(seed ^ 0x5A1D05L));
         consola.imprimirInfo("Mapa procedural: seed=" + seed
                 + " | enemigos=" + juego.getEnemigos().size()
                 + " | aliados=" + aliadosGenerados);

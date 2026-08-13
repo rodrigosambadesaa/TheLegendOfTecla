@@ -15,7 +15,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DespliegueEscuadronTest {
@@ -54,17 +53,16 @@ class DespliegueEscuadronTest {
     }
 
     @Test
-    void unEscuadronRecibeUnaDistribucionEnemigaMasCercana() throws Exception {
+    void unEscuadronRecibeTiempoDePreparacionYEnemigosDispersos() throws Exception {
         Juego solitario = procedural(false);
         Juego escuadron = procedural(true);
 
         assertEquals(solitario.getEnemigos().size(), escuadron.getEnemigos().size());
-        List<Posicion> sinPresion = solitario.getEnemigos().stream()
-                .map(enemigo -> enemigo.getPosicion()).toList();
-        List<Posicion> conPresion = escuadron.getEnemigos().stream()
-                .map(enemigo -> enemigo.getPosicion()).toList();
-        assertNotEquals(sinPresion, conPresion);
-        assertTrue(distanciaTotal(escuadron) < distanciaTotal(solitario));
+        Posicion despliegue = escuadron.getMapa().getInicio();
+        assertTrue(escuadron.getEnemigos().stream().allMatch(enemigo ->
+                enemigo.getPosicion().distanciaManhattan(despliegue) >= 4));
+        assertTrue(escuadron.getEnemigos().stream().map(enemigo -> enemigo.getPosicion())
+                .distinct().count() >= Math.min(4, escuadron.getEnemigos().size()));
         assertTrue(escuadron.getEnemigos().stream()
                 .allMatch(enemigo -> escuadron.getMapa().esTransitable(enemigo.getPosicion())));
     }
@@ -133,9 +131,4 @@ class DespliegueEscuadronTest {
         return FabricaJuego.crear(TestFixtures.consola(), configuracion);
     }
 
-    private int distanciaTotal(Juego juego) {
-        Posicion inicio = juego.getMapa().getInicio();
-        return juego.getEnemigos().stream()
-                .mapToInt(enemigo -> enemigo.getPosicion().distanciaManhattan(inicio)).sum();
-    }
 }

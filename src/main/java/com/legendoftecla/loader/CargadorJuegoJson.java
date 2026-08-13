@@ -134,6 +134,7 @@ public final class CargadorJuegoJson extends CargadorJuegoBase {
         if (definicion.getMision() != null) {
             juego.setMision(crearMision(definicion.getMision(), juego));
         }
+        GeneradorSuministrosPoblacion.poblar(juego, new Random(313));
 
         consola.imprimirInfo("Escenario JSON cargado: " + definicion.getNombre()
                 + " | dificultad=" + dificultad.getEtiqueta()

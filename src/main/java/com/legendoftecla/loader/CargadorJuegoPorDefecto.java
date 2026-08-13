@@ -83,6 +83,7 @@ public class CargadorJuegoPorDefecto extends CargadorJuegoBase {
                 ? GeneradorAliados.poblar(juego, mapa, dificultad, new Random(12),
                         "AliadoBase", cantidadAliados, nivelAliados)
                 : 0;
+        GeneradorSuministrosPoblacion.poblar(juego, new Random(14));
         consola.imprimirInfo("Dificultad: " + dificultad.getEtiqueta()
                 + " | enemigos=" + cantidadEnemigos
                 + " | aliados=" + aliadosGenerados

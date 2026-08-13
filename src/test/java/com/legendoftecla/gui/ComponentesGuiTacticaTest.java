@@ -9,8 +9,10 @@ import com.legendoftecla.model.world.Posicion;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import javax.swing.JTextArea;
+import javax.swing.JButton;
 import javax.swing.JInternalFrame;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import java.awt.Component;
 import java.awt.Container;
@@ -56,6 +58,24 @@ class ComponentesGuiTacticaTest {
 
         assertEquals(java.util.List.of("pedir ayuda"), ejecutadas);
         assertNotNull(panel[0].getLanzarExplosivo());
+    }
+
+    @Test
+    void configuracionMantieneAccesiblesControlesInferioresConDesplazamiento() throws Exception {
+        PanelConfiguracion[] panel = new PanelConfiguracion[1];
+        SwingUtilities.invokeAndWait(() -> panel[0] = new PanelConfiguracion(
+                configuracion -> { }, () -> { }));
+
+        JScrollPane desplazamiento = (JScrollPane) buscar(panel[0], "configuracion.scroll");
+        JButton iniciar = (JButton) buscar(panel[0], "configuracion.iniciar");
+        JButton editor = (JButton) buscar(panel[0], "configuracion.editor");
+
+        assertNotNull(desplazamiento);
+        assertEquals(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                desplazamiento.getVerticalScrollBarPolicy());
+        assertEquals(20, desplazamiento.getVerticalScrollBar().getUnitIncrement());
+        assertNotNull(iniciar);
+        assertNotNull(editor);
     }
 
     @Test

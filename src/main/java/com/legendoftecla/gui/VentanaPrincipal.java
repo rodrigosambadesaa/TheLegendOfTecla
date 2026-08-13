@@ -47,8 +47,8 @@ public final class VentanaPrincipal extends JFrame {
     public VentanaPrincipal(boolean abrirEditor) {
         super("The Legend of Tecla");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setMinimumSize(new Dimension(1100, 760));
-        setSize(1500, 950);
+        setMinimumSize(new Dimension(900, 600));
+        setSize(1200, 760);
         setLocationRelativeTo(null);
 
         configuracion = new PanelConfiguracion(this::iniciarPartida, this::mostrarEditor);

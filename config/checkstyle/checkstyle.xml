@@ -3,13 +3,16 @@
         "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
         "https://checkstyle.org/dtds/configuration_1_3.dtd">
 <!--
-  Puerta deliberadamente pequeña para el código heredado. Evita defectos de
-  formato objetivos sin imponer todavía una reescritura cosmética masiva.
+  Puertas objetivas aplicadas a produccion y pruebas. El limite de archivo evita
+  que nuevas responsabilidades vuelvan a concentrarse en clases monstruosas.
 -->
 <module name="Checker">
     <property name="charset" value="UTF-8"/>
     <module name="FileTabCharacter">
         <property name="eachLine" value="true"/>
+    </module>
+    <module name="FileLength">
+        <property name="max" value="1700"/>
     </module>
     <module name="RegexpSingleline">
         <property name="format" value="\s+$"/>

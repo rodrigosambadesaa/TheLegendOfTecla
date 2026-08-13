@@ -4,6 +4,10 @@ on:
   push:
   pull_request:
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -39,6 +43,13 @@ jobs:
         with:
           name: executable-jar
           path: target/the-legend-of-tecla.jar
+          if-no-files-found: error
+
+      - name: Upload CycloneDX SBOM
+        uses: actions/upload-artifact@v7
+        with:
+          name: cyclonedx-sbom
+          path: target/bom.json
           if-no-files-found: error
 
       - name: Upload coverage report

@@ -375,3 +375,18 @@ supervivientes y el resto del estado continúan en el savegame de la partida.
 
 La arquitectura y los contratos de ampliacion se detallan en
 [docs/ARQUITECTURA_ROGUELIKE.md](docs/ARQUITECTURA_ROGUELIKE.md).
+
+## Calidad verificable
+
+`mvn clean verify` exige al menos 75 % de cobertura de líneas, ejecuta contratos
+ArchUnit para impedir dependencias del dominio y motor hacia Swing, limita cada
+archivo Java a 1.700 líneas, aplica Checkstyle y SpotBugs y genera Javadoc y un
+SBOM CycloneDX (`target/bom.json`). GitHub Actions añade OWASP Dependency Check
+y CodeQL. La política de seguridad está en [SECURITY.md](SECURITY.md), las normas
+de colaboración en [CONTRIBUTING.md](CONTRIBUTING.md) y el contrato completo en
+[docs/CALIDAD_10_DE_10.md](docs/CALIDAD_10_DE_10.md).
+
+La prueba extrema ya ejecuta un turno completo con 4.999 aliados más el jugador
+contra 5.000 enemigos bajo un heap de 512 MiB y bloquea regresiones que superen
+10 segundos. El motor usa índices espaciales para percepción y ruido y evita las
+copias cuadráticas de estados, inspecciones, celdas y evacuaciones.

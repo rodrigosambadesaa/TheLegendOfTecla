@@ -17,6 +17,7 @@ import com.legendoftecla.model.world.Celda;
 import com.legendoftecla.model.world.Juego;
 import com.legendoftecla.model.world.Mapa;
 import com.legendoftecla.model.world.Posicion;
+import com.legendoftecla.model.world.SistemaPuntuacion;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -70,6 +71,21 @@ class ReglasCombateYVictoriaTest {
         ultimo.setPosicion(jugadorPrimero.getMapa().getObjetivo());
         assertTrue(jugadorPrimero.extraerAliado(ultimo));
         assertTrue(jugadorPrimero.jugadorGano());
+    }
+
+    @Test
+    void laCondicionDeTodosTerminaCuandoCaeUnAliado() {
+        Juego juego = crearJuegoConAliado(false);
+        juego.setCondicionVictoria(CondicionVictoria.JUGADOR_Y_ALIADOS);
+        juego.getAliados().get(0).setSalud(0);
+
+        MotorPartida motor = new MotorPartida(juego);
+
+        assertTrue(motor.isFinalizada());
+        assertEquals(SistemaPuntuacion.EstadoFinalPartida.DERROTA_MISION,
+                motor.getEstadoFinal());
+        assertEquals(MotorPartida.ResultadoBatalla.VICTORIA_ENEMIGA,
+                motor.getResultadoBatalla());
     }
 
     @Test
@@ -171,6 +187,22 @@ class ReglasCombateYVictoriaTest {
         assertTrue(enemigo.getPosicion().distanciaManhattan(posicionJugador) < distanciaAnterior);
         assertTrue(consola.salida().contains("Descansas sin moverte"));
         assertTrue(consola.salida().contains("se acerca mientras descansas"));
+    }
+
+    @Test
+    void aliadoSinEnergiaDescansaYPuedeRetomarLaFormacion() throws Exception {
+        Juego juego = crearJuegoConAliado(false);
+        Aliado aliado = juego.getAliados().get(0);
+        aliado.setEnergia(0);
+        Posicion posicionInicial = aliado.getPosicion();
+        juego.setFormacionAliada(com.legendoftecla.constants.FormacionAliada.DEFENSIVA);
+
+        new MotorPartida(juego).ejecutarComando("mirar");
+
+        assertEquals(posicionInicial, aliado.getPosicion());
+        assertTrue(aliado.getEnergia() > 0);
+        assertTrue(((TestFixtures.CapturingConsole) juego.getConsola()).salida()
+                .contains("descansa para continuar"));
     }
 
     private Juego crearJuegoConAliado(boolean aliadoEnObjetivo) {

@@ -60,6 +60,12 @@ public final class EjecutorAccionIA {
                         enemigo.getPosicion(), objetivo.getPosicion())) {
             return false;
         }
+        int distancia = enemigo.getPosicion().distanciaManhattan(objetivo.getPosicion());
+        if (!enemigo.puedeAtacarA(distancia)) {
+            return enemigo.puedeAtacar()
+                    ? mover(juego, enemigo, objetivo.getPosicion(), true, random)
+                    : recargar(enemigo);
+        }
         SistemaCombate.atacar(juego, enemigo, objetivo, random);
         return true;
     }
@@ -247,6 +253,8 @@ public final class EjecutorAccionIA {
             juego.getMapa().getCelda(origen).quitarEnemigo(enemigo);
             enemigo.mover(direccion, juego);
             juego.getMapa().getCelda(destino).agregarEnemigo(enemigo);
+            juego.getConsola().imprimirInfo(enemigo.getNombre()
+                    + " se mueve de " + origen + " a " + destino + ".");
             juego.publicarEvento(new PersonajeMovido(juego.getBusEventos().ahora(),
                     enemigo.getNombre(), origen, destino));
             juego.publicarEvento(new RuidoGenerado(juego.getBusEventos().ahora(),

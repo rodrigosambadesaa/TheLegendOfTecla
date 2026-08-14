@@ -168,6 +168,7 @@ public class CommandParser {
         registrar(comandos, partes -> new ComandoTerminal(context, false), "activar");
         registrar(comandos, partes -> new ComandoPedirAyuda(context), "socorro", "asistir");
         registrar(comandos, this::parseReagrupar, "reagrupar", "formacion");
+        registrar(comandos, this::parseRomperFormacion, "romper");
         registrar(comandos, partes -> new ComandoSalir(), "salir");
         return Map.copyOf(comandos);
     }
@@ -329,14 +330,23 @@ public class CommandParser {
 
     private Comando parseReagrupar(String[] partes) throws ComandoException {
         if (partes.length != 2) {
-            throw new ComandoException("Uso: reagrupar <defensiva|ofensiva>");
+            throw new ComandoException("Uso: reagrupar <defensiva|ofensiva|ninguna>");
         }
         FormacionAliada formacion = switch (partes[1].toLowerCase()) {
             case "defensiva" -> FormacionAliada.DEFENSIVA;
             case "ofensiva" -> FormacionAliada.OFENSIVA;
+            case "ninguna", "libre" -> FormacionAliada.SIN_FORMACION;
             default -> throw new ComandoException("Formacion invalida: " + partes[1]);
         };
         return new ComandoReagrupar(context, formacion);
+    }
+
+    private Comando parseRomperFormacion(String[] partes) throws ComandoException {
+        if (partes.length != 2 || !("formacion".equalsIgnoreCase(partes[1])
+                || "formación".equalsIgnoreCase(partes[1]))) {
+            throw new ComandoException("Uso: romper formacion");
+        }
+        return new ComandoReagrupar(context, FormacionAliada.SIN_FORMACION);
     }
 
     private int parseEntero(String valor) throws ComandoException {

@@ -1,3 +1,7 @@
+# tecla-run-log-v2
+# source: current-java17-engine
+# encoding: UTF-8
+# ansi: removed
 [INFO] Scanning for projects...
 [INFO]
 [INFO] ---------------< com.legendoftecla:the-legend-of-tecla >----------------
@@ -31,32 +35,99 @@
 [INFO] -------------------------------------------------------
 [INFO]  T E S T S
 [INFO] -------------------------------------------------------
+[INFO] Running com.legendoftecla.achievements.LogrosYEstadisticasTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.385 s -- in com.legendoftecla.achievements.LogrosYEstadisticasTest
+[INFO] Running com.legendoftecla.ai.EscalabilidadPercepcionTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.131 s -- in com.legendoftecla.ai.EscalabilidadPercepcionTest
+[INFO] Running com.legendoftecla.ai.InteligenciaTacticaTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.090 s -- in com.legendoftecla.ai.InteligenciaTacticaTest
+[INFO] Running com.legendoftecla.ai.SistemaTurnosIATest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.081 s -- in com.legendoftecla.ai.SistemaTurnosIATest
+[INFO] Running com.legendoftecla.architecture.ArquitecturaTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.991 s -- in com.legendoftecla.architecture.ArquitecturaTest
+[INFO] Running com.legendoftecla.audio.SuscriptorAudioEventosTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.012 s -- in com.legendoftecla.audio.SuscriptorAudioEventosTest
 [INFO] Running com.legendoftecla.commands.ComandosCompuestosConsolaGuiTest
-[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.592 s -- in com.legendoftecla.commands.ComandosCompuestosConsolaGuiTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.441 s -- in com.legendoftecla.commands.ComandosCompuestosConsolaGuiTest
 [INFO] Running com.legendoftecla.commands.ComandosInventarioTest
-[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.032 s -- in com.legendoftecla.commands.ComandosInventarioTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.038 s -- in com.legendoftecla.commands.ComandosInventarioTest
 [INFO] Running com.legendoftecla.commands.CommandParserTest
-[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 s -- in com.legendoftecla.commands.CommandParserTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.027 s -- in com.legendoftecla.commands.CommandParserTest
 [INFO] Running com.legendoftecla.config.OpcionesInicioTest
-[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.022 s -- in com.legendoftecla.config.OpcionesInicioTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.018 s -- in com.legendoftecla.config.OpcionesInicioTest
+[INFO] Running com.legendoftecla.effects.GestorEstadosTest
+[INFO] Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.087 s -- in com.legendoftecla.effects.GestorEstadosTest
 [INFO] Running com.legendoftecla.engine.AmbienteCombateYAguaTest
-[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.014 s -- in com.legendoftecla.engine.AmbienteCombateYAguaTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.021 s -- in com.legendoftecla.engine.AmbienteCombateYAguaTest
+[INFO] Running com.legendoftecla.engine.DestruccionYHabilidadesTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.019 s -- in com.legendoftecla.engine.DestruccionYHabilidadesTest
 [INFO] Running com.legendoftecla.engine.FormacionesAliadasTest
-[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.035 s -- in com.legendoftecla.engine.FormacionesAliadasTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.097 s -- in com.legendoftecla.engine.FormacionesAliadasTest
+[INFO] Running com.legendoftecla.engine.ModoEspectadorTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.011 s -- in com.legendoftecla.engine.ModoEspectadorTest
 [INFO] Running com.legendoftecla.engine.MotorMovimientoTest
-[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.004 s -- in com.legendoftecla.engine.MotorMovimientoTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in com.legendoftecla.engine.MotorMovimientoTest
+[INFO] Running com.legendoftecla.engine.NivelYEscalabilidadBandosTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.145 s -- in com.legendoftecla.engine.NivelYEscalabilidadBandosTest
+[INFO] Running com.legendoftecla.engine.PrioridadAliadosTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.016 s -- in com.legendoftecla.engine.PrioridadAliadosTest
 [INFO] Running com.legendoftecla.engine.ReglasCombateYVictoriaTest
-[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.025 s -- in com.legendoftecla.engine.ReglasCombateYVictoriaTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.017 s -- in com.legendoftecla.engine.ReglasCombateYVictoriaTest
+[INFO] Running com.legendoftecla.engine.ServiciosMotorRefactorTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s -- in com.legendoftecla.engine.ServiciosMotorRefactorTest
+[INFO] Running com.legendoftecla.events.BusEventosTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.009 s -- in com.legendoftecla.events.BusEventosTest
+[INFO] Running com.legendoftecla.events.EventosJuegoIntegrationTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.008 s -- in com.legendoftecla.events.EventosJuegoIntegrationTest
+[INFO] Running com.legendoftecla.gui.ComponentesGuiTacticaTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.211 s -- in com.legendoftecla.gui.ComponentesGuiTacticaTest
+[INFO] Running com.legendoftecla.gui.SoporteTecladoNumericoTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 s -- in com.legendoftecla.gui.SoporteTecladoNumericoTest
 [INFO] Running com.legendoftecla.IntegracionModosGuiTest
-[INFO] Tests run: 22, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.227 s -- in com.legendoftecla.IntegracionModosGuiTest
+[INFO] Tests run: 22, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.785 s -- in com.legendoftecla.IntegracionModosGuiTest
+[INFO] Running com.legendoftecla.inventory.ArmamentoTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.007 s -- in com.legendoftecla.inventory.ArmamentoTest
+[INFO] Running com.legendoftecla.inventory.CatalogoArmasAvanzadoTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.015 s -- in com.legendoftecla.inventory.CatalogoArmasAvanzadoTest
+[INFO] Running com.legendoftecla.inventory.CompetenciasArmamentoTest
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.040 s -- in com.legendoftecla.inventory.CompetenciasArmamentoTest
+[INFO] Running com.legendoftecla.inventory.MunicionEIntercambioTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.021 s -- in com.legendoftecla.inventory.MunicionEIntercambioTest
+[INFO] Running com.legendoftecla.inventory.RecursosTacticosTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.018 s -- in com.legendoftecla.inventory.RecursosTacticosTest
+[INFO] Running com.legendoftecla.loader.DespliegueEscuadronTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.067 s -- in com.legendoftecla.loader.DespliegueEscuadronTest
+[INFO] Running com.legendoftecla.loader.SuministrosPoblacionTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.017 s -- in com.legendoftecla.loader.SuministrosPoblacionTest
+[INFO] Running com.legendoftecla.missions.MisionYProgresionTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.043 s -- in com.legendoftecla.missions.MisionYProgresionTest
+[INFO] Running com.legendoftecla.model.elements.ElementosMapaTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.019 s -- in com.legendoftecla.model.elements.ElementosMapaTest
+[INFO] Running com.legendoftecla.model.elements.ElementosPersistenciaTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.028 s -- in com.legendoftecla.model.elements.ElementosPersistenciaTest
 [INFO] Running com.legendoftecla.model.MochilaTest
-[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.028 s -- in com.legendoftecla.model.MochilaTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.001 s -- in com.legendoftecla.model.MochilaTest
+[INFO] Running com.legendoftecla.model.world.AmbientacionMapaTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.023 s -- in com.legendoftecla.model.world.AmbientacionMapaTest
+[INFO] Running com.legendoftecla.model.world.SistemaPuntuacionAliadosTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 s -- in com.legendoftecla.model.world.SistemaPuntuacionAliadosTest
+[INFO] Running com.legendoftecla.performance.MemoriaEntidadesTest
+MEMORY_OK allies=4999 enemies=5000 objects=13753 heapUsedMiB=29 heapMaxMiB=512
+TURN_MAX_OK millis=3080 allies=4999 enemies=5000 heapUsedMiB=13 heapMaxMiB=512
+MEMORY_REUSE_OK runs=6 peakAfterGcMiB=1 heapUsedMiB=1 heapMaxMiB=128
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.618 s -- in com.legendoftecla.performance.MemoriaEntidadesTest
+[INFO] Running com.legendoftecla.persistence.PersistenciaYReplayTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.059 s -- in com.legendoftecla.persistence.PersistenciaYReplayTest
+[INFO] Running com.legendoftecla.procedural.GeneracionProceduralTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.019 s -- in com.legendoftecla.procedural.GeneracionProceduralTest
+[INFO] Running com.legendoftecla.tools.GeneradorRunsAutomaticosTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.223 s -- in com.legendoftecla.tools.GeneradorRunsAutomaticosTest
 [INFO] Running com.legendoftecla.ValidacionInternaTest
-[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.066 s -- in com.legendoftecla.ValidacionInternaTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.022 s -- in com.legendoftecla.ValidacionInternaTest
 [INFO]
 [INFO] Results:
 [INFO]
-[INFO] Tests run: 69, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 214, Failures: 0, Errors: 0, Skipped: 0
 [INFO]
 [INFO]
 [INFO] --- jar:3.4.2:jar (default-jar) @ the-legend-of-tecla ---
@@ -68,13 +139,21 @@
 [INFO] Replacing original artifact with shaded artifact.
 [INFO] Replacing C:\Users\rodri\OneDrive\Documentos\GitHub\TheLegendOfTecla\target\the-legend-of-tecla.jar with C:\Users\rodri\OneDrive\Documentos\GitHub\TheLegendOfTecla\target\the-legend-of-tecla-1.0.0-shaded.jar
 [INFO]
+[INFO] --- cyclonedx:2.9.2:makeAggregateBom (generate-sbom) @ the-legend-of-tecla ---
+[INFO] CycloneDX: Resolving Dependencies
+[INFO] CycloneDX: Creating BOM version 1.6 with 2 component(s)
+[INFO] CycloneDX: Writing and validating BOM (JSON): C:\Users\rodri\OneDrive\Documentos\GitHub\TheLegendOfTecla\target\bom.json
+[WARNING] Unknown keyword meta:enum - you should define your own Meta Schema. If the keyword is irrelevant for validation, just use a NonValidationKeyword or if it should generate annotations AnnotationKeyword
+[WARNING] Unknown keyword deprecated - you should define your own Meta Schema. If the keyword is irrelevant for validation, just use a NonValidationKeyword or if it should generate annotations AnnotationKeyword
+[INFO]            attaching as the-legend-of-tecla-1.0.0-cyclonedx.json
+[INFO]
 [INFO] --- jacoco:0.8.12:report (create-coverage-report) @ the-legend-of-tecla ---
 [INFO] Loading execution data file C:\Users\rodri\OneDrive\Documentos\GitHub\TheLegendOfTecla\target\jacoco.exec
-[INFO] Analyzed bundle 'The Legend of Tecla' with 106 classes
+[INFO] Analyzed bundle 'The Legend of Tecla' with 303 classes
 [INFO]
 [INFO] --- jacoco:0.8.12:check (check-coverage) @ the-legend-of-tecla ---
 [INFO] Loading execution data file C:\Users\rodri\OneDrive\Documentos\GitHub\TheLegendOfTecla\target\jacoco.exec
-[INFO] Analyzed bundle 'the-legend-of-tecla' with 106 classes
+[INFO] Analyzed bundle 'the-legend-of-tecla' with 303 classes
 [INFO] All coverage checks have been met.
 [INFO]
 [INFO] --- checkstyle:3.6.0:check (check-style) @ the-legend-of-tecla ---
@@ -109,6 +188,6 @@
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  01:53 min
-[INFO] Finished at: 2026-08-11T10:59:56+02:00
+[INFO] Total time:  01:24 min
+[INFO] Finished at: 2026-08-14T09:56:30+02:00
 [INFO] ------------------------------------------------------------------------

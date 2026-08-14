@@ -36,7 +36,12 @@ public final class ComandoReagrupar implements Comando {
             throw new ComandoException("No hay aliados disponibles para reagruparse.");
         }
         context.getJuego().setFormacionAliada(formacion);
-        context.getJuego().getConsola().imprimirInfo("Formacion " + formacion.getEtiqueta()
-                + ": los aliados acompañaran al jugador y adaptaran sus prioridades.");
+        if (formacion == FormacionAliada.SIN_FORMACION) {
+            context.getJuego().getConsola().imprimirInfo(
+                    "Formacion rota: los aliados recuperan su comportamiento autonomo.");
+        } else {
+            context.getJuego().getConsola().imprimirInfo("Formacion " + formacion.getEtiqueta()
+                    + ": los aliados acompañaran al jugador y adaptaran sus prioridades.");
+        }
     }
 }

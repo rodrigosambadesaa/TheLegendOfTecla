@@ -52,7 +52,8 @@ public final class PanelAcciones extends JPanel {
                 lanzarExplosivo, pedirAyuda).forEach(utilidades::add);
         String[][] comandos = {
             {"Formacion defensiva", "reagrupar defensiva"},
-            {"Formacion ofensiva", "reagrupar ofensiva"}, {"Inventario", "inventario"},
+            {"Formacion ofensiva", "reagrupar ofensiva"},
+            {"Romper formacion", "romper formacion"}, {"Inventario", "inventario"},
             {"Estado", "mirar"}, {"Ayuda", "ayuda"}, {"Recorrido", "recorrido"},
             {"Descansar", "descansar"}, {"Recargar", "recargar"},
             {"Estado arma", "estado arma"}, {"Abrir puerta", "abrir puerta"},

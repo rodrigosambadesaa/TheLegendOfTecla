@@ -52,7 +52,24 @@ class FormacionesAliadasTest {
 
         assertInstanceOf(ComandoReagrupar.class, parser.parse("reagrupar defensiva"));
         assertInstanceOf(ComandoReagrupar.class, parser.parse("formacion ofensiva"));
+        assertInstanceOf(ComandoReagrupar.class, parser.parse("romper formacion"));
         assertThrows(Exception.class, () -> parser.parse("reagrupar dispersa"));
+    }
+
+    @Test
+    void romperFormacionDesactivaLaEstrategiaOfensivaODefensiva() {
+        for (String orden : new String[] {"reagrupar defensiva", "reagrupar ofensiva"}) {
+            Escenario escenario = crearEscenario(new Posicion(1, 0));
+            MotorPartida motor = new MotorPartida(escenario.juego());
+
+            motor.ejecutarComando(orden);
+            assertTrue(escenario.juego().getFormacionAliada() != FormacionAliada.SIN_FORMACION);
+            motor.ejecutarComando("romper formacion");
+
+            assertEquals(FormacionAliada.SIN_FORMACION,
+                    escenario.juego().getFormacionAliada());
+            assertTrue(escenario.consola().salida().contains("Formacion rota"));
+        }
     }
 
     @Test

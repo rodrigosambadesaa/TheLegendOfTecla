@@ -1,2 +1,6 @@
-[34mBienvenido a The Legend of Tecla[0m
-[31mNo se pudo iniciar el juego: Inicio/objetivo quedan fuera del tamano de mapa configurado.[0m
+# tecla-run-log-v2
+# source: current-java17-engine
+# encoding: UTF-8
+# ansi: removed
+Bienvenido a The Legend of Tecla
+No se pudo iniciar el juego: Inicio/objetivo quedan fuera del tamano de mapa configurado.

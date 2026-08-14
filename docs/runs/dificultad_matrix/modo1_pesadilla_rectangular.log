@@ -1,9 +1,14 @@
-[34mBienvenido a The Legend of Tecla[0m
-[34mDificultad: pesadilla | enemigos=32 | aliados=0 | salud x1.65 | danio x1.7[0m
-[34mEnergia inicial adaptada al mapa: ruta minima=44 pasos | jugador=234.[0m
-[34mMapa: Base Lambda[0m
-[34mInstalacion abandonada de la resistencia[0m
-[34mJ . . . . . . . ? ? . . . . . . . . . . = . . ?
+# tecla-run-log-v2
+# source: current-java17-engine
+# encoding: UTF-8
+# ansi: removed
+Bienvenido a The Legend of Tecla
+Suministros por poblacion: entidades=32 | lotes=4 | objetos=44
+Dificultad: pesadilla | enemigos=32 | aliados=0 | salud x1.65 | danio x1.7
+Energia inicial adaptada al mapa: ruta minima=44 pasos | jugador=234.
+Mapa: Base Lambda
+Instalacion abandonada de la resistencia
+J . . . . . . . ? ? . . . . . . . . . . = . . ?
 . . # # # # # # # # # # # # # # # # # # # # . =
 . = . = . = . . . = ? . . . . . = . . . . . . .
 . . # . . . . # . = . = # . . . . # . . . . # .
@@ -25,63 +30,16 @@
 ? . # . . . . # . . . . # . . = . # . . . . # .
 . = . . . ? . . . = . ? . = = . . . . . . . . ?
 ? . # # # # # # # # # # # # # # # # # # # # ? X
-[0m
-[34mLeyenda: J=jugador E=enemigo A=aliado F=fuego ?=oscuridad T=antorcha U=fuente ==madera o=objeto X=objetivo[0m
-[36mMatriz  Salud 120/120  Energia 234/234  Pasos 0/160  Formacion sin formacion[0m
-[36mAliados: ninguno.[0m
-[36maccion> [0m[31mError de comando: Comando desconocido: ?salir[0m
-[34mJ . . . . . . . ? ? . . . . . . . . . . = . . ?
-. . # # # # # # # # # # # # # # # # # # # # . =
-. = . = . = . . . = ? . . . . . = . . . . . . .
-. . # . . . . # . = . = # . . . . # . . . . # .
-. . # . ? . . # . . . = # . . . = # . = . . # =
-. ? # # # # # # # # # # # # # # # # # # # # # .
-= . # . = = . # = . . . # . . . . # . . . ? # .
-. . # = = . . # ? = . . # . . . . # ? . . . # ?
-. . # . . ? . # . . = . # . . . . # . . . ? # .
-. . # # # # # # # # # # # # # # # # # # # # # ?
-. ? # . . . = # . . . . # . = = ? # . . = . # =
-. . # ? ? . . # . . ? . # . . = . # . . . = # =
-= ? # . . ? . # . . ? = # . . . . # . . = ? # .
-. . # # # # # # # # # # # # # # # # # # # # # .
-? . # U T . . # . . . ? # . . = . # ? . . . # =
-= = # . = ? = # ? . . . # . . = . # . . . ? # .
-. . # . . . = # . . . = # ? . . . # . . . . # .
-. = # # # # # # # # # # # # # # # # # # # # # .
-? . # . ? = = # . . . . # . . . = # = . . . # .
-? . # . . . . # . . . . # . . = . # . . . . # .
-. = . . . ? . . . = . ? . = = . . . . . . . . ?
-? . # # # # # # # # # # # # # # # # # # # # ? X
-[0m
-[34mLeyenda: J=jugador E=enemigo A=aliado F=fuego ?=oscuridad T=antorcha U=fuente ==madera o=objeto X=objetivo[0m
-[36mMatriz  Salud 120/120  Energia 234/234  Pasos 0/160  Formacion sin formacion[0m
-[36mAliados: ninguno.[0m
-[36maccion> [0m[31mError de comando: Comando vacio.[0m
-[34mJ . . . . . . . ? ? . . . . . . . . . . = . . ?
-. . # # # # # # # # # # # # # # # # # # # # . =
-. = . = . = . . . = ? . . . . . = . . . . . . .
-. . # . . . . # . = . = # . . . . # . . . . # .
-. . # . ? . . # . . . = # . . . = # . = . . # =
-. ? # # # # # # # # # # # # # # # # # # # # # .
-= . # . = = . # = . . . # . . . . # . . . ? # .
-. . # = = . . # ? = . . # . . . . # ? . . . # ?
-. . # . . ? . # . . = . # . . . . # . . . ? # .
-. . # # # # # # # # # # # # # # # # # # # # # ?
-. ? # . . . = # . . . . # . = = ? # . . = . # =
-. . # ? ? . . # . . ? . # . . = . # . . . = # =
-= ? # . . ? . # . . ? = # . . . . # . . = ? # .
-. . # # # # # # # # # # # # # # # # # # # # # .
-? . # U T . . # . . . ? # . . = . # ? . . . # =
-= = # . = ? = # ? . . . # . . = . # . . . ? # .
-. . # . . . = # . . . = # ? . . . # . . . . # .
-. = # # # # # # # # # # # # # # # # # # # # # .
-? . # . ? = = # . . . . # . . . = # = . . . # .
-? . # . . . . # . . . . # . . = . # . . . . # .
-. = . . . ? . . . = . ? . = = . . . . . . . . ?
-? . # # # # # # # # # # # # # # # # # # # # ? X
-[0m
-[34mLeyenda: J=jugador E=enemigo A=aliado F=fuego ?=oscuridad T=antorcha U=fuente ==madera o=objeto X=objetivo[0m
-[36mMatriz  Salud 120/120  Energia 234/234  Pasos 0/160  Formacion sin formacion[0m
-[36mAliados: ninguno.[0m
-[36maccion> [0m
-Entrada cerrada. Partida finalizada.
+
+Leyenda: J=jugador E=enemigo A=aliado F=fuego ?=oscuridad T=antorcha U=fuente ==madera o=objeto X=objetivo
+Matriz  Nivel 1  Salud 120/120  Energia 234/234  Pasos 0/160  Formacion sin formacion  Efectos ninguno
+Aliados: ninguno.
+accion> Partida finalizada.
+Puntuacion final: 750
+  - Salud restante: 300
+  - Energia restante: 200
+  - Eficiencia en pasos: 250
+  - Progreso hacia objetivo: 0
+  - Enemigos derrotados (0): 0
+  - Ajuste por resultado final: 0
+Recorrido: (0,0)

@@ -1,3 +1,7 @@
+# tecla-run-log-v2
+# source: current-java17-engine
+# encoding: UTF-8
+# ansi: removed
 [INFO] Scanning for projects...
 [INFO]
 [INFO] ---------------< com.legendoftecla:the-legend-of-tecla >----------------
@@ -30,21 +34,21 @@
 [INFO]  T E S T S
 [INFO] -------------------------------------------------------
 [INFO] Running com.legendoftecla.commands.ComandosCompuestosConsolaGuiTest
-[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.625 s -- in com.legendoftecla.commands.ComandosCompuestosConsolaGuiTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.737 s -- in com.legendoftecla.commands.ComandosCompuestosConsolaGuiTest
 [INFO] Running com.legendoftecla.engine.FormacionesAliadasTest
-[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.029 s -- in com.legendoftecla.engine.FormacionesAliadasTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.093 s -- in com.legendoftecla.engine.FormacionesAliadasTest
 [INFO] Running com.legendoftecla.engine.ReglasCombateYVictoriaTest
-[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.026 s -- in com.legendoftecla.engine.ReglasCombateYVictoriaTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.024 s -- in com.legendoftecla.engine.ReglasCombateYVictoriaTest
 [INFO] Running com.legendoftecla.IntegracionModosGuiTest
-[INFO] Tests run: 22, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.774 s -- in com.legendoftecla.IntegracionModosGuiTest
+[INFO] Tests run: 22, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.744 s -- in com.legendoftecla.IntegracionModosGuiTest
 [INFO]
 [INFO] Results:
 [INFO]
-[INFO] Tests run: 42, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 46, Failures: 0, Errors: 0, Skipped: 0
 [INFO]
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  10.995 s
-[INFO] Finished at: 2026-08-11T11:00:09+02:00
+[INFO] Total time:  7.082 s
+[INFO] Finished at: 2026-08-14T09:57:46+02:00
 [INFO] ------------------------------------------------------------------------

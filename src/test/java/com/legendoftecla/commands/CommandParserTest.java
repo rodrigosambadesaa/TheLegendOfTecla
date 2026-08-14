@@ -39,6 +39,9 @@ class CommandParserTest {
         assertInstanceOf(ComandoDescansar.class, parser.parse("reposar"));
         assertInstanceOf(ComandoReagrupar.class, parser.parse("reagrupar defensiva"));
         assertInstanceOf(ComandoReagrupar.class, parser.parse("formacion ofensiva"));
+        assertInstanceOf(ComandoReagrupar.class, parser.parse("romper formación"));
+        assertInstanceOf(ComandoReagrupar.class, parser.parse("reagrupar ninguna"));
+        assertThrows(ComandoException.class, () -> parser.parse("romper filas"));
         assertThrows(ComandoException.class, () -> parser.parse("reagrupar dispersa"));
     }
 

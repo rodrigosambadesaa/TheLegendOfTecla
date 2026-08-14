@@ -1,11 +1,17 @@
-[34mBienvenido a The Legend of Tecla[0m
-[34mDificultad: normal | variante=7 | aliados=3 | salud x1.0 | danio x1.0[0m
-[34mEnergia inicial adaptada al mapa: ruta minima=44 pasos | jugador=234 | aliados desde=232.[0m
-[34mMapa: Megabase Atlas - Variante 7[0m
-[34mComplejo militar de gran escala, distribucion 7[0m
-[34mAliados desplegados: 3[0m
-[34mCondicion de victoria: Jugador y todos los aliados.[0m
-[34mJ . ? = . = . . . . . . . . . . . ? . = . . . .
+# tecla-run-log-v2
+# source: current-java17-engine
+# encoding: UTF-8
+# ansi: removed
+Bienvenido a The Legend of Tecla
+Equilibrio de escuadron: aliados=3 | enemigos 18 -> 18 | objetivo=18
+Suministros por poblacion: entidades=21 | lotes=3 | objetos=33
+Dificultad: normal | variante=7 | aliados=3 | salud x1.0 | danio x1.0
+Energia inicial adaptada al mapa: ruta minima=44 pasos | jugador=234 | aliados desde=232.
+Mapa: Megabase Atlas - Variante 7
+Complejo militar de gran escala, distribucion 7
+Aliados desplegados: 3
+Condicion de victoria: Jugador y todos los aliados.
+J . ? = . = . . . . . . . . . . . ? . = . . . .
 ? . . . . = . . . . . . . . = . ? . = = . . . .
 . . = . . ? # ? . . . . = . = = # = = . . ? = .
 ? = . . . . # . . ? . . ? . . . # = . . . = . .
@@ -15,211 +21,6 @@
 . ? = # . # # # # # # # # ? # # # # # # # = . .
 . . . = ? = # ? . ? . . = . . . # . . = . . . ?
 = . . . . . # ? . . . . ? . . . # . . . . = . .
-? . . . . = # . . . ? ? . . . . # . . . = . ? .
-. ? ? . . . # . ? . . ? . . . . # . ? . . . . =
-= . ? . . ? # ? . = . . . ? . = # . = ? . . . .
-= ? . = A . # . . . = ? . = . = . . . . = . . ?
-A . = # # # . # # # # # # # # ? # # # # # . . =
-? = . . ? . # ? A . = . . . = . # . . . . . . =
-. . . . . ? # = . . . = . . . . # . . . . . . .
-. = ? . . ? # . . = . . . . . . # . . . . = . .
-. . = . . . # . . . . . . . . = # . . = . . ? .
-? . = ? = = # . ? . . . . ? . . # . ? . . ? U .
-. . . . . . ? . . = ? . . = = . = . . . . . . .
-. . . # # # # # . # # # # # # # # . # # # = . X
-[0m
-[34mLeyenda: J=jugador E=enemigo A=aliado F=fuego ?=oscuridad T=antorcha U=fuente ==madera o=objeto X=objetivo[0m
-[36mTecla  Salud 120/120  Energia 234/234  Pasos 0/2200  Formacion sin formacion[0m
-[36mALIADOS 3 | activos=3 | en combate=0 | evacuados=0 | caidos=0
-- AliadoAtlasV7_1 | Estado ACTIVO | Combate FUERA DE COMBATE | Vida 95/95 | Energia 232/232 | Posicion (15,8)
-  Objetos: botiquin_apoyo_AliadoAtlasV7_1, torito_apoyo_AliadoAtlasV7_1, radar_tactico_AliadoAtlasV7_1 | Equipo: ninguno
-- AliadoAtlasV7_2 | Estado ACTIVO | Combate FUERA DE COMBATE | Vida 95/95 | Energia 232/232 | Posicion (13,4)
-  Objetos: botiquin_apoyo_AliadoAtlasV7_2, torito_apoyo_AliadoAtlasV7_2 | Equipo: ninguno
-- AliadoAtlasV7_3 | Estado ACTIVO | Combate FUERA DE COMBATE | Vida 95/95 | Energia 232/232 | Posicion (14,0)
-  Objetos: botiquin_apoyo_AliadoAtlasV7_3, torito_apoyo_AliadoAtlasV7_3, radar_tactico_AliadoAtlasV7_3 | Equipo: ninguno[0m
-[36maccion> [0m[31mError de comando: Comando desconocido: ?ayuda[0m
-[34mJ . ? = . = . . . . . . . . . . . ? . = . . . .
-? . . . . = . . . . . . . . = . ? . = = . . . .
-. . = . . ? # ? . . . . = . = = # = = . . ? = .
-? = . . . . # . . ? . . ? . . . # = . . . = . .
-. . ? = . ? # . . ? . ? = = . ? . ? = = . . = .
-= . . . . . . . = . = = . . . ? # . . . . . = .
-. . = = . . # . ? ? . . . . . ? # . . . . . T .
-. ? = # . # # # # # # # # ? # # # # # # # = . .
-. . . = ? = # ? . ? . . = . . . # . . = . . . ?
-= . . . . . # ? . . . . ? . . . # . . . . = . .
-? . . . . = # . . . ? ? . . . . # . . . = . ? .
-. ? ? . . . # . ? . . ? . . . . # . ? . . . . =
-= . ? . . ? # ? . = . . . ? . = # . = ? . . . .
-= ? . = A . # . . . = ? . = . = . . . . = . . ?
-A . = # # # . # # # # # # # # ? # # # # # . . =
-? = . . ? . # ? A . = . . . = . # . . . . . . =
-. . . . . ? # = . . . = . . . . # . . . . . . .
-. = ? . . ? # . . = . . . . . . # . . . . = . .
-. . = . . . # . . . . . . . . = # . . = . . ? .
-? . = ? = = # . ? . . . . ? . . # . ? . . ? U .
-. . . . . . ? . . = ? . . = = . = . . . . . . .
-. . . # # # # # . # # # # # # # # . # # # = . X
-[0m
-[34mLeyenda: J=jugador E=enemigo A=aliado F=fuego ?=oscuridad T=antorcha U=fuente ==madera o=objeto X=objetivo[0m
-[36mTecla  Salud 120/120  Energia 234/234  Pasos 0/2200  Formacion sin formacion[0m
-[36mALIADOS 3 | activos=3 | en combate=0 | evacuados=0 | caidos=0
-- AliadoAtlasV7_1 | Estado ACTIVO | Combate FUERA DE COMBATE | Vida 95/95 | Energia 232/232 | Posicion (15,8)
-  Objetos: botiquin_apoyo_AliadoAtlasV7_1, torito_apoyo_AliadoAtlasV7_1, radar_tactico_AliadoAtlasV7_1 | Equipo: ninguno
-- AliadoAtlasV7_2 | Estado ACTIVO | Combate FUERA DE COMBATE | Vida 95/95 | Energia 232/232 | Posicion (13,4)
-  Objetos: botiquin_apoyo_AliadoAtlasV7_2, torito_apoyo_AliadoAtlasV7_2 | Equipo: ninguno
-- AliadoAtlasV7_3 | Estado ACTIVO | Combate FUERA DE COMBATE | Vida 95/95 | Energia 232/232 | Posicion (14,0)
-  Objetos: botiquin_apoyo_AliadoAtlasV7_3, torito_apoyo_AliadoAtlasV7_3, radar_tactico_AliadoAtlasV7_3 | Equipo: ninguno[0m
-[36maccion> [0m[34mFormacion defensiva: los aliados acompa�aran al jugador y adaptaran sus prioridades.[0m
-[34mAliadoAtlasV7_1 usa radar_tactico_AliadoAtlasV7_1 porque permite detectar una amenaza nueva este turno.[0m
-[34mAliadoAtlasV7_1 inspecciona la celda (15,8) y encuentra 0 objeto(s).[0m
-[34mAliadoAtlasV7_2 inspecciona la celda (13,4) y encuentra 0 objeto(s).[0m
-[34mAliadoAtlasV7_3 inspecciona la celda (14,0) y encuentra 0 objeto(s).[0m
-[34mLightFloater_2 detecta la formacion defensiva y adapta su ataque.[0m
-[34mLightFloater_2 ataca a AliadoAtlasV7_3: quita 4 de vida; quedan 91/95.[0m
-[34mLightFloater_4 ataca a Tecla: quita 4 de vida; quedan 116/120.[0m
-[34mLightFloater_13 detecta la formacion defensiva y adapta su ataque.[0m
-[34mLightFloater_13 ataca a AliadoAtlasV7_1: quita 4 de vida; quedan 91/95.[0m
-[34mJ . ? = . = . . . . . . . . . . . ? . = . . . .
-? . . . . = . . . . . . . . = . ? . = = . . . .
-. . = . . ? # ? . . . . = . = = # = = . . ? = .
-? = . . . . # . . ? . . ? . . . # = . . . = . .
-. . ? = . ? # . . ? . ? = = . ? . ? = = . . = .
-= . . . . . . . = . = = . . . ? # . . . . . = .
-. . = = . . # . ? ? . . . . . ? # . . . . . T .
-. ? = # . # # # # # # # # ? # # # # # # # = . .
-. . . = ? = # ? . ? . . = . . . # . . = . . . ?
-= . . . . . # ? . . . . ? . . . # . . . . = . .
-? . . . . = # . . . ? ? . . . . # . . . = . ? .
-. ? ? . . . # . ? . . ? . . . . # . ? . . . . =
-= . ? . A ? # ? . = . . . ? . = # . = ? . . . .
-A ? . = . . # . . . = ? . = . = . . . . = . . ?
-. . = # # # . # # # # # # # # ? # # # # # . . =
-? = . . ? . # ? . . = . . . = . # . . . . . . =
-. . . . . ? # = A . . = . . . . # . . . . . . .
-. = ? . . ? # . . = . . . . . . # . . . . = . .
-. . = . . . # . . . . . . . . = # . . = . . ? .
-? . = ? = = # . ? . . . . ? . . # . ? . . ? U .
-. . . . . . ? . . = ? . . = = . = . . . . . . .
-. . . # # # # # . # # # # # # # # . # # # = . X
-[0m
-[34mLeyenda: J=jugador E=enemigo A=aliado F=fuego ?=oscuridad T=antorcha U=fuente ==madera o=objeto X=objetivo[0m
-[36mTecla  Salud 116/120  Energia 234/234  Pasos 0/2200  Formacion defensiva[0m
-[36mALIADOS 3 | activos=3 | en combate=0 | evacuados=0 | caidos=0
-- AliadoAtlasV7_1 | Estado PROTEGIENDO AL JUGADOR | Combate FUERA DE COMBATE | Vida 91/95 | Energia 227/232 | Posicion (16,8)
-  Objetos: botiquin_apoyo_AliadoAtlasV7_1, torito_apoyo_AliadoAtlasV7_1 | Equipo: ninguno
-- AliadoAtlasV7_2 | Estado PROTEGIENDO AL JUGADOR | Combate FUERA DE COMBATE | Vida 95/95 | Energia 227/232 | Posicion (12,4)
-  Objetos: botiquin_apoyo_AliadoAtlasV7_2, torito_apoyo_AliadoAtlasV7_2 | Equipo: ninguno
-- AliadoAtlasV7_3 | Estado PROTEGIENDO AL JUGADOR | Combate FUERA DE COMBATE | Vida 91/95 | Energia 227/232 | Posicion (13,0)
-  Objetos: botiquin_apoyo_AliadoAtlasV7_3, torito_apoyo_AliadoAtlasV7_3, radar_tactico_AliadoAtlasV7_3 | Equipo: ninguno[0m
-[36maccion> [0m[34mPunto de despliegue[0m
-[34mObjetos: Linterna, Cubo de agua[0m
-[34mAliadoAtlasV7_1 inspecciona la celda (16,8) y encuentra 0 objeto(s).[0m
-[34mAliadoAtlasV7_1 ataca a LightFloater_13: quita 6 de vida; quedan 54/60.[0m
-[34mAliadoAtlasV7_2 inspecciona la celda (12,4) y encuentra 0 objeto(s).[0m
-[34mAliadoAtlasV7_3 inspecciona la celda (13,0) y encuentra 0 objeto(s).[0m
-[34mHeavyFloater_1 detecta la formacion defensiva y adapta su ataque.[0m
-[34mHeavyFloater_1 ataca a AliadoAtlasV7_2: quita 4 de vida; quedan 91/95.[0m
-[34mLightFloater_4 detecta la formacion defensiva y adapta su ataque.[0m
-[34mLightFloater_4 ataca a Tecla: quita 4 de vida; quedan 112/120.[0m
-[34mLightFloater_13 detecta la formacion defensiva y adapta su ataque.[0m
-[34mLightFloater_13 ataca a AliadoAtlasV7_1: quita 4 de vida; quedan 87/95.[0m
-[34mJ . ? = . = . . . . . . . . . . . ? . = . . . .
-? . . . . = . . . . . . . . = . ? . = = . . . .
-. . = . . ? # ? . . . . = . = = # = = . . ? = .
-? = . . . . # . . ? . . ? . . . # = . . . = . .
-. . ? = . ? # . . ? . ? = = . ? . ? = = . . = .
-= . . . . . . . = . = = . . . ? # . . . . . = .
-. . = = . . # . ? ? . . . . . ? # . . . . . T .
-. ? = # . # # # # # # # # ? # # # # # # # = . .
-. . . = ? = # ? . ? . . = . . . # . . = . . . ?
-= . . . . . # ? . . . . ? . . . # . . . . = . .
-? . . . . = # . . . ? ? . . . . # . . . = . ? .
-. ? ? . A . # . ? . . ? . . . . # . ? . . . . =
-A . ? . . ? # ? . = . . . ? . = # . = ? . . . .
-= ? . = . . # . . . = ? . = . = . . . . = . . ?
-. . = # # # . # # # # # # # # ? # # # # # . . =
-? = . . ? . # ? . . = . . . = . # . . . . . . =
-. . . . . ? # = A . . = . . . . # . . . . . . .
-. = ? . . ? # . . = . . . . . . # . . . . = . .
-. . = . . . # . . . . . . . . = # . . = . . ? .
-? . = ? = = # . ? . . . . ? . . # . ? . . ? U .
-. . . . . . ? . . = ? . . = = . = . . . . . . .
-. . . # # # # # . # # # # # # # # . # # # = . X
-[0m
-[34mLeyenda: J=jugador E=enemigo A=aliado F=fuego ?=oscuridad T=antorcha U=fuente ==madera o=objeto X=objetivo[0m
-[36mTecla  Salud 112/120  Energia 234/234  Pasos 0/2200  Formacion defensiva[0m
-[36mALIADOS 3 | activos=3 | en combate=1 | evacuados=0 | caidos=0
-- AliadoAtlasV7_1 | Estado PROTEGIENDO AL JUGADOR | Combate EN COMBATE | Vida 87/95 | Energia 227/232 | Posicion (16,8)
-  Objetos: botiquin_apoyo_AliadoAtlasV7_1, torito_apoyo_AliadoAtlasV7_1 | Equipo: ninguno
-- AliadoAtlasV7_2 | Estado PROTEGIENDO AL JUGADOR | Combate FUERA DE COMBATE | Vida 91/95 | Energia 222/232 | Posicion (11,4)
-  Objetos: botiquin_apoyo_AliadoAtlasV7_2, torito_apoyo_AliadoAtlasV7_2 | Equipo: ninguno
-- AliadoAtlasV7_3 | Estado PROTEGIENDO AL JUGADOR | Combate FUERA DE COMBATE | Vida 91/95 | Energia 222/232 | Posicion (12,0)
-  Objetos: botiquin_apoyo_AliadoAtlasV7_3, torito_apoyo_AliadoAtlasV7_3, radar_tactico_AliadoAtlasV7_3 | Equipo: ninguno[0m
-[36maccion> [0m[34mFormacion ofensiva: los aliados acompa�aran al jugador y adaptaran sus prioridades.[0m
-[34mAliadoAtlasV7_2 inspecciona la celda (11,4) y encuentra 1 objeto(s).[0m
-[34mAliadoAtlasV7_2 recoge y equipa binocular_152.[0m
-[34mAliadoAtlasV7_3 usa radar_tactico_AliadoAtlasV7_3 porque permite detectar una amenaza nueva este turno.[0m
-[34mAliadoAtlasV7_3 inspecciona la celda (12,0) y encuentra 1 objeto(s).[0m
-[34mAliadoAtlasV7_3 recoge y equipa rifle_46.[0m
-[34mLightFloater_0 detecta la formacion ofensiva y adapta su ataque.[0m
-[34mLightFloater_0 ataca a AliadoAtlasV7_2: quita 4 de vida; quedan 87/95.[0m
-[34mHeavyFloater_1 detecta la formacion ofensiva y adapta su ataque.[0m
-[34mHeavyFloater_1 ataca a AliadoAtlasV7_3: quita 4 de vida; quedan 87/95.[0m
-[34mLightFloater_4 detecta la formacion ofensiva y adapta su ataque.[0m
-[34mLightFloater_4 ataca a Tecla: quita 4 de vida; quedan 108/120.[0m
-[34mJ . ? = . = . . . . . . . . . . . ? . = . . . .
-? . . . . = . . . . . . . . = . ? . = = . . . .
-. . = . . ? # ? . . . . = . = = # = = . . ? = .
-? = . . . . # . . ? . . ? . . . # = . . . = . .
-. . ? = . ? # . . ? . ? = = . ? . ? = = . . = .
-= . . . . . . . = . = = . . . ? # . . . . . = .
-. . = = . . # . ? ? . . . . . ? # . . . . . T .
-. ? = # . # # # # # # # # ? # # # # # # # = . .
-. . . = ? = # ? . ? . . = . . . # . . = . . . ?
-= . . . . . # ? . . . . ? . . . # . . . . = . .
-? . . . A = # . . . ? ? . . . . # . . . = . ? .
-A ? ? . . . # . ? . . ? . . . . # . ? . . . . =
-= . ? . . ? # ? . = . . . ? . = # . = ? . . . .
-= ? . = . . # . . . = ? . = . = . . . . = . . ?
-. . = # # # . # # # # # # # # ? # # # # # . . =
-? = . . ? . # ? . . = . . . = . # . . . . . . =
-. . . . . ? # = . . . = . . . . # . . . . . . .
-. = ? . . ? # . A = . . . . . . # . . . . = . .
-. . = . . . # . . . . . . . . = # . . = . . ? .
-? . = ? = = # . ? . . . . ? . . # . ? . . ? U .
-. . . . . . ? . . = ? . . = = . = . . . . . . .
-. . . # # # # # . # # # # # # # # . # # # = . X
-[0m
-[34mLeyenda: J=jugador E=enemigo A=aliado F=fuego ?=oscuridad T=antorcha U=fuente ==madera o=objeto X=objetivo[0m
-[36mTecla  Salud 108/120  Energia 234/234  Pasos 0/2200  Formacion ofensiva[0m
-[36mALIADOS 3 | activos=3 | en combate=0 | evacuados=0 | caidos=0
-- AliadoAtlasV7_1 | Estado EN COMBATE | Combate FUERA DE COMBATE | Vida 87/95 | Energia 222/232 | Posicion (17,8)
-  Objetos: botiquin_apoyo_AliadoAtlasV7_1, torito_apoyo_AliadoAtlasV7_1 | Equipo: ninguno
-- AliadoAtlasV7_2 | Estado EN COMBATE | Combate FUERA DE COMBATE | Vida 87/95 | Energia 217/232 | Posicion (10,4)
-  Objetos: botiquin_apoyo_AliadoAtlasV7_2, torito_apoyo_AliadoAtlasV7_2 | Equipo: binocular binocular_152
-- AliadoAtlasV7_3 | Estado EN COMBATE | Combate FUERA DE COMBATE | Vida 87/95 | Energia 217/232 | Posicion (11,0)
-  Objetos: botiquin_apoyo_AliadoAtlasV7_3, torito_apoyo_AliadoAtlasV7_3 | Equipo: arma rifle_46[0m
-[36maccion> [0m[34mMochila: peso 0,00/40.0 kg, espacio restante 10[0m
-[33m(vacia)[0m
-[34mAliadoAtlasV7_1 inspecciona la celda (17,8) y encuentra 1 objeto(s).[0m
-[34mAliadoAtlasV7_1 recoge torito_5.[0m
-[34mAliadoAtlasV7_2 inspecciona la celda (10,4) y encuentra 0 objeto(s).[0m
-[34mAliadoAtlasV7_3 inspecciona la celda (11,0) y encuentra 0 objeto(s).[0m
-[34mLightFloater_0 detecta la formacion ofensiva y adapta su ataque.[0m
-[34mLightFloater_0 ataca a AliadoAtlasV7_2: quita 4 de vida; quedan 83/95.[0m
-[34mLightFloater_4 detecta la formacion ofensiva y adapta su ataque.[0m
-[34mLightFloater_4 ataca a Tecla: quita 4 de vida; quedan 104/120.[0m
-[34mJ . ? = . = . . . . . . . . . . . ? . = . . . .
-? . . . . = . . . . . . . . = . ? . = = . . . .
-. . = . . ? # ? . . . . = . = = # = = . . ? = .
-? = . . . . # . . ? . . ? . . . # = . . . = . .
-. . ? = . ? # . . ? . ? = = . ? . ? = = . . = .
-= . . . . . . . = . = = . . . ? # . . . . . = .
-. . = = . . # . ? ? . . . . . ? # . . . . . T .
-. ? = # . # # # # # # # # ? # # # # # # # = . .
-. . . = ? = # ? . ? . . = . . . # . . = . . . ?
-= . . . A . # ? . . . . ? . . . # . . . . = . .
 ? . . . . = # . . . ? ? . . . . # . . . = . ? .
 . ? ? . . . # . ? . . ? . . . . # . ? . . . . =
 = . ? . . ? # ? . = . . . ? . = # . = ? . . . .
@@ -228,33 +29,266 @@ A ? ? . . . # . ? . . ? . . . . # . ? . . . . =
 ? = . . ? . # ? . . = . . . = . # . . . . . . =
 . . . . . ? # = . . . = . . . . # . . . . . . .
 . = ? . . ? # . . = . . . . . . # . . . . = . .
-. . = . . . # . A . . . . . . = # . . = . . ? .
+. . = . . . # . . . . . . . . = # . . = . . ? .
 ? . = ? = = # . ? . . . . ? . . # . ? . . ? U .
 . . . . . . ? . . = ? . . = = . = . . . . . . .
 . . . # # # # # . # # # # # # # # . # # # = . X
-[0m
-[34mLeyenda: J=jugador E=enemigo A=aliado F=fuego ?=oscuridad T=antorcha U=fuente ==madera o=objeto X=objetivo[0m
-[36mTecla  Salud 104/120  Energia 234/234  Pasos 0/2200  Formacion ofensiva[0m
-[36mALIADOS 3 | activos=3 | en combate=0 | evacuados=0 | caidos=0
-- AliadoAtlasV7_1 | Estado EN COMBATE | Combate FUERA DE COMBATE | Vida 87/95 | Energia 217/232 | Posicion (18,8)
-  Objetos: botiquin_apoyo_AliadoAtlasV7_1, torito_apoyo_AliadoAtlasV7_1, torito_5 | Equipo: ninguno
-- AliadoAtlasV7_2 | Estado EN COMBATE | Combate FUERA DE COMBATE | Vida 83/95 | Energia 212/232 | Posicion (9,4)
-  Objetos: botiquin_apoyo_AliadoAtlasV7_2, torito_apoyo_AliadoAtlasV7_2 | Equipo: binocular binocular_152
-- AliadoAtlasV7_3 | Estado EN COMBATE | Combate FUERA DE COMBATE | Vida 87/95 | Energia 212/232 | Posicion (10,0)
-  Objetos: botiquin_apoyo_AliadoAtlasV7_3, torito_apoyo_AliadoAtlasV7_3 | Equipo: arma rifle_46[0m
-[36maccion> [0m[34mPartida finalizada.[0m
-[36mALIADOS 3 | activos=3 | en combate=0 | evacuados=0 | caidos=0
-- AliadoAtlasV7_1 | Estado EN COMBATE | Combate FUERA DE COMBATE | Vida 87/95 | Energia 217/232 | Posicion (18,8)
-  Objetos: botiquin_apoyo_AliadoAtlasV7_1, torito_apoyo_AliadoAtlasV7_1, torito_5 | Equipo: ninguno
-- AliadoAtlasV7_2 | Estado EN COMBATE | Combate FUERA DE COMBATE | Vida 83/95 | Energia 212/232 | Posicion (9,4)
-  Objetos: botiquin_apoyo_AliadoAtlasV7_2, torito_apoyo_AliadoAtlasV7_2 | Equipo: binocular binocular_152
-- AliadoAtlasV7_3 | Estado EN COMBATE | Combate FUERA DE COMBATE | Vida 87/95 | Energia 212/232 | Posicion (10,0)
-  Objetos: botiquin_apoyo_AliadoAtlasV7_3, torito_apoyo_AliadoAtlasV7_3 | Equipo: arma rifle_46[0m
-[34mPuntuacion final: 710[0m
-[34m  - Salud restante: 260[0m
-[34m  - Energia restante: 200[0m
-[34m  - Eficiencia en pasos: 250[0m
-[34m  - Progreso hacia objetivo: 0[0m
-[34m  - Enemigos derrotados (0): 0[0m
-[34m  - Ajuste por resultado final: 0[0m
-[34mRecorrido: (0,0) [0m
+
+Leyenda: J=jugador E=enemigo A=aliado F=fuego ?=oscuridad T=antorcha U=fuente ==madera o=objeto X=objetivo
+Tecla  Nivel 1  Salud 120/120  Energia 234/234  Pasos 0/2200  Formacion sin formacion  Efectos ninguno
+ALIADOS 3 | activos=3 | en combate=0 | evacuados=0 | caidos=0 | puntuacion total=1800
+- AliadoAtlasV7_1 | Estado ACTIVO | Combate FUERA DE COMBATE | Nivel 1 | Rol Medico | Vida 95/95 | Energia 232/232 | Puntuacion 600 | Posicion (0,0) | Efectos ninguno
+  Objetos: botiquin_apoyo_AliadoAtlasV7_1, torito_apoyo_AliadoAtlasV7_1, botiquin_reserva_AliadoAtlasV7_1, torito_reserva_AliadoAtlasV7_1 | Equipo: ninguno
+- AliadoAtlasV7_2 | Estado ACTIVO | Combate FUERA DE COMBATE | Nivel 1 | Rol Combatiente | Vida 95/95 | Energia 232/232 | Puntuacion 600 | Posicion (0,0) | Efectos ninguno
+  Objetos: botiquin_apoyo_AliadoAtlasV7_2, torito_apoyo_AliadoAtlasV7_2 | Equipo: ninguno
+- AliadoAtlasV7_3 | Estado ACTIVO | Combate FUERA DE COMBATE | Nivel 1 | Rol Combatiente | Vida 95/95 | Energia 232/232 | Puntuacion 600 | Posicion (0,0) | Efectos ninguno
+  Objetos: botiquin_apoyo_AliadoAtlasV7_3, torito_apoyo_AliadoAtlasV7_3, radar_tactico_AliadoAtlasV7_3 | Equipo: ninguno
+accion> COMANDOS DISPONIBLES
+
+1) mover <norte|sur|este|oeste> [repeticiones]
+   Ejemplos: mover norte | mover este 3
+2) mirar [objeto|<distancia><direccion> [enemigo]]
+   Ejemplos: mirar | mirar rifle | mirar 3e | mirar 3e Sectoid_A
+3) coger <objeto>
+   Ejemplo: coger rifle
+4) tirar <objeto>
+   Ejemplo: tirar botiquin
+5) inventario (alias: mochila)
+   Ejemplo: inventario
+6) usar <objeto>
+   Ejemplo: usar botiquin
+7) equipar <arma|armadura|binocular> [equipado]
+   Ejemplo compuesto: equipar lanzacohetes ametralladora
+8) desequipar <arma|armadura>
+   Ejemplo: desequipar rifle | desequipar chaleco
+9) atacar [<distancia><direccion>] [objetivo|todos] [repeticiones]
+   Ejemplos: atacar | atacar todos | atacar 2e Sectoid_A 2
+10) lanzar <distancia><direccion> <explosivo>
+    Ejemplo: lanzar 3e c4_1 (solo zapador, alcance maximo 5)
+11) recorrido
+    Ejemplo: recorrido
+12) pedir ayuda (alias: socorro o asistir)
+    Los aliados seguros buscan suministros, acuden y combaten
+13) reagrupar <defensiva|ofensiva|ninguna> (alias: formacion)
+    Los aliados acompa�an al jugador; los enemigos reaccionan si la detectan
+    Si escasean suministros, el aliado en mejor estado explora cerca del grupo
+    romper formacion devuelve a los aliados a su comportamiento autonomo
+14) descansar (alias: reposar)
+    Recupera un 10 % de salud y energia sin moverse; los enemigos se acercan
+15) ayuda (alias: comandos)
+    Ejemplo: ayuda
+16) cargar <directorio>
+    Carga escenario.json o mapa.txt, objetos.txt y enemigos.txt
+17) recargar [arma] | estado arma
+18) dar <objeto> <aliado> | pedir <objeto> <aliado>
+    intercambiar <objeto1> <objeto2> <aliado>
+19) abrir puerta | cerrar puerta | hackear terminal | activar interruptor
+20) inspeccionar trampa | desactivar trampa
+21) recetas | fabricar <objeto>
+22) guardar partida [archivo] | cargar partida [archivo]
+23) estadisticas (alias: logros)
+24) salir
+    Ejemplo: salir
+AliadoAtlasV7_1 inspecciona la celda (0,0) y encuentra 2 objeto(s).
+AliadoAtlasV7_1 recoge Linterna.
+AliadoAtlasV7_1 explora una celda desconocida para buscar suministros para el jugador.
+AliadoAtlasV7_2 inspecciona la celda (0,0) y encuentra 1 objeto(s).
+AliadoAtlasV7_2 recoge Cubo de agua.
+AliadoAtlasV7_2 usa torito_apoyo_AliadoAtlasV7_2 para dar energia a AliadoAtlasV7_1.
+AliadoAtlasV7_3 inspecciona la celda (0,0) y encuentra 0 objeto(s).
+AliadoAtlasV7_3 explora una celda desconocida para buscar suministros para el jugador.
+J . ? = . = . . . . . . . . . . . ? . = . . . .
+? . . . . = . . . . . . . . = . ? . = = . . . .
+. . = . . ? # ? . . . . = . = = # = = . . ? = .
+? = . . . . # . . ? . . ? . . . # = . . . = . .
+. . ? = . ? # . . ? . ? = = . ? . ? = = . . = .
+= . . . . . . . = . = = . . . ? # . . . . . = .
+. . = = . . # . ? ? . . . . . ? # . . . . . T .
+. ? = # . # # # # # # # # ? # # # # # # # = . .
+. . . = ? = # ? . ? . . = . . . # . . = . . . ?
+= . . . . . # ? . . . . ? . . . # . . . . = . .
+? . . . . = # . . . ? ? . . . . # . . . = . ? .
+. ? ? . . . # . ? . . ? . . . . # . ? . . . . =
+= . ? . . ? # ? . = . . . ? . = # . = ? . . . .
+= ? . = . . # . . . = ? . = . = . . . . = . . ?
+. . = # # # . # # # # # # # # ? # # # # # . . =
+? = . . ? . # ? . . = . . . = . # . . . . . . =
+. . . . . ? # = . . . = . . . . # . . . . . . .
+. = ? . . ? # . . = . . . . . . # . . . . = . .
+. . = . . . # . . . . . . . . = # . . = . . ? .
+? . = ? = = # . ? . . . . ? . . # . ? . . ? U .
+. . . . . . ? . . = ? . . = = . = . . . . . . .
+. . . # # # # # . # # # # # # # # . # # # = . X
+
+Leyenda: J=jugador E=enemigo A=aliado F=fuego ?=oscuridad T=antorcha U=fuente ==madera o=objeto X=objetivo
+Tecla  Nivel 1  Salud 120/120  Energia 234/234  Pasos 0/2200  Formacion sin formacion  Efectos ninguno
+ALIADOS 3 | activos=3 | en combate=0 | evacuados=0 | caidos=0 | puntuacion total=1806
+- AliadoAtlasV7_1 | Estado BUSCANDO SUMINISTROS | Combate FUERA DE COMBATE | Nivel 1 | Rol Medico | Vida 95/95 | Energia 232/232 | Puntuacion 605 | Posicion (1,0) | Efectos ninguno
+  Objetos: botiquin_apoyo_AliadoAtlasV7_1, torito_apoyo_AliadoAtlasV7_1, botiquin_reserva_AliadoAtlasV7_1, torito_reserva_AliadoAtlasV7_1, Linterna | Equipo: ninguno
+- AliadoAtlasV7_2 | Estado ASISTIENDO A OTRO ALIADO | Combate FUERA DE COMBATE | Nivel 1 | Rol Combatiente | Vida 95/95 | Energia 232/232 | Puntuacion 600 | Posicion (0,0) | Efectos ninguno
+  Objetos: botiquin_apoyo_AliadoAtlasV7_2, Cubo de agua | Equipo: ninguno
+- AliadoAtlasV7_3 | Estado BUSCANDO SUMINISTROS | Combate FUERA DE COMBATE | Nivel 1 | Rol Combatiente | Vida 95/95 | Energia 227/232 | Puntuacion 601 | Posicion (1,0) | Efectos ninguno
+  Objetos: botiquin_apoyo_AliadoAtlasV7_3, torito_apoyo_AliadoAtlasV7_3, radar_tactico_AliadoAtlasV7_3 | Equipo: ninguno
+accion> Formacion defensiva: los aliados acompa�aran al jugador y adaptaran sus prioridades.
+AliadoAtlasV7_1 enciende Linterna.
+AliadoAtlasV7_1 inspecciona la celda (1,0) y encuentra 0 objeto(s).
+AliadoAtlasV7_1 usa torito_apoyo_AliadoAtlasV7_1 para dar energia a AliadoAtlasV7_3.
+AliadoAtlasV7_3 inspecciona la celda (1,0) y encuentra 0 objeto(s).
+J . . = . = . . . . . . . . . . . ? . = . . . .
+A . . . . = . . . . . . . . = . ? . = = . . . .
+. . = . . ? # ? . . . . = . = = # = = . . ? = .
+. = . . . . # . . ? . . ? . . . # = . . . = . .
+. . ? = . ? # . . ? . ? = = . ? . ? = = . . = .
+= . . . . . . . = . = = . . . ? # . . . . . = .
+. . = = . . # . ? ? . . . . . ? # . . . . . T .
+. ? = # . # # # # # # # # ? # # # # # # # = . .
+. . . = ? = # ? . ? . . = . . . # . . = . . . ?
+= . . . . . # ? . . . . ? . . . # . . . . = . .
+? . . . . = # . . . ? ? . . . . # . . . = . ? .
+. ? ? . . . # . ? . . ? . . . . # . ? . . . . =
+= . ? . . ? # ? . = . . . ? . = # . = ? . . . .
+= ? . = . . # . . . = ? . = . = . . . . = . . ?
+. . = # # # . # # # # # # # # ? # # # # # . . =
+? = . . ? . # ? . . = . . . = . # . . . . . . =
+. . . . . ? # = . . . = . . . . # . . . . . . .
+. = ? . . ? # . . = . . . . . . # . . . . = . .
+. . = . . . # . . . . . . . . = # . . = . . ? .
+? . = ? = = # . ? . . . . ? . . # . ? . . ? U .
+. . . . . . ? . . = ? . . = = . = . . . . . . .
+. . . # # # # # . # # # # # # # # . # # # = . X
+
+Leyenda: J=jugador E=enemigo A=aliado F=fuego ?=oscuridad T=antorcha U=fuente ==madera o=objeto X=objetivo
+Tecla  Nivel 1  Salud 120/120  Energia 234/234  Pasos 0/2200  Formacion defensiva  Efectos ninguno
+ALIADOS 3 | activos=3 | en combate=0 | evacuados=0 | caidos=0 | puntuacion total=1810
+- AliadoAtlasV7_1 | Estado ASISTIENDO A OTRO ALIADO | Combate FUERA DE COMBATE | Nivel 1 | Rol Medico | Vida 95/95 | Energia 232/232 | Puntuacion 605 | Posicion (1,0) | Efectos ninguno
+  Objetos: botiquin_apoyo_AliadoAtlasV7_1, botiquin_reserva_AliadoAtlasV7_1, torito_reserva_AliadoAtlasV7_1, Linterna | Equipo: ninguno
+- AliadoAtlasV7_2 | Estado PROTEGIENDO AL JUGADOR | Combate FUERA DE COMBATE | Nivel 1 | Rol Combatiente | Vida 95/95 | Energia 232/232 | Puntuacion 600 | Posicion (0,0) | Efectos ninguno
+  Objetos: botiquin_apoyo_AliadoAtlasV7_2, Cubo de agua | Equipo: ninguno
+- AliadoAtlasV7_3 | Estado PROTEGIENDO AL JUGADOR | Combate FUERA DE COMBATE | Nivel 1 | Rol Combatiente | Vida 95/95 | Energia 232/232 | Puntuacion 605 | Posicion (1,0) | Efectos ninguno
+  Objetos: botiquin_apoyo_AliadoAtlasV7_3, torito_apoyo_AliadoAtlasV7_3, radar_tactico_AliadoAtlasV7_3 | Equipo: ninguno
+accion> Entorno del escenario: esta celda ocupa el sector norte-oeste de "Megabase Atlas - Variante 7" (fila 1, columna 1). El contexto del lugar es: Complejo militar de gran escala, distribucion 7. Es el punto de despliegue y referencia de entrada del grupo.
+Estado actual del lugar: El suelo es de piedra firme y el terreno permite el paso, salvo por los elementos que lo ocupen. La iluminacion ambiental permite distinguir con claridad el escenario. No hay fuego activo en este lugar. No se observan estructuras interactivas adicionales.
+No hay objetos en esta celda.
+AliadoAtlasV7_1 explora una celda desconocida para buscar suministros para el jugador.
+J . . = . = . . . . . . . . . . . ? . = . . . .
+A . . . . = . . . . . . . . = . ? . = = . . . .
+A . = . . ? # ? . . . . = . = = # = = . . ? = .
+. = . . . . # . . ? . . ? . . . # = . . . = . .
+. . . = . ? # . . ? . ? = = . ? . ? = = . . = .
+= . . . . . . . = . = = . . . ? # . . . . . = .
+. . = = . . # . ? ? . . . . . ? # . . . . . T .
+. ? = # . # # # # # # # # ? # # # # # # # = . .
+. . . = ? = # ? . ? . . = . . . # . . = . . . ?
+= . . . . . # ? . . . . ? . . . # . . . . = . .
+? . . . . = # . . . ? ? . . . . # . . . = . ? .
+. ? ? . . . # . ? . . ? . . . . # . ? . . . . =
+= . ? . . ? # ? . = . . . ? . = # . = ? . . . .
+= ? . = . . # . . . = ? . = . = . . . . = . . ?
+. . = # # # . # # # # # # # # ? # # # # # . . =
+? = . . ? . # ? . . = . . . = . # . . . . . . =
+. . . . . ? # = . . . = . . . . # . . . . . . .
+. = ? . . ? # . . = . . . . . . # . . . . = . .
+. . = . . . # . . . . . . . . = # . . = . . ? .
+? . = ? = = # . ? . . . . ? . . # . ? . . ? U .
+. . . . . . ? . . = ? . . = = . = . . . . . . .
+. . . # # # # # . # # # # # # # # . # # # = . X
+
+Leyenda: J=jugador E=enemigo A=aliado F=fuego ?=oscuridad T=antorcha U=fuente ==madera o=objeto X=objetivo
+Tecla  Nivel 1  Salud 120/120  Energia 234/234  Pasos 0/2200  Formacion defensiva  Efectos ninguno
+ALIADOS 3 | activos=3 | en combate=0 | evacuados=0 | caidos=0 | puntuacion total=1809
+- AliadoAtlasV7_1 | Estado BUSCANDO SUMINISTROS | Combate FUERA DE COMBATE | Nivel 1 | Rol Medico | Vida 95/95 | Energia 226/232 | Puntuacion 604 | Posicion (2,0) | Efectos ninguno
+  Objetos: botiquin_apoyo_AliadoAtlasV7_1, botiquin_reserva_AliadoAtlasV7_1, torito_reserva_AliadoAtlasV7_1, Linterna | Equipo: ninguno
+- AliadoAtlasV7_2 | Estado PROTEGIENDO AL JUGADOR | Combate FUERA DE COMBATE | Nivel 1 | Rol Combatiente | Vida 95/95 | Energia 232/232 | Puntuacion 600 | Posicion (0,0) | Efectos ninguno
+  Objetos: botiquin_apoyo_AliadoAtlasV7_2, Cubo de agua | Equipo: ninguno
+- AliadoAtlasV7_3 | Estado PROTEGIENDO AL JUGADOR | Combate FUERA DE COMBATE | Nivel 1 | Rol Combatiente | Vida 95/95 | Energia 232/232 | Puntuacion 605 | Posicion (1,0) | Efectos ninguno
+  Objetos: botiquin_apoyo_AliadoAtlasV7_3, torito_apoyo_AliadoAtlasV7_3, radar_tactico_AliadoAtlasV7_3 | Equipo: ninguno
+accion> Formacion ofensiva: los aliados acompa�aran al jugador y adaptaran sus prioridades.
+AliadoAtlasV7_1 apaga Linterna.
+AliadoAtlasV7_1 inspecciona la celda (2,0) y encuentra 0 objeto(s).
+AliadoAtlasV7_1 usa torito_reserva_AliadoAtlasV7_1 para dar energia a AliadoAtlasV7_1.
+J . ? = . = . . . . . . . . . . . ? . = . . . .
+? A . . . = . . . . . . . . = . ? . = = . . . .
+A . = . . ? # ? . . . . = . = = # = = . . ? = .
+? = . . . . # . . ? . . ? . . . # = . . . = . .
+. . ? = . ? # . . ? . ? = = . ? . ? = = . . = .
+= . . . . . . . = . = = . . . ? # . . . . . = .
+. . = = . . # . ? ? . . . . . ? # . . . . . T .
+. ? = # . # # # # # # # # ? # # # # # # # = . .
+. . . = ? = # ? . ? . . = . . . # . . = . . . ?
+= . . . . . # ? . . . . ? . . . # . . . . = . .
+? . . . . = # . . . ? ? . . . . # . . . = . ? .
+. ? ? . . . # . ? . . ? . . . . # . ? . . . . =
+= . ? . . ? # ? . = . . . ? . = # . = ? . . . .
+= ? . = . . # . . . = ? . = . = . . . . = . . ?
+. . = # # # . # # # # # # # # ? # # # # # . . =
+? = . . ? . # ? . . = . . . = . # . . . . . . =
+. . . . . ? # = . . . = . . . . # . . . . . . .
+. = ? . . ? # . . = . . . . . . # . . . . = . .
+. . = . . . # . . . . . . . . = # . . = . . ? .
+? . = ? = = # . ? . . . . ? . . # . ? . . ? U .
+. . . . . . ? . . = ? . . = = . = . . . . . . .
+. . . # # # # # . # # # # # # # # . # # # = . X
+
+Leyenda: J=jugador E=enemigo A=aliado F=fuego ?=oscuridad T=antorcha U=fuente ==madera o=objeto X=objetivo
+Tecla  Nivel 1  Salud 120/120  Energia 234/234  Pasos 0/2200  Formacion ofensiva  Efectos ninguno
+ALIADOS 3 | activos=3 | en combate=0 | evacuados=0 | caidos=0 | puntuacion total=1814
+- AliadoAtlasV7_1 | Estado ASISTIENDO A OTRO ALIADO | Combate FUERA DE COMBATE | Nivel 1 | Rol Medico | Vida 95/95 | Energia 232/232 | Puntuacion 609 | Posicion (2,0) | Efectos ninguno
+  Objetos: botiquin_apoyo_AliadoAtlasV7_1, botiquin_reserva_AliadoAtlasV7_1, Linterna | Equipo: ninguno
+- AliadoAtlasV7_2 | Estado EN COMBATE | Combate FUERA DE COMBATE | Nivel 1 | Rol Combatiente | Vida 95/95 | Energia 227/232 | Puntuacion 601 | Posicion (1,0) | Efectos ninguno
+  Objetos: botiquin_apoyo_AliadoAtlasV7_2, Cubo de agua | Equipo: ninguno
+- AliadoAtlasV7_3 | Estado EN COMBATE | Combate FUERA DE COMBATE | Nivel 1 | Rol Combatiente | Vida 95/95 | Energia 226/232 | Puntuacion 604 | Posicion (1,1) | Efectos ninguno
+  Objetos: botiquin_apoyo_AliadoAtlasV7_3, torito_apoyo_AliadoAtlasV7_3, radar_tactico_AliadoAtlasV7_3 | Equipo: ninguno
+accion> Mochila: peso 0,00/40.0 kg, espacio restante 10
+(vacia)
+AliadoAtlasV7_1 explora una celda desconocida para buscar suministros para el jugador.
+AliadoAtlasV7_2 inspecciona la celda (1,0) y encuentra 0 objeto(s).
+AliadoAtlasV7_3 inspecciona la celda (1,1) y encuentra 1 objeto(s).
+AliadoAtlasV7_3 recoge y equipa armadura_22.
+J A ? = . = . . . . . . . . . . . ? . = . . . .
+? . . . . = . . . . . . . . = . ? . = = . . . .
+. . = . . ? # ? . . . . = . = = # = = . . ? = .
+? = . . . . # . . ? . . ? . . . # = . . . = . .
+. . ? = . ? # . . ? . ? = = . ? . ? = = . . = .
+= . . . . . . . = . = = . . . ? # . . . . . = .
+. . = = . . # . ? ? . . . . . ? # . . . . . T .
+. ? = # . # # # # # # # # ? # # # # # # # = . .
+. . . = ? = # ? . ? . . = . . . # . . = . . . ?
+= . . . . . # ? . . . . ? . . . # . . . . = . .
+? . . . . = # . . . ? ? . . . . # . . . = . ? .
+. ? ? . . . # . ? . . ? . . . . # . ? . . . . =
+= . ? . . ? # ? . = . . . ? . = # . = ? . . . .
+= ? . = . . # . . . = ? . = . = . . . . = . . ?
+. . = # # # . # # # # # # # # ? # # # # # . . =
+? = . . ? . # ? . . = . . . = . # . . . . . . =
+. . . . . ? # = . . . = . . . . # . . . . . . .
+. = ? . . ? # . . = . . . . . . # . . . . = . .
+. . = . . . # . . . . . . . . = # . . = . . ? .
+? . = ? = = # . ? . . . . ? . . # . ? . . ? U .
+. . . . . . ? . . = ? . . = = . = . . . . . . .
+. . . # # # # # . # # # # # # # # . # # # = . X
+
+Leyenda: J=jugador E=enemigo A=aliado F=fuego ?=oscuridad T=antorcha U=fuente ==madera o=objeto X=objetivo
+Tecla  Nivel 1  Salud 120/120  Energia 234/234  Pasos 0/2200  Formacion ofensiva  Efectos ninguno
+ALIADOS 3 | activos=3 | en combate=0 | evacuados=0 | caidos=0 | puntuacion total=1796
+- AliadoAtlasV7_1 | Estado BUSCANDO SUMINISTROS | Combate FUERA DE COMBATE | Nivel 1 | Rol Medico | Vida 95/95 | Energia 226/232 | Puntuacion 609 | Posicion (3,0) | Efectos ninguno
+  Objetos: botiquin_apoyo_AliadoAtlasV7_1, botiquin_reserva_AliadoAtlasV7_1, Linterna | Equipo: ninguno
+- AliadoAtlasV7_2 | Estado EN COMBATE | Combate FUERA DE COMBATE | Nivel 1 | Rol Combatiente | Vida 95/95 | Energia 222/232 | Puntuacion 591 | Posicion (0,0) | Efectos ninguno
+  Objetos: botiquin_apoyo_AliadoAtlasV7_2, Cubo de agua | Equipo: ninguno
+- AliadoAtlasV7_3 | Estado EN COMBATE | Combate FUERA DE COMBATE | Nivel 1 | Rol Combatiente | Vida 103/103 | Energia 229/240 | Puntuacion 596 | Posicion (0,1) | Efectos ninguno
+  Objetos: botiquin_apoyo_AliadoAtlasV7_3, torito_apoyo_AliadoAtlasV7_3, radar_tactico_AliadoAtlasV7_3 | Equipo: armadura armadura_22
+accion> Partida finalizada.
+ALIADOS 3 | activos=3 | en combate=0 | evacuados=0 | caidos=0 | puntuacion total=1796
+- AliadoAtlasV7_1 | Estado BUSCANDO SUMINISTROS | Combate FUERA DE COMBATE | Nivel 1 | Rol Medico | Vida 95/95 | Energia 226/232 | Puntuacion 609 | Posicion (3,0) | Efectos ninguno
+  Objetos: botiquin_apoyo_AliadoAtlasV7_1, botiquin_reserva_AliadoAtlasV7_1, Linterna | Equipo: ninguno
+- AliadoAtlasV7_2 | Estado EN COMBATE | Combate FUERA DE COMBATE | Nivel 1 | Rol Combatiente | Vida 95/95 | Energia 222/232 | Puntuacion 591 | Posicion (0,0) | Efectos ninguno
+  Objetos: botiquin_apoyo_AliadoAtlasV7_2, Cubo de agua | Equipo: ninguno
+- AliadoAtlasV7_3 | Estado EN COMBATE | Combate FUERA DE COMBATE | Nivel 1 | Rol Combatiente | Vida 103/103 | Energia 229/240 | Puntuacion 596 | Posicion (0,1) | Efectos ninguno
+  Objetos: botiquin_apoyo_AliadoAtlasV7_3, torito_apoyo_AliadoAtlasV7_3, radar_tactico_AliadoAtlasV7_3 | Equipo: armadura armadura_22
+Puntuacion final: 750
+  - Salud restante: 300
+  - Energia restante: 200
+  - Eficiencia en pasos: 250
+  - Progreso hacia objetivo: 0
+  - Enemigos derrotados (0): 0
+  - Ajuste por resultado final: 0
+Recorrido: (0,0)

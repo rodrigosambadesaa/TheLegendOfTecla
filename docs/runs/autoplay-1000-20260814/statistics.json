@@ -1,0 +1,40 @@
+{
+  "modelo": "headless-cohort-v1",
+  "totalRuns": 1000,
+  "runsAutonomos": 1000,
+  "runsCompletados": 1000,
+  "aliadosMinimos": 100,
+  "aliadosMaximos": 4999,
+  "semillaRaiz": 104372539623444,
+  "generadoEn": "2026-08-14T07:59:28.133863700Z",
+  "victoriasHumanas": 500,
+  "victoriasEnemigas": 500,
+  "porCondicion": {
+    "SOLO_JUGADOR": 500,
+    "JUGADOR_Y_ALIADOS": 500
+  },
+  "porFinal": {
+    "VICTORIA_JUGADOR": 125,
+    "VICTORIA_TODOS_ALIADOS": 125,
+    "VICTORIA_ENEMIGA_ELIMINACION": 250,
+    "VICTORIA_ENEMIGA_AGOTAMIENTO": 250,
+    "VICTORIA_ALIADA_POST_MORTEM": 250
+  },
+  "porDificultad": {
+    "PESADILLA": 143,
+    "FACIL": 143,
+    "DIFICIL": 143,
+    "NORMAL": 143,
+    "MUY_DIFICIL": 143,
+    "MUY_FACIL": 143,
+    "DEMENTE": 142
+  },
+  "promedioAliados": 2549.5,
+  "promedioEnemigos": 2831.492,
+  "promedioTurnos": 29.427,
+  "promedioPuntuacion": 6509.74,
+  "accionesRegistradas": 131562514,
+  "bytesLogsComprimidos": 1250913,
+  "picoHeapBytes": 160049168,
+  "bytesGenerados": 12698882
+}

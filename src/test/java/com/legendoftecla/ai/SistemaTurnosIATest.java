@@ -16,7 +16,11 @@ import com.legendoftecla.model.characters.Scout;
 import com.legendoftecla.model.characters.Sniper;
 import com.legendoftecla.model.characters.Sectoid;
 import com.legendoftecla.model.items.Arma;
+import com.legendoftecla.model.items.CategoriaArma;
+import com.legendoftecla.model.items.ClaseArma;
+import com.legendoftecla.model.items.FaccionEquipo;
 import com.legendoftecla.model.items.Municion;
+import com.legendoftecla.model.items.TipoMunicion;
 import com.legendoftecla.model.world.Juego;
 import com.legendoftecla.model.world.Posicion;
 import org.junit.jupiter.api.Test;
@@ -29,6 +33,23 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SistemaTurnosIATest {
+    @Test
+    void enemigoSeAcercaCuandoElObjetivoQuedaFueraDelAlcanceDelArma() throws Exception {
+        Juego juego = juegoConJugadorEn(new Posicion(0, 2));
+        Sectoid enemigo = agregar(juego, new Sectoid("Corto", new Posicion(0, 0),
+                new Mochila(2, 10), 8));
+        enemigo.equipar(new Arma("Garra", "Arma enemiga corta", 1, 10, false,
+                CategoriaArma.MELE, TipoMunicion.INFINITA, 0, 0,
+                FaccionEquipo.ENEMIGA, ClaseArma.ESPADA_UNA_MANO, 0));
+
+        ResultadoTurnoIA resultado = new SistemaTurnosIA().ejecutar(
+                juego, enemigo, new Random(1));
+
+        assertEquals(TipoAccionIA.ACERCARSE, resultado.accion().tipo());
+        assertEquals(new Posicion(0, 1), enemigo.getPosicion());
+        assertTrue(resultado.ejecutada());
+    }
+
     @Test
     void enemigoConsumeMunicionRecargaYVuelveADisparar() {
         Juego juego = juegoConJugadorEn(new Posicion(0, 2));

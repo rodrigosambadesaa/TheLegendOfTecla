@@ -35,7 +35,24 @@ public final class SistemaTurnosIA {
                 ? percepcion.percibir(juego, enemigo,
                         coordinacionPreparada, aliadoHeridoPreparado)
                 : percepcion.percibir(juego, enemigo);
-        AccionIA accion = evaluador.decidir(contexto);
+        AccionIA accion = ajustarAlcance(evaluador.decidir(contexto), contexto);
         return new ResultadoTurnoIA(accion, ejecutor.ejecutar(juego, enemigo, accion, random));
+    }
+
+    private AccionIA ajustarAlcance(AccionIA accion, ContextoIA contexto) {
+        if (accion.tipo() != TipoAccionIA.ATACAR) {
+            return accion;
+        }
+        int distancia = contexto.enemigo().getPosicion().distanciaManhattan(
+                contexto.posicionObjetivo());
+        if (contexto.enemigo().puedeAtacarA(distancia)) {
+            return accion;
+        }
+        TipoAccionIA alternativa = contexto.enemigo().puedeAtacar()
+                ? TipoAccionIA.ACERCARSE : TipoAccionIA.RECARGAR;
+        return new AccionIA(alternativa, contexto.posicionObjetivo(),
+                alternativa == TipoAccionIA.ACERCARSE
+                        ? "objetivo fuera del alcance del arma"
+                        : "arma sin municion");
     }
 }

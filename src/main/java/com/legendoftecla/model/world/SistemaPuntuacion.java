@@ -49,6 +49,7 @@ public final class SistemaPuntuacion {
         int bonusResultado = switch (estado) {
             case VICTORIA -> 200;
             case MUERTE -> -200;
+            case DERROTA_MISION -> -150;
             case SIN_PASOS -> -100;
             case SALIDA_MANUAL -> 0;
         };
@@ -122,6 +123,8 @@ public final class SistemaPuntuacion {
          * Valor publico {@code MUERTE} utilizado por el modelo del juego.
          */
         MUERTE,
+        /** La condicion de evacuacion elegida ya no puede cumplirse. */
+        DERROTA_MISION,
         /**
          * Valor publico {@code SIN_PASOS} utilizado por el modelo del juego.
          */

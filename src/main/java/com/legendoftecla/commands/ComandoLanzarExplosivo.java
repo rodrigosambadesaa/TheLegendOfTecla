@@ -24,7 +24,6 @@ import com.legendoftecla.engine.ServicioBotinEnemigo;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.concurrent.ThreadLocalRandom;
 
 /** Lanza y consume un explosivo contra todos los enemigos de una celda. */
 public final class ComandoLanzarExplosivo implements Comando {
@@ -124,7 +123,7 @@ public final class ComandoLanzarExplosivo implements Comando {
             }
         }
         SistemaIncendios.intentarDerribarAntorcha(
-                context.getJuego(), destino, ThreadLocalRandom.current());
+                context.getJuego(), destino, context.getRandom());
         aplicarEfectoGranada(explosivo, objetivos, destino);
 
         objetivos.stream().filter(enemigo -> enemigo.getSalud() <= 0).forEach(enemigo -> {

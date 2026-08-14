@@ -6,6 +6,7 @@ import com.legendoftecla.commands.Comando;
 import com.legendoftecla.commands.ComandoRecorrido;
 import com.legendoftecla.commands.ComandoSalir;
 import com.legendoftecla.commands.ComandoDescansar;
+import com.legendoftecla.constants.CondicionVictoria;
 import com.legendoftecla.constants.FormacionAliada;
 import com.legendoftecla.console.TipoMensaje;
 import com.legendoftecla.audio.EventoSonido;
@@ -137,6 +138,9 @@ public final class MotorPartida {
     /** @param random generador no nulo */
     public void setRandom(Random random) {
         this.random = Validaciones.noNulo(random, "Generador aleatorio");
+        if (contexto != null) {
+            contexto.setRandom(this.random);
+        }
     }
     /** @return registro mutable encapsulado de los estados aliados */
     public RegistroEstadoAliados getRegistroAliados() { return registroAliados; }
@@ -433,6 +437,12 @@ public final class MotorPartida {
             }
             return;
         }
+        if (condicionAliadaImposible()) {
+            juego.getConsola().imprimirAdvertencia(
+                    "La evacuacion de todo el escuadron ya no es posible: ha caido un aliado.");
+            finalizar(SistemaPuntuacion.EstadoFinalPartida.DERROTA_MISION);
+            return;
+        }
         if (juego.getJugador().getEnergia() <= 0) {
             if (!hayRescateEnergiaPosible()) {
                 juego.getConsola().imprimirAdvertencia(
@@ -484,6 +494,12 @@ public final class MotorPartida {
         return juego.getAliados().stream().anyMatch(aliado -> aliado.getSalud() > 0);
     }
 
+    private boolean condicionAliadaImposible() {
+        return juego.getCondicionVictoria() == CondicionVictoria.JUGADOR_Y_ALIADOS
+                && juego.getAliadosRegistrados().stream()
+                        .anyMatch(aliado -> aliado.getSalud() <= 0);
+    }
+
     private void finalizar(SistemaPuntuacion.EstadoFinalPartida estado) {
         if (finalizada) {
             return;
@@ -509,6 +525,9 @@ public final class MotorPartida {
             case MUERTE -> juego.getConsola().imprimir(cierreEspectador
                     ? "VICTORIA ENEMIGA: el escuadron humano ha sido eliminado."
                     : "VICTORIA ENEMIGA: has muerto o te has quedado sin energia.", TipoMensaje.ERROR);
+            case DERROTA_MISION -> juego.getConsola().imprimir(
+                    "VICTORIA ENEMIGA: ya no es posible evacuar al jugador y a todos los aliados.",
+                    TipoMensaje.ERROR);
             case SIN_PASOS -> juego.getConsola().imprimir(
                     "VICTORIA ENEMIGA: el escuadron humano agoto sus turnos.", TipoMensaje.ADVERTENCIA);
             case SALIDA_MANUAL -> juego.getConsola().imprimir("Partida finalizada.", TipoMensaje.INFO);
@@ -1524,6 +1543,20 @@ public final class MotorPartida {
     }
 
     private void moverAliadoHaciaObjetivo(Aliado aliado, Posicion objetivo) {
+        if (aliado.getEnergia() < aliado.estimarCosteMovimiento()) {
+            int saludAnterior = aliado.getSalud();
+            int energiaAnterior = aliado.getEnergia();
+            aliado.recuperarSalud(Math.max(1,
+                    (int) Math.ceil(aliado.getSaludMaxima() * 0.10)));
+            aliado.recuperarEnergia(Math.max(1,
+                    (int) Math.ceil(aliado.getEnergiaMaxima() * 0.10)));
+            aliado.getEstados().descansar();
+            juego.getConsola().imprimirInfo(aliado.getNombre()
+                    + " descansa para continuar: recupera "
+                    + (aliado.getSalud() - saludAnterior) + " de salud y "
+                    + (aliado.getEnergia() - energiaAnterior) + " de energia.");
+            return;
+        }
         Posicion origen = aliado.getPosicion();
         Direccion siguiente = buscarPrimerPasoAliado(origen, objetivo);
         if (siguiente == null) {
@@ -1533,6 +1566,8 @@ public final class MotorPartida {
             juego.getMapa().getCelda(origen).quitarAliado(aliado);
             aliado.mover(siguiente, juego);
             juego.getMapa().getCelda(aliado.getPosicion()).agregarAliado(aliado);
+            juego.getConsola().imprimirInfo(aliado.getNombre()
+                    + " se mueve de " + origen + " a " + aliado.getPosicion() + ".");
             GestorSonido.reproducir(EventoSonido.MOVIMIENTO,
                     aliado.getPosicion(), juego.getJugador().getPosicion());
         } catch (Exception e) {

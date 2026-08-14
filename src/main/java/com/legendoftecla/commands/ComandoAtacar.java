@@ -15,7 +15,6 @@ import com.legendoftecla.validation.Validaciones;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Representa la entidad ComandoAtacar del juego.
@@ -87,7 +86,7 @@ public class ComandoAtacar implements Comando {
             throw new ComandoException("No existe ese enemigo en la celda.");
         }
         SistemaCombate.atacarTodos(context.getJuego(), context.getJuego().getJugador(),
-                enemigos, ThreadLocalRandom.current());
+                enemigos, context.getRandom());
         context.getJuego().getConsola().imprimir("Atacas a todos los enemigos de la celda objetivo "
                 + destino + " (" + enemigos.size() + " objetivo(s)).");
         celda.getEnemigos().stream().filter(e -> e.getSalud() <= 0).toList().forEach(e -> {

@@ -12,6 +12,8 @@ import java.net.URL;
 /** Reproduce efectos de forma asincrona y degrada silenciosamente si no hay dispositivo de audio. */
 public final class GestorSonido {
     private static final int DISTANCIA_AUDIBLE = 8;
+    /** Propiedad de proceso usada por herramientas sin interfaz. */
+    public static final String PROPIEDAD_DESACTIVADO = "legendoftecla.audio.disabled";
 
     private GestorSonido() { }
 
@@ -20,7 +22,8 @@ public final class GestorSonido {
     }
 
     public static void reproducir(EventoSonido evento, Posicion origen, Posicion oyente) {
-        if (evento == null || GraphicsEnvironment.isHeadless()) return;
+        if (evento == null || Boolean.getBoolean(PROPIEDAD_DESACTIVADO)
+                || GraphicsEnvironment.isHeadless()) return;
         int distancia = origen == null || oyente == null ? 0 : origen.distanciaManhattan(oyente);
         if (distancia > DISTANCIA_AUDIBLE) return;
         Thread hilo = new Thread(() -> abrir(evento, distancia), "tecla-audio");

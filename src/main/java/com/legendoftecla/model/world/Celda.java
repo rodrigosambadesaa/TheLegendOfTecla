@@ -91,7 +91,11 @@ public class Celda {
       * @return resultado de la operacion
      */
     public boolean isTransitable() {
-        return transitable && elementos.stream().allMatch(ElementoMapa::permitePaso);
+        if (!transitable) return false;
+        for (int i = 0; i < elementos.size(); i++) {
+            if (!elementos.get(i).permitePaso()) return false;
+        }
+        return true;
     }
 
     /** @param transitable estado solicitado */
@@ -106,6 +110,7 @@ public class Celda {
     public List<Objeto> getObjetos() {
         return Collections.unmodifiableList(objetos);
     }
+    public boolean hasObjetos() { return !objetos.isEmpty(); }
 
     /**
      * Ejecuta getEnemigos.
@@ -114,6 +119,7 @@ public class Celda {
     public List<Enemigo> getEnemigos() {
         return Collections.unmodifiableList(enemigos);
     }
+    public boolean hasEnemigos() { return !enemigos.isEmpty(); }
 
     /**
      * Ejecuta getAliados.
@@ -122,6 +128,7 @@ public class Celda {
     public List<Aliado> getAliados() {
         return Collections.unmodifiableList(aliados);
     }
+    public boolean hasAliados() { return !aliados.isEmpty(); }
     /** @return transitabilidad del terreno sin elementos dinamicos */
     public boolean isTerrenoTransitable() { return transitable; }
 
@@ -145,12 +152,19 @@ public class Celda {
     }
     /** @return si la celda interrumpe vision o linea de tiro */
     public boolean bloqueaVision() {
-        return !transitable || elementos.stream().anyMatch(ElementoMapa::bloqueaVision);
+        if (!transitable) return true;
+        for (int i = 0; i < elementos.size(); i++) {
+            if (elementos.get(i).bloqueaVision()) return true;
+        }
+        return false;
     }
     /** @return simbolo de elemento prioritario, o cero si no existe */
     public char simboloElemento() {
-        return elementos.stream().filter(elemento -> !elemento.estaDestruido())
-                .map(ElementoMapa::simbolo).findFirst().orElse((char) 0);
+        for (int i = 0; i < elementos.size(); i++) {
+            ElementoMapa elem = elementos.get(i);
+            if (!elem.estaDestruido()) return elem.simbolo();
+        }
+        return (char) 0;
     }
 
     /** @param objetos contenido de objetos no nulo */

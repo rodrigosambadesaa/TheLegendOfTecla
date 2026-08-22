@@ -2,6 +2,30 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "Levantar Docker GUI con Debug",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "./run-gui.ps1"
+            ],
+            "group": "none",
+            "problemMatcher": []
+        },
+        {
+            "label": "Detener Docker GUI",
+            "type": "shell",
+            "command": "docker",
+            "args": [
+                "compose",
+                "down"
+            ],
+            "group": "none",
+            "problemMatcher": []
+        },
+        {
             "label": "Compilar Java (sin Maven)",
             "type": "shell",
             "command": "pwsh",

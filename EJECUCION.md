@@ -112,6 +112,18 @@ docker compose logs gui
 docker compose stop gui
 ```
 
+### Depuración Remota en Docker (JDWP)
+
+El servicio `gui` de Docker incluye la JVM configurada con el agente JDWP (Java Debug Wire Protocol) expuesto en el puerto `5005` (`127.0.0.1:5005`).
+
+Para debuggear el código dockerizado desde **VS Code**:
+1. Ejecuta el contenedor GUI (ej. `.\run-gui.ps1` o mediante la tarea de VS Code `Levantar Docker GUI con Debug`).
+2. Abre la pestaña **Run and Debug** (`Ctrl+Shift+D`) en VS Code.
+3. Selecciona la configuración **"Attach to Docker GUI (Puerto 5005)"** y pulsa `F5`.
+4. Coloca puntos de interrupción (breakpoints) en cualquier archivo Java de `src/main/java/` (por ejemplo en `com.legendoftecla.Main`, `com.legendoftecla.engine.MotorPartida` o `com.legendoftecla.gui.VentanaPrincipal`).
+5. Abre la web `http://localhost:6080/vnc.html` e interactúa con el juego: la ejecución se pausará en tus breakpoints.
+
+
 ### Ejecucion local
 
 Requisitos: JDK 17 o posterior y Maven 3.9 o posterior. Compila y abre la ventana:

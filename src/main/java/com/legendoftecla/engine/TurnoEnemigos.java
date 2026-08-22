@@ -34,12 +34,13 @@ public final class TurnoEnemigos {
         Validaciones.noNulo(random, "Generador aleatorio");
         IndiceEspacialPersonajes<Aliado> indiceAliados =
                 new IndiceEspacialPersonajes<>(juego.getAliados());
+        CacheNavegacion cacheNavegacion = new CacheNavegacion(juego.getMapa());
         boolean hayAliadosVivos = indiceAliados.alguno(aliado -> aliado.getSalud() > 0);
         sistemaIA.prepararTurno(juego);
         try {
             for (Enemigo enemigo : List.copyOf(juego.getEnemigos())) {
                 ejecutarEnemigo(juego, sistemaIA, random, jugadorDescansando,
-                        enemigo, indiceAliados, hayAliadosVivos);
+                        enemigo, indiceAliados, hayAliadosVivos, cacheNavegacion);
             }
         } finally {
             sistemaIA.finalizarTurno();
@@ -49,7 +50,8 @@ public final class TurnoEnemigos {
     private static void ejecutarEnemigo(Juego juego, SistemaTurnosIA sistemaIA,
                                         Random random, boolean descansando, Enemigo enemigo,
                                         IndiceEspacialPersonajes<Aliado> indiceAliados,
-                                        boolean hayAliadosVivos) {
+                                        boolean hayAliadosVivos,
+                                        CacheNavegacion cacheNavegacion) {
         if (enemigo.getSalud() <= 0 || enemigo.getEstados().consumirBloqueoAccion()) return;
         if (enemigo instanceof EnemigoTactico || enemigo instanceof Jefe) {
             sistemaIA.ejecutar(juego, enemigo, random);
@@ -64,7 +66,7 @@ public final class TurnoEnemigos {
                 ? Math.max(1, random.nextInt(3)) : random.nextInt(3);
         for (int indice = 0; indice < movimientos; indice++) {
             Personaje objetivo = objetivoTactico == null
-                    ? objetivoPredeterminado(juego, enemigo) : objetivoTactico;
+                    ? objetivoPredeterminado(juego, enemigo, indiceAliados) : objetivoTactico;
             if (objetivo == null) return;
             if (puedeDisparar(juego, enemigo, objetivo)) {
                 if (!enemigo.puedeAtacar()) recargar(juego, enemigo);
@@ -72,8 +74,7 @@ public final class TurnoEnemigos {
                 return;
             }
             Direccion direccion = descansando || formacionDetectada
-                    ? NavegacionTactica.primerPaso(juego.getMapa(),
-                            enemigo.getPosicion(), objetivo.getPosicion())
+                    ? cacheNavegacion.primerPaso(enemigo.getPosicion(), objetivo.getPosicion())
                     : Direccion.values()[random.nextInt(Direccion.values().length)];
             if (direccion == null) return;
             mover(juego, enemigo, direccion, descansando, formacionDetectada);
@@ -136,7 +137,7 @@ public final class TurnoEnemigos {
             indiceAliados.cercanos(enemigo.getPosicion(), enemigo.getRangoVision(),
                             aliado -> ve(juego, enemigo, aliado)).stream()
                     .forEach(visibles::add);
-            if (visibles.isEmpty()) return objetivoPredeterminado(juego, enemigo);
+            if (visibles.isEmpty()) return objetivoPredeterminado(juego, enemigo, indiceAliados);
             return visibles.stream().min(Comparator.comparingDouble(personaje ->
                     (double) personaje.getSalud() / Math.max(1, personaje.getSaludMaxima())))
                     .orElseThrow();
@@ -145,7 +146,7 @@ public final class TurnoEnemigos {
         Aliado aliado = indiceAliados.masCercano(enemigo.getPosicion(),
                 enemigo.getRangoVision(),
                 candidato -> ve(juego, enemigo, candidato));
-        if (jugador == null && aliado == null) return objetivoPredeterminado(juego, enemigo);
+        if (jugador == null && aliado == null) return objetivoPredeterminado(juego, enemigo, indiceAliados);
         if (jugador == null) return aliado;
         if (aliado == null) return jugador;
         int distanciaJugador = enemigo.getPosicion().distanciaManhattan(jugador.getPosicion());
@@ -153,11 +154,10 @@ public final class TurnoEnemigos {
         return distanciaJugador <= distanciaAliado ? jugador : aliado;
     }
 
-    private static Personaje objetivoPredeterminado(Juego juego, Enemigo enemigo) {
+    private static Personaje objetivoPredeterminado(Juego juego, Enemigo enemigo,
+                                                  IndiceEspacialPersonajes<Aliado> indiceAliados) {
         if (juego.getJugador().getSalud() > 0) return juego.getJugador();
-        return juego.getAliados().stream().filter(aliado -> aliado.getSalud() > 0)
-                .min(Comparator.comparingInt(aliado -> enemigo.getPosicion()
-                        .distanciaManhattan(aliado.getPosicion()))).orElse(null);
+        return indiceAliados.masCercano(enemigo.getPosicion(), aliado -> aliado.getSalud() > 0);
     }
 
     private static boolean recargar(Juego juego, Enemigo enemigo) {

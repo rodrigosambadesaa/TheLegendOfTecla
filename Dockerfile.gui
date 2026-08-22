@@ -40,10 +40,10 @@ RUN chmod 0755 /app/gui-entrypoint.sh
 
 USER tecla
 ENV DISPLAY=:99 \
-    JAVA_TOOL_OPTIONS=-Djava.awt.headless=false \
+    JAVA_TOOL_OPTIONS="-Djava.awt.headless=false -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005" \
     LANG=C.UTF-8
 
-EXPOSE 6080
+EXPOSE 6080 5005
 HEALTHCHECK --interval=5s --timeout=3s --start-period=20s --retries=12 \
     CMD curl --fail --silent --show-error http://127.0.0.1:6080/vnc.html > /dev/null \
         && DISPLAY=:99 xwininfo -root -tree | grep -q "The Legend of Tecla" || exit 1

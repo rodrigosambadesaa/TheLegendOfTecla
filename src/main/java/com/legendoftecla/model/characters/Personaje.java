@@ -213,7 +213,7 @@ public abstract class Personaje {
       * @return resultado de la operacion
      */
     public Posicion getPosicion() {
-        return new Posicion(posicion.getFila(), posicion.getColumna());
+        return posicion;
     }
 
     /**
@@ -222,8 +222,7 @@ public abstract class Personaje {
      * @param nuevaPosicion posicion solicitada
      */
     public void setPosicion(Posicion nuevaPosicion) {
-        Posicion validada = Validaciones.noNulo(nuevaPosicion, "Posicion");
-        posicion = new Posicion(validada.getFila(), validada.getColumna());
+        posicion = Validaciones.noNulo(nuevaPosicion, "Posicion");
     }
 
     /**

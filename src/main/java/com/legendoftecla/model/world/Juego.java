@@ -397,10 +397,7 @@ public class Juego {
      * @return conjunto defensivo de posiciones inspeccionadas
      */
     public Set<Posicion> getCeldasInspeccionadas() {
-        Set<Posicion> copia = new HashSet<>();
-        celdasInspeccionadas.forEach(posicion -> copia.add(
-                new Posicion(posicion.getFila(), posicion.getColumna())));
-        return Collections.unmodifiableSet(copia);
+        return Collections.unmodifiableSet(celdasInspeccionadas);
     }
 
     /**
@@ -415,18 +412,13 @@ public class Juego {
                         posicion -> posicion == null || !mapa.estaDentro(posicion))) {
             throw new IllegalArgumentException("Las celdas inspeccionadas deben pertenecer al mapa.");
         }
-        Set<Posicion> copia = new HashSet<>();
-        celdasInspeccionadas.forEach(posicion -> copia.add(
-                new Posicion(posicion.getFila(), posicion.getColumna())));
-        this.celdasInspeccionadas = copia;
+        this.celdasInspeccionadas = new HashSet<>(celdasInspeccionadas);
     }
 
     /** Registra que el jugador ha mirado la celda en la que se encuentra. */
     public void inspeccionarCeldaActual() {
-        Set<Posicion> inspeccionadas = new HashSet<>(celdasInspeccionadas);
         Posicion posicion = jugador.getPosicion();
-        boolean nueva = inspeccionadas.add(posicion);
-        setCeldasInspeccionadas(inspeccionadas);
+        boolean nueva = celdasInspeccionadas.add(posicion);
         if (nueva) {
             publicarEvento(new CeldaInspeccionada(busEventos.ahora(),
                     jugador.getNombre(), posicion));

@@ -67,7 +67,6 @@ public class Posicion {
       * @return resultado de la operacion
      */
     public int distanciaManhattan(Posicion otra) {
-        Validaciones.noNulo(otra, "Posicion de destino");
         return Math.abs(fila - otra.fila) + Math.abs(columna - otra.columna);
     }
 
@@ -90,7 +89,7 @@ public class Posicion {
      * Ejecuta hashCode.
      */
     public int hashCode() {
-        return Objects.hash(fila, columna);
+        return 31 * (31 + fila) + columna;
     }
 
     @Override

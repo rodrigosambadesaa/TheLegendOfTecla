@@ -10,3 +10,4 @@ target/
 # Temporales de revisión local
 /tmp/
 /legacy/
+*.log

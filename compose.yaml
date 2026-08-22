@@ -11,6 +11,7 @@ services:
       dockerfile: Dockerfile.gui
     ports:
       - "127.0.0.1:${TECLA_GUI_PORT:-6080}:6080"
+      - "127.0.0.1:${TECLA_DEBUG_PORT:-5005}:5005"
     shm_size: "256mb"
     init: true
     restart: "no"

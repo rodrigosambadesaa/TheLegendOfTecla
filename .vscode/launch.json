@@ -3,6 +3,14 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Attach to Docker GUI (Puerto 5005)",
+            "request": "attach",
+            "hostName": "localhost",
+            "port": 5005,
+            "projectName": "the-legend-of-tecla"
+        },
+        {
+            "type": "java",
             "name": "Debug Main (sin Maven)",
             "request": "launch",
             "mainClass": "com.legendoftecla.Main",

@@ -66,6 +66,7 @@ public final class MotorPartida {
     private SistemaTurnosIA sistemaTurnosIA;
     private SistemaRuido sistemaRuido;
     private IndiceEspacialPersonajes<Enemigo> indiceEnemigos;
+    private CacheNavegacion cacheNavegacion;
 
     /**
      * Crea una instancia de {@code MotorPartida}.
@@ -154,6 +155,10 @@ public final class MotorPartida {
     public void setIndiceEnemigos(IndiceEspacialPersonajes<Enemigo> indiceEnemigos) {
         this.indiceEnemigos = Validaciones.noNulo(indiceEnemigos, "Indice de enemigos");
     }
+    /** @return cache de navegacion por turno */
+    public CacheNavegacion getCacheNavegacion() { return cacheNavegacion; }
+    /** @param cacheNavegacion cache de navegacion */
+    public void setCacheNavegacion(CacheNavegacion cacheNavegacion) { this.cacheNavegacion = cacheNavegacion; }
     /** @return copia de las situaciones aliadas */
     public Map<Aliado, SituacionAliado> getSituacionesAliados() {
         return registroAliados.getSituaciones();
@@ -565,6 +570,10 @@ public final class MotorPartida {
 
     private void ejecutarTurnoAliados() {
         setIndiceEnemigos(new IndiceEspacialPersonajes<>(juego.getEnemigos()));
+        IndiceEspacialPersonajes<Aliado> indiceAliados = new IndiceEspacialPersonajes<>(juego.getAliados());
+        cacheNavegacion = new CacheNavegacion(juego.getMapa());
+        boolean escasezSuministros = hayEscasezSuministros();
+        Aliado exploradorFormacion = buscarExploradorFormacion();
         List<Aliado> aliados = List.copyOf(juego.getAliados());
         for (Aliado aliado : aliados) {
             if (aliado.getSalud() <= 0) {
@@ -593,7 +602,7 @@ public final class MotorPartida {
             if (evacuarAliadoSiTieneLaSalidaAlAlcance(aliado)) {
                 continue;
             }
-            if (priorizarRolMedico(aliado)) {
+            if (priorizarRolMedico(aliado, indiceAliados)) {
                 continue;
             }
             if (turnosAyudaAliados > 0 && prepararAliadoParaAyuda(aliado)) {
@@ -610,11 +619,11 @@ public final class MotorPartida {
                 continue;
             }
             if (juego.getFormacionAliada() != FormacionAliada.SIN_FORMACION) {
-                ejecutarFormacion(aliado);
+                ejecutarFormacion(aliado, escasezSuministros, exploradorFormacion);
                 extraerAliadoSiProcede(aliado);
                 continue;
             }
-            if (asistirAliadoPrioritario(aliado)) {
+            if (asistirAliadoPrioritario(aliado, indiceAliados)) {
                 continue;
             }
             if (explorarSuministrosDesconocidos(aliado)) {
@@ -652,15 +661,15 @@ public final class MotorPartida {
         }
     }
 
-    private boolean priorizarRolMedico(Aliado medico) {
+    private boolean priorizarRolMedico(Aliado medico, IndiceEspacialPersonajes<Aliado> indiceAliados) {
         if (!medico.esMedico()) {
             return false;
         }
         if ((juego.getJugador().getSalud() > 0 && asistirJugador(medico))
-                || asistirAliadoPrioritario(medico)) {
+                || asistirAliadoPrioritario(medico, indiceAliados)) {
             return true;
         }
-        Personaje paciente = buscarPacientePara(medico);
+        Personaje paciente = buscarPacientePara(medico, indiceAliados);
         if (paciente != null
                 && medico.getPosicion().distanciaManhattan(paciente.getPosicion()) > 1) {
             cambiarSituacion(medico, SituacionAliado.ACUDIENDO);
@@ -683,12 +692,12 @@ public final class MotorPartida {
                 && explorarSuministrosDesconocidos(medico);
     }
 
-    private Personaje buscarPacientePara(Aliado medico) {
+    private Personaje buscarPacientePara(Aliado medico, IndiceEspacialPersonajes<Aliado> indiceAliados) {
         List<Personaje> candidatos = new ArrayList<>();
         if (juego.getJugador().getSalud() > 0) {
             candidatos.add(juego.getJugador());
         }
-        juego.getAliados().stream().filter(aliado -> aliado.getSalud() > 0)
+        indiceAliados.cercanos(medico.getPosicion(), 15, aliado -> aliado.getSalud() > 0)
                 .forEach(candidatos::add);
         boolean tieneBotiquin = medico.getMochila().getObjetos().stream()
                 .anyMatch(Botiquin.class::isInstance);
@@ -1125,10 +1134,10 @@ public final class MotorPartida {
         return usarSuministro(aliado, jugador);
     }
 
-    private boolean asistirAliadoPrioritario(Aliado donante) {
-        Aliado destinatarioSalud = juego.getAliados().stream()
-                .filter(aliado -> aliado.getSalud() > 0 && aliado.getSalud() < aliado.getSaludMaxima())
-                .filter(aliado -> donante.getPosicion().distanciaManhattan(aliado.getPosicion()) <= 1)
+    private boolean asistirAliadoPrioritario(Aliado donante, IndiceEspacialPersonajes<Aliado> indiceAliados) {
+        List<Aliado> cercanosSalud = indiceAliados.cercanos(donante.getPosicion(), 1,
+                aliado -> aliado.getSalud() > 0 && aliado.getSalud() < aliado.getSaludMaxima());
+        Aliado destinatarioSalud = cercanosSalud.stream()
                 .min((primero, segundo) -> Double.compare(
                         (double) primero.getSalud() / primero.getSaludMaxima(),
                         (double) segundo.getSalud() / segundo.getSaludMaxima()))
@@ -1136,9 +1145,9 @@ public final class MotorPartida {
         if (destinatarioSalud != null && usarBotiquin(donante, destinatarioSalud)) {
             return true;
         }
-        Aliado destinatarioEnergia = juego.getAliados().stream()
-                .filter(aliado -> aliado.getSalud() > 0 && aliado.getEnergia() < aliado.getEnergiaMaxima())
-                .filter(aliado -> donante.getPosicion().distanciaManhattan(aliado.getPosicion()) <= 1)
+        List<Aliado> cercanosEnergia = indiceAliados.cercanos(donante.getPosicion(), 1,
+                aliado -> aliado.getSalud() > 0 && aliado.getEnergia() < aliado.getEnergiaMaxima());
+        Aliado destinatarioEnergia = cercanosEnergia.stream()
                 .min((primero, segundo) -> Double.compare(
                         (double) primero.getEnergia() / primero.getEnergiaMaxima(),
                         (double) segundo.getEnergia() / segundo.getEnergiaMaxima()))
@@ -1205,13 +1214,8 @@ public final class MotorPartida {
     private Enemigo buscarEnemigoCercanoAlJugador() {
         Posicion jugador = juego.getJugador().getPosicion();
         int radioApoyo = Math.max(3, juego.getJugador().getRangoVision());
-        return juego.getEnemigos().stream()
-                .filter(enemigo -> enemigo.getSalud() > 0)
-                .filter(enemigo -> enemigo.getPosicion().distanciaManhattan(jugador) <= radioApoyo)
-                .min((primero, segundo) -> Integer.compare(
-                        primero.getPosicion().distanciaManhattan(jugador),
-                        segundo.getPosicion().distanciaManhattan(jugador)))
-                .orElse(null);
+        return indiceEnemigos.masCercano(jugador, radioApoyo,
+                enemigo -> enemigo.getSalud() > 0);
     }
 
     private void eliminarEnemigoDerrotado(Aliado aliado, Enemigo objetivo) {
@@ -1364,16 +1368,16 @@ public final class MotorPartida {
     private boolean revelaNuevaAmenaza(Aliado aliado, Binocular binocular) {
         int visionActual = aliado.getRangoVision();
         int visionAmpliada = visionActual + binocular.getRango();
-        return juego.getEnemigos().stream().filter(enemigo -> enemigo.getSalud() > 0).anyMatch(enemigo -> {
+        return indiceEnemigos.masCercano(aliado.getPosicion(), visionAmpliada, enemigo -> {
             int distancia = aliado.getPosicion().distanciaManhattan(enemigo.getPosicion());
-            return distancia > visionActual && distancia <= visionAmpliada
+            return enemigo.getSalud() > 0 && distancia > visionActual
                     && juego.getMapa().hayLineaAtaque(aliado.getPosicion(), enemigo.getPosicion());
-        });
+        }) != null;
     }
 
-    private void ejecutarFormacion(Aliado aliado) {
+    private void ejecutarFormacion(Aliado aliado, boolean escasezSuministros, Aliado explorador) {
         Enemigo amenaza = buscarAmenazaDeFormacion(aliado);
-        if (amenaza == null && hayEscasezSuministros() && esExploradorDeFormacion(aliado)
+        if (amenaza == null && escasezSuministros && esExploradorDeFormacion(aliado, explorador)
                 && buscarSuministrosSinRomperFormacion(aliado)) {
             return;
         }
@@ -1404,6 +1408,19 @@ public final class MotorPartida {
         } else {
             moverAliadoHaciaObjetivo(aliado, amenaza.getPosicion());
         }
+    }
+
+    private Aliado buscarExploradorFormacion() {
+        Aliado mejor = juego.getAliados().stream().filter(aliado -> aliado.getSalud() > 0)
+                .max(java.util.Comparator.comparingDouble(this::estadoRelativo)).orElse(null);
+        return (mejor != null && estadoRelativo(mejor) >= 1.30) ? mejor : null;
+    }
+
+    private boolean esExploradorDeFormacion(Aliado candidato, Aliado explorador) {
+        if (candidato != explorador || candidato == null) {
+            return false;
+        }
+        return candidato.getPosicion().distanciaManhattan(juego.getJugador().getPosicion()) <= 2;
     }
 
     private void atacarEnFormacion(Aliado aliado, Enemigo enemigo) {
@@ -1525,9 +1542,11 @@ public final class MotorPartida {
         int defensa = aliado.getArmaduraEquipada() != null ? aliado.getArmaduraEquipada().getDefensa() : 0;
         int golpeEstimado = Math.max(1, 4 - defensa);
         int riesgo = 0;
-        for (Enemigo enemigo : juego.getEnemigos()) {
-            if (enemigo.getSalud() > 0
-                    && enemigo.getPosicion().distanciaManhattan(aliado.getPosicion()) <= enemigo.getRangoVision()
+        int radioMaximo = 10;
+        List<Enemigo> cercanos = indiceEnemigos.cercanos(aliado.getPosicion(), radioMaximo,
+                enemigo -> enemigo.getSalud() > 0);
+        for (Enemigo enemigo : cercanos) {
+            if (enemigo.getPosicion().distanciaManhattan(aliado.getPosicion()) <= enemigo.getRangoVision()
                     && juego.getMapa().hayLineaAtaque(enemigo.getPosicion(), aliado.getPosicion())) {
                 riesgo += golpeEstimado;
             }
@@ -1669,10 +1688,16 @@ public final class MotorPartida {
     }
 
     private int calcularDistanciaRutaAliado(Posicion origen, Posicion objetivo) {
+        if (cacheNavegacion != null) {
+            return cacheNavegacion.distancia(origen, objetivo);
+        }
         return NavegacionTactica.distancia(juego.getMapa(), origen, objetivo);
     }
 
     private Direccion buscarPrimerPasoAliado(Posicion origen, Posicion objetivo) {
+        if (cacheNavegacion != null) {
+            return cacheNavegacion.primerPaso(origen, objetivo);
+        }
         return NavegacionTactica.primerPaso(juego.getMapa(), origen, objetivo);
     }
 

@@ -11,6 +11,7 @@ import java.util.Set;
  * Representa la entidad Mapa del juego.
  */
 public class Mapa {
+    private static final boolean MODO_DOCKER = new java.io.File("/.dockerenv").exists();
     private String nombre;
     private String descripcion;
     private Celda[][] celdas;
@@ -203,22 +204,28 @@ public class Mapa {
         if (!estaDentro(origen) || !estaDentro(destino)) {
             return false;
         }
-        if (origen.equals(destino)) {
+        int f0 = origen.getFila();
+        int c0 = origen.getColumna();
+        int f1 = destino.getFila();
+        int c1 = destino.getColumna();
+        if (f0 == f1 && c0 == c1) {
             return true;
         }
-        int df = Integer.compare(destino.getFila(), origen.getFila());
-        int dc = Integer.compare(destino.getColumna(), origen.getColumna());
+        int df = Integer.compare(f1, f0);
+        int dc = Integer.compare(c1, c0);
         if (df != 0 && dc != 0) {
             return false;
         }
-        Posicion cursor = new Posicion(origen.getFila() + df, origen.getColumna() + dc);
-        while (!cursor.equals(destino)) {
-            if (getCelda(cursor).bloqueaVision()) {
+        int currF = f0 + df;
+        int currC = c0 + dc;
+        while (currF != f1 || currC != c1) {
+            if (celdas[currF][currC].bloqueaVision()) {
                 return false;
             }
-            cursor = new Posicion(cursor.getFila() + df, cursor.getColumna() + dc);
+            currF += df;
+            currC += dc;
         }
-        return !getCelda(destino).bloqueaVision();
+        return !celdas[f1][c1].bloqueaVision();
     }
 
     /**
@@ -265,9 +272,10 @@ public class Mapa {
         Set<Posicion> iluminadas = new java.util.HashSet<>();
         for (int f = 0; f < getFilas(); f++) {
             for (int c = 0; c < getColumnas(); c++) {
-                Posicion p = new Posicion(f, c);
-                Celda celda = getCelda(p);
-                if (!celda.isOscura() || celda.estaArdiendo() || celda.hasAntorchaMural()) iluminadas.add(p);
+                Celda celda = celdas[f][c];
+                if (!celda.isOscura() || celda.estaArdiendo() || celda.hasAntorchaMural()) {
+                    iluminadas.add(new Posicion(f, c));
+                }
             }
         }
         return renderAscii(jugador, enemigosVisibles, aliadosVisibles, celdasInspeccionadas, iluminadas);
@@ -282,39 +290,100 @@ public class Mapa {
         Validaciones.noNulo(aliadosVisibles, "Aliados visibles");
         Validaciones.noNulo(celdasInspeccionadas, "Celdas inspeccionadas");
         Validaciones.noNulo(celdasIluminadas, "Celdas iluminadas");
-        StringBuilder sb = new StringBuilder();
-        for (int f = 0; f < getFilas(); f++) {
-            for (int c = 0; c < getColumnas(); c++) {
-                Posicion actual = new Posicion(f, c);
-                if (actual.equals(jugador)) {
-                    sb.append('J');
-                } else if (celdas[f][c].estaArdiendo()) {
-                    sb.append('F');
-                } else if (!celdasIluminadas.contains(actual)) {
-                    sb.append('?');
-                } else if (actual.equals(objetivo)) {
-                    sb.append('X');
-                } else if (celdas[f][c].simboloElemento() != 0) {
-                    sb.append(celdas[f][c].simboloElemento());
-                } else if (!celdas[f][c].isTransitable()) {
-                    sb.append('#');
-                } else if (!celdas[f][c].getEnemigos().isEmpty() && enemigosVisibles.contains(actual)) {
-                    sb.append('E');
-                } else if (!celdas[f][c].getAliados().isEmpty() && aliadosVisibles.contains(actual)) {
-                    sb.append('A');
-                } else if (!celdas[f][c].getObjetos().isEmpty()
-                        && celdasInspeccionadas.contains(actual)) {
-                    sb.append('o');
-                } else if (celdas[f][c].hasFuenteAgua()) {
-                    sb.append('U');
-                } else if (celdas[f][c].hasAntorchaMural()) {
-                    sb.append('T');
-                } else if (celdas[f][c].getTipoSuelo() == TipoSuelo.MADERA) {
-                    sb.append('=');
+        
+        int filas = getFilas();
+        int columnas = getColumnas();
+        boolean[][] iluminadas = new boolean[filas][columnas];
+        for (Posicion p : celdasIluminadas) {
+            if (estaDentro(p, filas, columnas)) iluminadas[p.getFila()][p.getColumna()] = true;
+        }
+        boolean[][] enemigosV = new boolean[filas][columnas];
+        for (Posicion p : enemigosVisibles) {
+            if (estaDentro(p, filas, columnas)) enemigosV[p.getFila()][p.getColumna()] = true;
+        }
+        boolean[][] aliadosV = new boolean[filas][columnas];
+        for (Posicion p : aliadosVisibles) {
+            if (estaDentro(p, filas, columnas)) aliadosV[p.getFila()][p.getColumna()] = true;
+        }
+        boolean[][] inspeccionadas = new boolean[filas][columnas];
+        for (Posicion p : celdasInspeccionadas) {
+            if (estaDentro(p, filas, columnas)) inspeccionadas[p.getFila()][p.getColumna()] = true;
+        }
+        
+        boolean modoDocker = MODO_DOCKER;
+
+        int charsPorCelda = modoDocker ? 2 : 2;
+        StringBuilder sb = new StringBuilder(filas * (columnas * charsPorCelda + 1));
+        for (int f = 0; f < filas; f++) {
+            for (int c = 0; c < columnas; c++) {
+                boolean esJugador = (f == jugador.getFila() && c == jugador.getColumna());
+                boolean esObjetivo = (objetivo != null && f == objetivo.getFila() && c == objetivo.getColumna());
+                Celda celda = celdas[f][c];
+                
+                if (modoDocker) {
+                    String tile = "⬜";
+                    if (esJugador) {
+                        tile = "👤";
+                    } else if (celda.estaArdiendo()) {
+                        tile = "🔥";
+                    } else if (!iluminadas[f][c]) {
+                        tile = "⬛";
+                    } else if (esObjetivo) {
+                        tile = "🎯";
+                    } else if (celda.simboloElemento() != 0) {
+                        char sim = celda.simboloElemento();
+                        if (sim == '+' || sim == '/') tile = "🚪";
+                        else if (sim == '^') tile = "🕳️";
+                        else if (sim == 'C') tile = "🧰";
+                        else if (sim == 'O') tile = "🛢️";
+                        else if (sim == '=') tile = "🧱";
+                        else tile = String.valueOf(sim) + " ";
+                    } else if (!celda.isTransitable()) {
+                        tile = "🧱";
+                    } else if (celda.hasEnemigos() && enemigosV[f][c]) {
+                        tile = "🧟";
+                    } else if (celda.hasAliados() && aliadosV[f][c]) {
+                        tile = "👮";
+                    } else if (celda.hasObjetos() && inspeccionadas[f][c]) {
+                        tile = "🎁";
+                    } else if (celda.hasFuenteAgua()) {
+                        tile = "💧";
+                    } else if (celda.hasAntorchaMural()) {
+                        tile = "🕯️";
+                    } else if (celda.getTipoSuelo() == TipoSuelo.MADERA) {
+                        tile = "🟫";
+                    }
+                    sb.append(tile);
                 } else {
-                    sb.append('.');
+                    if (esJugador) {
+                        sb.append('J');
+                    } else if (celda.estaArdiendo()) {
+                        sb.append('F');
+                    } else if (!iluminadas[f][c]) {
+                        sb.append('?');
+                    } else if (esObjetivo) {
+                        sb.append('X');
+                    } else if (celda.simboloElemento() != 0) {
+                        sb.append(celda.simboloElemento());
+                    } else if (!celda.isTransitable()) {
+                        sb.append('#');
+                    } else if (celda.hasEnemigos() && enemigosV[f][c]) {
+                        sb.append('E');
+                    } else if (celda.hasAliados() && aliadosV[f][c]) {
+                        sb.append('A');
+                    } else if (celda.hasObjetos() && inspeccionadas[f][c]) {
+                        sb.append('o');
+                    } else if (celda.hasFuenteAgua()) {
+                        sb.append('U');
+                    } else if (celda.hasAntorchaMural()) {
+                        sb.append('T');
+                    } else if (celda.getTipoSuelo() == TipoSuelo.MADERA) {
+                        sb.append('=');
+                    } else {
+                        sb.append('.');
+                    }
+                    sb.append(' ');
                 }
-                sb.append(' ');
             }
             sb.append('\n');
         }

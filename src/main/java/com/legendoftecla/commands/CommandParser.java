@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
  */
 public class CommandParser {
     private static final Pattern PATRON_ALCANCE = Pattern.compile("^(\\d+)([nseoNSEO])$");
+    private static final Pattern PATRON_ENTERO = Pattern.compile("^[+-]?\\d+$");
 
     private CommandContext context;
     private Map<String, ConstructorComando> rutas;
@@ -254,12 +255,9 @@ public class CommandParser {
         int repeticiones = 1;
         if (partes.length > 1) {
             String ultimo = partes[partes.length - 1];
-            try {
+            if (PATRON_ENTERO.matcher(ultimo).matches()) {
                 repeticiones = parseEntero(ultimo);
                 fin = partes.length - 1;
-            } catch (ComandoException ignored) {
-                repeticiones = 1;
-                fin = partes.length;
             }
         }
 
@@ -292,8 +290,9 @@ public class CommandParser {
     }
 
     private Comando parsePedirAyuda(String[] partes) throws ComandoException {
-        if (partes.length != 2 || !"ayuda".equalsIgnoreCase(partes[1])) {
-            throw new ComandoException("Uso: pedir ayuda");
+        if (partes.length != 2 || !("ayuda".equalsIgnoreCase(partes[1])
+                || "auxilio".equalsIgnoreCase(partes[1]))) {
+            throw new ComandoException("Uso: pedir ayuda|auxilio");
         }
         return new ComandoPedirAyuda(context);
     }

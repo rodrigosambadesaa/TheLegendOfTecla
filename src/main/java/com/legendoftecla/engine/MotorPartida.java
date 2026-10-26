@@ -67,7 +67,6 @@ public final class MotorPartida {
     private SistemaRuido sistemaRuido;
     private IndiceEspacialPersonajes<Enemigo> indiceEnemigos;
     private CacheNavegacion cacheNavegacion;
-
     /**
      * Crea una instancia de {@code MotorPartida}.
       * @param juego valor de {@code juego}
@@ -121,7 +120,6 @@ public final class MotorPartida {
         if (this.sistemaRuido != null) this.sistemaRuido.close();
         this.sistemaRuido = Validaciones.noNulo(sistemaRuido, "Sistema de ruido");
     }
-
     /** @return contexto de comandos */
     public CommandContext getContexto() { return contexto; }
     /** @param contexto contexto no nulo */
@@ -189,7 +187,6 @@ public final class MotorPartida {
     public boolean isModoEspectadorDisponible() {
         return modoEspectador && !finalizada && hayAliadosActivos();
     }
-
     /** @return estado persistente del modo espectador */
     public boolean isModoEspectador() { return modoEspectador; }
 
@@ -210,7 +207,6 @@ public final class MotorPartida {
     public void setEstadoFinal(SistemaPuntuacion.EstadoFinalPartida estadoFinal) {
         this.estadoFinal = estadoFinal;
     }
-
     /** @return bando ganador o {@code null} mientras la partida continua */
     public ResultadoBatalla getResultadoBatalla() { return resultadoBatalla; }
 
@@ -254,7 +250,6 @@ public final class MotorPartida {
                 + (turnosAyudaAliados > 0 ? "  Ayuda aliada " + turnosAyudaAliados : "")
                 + (modoEspectador ? "  MODO ESPECTADOR" : "");
     }
-
     /**
      * Genera el estado completo y persistente de todos los aliados de la partida.
      *
@@ -349,7 +344,6 @@ public final class MotorPartida {
         evaluarFinEspectador();
         return isModoEspectadorDisponible();
     }
-
     /**
      * Indica si los aliados tienen activa una orden para acudir al jugador.
      *
@@ -408,7 +402,6 @@ public final class MotorPartida {
         }
         return iluminadas;
     }
-
     /** Indica si una celda tiene luz suficiente para mostrar su contenido. */
     public boolean hayLuzEn(Posicion posicion) { return SistemaIluminacion.hayLuz(juego, posicion); }
 
@@ -475,7 +468,6 @@ public final class MotorPartida {
         juego.getConsola().imprimirAdvertencia(
                 "El jugador ha caido. Pulsa Play para observar como los aliados continuan la partida.");
     }
-
     private void evaluarFinEspectador() {
         if (finalizada || !modoEspectador) {
             return;
@@ -540,7 +532,6 @@ public final class MotorPartida {
         if (!juego.getAliadosRegistrados().isEmpty()) {
             juego.getConsola().imprimir(getEstadoAliados(), TipoMensaje.ESTADO);
         }
-
         SistemaPuntuacion.ResultadoPuntuacion puntuacion = SistemaPuntuacion.calcular(juego, estado);
         juego.setPuntuacion(puntuacion.getTotal());
         for (String linea : puntuacion.formatearDesglose()) {
@@ -559,7 +550,6 @@ public final class MotorPartida {
         private final String etiqueta;
 
         ResultadoBatalla(String etiqueta) { this.etiqueta = etiqueta; }
-
         /** @return texto listo para presentar en la interfaz */
         public String getEtiqueta() { return etiqueta; }
     }
@@ -691,7 +681,6 @@ public final class MotorPartida {
         return (botiquines < 2 || toritos < 2)
                 && explorarSuministrosDesconocidos(medico);
     }
-
     private Personaje buscarPacientePara(Aliado medico, IndiceEspacialPersonajes<Aliado> indiceAliados) {
         List<Personaje> candidatos = new ArrayList<>();
         if (juego.getJugador().getSalud() > 0) {
@@ -813,7 +802,6 @@ public final class MotorPartida {
             moverAliadoHaciaObjetivo(aliado, objetivo.getPosicion());
         }
     }
-
     private boolean puedeAcudirSinPeligro(Aliado aliado) {
         double saludRelativa = (double) aliado.getSalud() / Math.max(1, aliado.getSaludMaxima());
         return saludRelativa >= 0.55 && estimarRiesgoRecibido(aliado) < aliado.getSalud() * 0.50;
@@ -873,7 +861,6 @@ public final class MotorPartida {
         }
         return false;
     }
-
     private boolean buscarSuministroNecesarioParaJugador(Aliado aliado) {
         Personaje jugador = juego.getJugador();
         boolean necesitaBotiquin = jugador.getSalud() < jugador.getSaludMaxima()
@@ -947,7 +934,6 @@ public final class MotorPartida {
             }
         }
     }
-
     private void recogerObjetoAliado(Aliado aliado, Objeto objeto, Celda celda) {
         boolean suministroMedico = objeto instanceof Botiquin
                 || objeto instanceof ToritoRojo;
@@ -1021,7 +1007,6 @@ public final class MotorPartida {
         }
         equiparDesdeCelda(aliado, candidata, celda);
     }
-
     private int valorArmadura(Armadura armadura) {
         return armadura.getDefensa() * 10 + armadura.getBonusSalud() + armadura.getBonusEnergia() / 2;
     }
@@ -1074,7 +1059,6 @@ public final class MotorPartida {
         }
         return true;
     }
-
     private boolean liberarEspacioParaDesequipar(Aliado aliado, Objeto objeto, Celda celda) {
         while (!aliado.getMochila().puedeGuardar(objeto)) {
             Objeto descarte = aliado.getMochila().getObjetos().stream()
@@ -1133,7 +1117,6 @@ public final class MotorPartida {
         }
         return usarSuministro(aliado, jugador);
     }
-
     private boolean asistirAliadoPrioritario(Aliado donante, IndiceEspacialPersonajes<Aliado> indiceAliados) {
         List<Aliado> cercanosSalud = indiceAliados.cercanos(donante.getPosicion(), 1,
                 aliado -> aliado.getSalud() > 0 && aliado.getSalud() < aliado.getSaludMaxima());
@@ -1191,7 +1174,6 @@ public final class MotorPartida {
                 .orElse(null);
         return usarSuministro(donante, destinatario, objeto, "energia");
     }
-
     private boolean usarSuministro(Aliado donante, Personaje destinatario, Objeto objeto, String recurso) {
         if (objeto == null) {
             return false;
@@ -1237,7 +1219,6 @@ public final class MotorPartida {
             juego.getConsola().imprimirInfo("La orden de ayuda aliada ha finalizado.");
         }
     }
-
     private boolean extraerAliadoSiProcede(Aliado aliado) {
         if (!aliado.getPosicion().equals(juego.getMapa().getObjetivo())) {
             return false;
@@ -1309,7 +1290,6 @@ public final class MotorPartida {
         juego.getConsola().imprimirInfo(aliado.getNombre() + " usa " + elegido.getNombre()
                 + " porque permite detectar una amenaza nueva este turno.");
     }
-
     private boolean intentarRecargar(Personaje personaje) {
         try {
             var resultado = new ServicioRecarga().recargar(personaje, null);
@@ -1374,7 +1354,6 @@ public final class MotorPartida {
                     && juego.getMapa().hayLineaAtaque(aliado.getPosicion(), enemigo.getPosicion());
         }) != null;
     }
-
     private void ejecutarFormacion(Aliado aliado, boolean escasezSuministros, Aliado explorador) {
         Enemigo amenaza = buscarAmenazaDeFormacion(aliado);
         if (amenaza == null && escasezSuministros && esExploradorDeFormacion(aliado, explorador)
@@ -1431,7 +1410,6 @@ public final class MotorPartida {
         SistemaCombate.atacar(juego, aliado, enemigo, random);
         eliminarEnemigoDerrotado(aliado, enemigo);
     }
-
     private boolean puedeAliadoAtacarA(Aliado aliado, Enemigo enemigo) {
         int distancia = aliado.getPosicion().distanciaManhattan(enemigo.getPosicion());
         boolean alcance = aliado.getArmasEquipadas().isEmpty()
@@ -1465,7 +1443,6 @@ public final class MotorPartida {
         }
         return total;
     }
-
     private boolean esExploradorDeFormacion(Aliado candidato) {
         if (candidato.getPosicion().distanciaManhattan(juego.getJugador().getPosicion()) > 2) {
             return false;
@@ -1507,7 +1484,6 @@ public final class MotorPartida {
                 aliado.getNombre() + " prioriza la salida y alcanza la casilla final.");
         return extraerAliadoSiProcede(aliado);
     }
-
     private Posicion buscarCeldaDeSuministrosEnFormacion(Aliado aliado) {
         Posicion jugador = juego.getJugador().getPosicion();
         ArrayDeque<Posicion> pendientes = new ArrayDeque<>();
@@ -1593,7 +1569,6 @@ public final class MotorPartida {
             juego.getMapa().getCelda(origen).agregarAliado(aliado);
         }
     }
-
     private boolean hayRescateEnergiaPosible() {
         for (Aliado aliado : juego.getAliados()) {
             if (aliado.getSalud() <= 0) {
@@ -1686,7 +1661,6 @@ public final class MotorPartida {
         }
         return null;
     }
-
     private int calcularDistanciaRutaAliado(Posicion origen, Posicion objetivo) {
         if (cacheNavegacion != null) {
             return cacheNavegacion.distancia(origen, objetivo);

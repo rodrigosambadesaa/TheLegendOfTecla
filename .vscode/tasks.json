@@ -12,7 +12,12 @@
                 "./run-gui.ps1"
             ],
             "group": "none",
-            "problemMatcher": []
+            "problemMatcher": [],
+            "options": {
+                "env": {
+                    "TECLA_GUI_ENABLE_DEBUG": "true"
+                }
+            }
         },
         {
             "label": "Detener Docker GUI",

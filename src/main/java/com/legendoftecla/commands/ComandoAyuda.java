@@ -54,7 +54,7 @@ public class ComandoAyuda implements Comando {
                 "    Ejemplo: lanzar 3e c4_1 (solo zapador, alcance maximo 5)",
                 "11) recorrido",
                 "    Ejemplo: recorrido",
-                "12) pedir ayuda (alias: socorro o asistir)",
+                "12) pedir ayuda (tambien: pedir auxilio; alias: socorro o asistir)",
                 "    Los aliados seguros buscan suministros, acuden y combaten",
                 "13) reagrupar <defensiva|ofensiva|ninguna> (alias: formacion)",
                 "    Los aliados acompañan al jugador; los enemigos reaccionan si la detectan",

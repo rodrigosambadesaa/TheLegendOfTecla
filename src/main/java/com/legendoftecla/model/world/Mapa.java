@@ -290,7 +290,7 @@ public class Mapa {
         Validaciones.noNulo(aliadosVisibles, "Aliados visibles");
         Validaciones.noNulo(celdasInspeccionadas, "Celdas inspeccionadas");
         Validaciones.noNulo(celdasIluminadas, "Celdas iluminadas");
-        
+
         int filas = getFilas();
         int columnas = getColumnas();
         boolean[][] iluminadas = new boolean[filas][columnas];
@@ -309,7 +309,7 @@ public class Mapa {
         for (Posicion p : celdasInspeccionadas) {
             if (estaDentro(p, filas, columnas)) inspeccionadas[p.getFila()][p.getColumna()] = true;
         }
-        
+
         boolean modoDocker = MODO_DOCKER;
 
         int charsPorCelda = modoDocker ? 2 : 2;
@@ -319,7 +319,7 @@ public class Mapa {
                 boolean esJugador = (f == jugador.getFila() && c == jugador.getColumna());
                 boolean esObjetivo = (objetivo != null && f == objetivo.getFila() && c == objetivo.getColumna());
                 Celda celda = celdas[f][c];
-                
+
                 if (modoDocker) {
                     String tile = "⬜";
                     if (esJugador) {

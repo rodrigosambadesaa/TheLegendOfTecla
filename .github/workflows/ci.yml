@@ -26,6 +26,12 @@ jobs:
           java-version: '17'
           cache: maven
 
+      - name: Validate Docker Compose and GUI entrypoint syntax
+        run: |
+          docker compose config --quiet
+          sh -n docker/gui-entrypoint.sh
+          TECLA_GUI_ENABLE_DEBUG=true docker compose config --quiet
+
       - name: Compile, test, analyze, package and generate Javadoc
         run: mvn --batch-mode --no-transfer-progress clean verify
 

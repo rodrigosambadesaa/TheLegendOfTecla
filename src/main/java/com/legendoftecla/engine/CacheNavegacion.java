@@ -37,6 +37,9 @@ public final class CacheNavegacion {
      * @return distancia en casillas transitables
      */
     public int distancia(Posicion origen, Posicion destino) {
+        Validaciones.noNulo(origen, "Origen");
+        Validaciones.noNulo(destino, "Destino");
+        if (!mapa.esTransitable(origen) || !mapa.esTransitable(destino)) return -1;
         ResultadoBFS bfs = obtenerBFS(origen);
         Integer distancia = bfs.distancias.get(destino);
         return distancia != null ? distancia : -1;
@@ -50,6 +53,9 @@ public final class CacheNavegacion {
      * @return primera dirección del camino óptimo
      */
     public Direccion primerPaso(Posicion origen, Posicion destino) {
+        Validaciones.noNulo(origen, "Origen");
+        Validaciones.noNulo(destino, "Destino");
+        if (!mapa.esTransitable(origen) || !mapa.esTransitable(destino)) return null;
         if (origen.equals(destino)) return null;
         ResultadoBFS bfs = obtenerBFS(origen);
         if (!bfs.anteriores.containsKey(destino)) return null;
@@ -61,7 +67,9 @@ public final class CacheNavegacion {
     }
 
     private ResultadoBFS obtenerBFS(Posicion origen) {
-        return cache.computeIfAbsent(origen, this::explorar);
+        // Posicion es mutable; usarla como clave directa corromperia la cache.
+        Posicion clave = new Posicion(origen.getFila(), origen.getColumna());
+        return cache.computeIfAbsent(clave, this::explorar);
     }
 
     private ResultadoBFS explorar(Posicion origen) {

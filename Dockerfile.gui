@@ -40,7 +40,7 @@ RUN chmod 0755 /app/gui-entrypoint.sh
 
 USER tecla
 ENV DISPLAY=:99 \
-    JAVA_TOOL_OPTIONS="-Djava.awt.headless=false -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005" \
+    JAVA_TOOL_OPTIONS="-Djava.awt.headless=false" \
     LANG=C.UTF-8
 
 EXPOSE 6080 5005

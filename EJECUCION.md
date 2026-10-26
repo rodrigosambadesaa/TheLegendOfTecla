@@ -112,16 +112,41 @@ docker compose logs gui
 docker compose stop gui
 ```
 
-### Depuración Remota en Docker (JDWP)
+### Depuración remota opcional en Docker (JDWP)
 
-El servicio `gui` de Docker incluye la JVM configurada con el agente JDWP (Java Debug Wire Protocol) expuesto en el puerto `5005` (`127.0.0.1:5005`).
+Por seguridad, el contenedor GUI **no activa JDWP de forma predeterminada**.
+El protocolo JDWP no tiene autenticación y permite controlar la JVM, por lo
+que solo debe habilitarse en equipos de desarrollo de confianza. El puerto
+`5005` permanece publicado exclusivamente en `127.0.0.1` mediante Docker
+Compose, pero sin un listener JDWP hasta que se habilita expresamente.
 
-Para debuggear el código dockerizado desde **VS Code**:
-1. Ejecuta el contenedor GUI (ej. `.\run-gui.ps1` o mediante la tarea de VS Code `Levantar Docker GUI con Debug`).
-2. Abre la pestaña **Run and Debug** (`Ctrl+Shift+D`) en VS Code.
-3. Selecciona la configuración **"Attach to Docker GUI (Puerto 5005)"** y pulsa `F5`.
-4. Coloca puntos de interrupción (breakpoints) en cualquier archivo Java de `src/main/java/` (por ejemplo en `com.legendoftecla.Main`, `com.legendoftecla.engine.MotorPartida` o `com.legendoftecla.gui.VentanaPrincipal`).
-5. Abre la web `http://localhost:6080/vnc.html` e interactúa con el juego: la ejecución se pausará en tus breakpoints.
+En Windows PowerShell, para iniciar la interfaz con el depurador:
+
+```powershell
+$env:TECLA_GUI_ENABLE_DEBUG = "true"
+.\run-gui.ps1
+Remove-Item Env:\TECLA_GUI_ENABLE_DEBUG
+```
+
+En Linux, WSL2 o macOS:
+
+```bash
+TECLA_GUI_ENABLE_DEBUG=true bash ./run-gui.sh
+```
+
+La tarea de VS Code **«Levantar Docker GUI con Debug»** configura esta variable
+solo para el proceso que inicia Docker Compose; ejecutar el lanzador fuera de
+la tarea mantiene el depurador desactivado.
+
+Para depurar con **VS Code**:
+1. Arranca el contenedor con la variable indicada o con la tarea de VS Code.
+2. Abre **Run and Debug** (`Ctrl+Shift+D`).
+3. Selecciona **«Attach to Docker GUI (Puerto 5005)»** y pulsa `F5`.
+4. Coloca puntos de interrupción en `src/main/java/`.
+5. Abre `http://localhost:6080/vnc.html` e interactúa con el juego.
+
+No actives este puerto en redes públicas ni expongas la asignación de Docker
+más allá de `127.0.0.1`.
 
 
 ### Ejecucion local

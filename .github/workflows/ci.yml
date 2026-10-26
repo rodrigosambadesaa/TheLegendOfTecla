@@ -125,3 +125,78 @@ jobs:
       - name: Enforce dependency audit result
         if: steps.dependency-audit.outcome != 'success'
         run: exit 1
+
+  gui-container-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Build GUI container
+        run: docker compose build gui
+
+      - name: Start GUI without remote debugger
+        run: docker compose up -d gui
+
+      - name: Assert noVNC readiness and JDWP disabled by default
+        run: |
+          python3 - <<'PY'
+          import socket
+          import time
+          import urllib.request
+
+          url = "http://127.0.0.1:6080/vnc.html"
+          deadline = time.monotonic() + 180
+          while time.monotonic() < deadline:
+              try:
+                  with urllib.request.urlopen(url, timeout=3) as response:
+                      if response.status == 200:
+                          break
+              except (OSError, TimeoutError):
+                  time.sleep(2)
+          else:
+              raise AssertionError("noVNC did not become ready within 180 seconds")
+
+          try:
+              with socket.create_connection(("127.0.0.1", 5005), timeout=3) as client:
+                  client.settimeout(3)
+                  client.sendall(b"JDWP-Handshake")
+                  if client.recv(14) == b"JDWP-Handshake":
+                      raise AssertionError("JDWP unexpectedly enabled by default")
+          except (ConnectionError, TimeoutError, OSError):
+              pass
+          print("GUI responds; JDWP is disabled by default")
+          PY
+
+      - name: Restart GUI with explicit opt-in debugger
+        run: TECLA_GUI_ENABLE_DEBUG=true docker compose up -d --force-recreate gui
+
+      - name: Assert JDWP handshake when explicitly enabled
+        run: |
+          python3 - <<'PY'
+          import socket
+          import time
+
+          deadline = time.monotonic() + 90
+          while time.monotonic() < deadline:
+              try:
+                  with socket.create_connection(("127.0.0.1", 5005), timeout=3) as client:
+                      client.settimeout(3)
+                      client.sendall(b"JDWP-Handshake")
+                      if client.recv(14) == b"JDWP-Handshake":
+                          print("JDWP handshake completed with opt-in enabled")
+                          break
+              except (ConnectionError, TimeoutError, OSError):
+                  time.sleep(2)
+          else:
+              raise AssertionError("JDWP opt-in was not reachable")
+          PY
+
+      - name: Collect logs on failure
+        if: failure()
+        run: docker compose ps && docker compose logs --tail=150 gui
+
+      - name: Stop GUI container
+        if: always()
+        run: docker compose down --remove-orphans

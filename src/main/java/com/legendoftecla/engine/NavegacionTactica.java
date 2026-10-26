@@ -16,6 +16,7 @@ public final class NavegacionTactica {
     /** Devuelve la distancia transitable o -1 cuando no existe ruta. */
     public static int distancia(Mapa mapa, Posicion origen, Posicion objetivo) {
         validar(mapa, origen, objetivo);
+        if (!mapa.esTransitable(origen) || !mapa.esTransitable(objetivo)) return -1;
         if (origen.equals(objetivo)) return 0;
         ArrayDeque<Posicion> pendientes = new ArrayDeque<>();
         Map<Posicion, Integer> distancias = new HashMap<>();
@@ -38,6 +39,7 @@ public final class NavegacionTactica {
     /** Devuelve el primer paso de una ruta minima o {@code null} si no existe. */
     public static Direccion primerPaso(Mapa mapa, Posicion origen, Posicion objetivo) {
         validar(mapa, origen, objetivo);
+        if (!mapa.esTransitable(origen) || !mapa.esTransitable(objetivo)) return null;
         if (origen.equals(objetivo)) return null;
         ArrayDeque<Posicion> pendientes = new ArrayDeque<>();
         Map<Posicion, Posicion> anterior = new HashMap<>();

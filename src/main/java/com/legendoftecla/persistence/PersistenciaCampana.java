@@ -19,9 +19,7 @@ public final class PersistenciaCampana {
         CampanaGuardada estado = new CampanaGuardada(CampanaGuardada.VERSION_ACTUAL,
                 campana.getId(), campana.getIndice(), progreso.getNivel(),
                 progreso.getExperiencia(), progreso.getDesbloqueadas());
-        Path padre = archivo.toAbsolutePath().normalize().getParent();
-        if (padre != null) Files.createDirectories(padre);
-        Files.writeString(archivo, GSON.toJson(estado), StandardCharsets.UTF_8);
+        EscrituraAtomica.escribir(archivo, GSON.toJson(estado));
     }
 
     public static void restaurar(Campana campana, Path archivo) throws IOException {

@@ -26,9 +26,7 @@ public final class PersistenciaPartida {
 
     public static void guardar(Juego juego, Path archivo, long seed) throws JuegoException {
         try {
-            Path padre = archivo.toAbsolutePath().normalize().getParent();
-            if (padre != null) Files.createDirectories(padre);
-            Files.writeString(archivo, GSON.toJson(capturar(juego, seed)), StandardCharsets.UTF_8);
+            EscrituraAtomica.escribir(archivo, GSON.toJson(capturar(juego, seed)));
         } catch (IOException error) {
             throw new JuegoException("No se pudo guardar la partida: " + error.getMessage());
         }

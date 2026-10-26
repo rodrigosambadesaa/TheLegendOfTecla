@@ -15,10 +15,7 @@ public final class PersistenciaEstadisticas {
     private PersistenciaEstadisticas() { }
     public static void guardar(EstadisticasGlobales estadisticas, Path archivo)
             throws IOException {
-        Path padre = archivo.toAbsolutePath().normalize().getParent();
-        if (padre != null) Files.createDirectories(padre);
-        Files.writeString(archivo, GSON.toJson(estadisticas.snapshot()),
-                StandardCharsets.UTF_8);
+        EscrituraAtomica.escribir(archivo, GSON.toJson(estadisticas.snapshot()));
     }
     public static EstadisticasGlobales cargar(Path archivo) throws IOException {
         var snapshot = GSON.fromJson(Files.readString(archivo, StandardCharsets.UTF_8),

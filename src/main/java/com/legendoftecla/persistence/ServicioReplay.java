@@ -19,7 +19,7 @@ public final class ServicioReplay {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private ServicioReplay() { }
     public static void guardar(ReplayPartida replay, Path archivo) throws IOException {
-        Files.writeString(archivo, GSON.toJson(replay), StandardCharsets.UTF_8);
+        EscrituraAtomica.escribir(archivo, GSON.toJson(replay));
     }
     public static ReplayPartida cargar(Path archivo) throws IOException {
         ReplayPartida replay = GSON.fromJson(

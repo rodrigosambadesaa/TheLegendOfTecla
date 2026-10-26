@@ -3,6 +3,11 @@ set -eu
 
 display_number="${DISPLAY:-:99}"
 
+# JDWP permite ejecucion remota arbitraria en la JVM. Activar solo a peticion.
+if [ "${TECLA_GUI_ENABLE_DEBUG:-false}" = "true" ]; then
+    export JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS:-} -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+fi
+
 cleanup() {
     for pid in ${app_pid:-} ${websockify_pid:-} ${vnc_pid:-} ${fluxbox_pid:-} ${xvfb_pid:-}; do
         if [ -n "$pid" ]; then

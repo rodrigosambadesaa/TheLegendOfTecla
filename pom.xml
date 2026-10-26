@@ -13,7 +13,7 @@
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.outputTimestamp>2026-08-13T00:00:00Z</project.build.outputTimestamp>
-        <junit.version>5.11.4</junit.version>
+        <junit.version>6.1.3</junit.version>
         <archunit.version>1.4.2</archunit.version>
         <argLine></argLine>
         <!-- Linea base medida: debe subir de forma monotona con las suites por paquete. -->
@@ -70,7 +70,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.14.1</version>
+                <version>3.15.0</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -121,7 +121,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.5.2</version>
+                <version>3.5.6</version>
                 <configuration>
                     <argLine>@{argLine} -Djava.awt.headless=true</argLine>
                 </configuration>
@@ -148,7 +148,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.12</version>
+                <version>0.8.15</version>
                 <executions>
                     <execution>
                         <id>prepare-coverage-agent</id>

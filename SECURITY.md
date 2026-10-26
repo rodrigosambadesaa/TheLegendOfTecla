@@ -3,7 +3,8 @@
 ## Versiones mantenidas
 
 La rama `main` es la única versión mantenida. Cada cambio se valida con Java 17,
-análisis estático, CodeQL, OWASP Dependency Check y un SBOM CycloneDX.
+análisis estático, CodeQL, OSV-Scanner y un SBOM CycloneDX. OWASP Dependency
+Check se ejecuta además como auditoría profunda independiente.
 
 ## Comunicar una vulnerabilidad
 
@@ -18,5 +19,12 @@ No se solicitan pruebas que destruyan datos, afecten a terceros o degraden servi
 ## Cadena de suministro
 
 Los artefactos de CI incluyen `target/bom.json` en formato CycloneDX. Dependabot
-vigila Maven y GitHub Actions; el job de OWASP bloquea vulnerabilidades con CVSS
-igual o superior a 7,0.
+vigila Maven y GitHub Actions. OSV-Scanner comprueba las dependencias nuevas de
+cada PR y realiza un análisis completo sobre `main` y cada lunes. Sus
+hallazgos se reflejan en los controles y alertas de GitHub.
+
+OWASP Dependency Check conserva un análisis profundo independiente los martes
+(o cuando se inicie manualmente); su ejecución falla ante vulnerabilidades con
+CVSS igual o superior a 7,0. Requiere descargar e importar la base NVD y puede
+fallar por problemas de actualización: un fallo de esa base no demuestra que
+las dependencias sean seguras. Las bases H2 incompletas no se guardan en caché.

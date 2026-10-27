@@ -6,8 +6,6 @@ import com.legendoftecla.missions.Campana;
 import com.legendoftecla.progression.ProgresionPersonaje;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 /** Guarda la secuencia y progresión; inventario y aliados permanecen en el savegame. */
@@ -20,13 +18,13 @@ public final class PersistenciaCampana {
         CampanaGuardada estado = new CampanaGuardada(CampanaGuardada.VERSION_ACTUAL,
                 campana.getId(), campana.getIndice(), progreso.getNivel(),
                 progreso.getExperiencia(), progreso.getDesbloqueadas());
-        EscrituraAtomica.escribir(archivo, GSON.toJson(estado));
+        ArchivoJsonAcotado.escribir(archivo, GSON.toJson(estado));
     }
 
     public static void restaurar(Campana campana, Path archivo) throws IOException {
         try {
             CampanaGuardada estado = GSON.fromJson(
-                    Files.readString(archivo, StandardCharsets.UTF_8), CampanaGuardada.class);
+                    ArchivoJsonAcotado.leer(archivo), CampanaGuardada.class);
             if (estado == null || estado.version() != CampanaGuardada.VERSION_ACTUAL
                     || !campana.getId().equals(estado.campanaId())) {
                 throw new IOException("Campana corrupta, incompatible o de otra definicion");

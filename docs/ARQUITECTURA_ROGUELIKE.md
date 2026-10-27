@@ -59,7 +59,15 @@ finales. La decision de IA produce una `AccionIA` explicable antes de ejecutarla
 
 `escenario.json` describe una plantilla. `partida.json` captura estado mutable,
 incluidos elementos interactivos, progresion, estadisticas y logros, y usa
-`PartidaGuardada.VERSION_ACTUAL`. `ReplayPartida` registra seed, configuracion,
+`PartidaGuardada.VERSION_ACTUAL`.
+
+A partir del **savegame v2**, tambien se guardan todos los aliados registrados,
+sus indices de evacuacion (referidos al orden del historial), la condicion de
+victoria y la formacion tactica. Al cargar se reconstruye una sola instancia
+de cada aliado, compartida por los indices de activos y evacuados. Asi, una
+partida guardada tras una evacuacion parcial puede seguir hasta completar
+`JUGADOR_Y_ALIADOS`. Los savegames antiguos **v1** siguen siendo legibles
+con los valores predeterminados historicos para estos campos no persistidos. `ReplayPartida` registra seed, configuracion,
 comandos y hash SHA-256; reproducir vuelve a ejecutar comandos sobre una fabrica
 determinista y compara la huella final.
 

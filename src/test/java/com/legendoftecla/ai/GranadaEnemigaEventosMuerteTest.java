@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GranadaEnemigaEventosMuerteTest {
@@ -79,7 +78,7 @@ class GranadaEnemigaEventosMuerteTest {
         assertEquals(1, eventos.stream().filter(PersonajeMuerto.class::isInstance).count());
         assertEquals(1, eventos.stream().filter(PersonajeDanado.class::isInstance).count());
         assertEquals(1, juego.getEstadisticas().getMuertes());
-        assertFalse(juego.getMapa().getCelda(objetivo).getNivelFuego() == 0);
+        assertTrue(juego.getMapa().getCelda(objetivo).estaArdiendo());
     }
 
     private static Sectoid atacanteConGranada(Juego juego, Posicion posicion) {

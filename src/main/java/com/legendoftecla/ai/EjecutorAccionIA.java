@@ -7,6 +7,7 @@ import com.legendoftecla.events.PersonajeCurado;
 import com.legendoftecla.events.PersonajeAtacado;
 import com.legendoftecla.events.PersonajeDanado;
 import com.legendoftecla.events.ObjetoUsado;
+import com.legendoftecla.events.PersonajeMuerto;
 import com.legendoftecla.events.PersonajeMovido;
 import com.legendoftecla.events.RuidoGenerado;
 import com.legendoftecla.inventory.ServicioRecarga;
@@ -158,6 +159,10 @@ public final class EjecutorAccionIA {
             if (danio > 0) {
                 juego.publicarEvento(new PersonajeDanado(juego.getBusEventos().ahora(),
                         afectado.getNombre(), danio, objetivo));
+            }
+            if (antes > 0 && afectado.getSalud() <= 0) {
+                juego.publicarEvento(new PersonajeMuerto(juego.getBusEventos().ahora(),
+                        afectado.getNombre(), afectado.getPosicion()));
             }
         }
     }

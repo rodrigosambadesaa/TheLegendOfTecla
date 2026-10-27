@@ -24,7 +24,11 @@ public class ComandoRepetido implements Comando {
     /** @return comando repetido */
     public Comando getComando() { return comando; }
     /** @param comando comando no nulo */
-    public void setComando(Comando comando) { this.comando = Validaciones.noNulo(comando, "Comando"); }
+    public void setComando(Comando comando) {
+        Comando validado = Validaciones.noNulo(comando, "Comando");
+        ValidadorJerarquiaComandos.exigirAciclico(this, validado);
+        this.comando = validado;
+    }
     /** @return numero de repeticiones */
     public int getRepeticiones() { return repeticiones; }
     /** @param repeticiones cantidad entre 1 y 1000 */

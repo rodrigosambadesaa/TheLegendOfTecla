@@ -167,12 +167,31 @@ public final class Arma extends Objeto {
         }
         municionActual = actual;
     }
-    /** @param tipo tipo compatible; cambiarlo conserva las reglas del cargador */
+    /**
+     * Cambia el tipo solo si el estado del cargador sigue siendo coherente.
+     * La municion ya cargada no puede transformarse en proyectiles de otro tipo.
+     *
+     * @param tipo tipo compatible con la categoria del arma
+     */
     public void setTipoMunicion(TipoMunicion tipo) {
         TipoMunicion validado = Validaciones.noNulo(tipo, "Tipo de municion");
         validarCompatibilidad(categoria, validado);
+        if (tipoMunicion == validado) return;
+        if (validado != TipoMunicion.INFINITA) {
+            if (capacidadCargador < 1) {
+                throw new IllegalArgumentException(
+                        "No se puede usar municion finita sin un cargador valido.");
+            }
+            if (municionActual > 0) {
+                throw new IllegalArgumentException(
+                        "Vacia el cargador antes de cambiar el tipo de municion.");
+            }
+        }
         tipoMunicion = validado;
-        if (tipo == TipoMunicion.INFINITA) { capacidadCargador = 0; municionActual = 0; }
+        if (validado == TipoMunicion.INFINITA) {
+            capacidadCargador = 0;
+            municionActual = 0;
+        }
     }
     public boolean usaMunicionInfinita() { return tipoMunicion == TipoMunicion.INFINITA; }
     public boolean puedeDisparar() { return usaMunicionInfinita() || municionActual > 0; }

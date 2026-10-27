@@ -1,6 +1,7 @@
 package com.legendoftecla.model.world;
 
 import com.legendoftecla.TestFixtures;
+import com.legendoftecla.events.CeldaInspeccionada;
 import com.legendoftecla.model.characters.Aliado;
 import com.legendoftecla.model.characters.Mochila;
 import org.junit.jupiter.api.Test;
@@ -61,6 +62,22 @@ class HistorialExploracionInmutableTest {
                 .get(aliado).iterator().next();
         copiaExpuesta.setFila(2);
         assertTrue(juego.isCeldaInspeccionada(aliado, new Posicion(1, 1)));
+    }
+
+    @Test
+    void cambiosDelEventoNoAlteranElHistorialDeExploracion() {
+        Juego juego = TestFixtures.juegoBasico(TestFixtures.consola());
+        Aliado aliado = new Aliado("Explorador", new Posicion(1, 1), new Mochila(2, 5), 2);
+        juego.agregarAliado(aliado);
+        juego.getBusEventos().suscribir(CeldaInspeccionada.class,
+                evento -> evento.posicion().setColumna(2));
+
+        juego.inspeccionarCeldaActual();
+        juego.inspeccionarCeldaAliado(aliado);
+
+        assertTrue(juego.isCeldaInspeccionada(new Posicion(0, 0)));
+        assertTrue(juego.isCeldaInspeccionada(aliado, new Posicion(1, 1)));
+        assertFalse(juego.isCeldaInspeccionada(aliado, new Posicion(1, 2)));
     }
 
     @Test

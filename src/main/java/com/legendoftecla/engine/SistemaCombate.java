@@ -16,7 +16,10 @@ import com.legendoftecla.model.items.TipoMunicion;
 import com.legendoftecla.model.world.Juego;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.Random;
 
 /** Unifica daño, registro, sonido y efectos ambientales de todos los combatientes. */
@@ -56,8 +59,10 @@ public final class SistemaCombate {
 
     public static List<ResultadoAtaque> atacarTodos(Juego juego, Personaje atacante,
             List<? extends Personaje> objetivos, Random random) {
-        // No disparar, consumir turnos ni emitir ruidos si no hay objetivos.
+        // Validar toda la lista antes de publicar ataques o gastar cartuchos.
+        java.util.Objects.requireNonNull(objetivos, "Objetivos");
         if (objetivos.isEmpty()) return List.of();
+        validarObjetivosColectivos(objetivos);
         Arma arma = atacante.armaDisponiblePara(
                 atacante.getPosicion().distanciaManhattan(
                         objetivos.get(0).getPosicion())).orElse(null);
@@ -91,6 +96,26 @@ public final class SistemaCombate {
             SistemaIncendios.intentarDerribarAntorcha(juego, objetivos.get(0).getPosicion(), random);
         }
         return List.copyOf(resultados);
+    }
+
+    /**
+     * Un ataque colectivo corresponde a personajes distintos en una misma casilla.
+     * Las listas mal formadas no deben provocar danos/eventos duplicados.
+     */
+    private static void validarObjetivosColectivos(List<? extends Personaje> objetivos) {
+        Set<Personaje> vistos = Collections.newSetFromMap(new IdentityHashMap<>());
+        var posicion = java.util.Objects.requireNonNull(
+                objetivos.get(0), "Objetivo").getPosicion();
+        for (Personaje objetivo : objetivos) {
+            java.util.Objects.requireNonNull(objetivo, "Objetivo");
+            if (!vistos.add(objetivo)) {
+                throw new IllegalArgumentException("Un objetivo colectivo aparece repetido.");
+            }
+            if (!objetivo.getPosicion().equals(posicion)) {
+                throw new IllegalArgumentException(
+                        "Los objetivos colectivos deben ocupar la misma casilla.");
+            }
+        }
     }
 
     private static ResultadoAtaque resultado(Personaje atacante, Personaje objetivo, int vidaAntes) {

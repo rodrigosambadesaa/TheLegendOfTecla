@@ -62,8 +62,9 @@ public final class GestorEstados {
             publicarAplicado(efecto.tipo());
             return true;
         }
-        int acumulaciones = actual.acumulaciones()
-                + (efecto.acumulable() ? 1 : 0);
+        int acumulaciones = efecto.acumulable()
+                ? (int) Math.min(Integer.MAX_VALUE, (long) actual.acumulaciones() + 1)
+                : actual.acumulaciones();
         int duracion = efecto.renuevaDuracion()
                 ? Math.max(actual.turnos(), efecto.duracionInicial()) : actual.turnos();
         activos.put(efecto.tipo(), new Aplicacion(efecto, duracion, acumulaciones));

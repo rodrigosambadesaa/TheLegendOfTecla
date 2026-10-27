@@ -111,7 +111,12 @@ public class ComandoAtacar implements Comando {
         if (!m.matches()) {
             throw new ComandoException("Alcance invalido. Usa formato como 3e, 2n, 4s, 1o.");
         }
-        int pasos = Integer.parseInt(m.group(1));
+        int pasos;
+        try {
+            pasos = Integer.parseInt(m.group(1));
+        } catch (NumberFormatException error) {
+            throw new ComandoException("La distancia supera el rango numerico permitido.");
+        }
         Direccion direccion = Direccion.desdeTexto(m.group(2));
         Posicion actual = origen;
         for (int i = 0; i < pasos; i++) {

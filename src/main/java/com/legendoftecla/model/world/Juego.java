@@ -430,7 +430,8 @@ public class Juego {
         boolean nueva = celdasInspeccionadas.add(posicion);
         if (nueva) {
             publicarEvento(new CeldaInspeccionada(busEventos.ahora(),
-                    jugador.getNombre(), posicion));
+                    jugador.getNombre(),
+                    new Posicion(posicion.getFila(), posicion.getColumna())));
         }
     }
 
@@ -484,7 +485,8 @@ public class Juego {
         boolean nueva = posiciones.add(inspeccionada);
         if (nueva) {
             publicarEvento(new CeldaInspeccionada(busEventos.ahora(),
-                    validado.getNombre(), inspeccionada));
+                    validado.getNombre(),
+                    new Posicion(inspeccionada.getFila(), inspeccionada.getColumna())));
         }
         return nueva;
     }

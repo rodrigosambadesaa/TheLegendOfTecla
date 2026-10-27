@@ -100,7 +100,8 @@ class SistemaCoberturaSeleccionTest {
                 OrientacionCobertura.OESTE);
         SistemaCobertura sistema = new SistemaCobertura(new Random(7));
         for (List<Barricada> orden : List.of(List.of(zeta, alfa), List.of(alfa, zeta))) {
-            juego.getMapa().getCelda(POSICION_COBERTURA).setElementos(orden);
+            juego.getMapa().getCelda(POSICION_COBERTURA)
+                    .setElementos(new ArrayList<ElementoMapa>(orden));
             assertSame(alfa, sistema.proteccion(
                     juego.getMapa(), ATACANTE, OBJETIVO).barricada());
         }

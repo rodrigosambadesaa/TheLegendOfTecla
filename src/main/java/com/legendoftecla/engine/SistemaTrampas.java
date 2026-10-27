@@ -26,12 +26,20 @@ public final class SistemaTrampas {
 
     /** Detona una trampa remota y aplica su radio real. */
     public static boolean detonar(Juego juego, Posicion posicion, Trampa trampa) {
+        if (!trampaPresente(juego, posicion, trampa)) return false;
         return resolver(juego, posicion, trampa, juego.getJugador(), Operacion.DETONAR);
     }
 
     /** Dispara una trampa conocida, sea remota o de contacto. */
     public static boolean disparar(Juego juego, Posicion posicion, Trampa trampa) {
+        if (!trampaPresente(juego, posicion, trampa)) return false;
         return resolver(juego, posicion, trampa, juego.getJugador(), Operacion.DISPARAR);
+    }
+
+    /** El origen del efecto debe coincidir con la ubicacion real de esa instancia. */
+    private static boolean trampaPresente(Juego juego, Posicion posicion, Trampa trampa) {
+        return trampa != null && trampasEn(juego, posicion).stream()
+                .anyMatch(existente -> existente == trampa);
     }
 
     /** @return trampas de una celda en su orden de escenario */

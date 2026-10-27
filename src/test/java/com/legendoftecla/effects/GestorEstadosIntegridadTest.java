@@ -81,4 +81,28 @@ class GestorEstadosIntegridadTest {
         assertEquals(1, gestor.getActivos().size());
         assertTrue(gestor.contiene(TipoEstado.INSPIRADO));
     }
+    @Test
+    void acumulacionesMaximasNoDesbordanNiInviertenElDanioPorFuego() {
+        var personaje = TestFixtures.juegoBasico(TestFixtures.consola()).getJugador();
+        GestorEstados gestor = personaje.getEstados();
+        gestor.restaurar(new Quemado(), 3, Integer.MAX_VALUE);
+
+        gestor.aplicar(new Quemado());
+        assertEquals(Integer.MAX_VALUE, gestor.getActivos().get(0).acumulaciones());
+
+        gestor.inicioTurno();
+        assertEquals(0, personaje.getSalud());
+    }
+
+    @Test
+    void venenoConAcumulacionesExtremasNoGeneraDanioNegativo() {
+        var personaje = TestFixtures.juegoBasico(TestFixtures.consola()).getJugador();
+        GestorEstados gestor = personaje.getEstados();
+        gestor.restaurar(new Envenenado(), 3, Integer.MAX_VALUE);
+
+        gestor.finTurno();
+
+        assertEquals(0, personaje.getSalud());
+    }
+
 }

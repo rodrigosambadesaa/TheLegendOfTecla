@@ -37,6 +37,9 @@ public final class SistemaCombate {
                     PrecisionTirador.calcular(atacante), proteccion.tipo(),
                     proteccion.flanqueada(), atacante.getEstados().multiplicadorPrecision());
             if (!cobertura.impacta(probabilidad)) {
+                // El disparo se ha efectuado, aunque la cobertura lo detenga.
+                // Al acertar, Personaje.atacar consume la municion habitual.
+                if (arma != null) arma.consumirDisparo();
                 ResultadoAtaque fallo = resultado(atacante, objetivo, vidaAntes);
                 juego.getConsola().imprimir(atacante.getNombre() + " falla contra "
                         + objetivo.getNombre() + " por la cobertura.", TipoMensaje.INFO);

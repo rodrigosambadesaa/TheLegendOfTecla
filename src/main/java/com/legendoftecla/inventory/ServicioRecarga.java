@@ -14,20 +14,35 @@ public final class ServicioRecarga {
      * Recarga un arma equipada con todos los paquetes compatibles necesarios.
      *
      * @param personaje propietario del arma y la municion
-     * @param nombreArma nombre opcional; {@code null} selecciona la primera arma finita
+     * @param nombreArma nombre opcional; {@code null} prioriza la primera arma
+     *                   finita incompleta con municion compatible disponible
      * @return arma y cantidad transferida
      * @throws AccionInvalidaException si no existe arma, no necesita o no hay municion
      */
     public ResultadoRecarga recargar(Personaje personaje, String nombreArma)
             throws AccionInvalidaException {
         Personaje propietario = Validaciones.noNulo(personaje, "Personaje");
-        Arma arma = propietario.getArmasEquipadas().stream()
+        List<Municion> disponibles = propietario.getMochila().getObjetos().stream()
+                .filter(Municion.class::isInstance)
+                .map(Municion.class::cast)
+                .toList();
+        Arma primera = propietario.getArmasEquipadas().stream()
                 .filter(candidata -> nombreArma == null
                         ? !candidata.usaMunicionInfinita()
                         : candidata.getNombre().equalsIgnoreCase(nombreArma))
                 .findFirst()
                 .orElseThrow(() -> new AccionInvalidaException(
                         "Arma equipada no encontrada."));
+
+        // Sin nombre se prioriza un arma que realmente se pueda recargar.
+        // Si no existe, conservar el diagnostico habitual (llena o sin municion).
+        Arma arma = nombreArma != null ? primera : propietario.getArmasEquipadas().stream()
+                .filter(candidata -> !candidata.usaMunicionInfinita()
+                        && candidata.getMunicionActual() < candidata.getCapacidadCargador())
+                .filter(candidata -> disponibles.stream().anyMatch(municion ->
+                        municion.getTipo() == candidata.getTipoMunicion()
+                                && municion.getCantidad() > 0))
+                .findFirst().orElse(primera);
         if (arma.usaMunicionInfinita()) {
             throw new AccionInvalidaException("El arma no necesita recarga.");
         }
@@ -35,9 +50,7 @@ public final class ServicioRecarga {
             throw new AccionInvalidaException("El cargador ya esta lleno.");
         }
         int total = 0;
-        List<Municion> paquetes = propietario.getMochila().getObjetos().stream()
-                .filter(Municion.class::isInstance)
-                .map(Municion.class::cast)
+        List<Municion> paquetes = disponibles.stream()
                 .filter(municion -> municion.getTipo() == arma.getTipoMunicion())
                 .toList();
         for (Municion municion : paquetes) {

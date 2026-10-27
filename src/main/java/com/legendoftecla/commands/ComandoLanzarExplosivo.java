@@ -84,7 +84,8 @@ public final class ComandoLanzarExplosivo implements Comando {
         }
 
         Celda celda = mapa.getCelda(destino);
-        List<Enemigo> objetivos = List.copyOf(celda.getEnemigos());
+        List<Enemigo> objetivos = celda.getEnemigos().stream()
+                .filter(enemigo -> enemigo.getSalud() > 0).toList();
         if (objetivos.isEmpty()) {
             throw new ComandoException("No hay enemigos en la celda objetivo.");
         }

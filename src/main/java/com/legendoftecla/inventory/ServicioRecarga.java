@@ -23,7 +23,8 @@ public final class ServicioRecarga {
         Personaje propietario = Validaciones.noNulo(personaje, "Personaje");
         Arma arma = propietario.getArmasEquipadas().stream()
                 .filter(candidata -> nombreArma == null
-                        || candidata.getNombre().equalsIgnoreCase(nombreArma))
+                        ? !candidata.usaMunicionInfinita()
+                        : candidata.getNombre().equalsIgnoreCase(nombreArma))
                 .findFirst()
                 .orElseThrow(() -> new AccionInvalidaException(
                         "Arma equipada no encontrada."));

@@ -13,6 +13,8 @@ public final class Quemado implements EfectoEstado {
     public int duracionInicial() { return turnos; }
     public boolean acumulable() { return true; }
     public void alInicioTurno(Personaje personaje, int acumulaciones) {
-        personaje.recibirDanio(dano * acumulaciones);
+        personaje.recibirDanio((int) Math.min(
+                com.legendoftecla.validation.Limites.ESTADISTICA,
+                (long) dano * acumulaciones));
     }
 }

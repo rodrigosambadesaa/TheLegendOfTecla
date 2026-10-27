@@ -6,6 +6,8 @@ public final class Envenenado implements EfectoEstado {
     public int duracionInicial() { return 4; }
     public boolean acumulable() { return true; }
     public void alFinTurno(Personaje personaje, int acumulaciones) {
-        personaje.recibirDanio(2 * acumulaciones);
+        personaje.recibirDanio((int) Math.min(
+                com.legendoftecla.validation.Limites.ESTADISTICA,
+                2L * acumulaciones));
     }
 }

@@ -18,14 +18,14 @@ public final class PersistenciaEstadisticas {
         EscrituraAtomica.escribir(archivo, GSON.toJson(estadisticas.snapshot()));
     }
     public static EstadisticasGlobales cargar(Path archivo) throws IOException {
-        var snapshot = GSON.fromJson(Files.readString(archivo, StandardCharsets.UTF_8),
-                EstadisticasGlobales.Snapshot.class);
-        EstadisticasGlobales estadisticas = new EstadisticasGlobales();
         try {
+            var snapshot = GSON.fromJson(Files.readString(archivo, StandardCharsets.UTF_8),
+                    EstadisticasGlobales.Snapshot.class);
+            EstadisticasGlobales estadisticas = new EstadisticasGlobales();
             estadisticas.restaurar(snapshot);
-        } catch (IllegalArgumentException error) {
+            return estadisticas;
+        } catch (RuntimeException error) {
             throw new IOException("Estadisticas corruptas", error);
         }
-        return estadisticas;
     }
 }

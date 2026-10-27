@@ -162,7 +162,12 @@ public final class ComandoLanzarExplosivo implements Comando {
         if (!matcher.matches()) {
             throw new ComandoException("Alcance invalido. Usa un valor como 3e, 2n, 4s o 1o.");
         }
-        int pasos = Integer.parseInt(matcher.group(1));
+        int pasos;
+        try {
+            pasos = Integer.parseInt(matcher.group(1));
+        } catch (NumberFormatException error) {
+            throw new ComandoException("La distancia supera el rango numerico permitido.");
+        }
         if (pasos < 1 || pasos > alcanceMaximo) {
             throw new ComandoException("El explosivo permite lanzar entre 1 y " + alcanceMaximo + " celdas.");
         }

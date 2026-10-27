@@ -11,7 +11,6 @@ import com.legendoftecla.model.characters.Zapador;
 import com.legendoftecla.model.items.Explosivo;
 import com.legendoftecla.model.items.Granada;
 import com.legendoftecla.model.items.TipoGranada;
-import com.legendoftecla.model.items.Objeto;
 import com.legendoftecla.model.world.Celda;
 import com.legendoftecla.model.world.Direccion;
 import com.legendoftecla.model.world.Mapa;
@@ -90,7 +89,7 @@ public final class ComandoLanzarExplosivo implements Comando {
             throw new ComandoException("No hay enemigos en la celda objetivo.");
         }
 
-        context.getJuego().getJugador().getMochila().quitarPorNombre(explosivo.getNombre());
+        context.getJuego().getJugador().getMochila().quitar(explosivo);
         List<Integer> vidasAntes = objetivos.stream().map(Enemigo::getSalud).toList();
         objetivos.forEach(enemigo -> context.getJuego().publicarEvento(new PersonajeAtacado(
                 context.getJuego().getBusEventos().ahora(),
@@ -147,11 +146,11 @@ public final class ComandoLanzarExplosivo implements Comando {
     }
 
     private Explosivo buscarExplosivo() throws ComandoException {
-        Objeto objeto = context.getJuego().getJugador().getMochila().getObjetos().stream()
+        Explosivo explosivo = context.getJuego().getJugador().getMochila().getObjetos()
+                .stream().filter(Explosivo.class::isInstance).map(Explosivo.class::cast)
                 .filter(candidato -> candidato.getNombre().equalsIgnoreCase(nombreExplosivo))
-                .findFirst()
-                .orElse(null);
-        if (!(objeto instanceof Explosivo explosivo)) {
+                .findFirst().orElse(null);
+        if (explosivo == null) {
             throw new ComandoException("No tienes ese explosivo en la mochila.");
         }
         return explosivo;

@@ -34,7 +34,7 @@ public abstract class Trampa extends ElementoBase {
         Objects.requireNonNull(personaje, "Personaje");
         int ventaja = personaje instanceof Zapador ? 4 : 0;
         if (tieneDesactivacionAvanzada(personaje)) ventaja += 2;
-        if (percepcion + ventaja >= detectabilidad) detectada = true;
+        if ((long) percepcion + ventaja >= detectabilidad) detectada = true;
         return detectada;
     }
 
@@ -43,7 +43,7 @@ public abstract class Trampa extends ElementoBase {
         if (!activa) return true;
         int ventaja = personaje instanceof Zapador ? 5 : 0;
         if (tieneDesactivacionAvanzada(personaje)) ventaja += 3;
-        if (detectada && habilidad + ventaja >= dificultadDesactivacion) activa = false;
+        if (detectada && (long) habilidad + ventaja >= dificultadDesactivacion) activa = false;
         return !activa;
     }
 

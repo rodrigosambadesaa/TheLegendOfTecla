@@ -405,7 +405,7 @@ public class Juego {
      * @return conjunto defensivo de posiciones inspeccionadas
      */
     public Set<Posicion> getCeldasInspeccionadas() {
-        return Collections.unmodifiableSet(celdasInspeccionadas);
+        return Collections.unmodifiableSet(copiarPosiciones(celdasInspeccionadas));
     }
 
     /**
@@ -420,12 +420,13 @@ public class Juego {
                         posicion -> posicion == null || !mapa.estaDentro(posicion))) {
             throw new IllegalArgumentException("Las celdas inspeccionadas deben pertenecer al mapa.");
         }
-        this.celdasInspeccionadas = new HashSet<>(celdasInspeccionadas);
+        this.celdasInspeccionadas = copiarPosiciones(celdasInspeccionadas);
     }
 
     /** Registra que el jugador ha mirado la celda en la que se encuentra. */
     public void inspeccionarCeldaActual() {
-        Posicion posicion = jugador.getPosicion();
+        Posicion actual = jugador.getPosicion();
+        Posicion posicion = new Posicion(actual.getFila(), actual.getColumna());
         boolean nueva = celdasInspeccionadas.add(posicion);
         if (nueva) {
             publicarEvento(new CeldaInspeccionada(busEventos.ahora(),
@@ -447,7 +448,7 @@ public class Juego {
     public Map<Aliado, Set<Posicion>> getCeldasInspeccionadasAliados() {
         Map<Aliado, Set<Posicion>> copia = new HashMap<>();
         celdasInspeccionadasAliados.forEach((aliado, posiciones) ->
-                copia.put(aliado, new HashSet<>(posiciones)));
+                copia.put(aliado, copiarPosiciones(posiciones)));
         return copia;
     }
 
@@ -462,7 +463,8 @@ public class Juego {
             throw new IllegalArgumentException("Las inspecciones aliadas no son validas.");
         }
         Map<Aliado, Set<Posicion>> copia = new HashMap<>();
-        inspecciones.forEach((aliado, posiciones) -> copia.put(aliado, new HashSet<>(posiciones)));
+        inspecciones.forEach((aliado, posiciones) ->
+                copia.put(aliado, copiarPosiciones(posiciones)));
         this.celdasInspeccionadasAliados = copia;
     }
 
@@ -477,10 +479,12 @@ public class Juego {
         validarPosicionPersonaje(validado.getPosicion(), "aliado");
         Set<Posicion> posiciones = celdasInspeccionadasAliados
                 .computeIfAbsent(validado, clave -> new HashSet<>());
-        boolean nueva = posiciones.add(validado.getPosicion());
+        Posicion actual = validado.getPosicion();
+        Posicion inspeccionada = new Posicion(actual.getFila(), actual.getColumna());
+        boolean nueva = posiciones.add(inspeccionada);
         if (nueva) {
             publicarEvento(new CeldaInspeccionada(busEventos.ahora(),
-                    validado.getNombre(), validado.getPosicion()));
+                    validado.getNombre(), inspeccionada));
         }
         return nueva;
     }
@@ -656,6 +660,15 @@ public class Juego {
      */
     public boolean excedioPasos() {
         return pasos > pasosMaximos;
+    }
+
+    /** Copia coordenadas mutables antes de utilizarlas como claves de un HashSet. */
+    private static Set<Posicion> copiarPosiciones(Set<Posicion> posiciones) {
+        Set<Posicion> copia = new HashSet<>(posiciones.size());
+        for (Posicion posicion : posiciones) {
+            copia.add(new Posicion(posicion.getFila(), posicion.getColumna()));
+        }
+        return copia;
     }
 
     /** Verifica todos los bandos antes de aplicar un cambio de mapa. */

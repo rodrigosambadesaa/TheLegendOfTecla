@@ -12,14 +12,19 @@ public final class ProgresionPersonaje {
     public Set<String> getDesbloqueadas() { return Set.copyOf(desbloqueadas); }
     /** @return si una habilidad ya forma parte del progreso */
     public boolean tiene(String id) { return id != null && desbloqueadas.contains(id); }
-    public int experienciaSiguienteNivel() { return nivel * 100; }
+    public int experienciaSiguienteNivel() {
+        return (int) Math.min(Integer.MAX_VALUE, (long) nivel * 100);
+    }
     public int ganarExperiencia(int cantidad) {
         if (cantidad < 0) throw new IllegalArgumentException("XP negativa");
-        experiencia += cantidad;
+        long disponible = (long) experiencia + cantidad;
         int subidas = 0;
-        while (experiencia >= experienciaSiguienteNivel()) {
-            experiencia -= experienciaSiguienteNivel(); nivel++; subidas++;
+        while (disponible >= (long) nivel * 100) {
+            disponible -= (long) nivel * 100;
+            nivel++;
+            subidas++;
         }
+        experiencia = (int) disponible;
         return subidas;
     }
     public boolean desbloquear(String id, ArbolHabilidades arbol, Jugador jugador) {
@@ -37,7 +42,7 @@ public final class ProgresionPersonaje {
 
     /** Restaura un snapshot validado sin volver a aplicar efectos ya reflejados en el personaje. */
     public void restaurar(int nivel, int experiencia, Set<String> habilidades) {
-        if (nivel < 1 || experiencia < 0 || experiencia >= nivel * 100) {
+        if (nivel < 1 || experiencia < 0 || experiencia >= (long) nivel * 100) {
             throw new IllegalArgumentException("Progresion guardada invalida");
         }
         this.nivel = nivel;

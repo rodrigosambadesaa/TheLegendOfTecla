@@ -94,7 +94,7 @@ class PersistenciaYReplayTest {
         PersistenciaPartida.guardar(juego, archivo, 77);
         Juego cargado = PersistenciaPartida.cargar(archivo, TestFixtures.consola());
 
-        assertTrue(Files.readString(archivo).contains("\"version\": 1"));
+        assertTrue(Files.readString(archivo).contains("\"version\": 2"));
         assertEquals(4, cargado.getPasos());
         assertEquals(83, cargado.getJugador().getSalud());
         assertEquals(2, cargado.getMapa().getCelda(new Posicion(1, 1)).getNivelFuego());

@@ -8,6 +8,8 @@ import com.legendoftecla.validation.Validaciones;
 import com.legendoftecla.audio.EventoSonido;
 import com.legendoftecla.audio.GestorSonido;
 
+import java.util.List;
+
 
 /**
  * Representa la entidad ComandoEquipar del juego.
@@ -43,7 +45,9 @@ public class ComandoEquipar implements Comando {
      * Ejecuta ejecutar.
      */
     public void ejecutar() throws ComandoException {
-        Objeto obj = context.getJuego().getJugador().getMochila().quitarPorNombre(nombreObjeto);
+        var mochila = context.getJuego().getJugador().getMochila();
+        List<Objeto> originales = List.copyOf(mochila.getObjetos());
+        Objeto obj = mochila.quitarPorNombre(nombreObjeto);
         if (obj == null) {
             throw new ComandoException("Ese objeto no esta en la mochila.");
         }
@@ -52,7 +56,7 @@ public class ComandoEquipar implements Comando {
             context.getJuego().getConsola().imprimir("Equipado: " + obj.getNombre());
             GestorSonido.reproducir(EventoSonido.EQUIPAR);
         } catch (AccionInvalidaException e) {
-            context.getJuego().getJugador().getMochila().guardar(obj);
+            mochila.setObjetos(originales);
             throw new ComandoException(e.getMessage());
         }
     }

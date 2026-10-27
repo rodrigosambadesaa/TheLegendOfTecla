@@ -8,6 +8,8 @@ import com.legendoftecla.model.world.Celda;
 import com.legendoftecla.validation.Limites;
 import com.legendoftecla.validation.Validaciones;
 
+import java.util.List;
+
 
 /**
  * Representa la entidad ComandoCoger del juego.
@@ -48,6 +50,7 @@ public class ComandoCoger implements Comando {
             throw new ComandoException("Debes mirar la celda antes de coger objetos.");
         }
         Celda celda = context.getJuego().getMapa().getCelda(posicion);
+        List<Objeto> originales = List.copyOf(celda.getObjetos());
         Objeto objeto = celda.quitarObjetoPorNombre(nombreObjeto);
         if (objeto == null) {
             throw new ComandoException("No existe ese objeto en la celda.");
@@ -59,7 +62,7 @@ public class ComandoCoger implements Comando {
                     context.getJuego().getBusEventos().ahora(),
                     context.getJuego().getJugador().getNombre(), objeto.getNombre(), posicion));
         } catch (AccionInvalidaException e) {
-            celda.agregarObjeto(objeto);
+            celda.setObjetos(originales);
             throw new ComandoException(e.getMessage());
         }
     }

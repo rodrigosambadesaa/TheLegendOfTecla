@@ -18,20 +18,30 @@ public final class EstadisticasGlobales {
     }
     public void registrarPartida(boolean victoria, int turnos,
             EstadisticasPartida.Snapshot detalle) {
-        partidas++;
-        if (victoria) victorias++; else derrotas++;
-        this.turnos += Math.max(0, turnos);
+        partidas = sumarSaturado(partidas, 1);
+        if (victoria) victorias = sumarSaturado(victorias, 1);
+        else derrotas = sumarSaturado(derrotas, 1);
+        this.turnos = sumarSaturado(this.turnos, turnos);
         if (detalle != null) {
-            muertes += detalle.muertes();
-            enemigosEliminados += detalle.enemigosEliminados();
-            aliadosEvacuados += detalle.aliadosEvacuados();
-            danoCausado += detalle.danoCausado();
-            danoRecibido += detalle.danoRecibido();
-            incendiosApagados += detalle.incendiosApagados();
-            objetosUsados += detalle.objetosUsados();
-            pasos += detalle.pasos();
+            muertes = sumarSaturado(muertes, detalle.muertes());
+            enemigosEliminados = sumarSaturado(enemigosEliminados, detalle.enemigosEliminados());
+            aliadosEvacuados = sumarSaturado(aliadosEvacuados, detalle.aliadosEvacuados());
+            danoCausado = sumarSaturado(danoCausado, detalle.danoCausado());
+            danoRecibido = sumarSaturado(danoRecibido, detalle.danoRecibido());
+            incendiosApagados = sumarSaturado(incendiosApagados, detalle.incendiosApagados());
+            objetosUsados = sumarSaturado(objetosUsados, detalle.objetosUsados());
+            pasos = sumarSaturado(pasos, detalle.pasos());
         }
     }
+    /**
+     * Evita el desbordamiento de los totales entre partidas y descarta
+     * incrementos negativos provenientes de un detalle inconsistente.
+     */
+    private static int sumarSaturado(int actual, int incremento) {
+        if (incremento <= 0) return actual;
+        return (int) Math.min(Integer.MAX_VALUE, (long) actual + incremento);
+    }
+
     public int getPartidas() { return partidas; }
     public int getVictorias() { return victorias; }
     public int getDerrotas() { return derrotas; }

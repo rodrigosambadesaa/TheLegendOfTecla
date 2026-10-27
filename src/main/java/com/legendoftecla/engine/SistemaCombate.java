@@ -56,7 +56,9 @@ public final class SistemaCombate {
 
     public static List<ResultadoAtaque> atacarTodos(Juego juego, Personaje atacante,
             List<? extends Personaje> objetivos, Random random) {
-        Arma arma = objetivos.isEmpty() ? null : atacante.armaDisponiblePara(
+        // No disparar, consumir turnos ni emitir ruidos si no hay objetivos.
+        if (objetivos.isEmpty()) return List.of();
+        Arma arma = atacante.armaDisponiblePara(
                 atacante.getPosicion().distanciaManhattan(
                         objetivos.get(0).getPosicion())).orElse(null);
         if (!objetivos.isEmpty()) {

@@ -63,6 +63,33 @@ incluidos elementos interactivos, progresion, estadisticas y logros, y usa
 comandos y hash SHA-256; reproducir vuelve a ejecutar comandos sobre una fabrica
 determinista y compara la huella final.
 
+### Versiones del replay
+
+- **v1 (legado):** `ServicioReplay.hash(juego)` mantiene la huella antigua,
+  que solo incorporaba el mapa ASCII, la salud, la energia y los pasos del
+  jugador. La compatibilidad no garantiza deteccion de alteraciones del
+  inventario o de personajes no representados en el mapa.
+- **v2 (recomendada):** `ServicioReplay.hashCompleto(juego)` calcula una
+  SHA-256 canonica a partir de `PersistenciaPartida.capturar(juego, 0L)`,
+  incluyendo mapa, contenido de celdas, personajes, inventarios, equipo,
+  estados, progresion, mision, puntuacion, estadisticas y logros. Los conjuntos
+  se ordenan antes de calcular la huella; los inventarios mantienen su orden.
+- El comando `salir` puede ser el ultimo del replay, pero no se admiten
+  comandos posteriores a un final anticipado. Las versiones desconocidas,
+  comandos vacios y documentos de mas de 16 MiB se rechazan al cargar.
+- Esta es una **huella de integridad**, no una firma autentificada: quien pueda
+  modificar simultaneamente el replay y su hash puede calcular una huella nueva.
+  La fabrica debe reconstruir el juego con la misma configuracion y semilla.
+
+Ejemplo de creacion programatica del replay v2:
+
+```java
+String huella = ServicioReplay.hashCompleto(juegoFinal);
+ReplayPartida replay = new ReplayPartida(2, semilla,
+        configuracion, comandosRegistrados, huella);
+ServicioReplay.guardar(replay, archivo);
+```
+
 ## Extensiones
 
 Para un estado nuevo se implementa `EfectoEstado`; para un enemigo, un rol

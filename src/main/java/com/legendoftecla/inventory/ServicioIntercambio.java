@@ -4,6 +4,7 @@ import com.legendoftecla.exceptions.AccionInvalidaException;
 import com.legendoftecla.model.characters.Personaje;
 import com.legendoftecla.model.items.Objeto;
 
+import java.util.List;
 import java.util.Objects;
 
 /** Transferencias finitas, cercanas y atomicas entre personajes. */
@@ -25,12 +26,14 @@ public final class ServicioIntercambio {
             throw new AccionInvalidaException(
                     "El destino no admite el objeto por capacidad, peso o clase.");
         }
+        List<Objeto> originales = List.copyOf(origen.getMochila().getObjetos());
         Objeto retirado = origen.tirar(objeto);
         try {
             destino.coger(retirado);
             return retirado;
-        } catch (AccionInvalidaException error) {
-            origen.getMochila().guardar(retirado);
+        } catch (AccionInvalidaException | RuntimeException error) {
+            // Restaurar tambien la posicion original del objeto en la mochila.
+            origen.getMochila().setObjetos(originales);
             throw error;
         }
     }
@@ -44,24 +47,22 @@ public final class ServicioIntercambio {
             Personaje segundo, String objetoSegundo, boolean enCombate)
             throws AccionInvalidaException {
         validar(primero, segundo, enCombate);
-        Objeto uno = primero.tirar(objetoPrimero);
-        Objeto dos;
+        List<Objeto> originalesPrimero = List.copyOf(primero.getMochila().getObjetos());
+        List<Objeto> originalesSegundo = List.copyOf(segundo.getMochila().getObjetos());
         try {
-            dos = segundo.tirar(objetoSegundo);
-        } catch (AccionInvalidaException error) {
-            primero.getMochila().guardar(uno);
+            Objeto uno = primero.tirar(objetoPrimero);
+            Objeto dos = segundo.tirar(objetoSegundo);
+            if (!primero.puedeCoger(dos) || !segundo.puedeCoger(uno)) {
+                throw new AccionInvalidaException("El intercambio supera capacidad o peso.");
+            }
+            primero.coger(dos);
+            segundo.coger(uno);
+        } catch (AccionInvalidaException | RuntimeException error) {
+            // Un fallo nunca altera el contenido ni el orden anterior de las mochilas.
+            primero.getMochila().setObjetos(originalesPrimero);
+            segundo.getMochila().setObjetos(originalesSegundo);
             throw error;
         }
-        if (!primero.getMochila().puedeGuardar(dos)
-                || !segundo.getMochila().puedeGuardar(uno)
-                || !primero.puedeCoger(dos)
-                || !segundo.puedeCoger(uno)) {
-            primero.getMochila().guardar(uno);
-            segundo.getMochila().guardar(dos);
-            throw new AccionInvalidaException("El intercambio supera capacidad o peso.");
-        }
-        primero.coger(dos);
-        segundo.coger(uno);
     }
 
     private void validar(Personaje primero, Personaje segundo, boolean enCombate)

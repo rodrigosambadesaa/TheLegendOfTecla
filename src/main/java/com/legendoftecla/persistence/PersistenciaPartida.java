@@ -96,6 +96,7 @@ public final class PersistenciaPartida {
                 || guardada.enemigos() == null) {
             throw new JuegoException("Faltan datos obligatorios de partida.");
         }
+        validarIntegridadMapa(guardada.mapa());
         if (guardada.version() == PartidaGuardada.VERSION_ACTUAL) {
             if (guardada.aliadosRegistrados() == null || guardada.indicesExtraidos() == null
                     || guardada.condicionVictoria() == null || guardada.formacionAliada() == null) {
@@ -112,6 +113,37 @@ public final class PersistenciaPartida {
                     || total - indices.size() != guardada.aliados().size()) {
                 throw new JuegoException("Historial de aliados inconsistente.");
             }
+        }
+    }
+
+    /**
+     * Un savegame debe describir todas las celdas del mapa una sola vez.
+     * De lo contrario, la restauracion puede dejar referencias nulas o
+     * reemplazar silenciosamente el contenido de una casilla duplicada.
+     */
+    private static void validarIntegridadMapa(MapaEstado mapa) throws JuegoException {
+        int filas = mapa.filas();
+        int columnas = mapa.columnas();
+        if (filas < com.legendoftecla.validation.Limites.MAPA_MINIMO
+                || filas > com.legendoftecla.validation.Limites.MAPA_MAXIMO
+                || columnas < com.legendoftecla.validation.Limites.MAPA_MINIMO
+                || columnas > com.legendoftecla.validation.Limites.MAPA_MAXIMO) {
+            throw new JuegoException("Dimensiones de mapa fuera de los limites permitidos.");
+        }
+        if (mapa.celdas().size() != filas * columnas) {
+            throw new JuegoException("Numero de celdas del mapa inconsistente.");
+        }
+        boolean[] ocupadas = new boolean[filas * columnas];
+        for (CeldaEstado celda : mapa.celdas()) {
+            if (celda == null || celda.fila() < 0 || celda.fila() >= filas
+                    || celda.columna() < 0 || celda.columna() >= columnas) {
+                throw new JuegoException("Celda del mapa nula o fuera de limites.");
+            }
+            int indice = celda.fila() * columnas + celda.columna();
+            if (ocupadas[indice]) {
+                throw new JuegoException("La partida contiene celdas del mapa duplicadas.");
+            }
+            ocupadas[indice] = true;
         }
     }
 

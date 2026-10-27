@@ -40,10 +40,10 @@ class IntercambioRollbackTest {
     @Test
     void falloPorPesoRestauraAmbosInventariosYReferencias() {
         Personaje primero = TestFixtures.juegoBasico(TestFixtures.consola()).getJugador();
-        Aliado segundo = new Aliado("Comerciante", new Posicion(0, 1), new Mochila(3, 20), 2);
+        Aliado segundo = new Aliado("Comerciante", new Posicion(0, 1), new Mochila(3, 30), 2);
         Objeto uno = pieza("Uno", 1);
         Objeto dos = pieza("Dos", 1);
-        Objeto pesado = pieza("Pesado", 19);
+        Objeto pesado = pieza("Pesado", 20);
         Objeto ligero = pieza("Ligero", 1);
         primero.getMochila().setObjetos(List.of(uno, dos));
         segundo.getMochila().setObjetos(List.of(pesado, ligero));

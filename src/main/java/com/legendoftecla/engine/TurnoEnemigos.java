@@ -69,9 +69,18 @@ public final class TurnoEnemigos {
                     ? objetivoPredeterminado(juego, enemigo, indiceAliados) : objetivoTactico;
             if (objetivo == null) return;
             if (puedeDisparar(juego, enemigo, objetivo)) {
-                if (!enemigo.puedeAtacar()) recargar(juego, enemigo);
-                else SistemaCombate.atacar(juego, enemigo, objetivo, random);
-                return;
+                int distancia = enemigo.getPosicion().distanciaManhattan(
+                        objetivo.getPosicion());
+                if (enemigo.puedeAtacarA(distancia)) {
+                    SistemaCombate.atacar(juego, enemigo, objetivo, random);
+                    return;
+                }
+                if (!enemigo.puedeAtacar()) {
+                    recargar(juego, enemigo);
+                    return;
+                }
+                // El objetivo es visible, pero las armas cargadas no llegan:
+                // continuar con el acercamiento en lugar de intentar un ataque ilegal.
             }
             Direccion direccion = descansando || formacionDetectada
                     ? cacheNavegacion.primerPaso(enemigo.getPosicion(), objetivo.getPosicion())

@@ -71,7 +71,12 @@ public final class SistemaCombate {
                         objetivos.isEmpty() ? null : objetivos.get(0)), "ataque"));
         atacante.atacar(objetivos);
         if (!objetivos.isEmpty()) {
+            // El efecto estructural se aplica una sola vez a la casilla comun.
             aplicarEfectosDeArma(juego, atacante, objetivos.get(0), arma);
+            // La supresion, en cambio, afecta a cada enemigo alcanzado.
+            for (int i = 1; i < objetivos.size(); i++) {
+                aplicarSupresion(atacante, objetivos.get(i));
+            }
         }
         List<ResultadoAtaque> resultados = new ArrayList<>();
         for (int i = 0; i < objetivos.size(); i++) {
@@ -139,6 +144,11 @@ public final class SistemaCombate {
                 || arma.getTipoMunicion() == TipoMunicion.COHETE)) {
             SistemaDestruccion.danar(juego, objetivo.getPosicion(), arma.getDanio());
         }
+        aplicarSupresion(atacante, objetivo);
+    }
+
+    /** Cada combatiente vivo recibe la misma supresion, no solo el primero. */
+    private static void aplicarSupresion(Personaje atacante, Personaje objetivo) {
         if (atacante instanceof Jugador jugador
                 && jugador.getProgresion().tiene(
                         com.legendoftecla.progression.CatalogoHabilidades.FUEGO_SUPRESION)

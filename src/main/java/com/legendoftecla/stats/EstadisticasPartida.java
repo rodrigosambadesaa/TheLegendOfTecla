@@ -33,28 +33,28 @@ public final class EstadisticasPartida implements AutoCloseable {
     }
 
     private void procesar(EventoJuego evento) {
-        if (evento instanceof PersonajeMovido) pasos++;
+        if (evento instanceof PersonajeMovido) pasos = sumarSaturado(pasos, 1);
         if (evento instanceof PersonajeAtacado ataque) {
             ultimoAtacante.put(ataque.objetivo(), ataque.atacante());
-            if (esAtaqueDelJugador(ataque)) disparos++;
+            if (esAtaqueDelJugador(ataque)) disparos = sumarSaturado(disparos, 1);
         }
         if (evento instanceof PersonajeMuerto muerte) {
-            muertes++;
+            muertes = sumarSaturado(muertes, 1);
             if (juego != null && juego.getEnemigos().stream()
                     .anyMatch(enemigo -> enemigo.getNombre().equals(muerte.personaje()))) {
-                enemigosEliminados++;
+                enemigosEliminados = sumarSaturado(enemigosEliminados, 1);
             }
         }
-        if (evento instanceof AliadoEvacuado) aliadosEvacuados++;
-        if (evento instanceof IncendioExtinguido) incendiosApagados++;
-        if (evento instanceof ObjetoUsado) objetosUsados++;
-        if (evento instanceof TrampaDesactivada) trampasDesactivadas++;
-        if (evento instanceof CeldaInspeccionada) celdasInspeccionadas++;
+        if (evento instanceof AliadoEvacuado) aliadosEvacuados = sumarSaturado(aliadosEvacuados, 1);
+        if (evento instanceof IncendioExtinguido) incendiosApagados = sumarSaturado(incendiosApagados, 1);
+        if (evento instanceof ObjetoUsado) objetosUsados = sumarSaturado(objetosUsados, 1);
+        if (evento instanceof TrampaDesactivada) trampasDesactivadas = sumarSaturado(trampasDesactivadas, 1);
+        if (evento instanceof CeldaInspeccionada) celdasInspeccionadas = sumarSaturado(celdasInspeccionadas, 1);
         if (evento instanceof PersonajeDanado dano) {
             if (juego == null) {
-                danoCausado += dano.cantidad();
+                danoCausado = sumarSaturado(danoCausado, dano.cantidad());
             } else if (dano.personaje().equals(juego.getJugador().getNombre())) {
-                danoRecibido += dano.cantidad();
+                danoRecibido = sumarSaturado(danoRecibido, dano.cantidad());
             } else if (juego.getJugador().getNombre().equals(
                     ultimoAtacante.get(dano.personaje()))) {
                 danoCausado += dano.cantidad();
@@ -67,7 +67,9 @@ public final class EstadisticasPartida implements AutoCloseable {
     }
 
     /** Registra dano recibido por el jugador cuando el adaptador conoce su identidad. */
-    public void registrarDanoRecibido(int cantidad) { danoRecibido += Math.max(0, cantidad); }
+    public void registrarDanoRecibido(int cantidad) {
+        danoRecibido = sumarSaturado(danoRecibido, cantidad);
+    }
     public int getDanoCausado() { return danoCausado; }
     public int getDanoRecibido() { return danoRecibido; }
     public int getMuertes() { return muertes; }
@@ -90,21 +92,43 @@ public final class EstadisticasPartida implements AutoCloseable {
                 incendiosApagados, objetosUsados, pasos, disparos,
                 trampasDesactivadas, celdasInspeccionadas);
     }
-    /** Restaura acumuladores de una partida guardada. */
+    /**
+     * Valida el snapshot completo antes de sustituir cualquier contador.
+     * No deja estadisticas parcialmente restauradas ante un dato corrupto.
+     */
     public void restaurar(Snapshot estado) {
         if (estado == null) return;
-        danoCausado = noNegativo(estado.danoCausado());
-        danoRecibido = noNegativo(estado.danoRecibido());
-        muertes = noNegativo(estado.muertes());
-        enemigosEliminados = noNegativo(estado.enemigosEliminados());
-        aliadosEvacuados = noNegativo(estado.aliadosEvacuados());
-        incendiosApagados = noNegativo(estado.incendiosApagados());
-        objetosUsados = noNegativo(estado.objetosUsados());
-        pasos = noNegativo(estado.pasos());
-        disparos = noNegativo(estado.disparos());
-        trampasDesactivadas = noNegativo(estado.trampasDesactivadas());
-        celdasInspeccionadas = noNegativo(estado.celdasInspeccionadas());
+        int causado = noNegativo(estado.danoCausado());
+        int recibido = noNegativo(estado.danoRecibido());
+        int totalMuertes = noNegativo(estado.muertes());
+        int eliminados = noNegativo(estado.enemigosEliminados());
+        int evacuados = noNegativo(estado.aliadosEvacuados());
+        int incendios = noNegativo(estado.incendiosApagados());
+        int usados = noNegativo(estado.objetosUsados());
+        int totalPasos = noNegativo(estado.pasos());
+        int totalDisparos = noNegativo(estado.disparos());
+        int trampas = noNegativo(estado.trampasDesactivadas());
+        int inspeccionadas = noNegativo(estado.celdasInspeccionadas());
+
+        danoCausado = causado;
+        danoRecibido = recibido;
+        muertes = totalMuertes;
+        enemigosEliminados = eliminados;
+        aliadosEvacuados = evacuados;
+        incendiosApagados = incendios;
+        objetosUsados = usados;
+        pasos = totalPasos;
+        disparos = totalDisparos;
+        trampasDesactivadas = trampas;
+        celdasInspeccionadas = inspeccionadas;
     }
+
+    /** La aritmetica saturada evita que un contador vuelva a ser negativo. */
+    private static int sumarSaturado(int actual, int cantidad) {
+        if (cantidad <= 0) return actual;
+        return (int) Math.min(Integer.MAX_VALUE, (long) actual + cantidad);
+    }
+
     private int noNegativo(int valor) {
         if (valor < 0) throw new IllegalArgumentException("Estadistica negativa");
         return valor;

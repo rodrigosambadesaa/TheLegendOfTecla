@@ -29,6 +29,9 @@ public class ComandoCompuesto implements Comando {
         if (comandos.size() > 1_000 || comandos.stream().anyMatch(java.util.Objects::isNull)) {
             throw new IllegalArgumentException("La composicion admite hasta 1000 comandos no nulos.");
         }
+        for (Comando comando : comandos) {
+            ValidadorJerarquiaComandos.exigirAciclico(this, comando);
+        }
         this.comandos = new ArrayList<>(comandos);
     }
 

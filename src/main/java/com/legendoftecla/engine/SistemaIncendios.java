@@ -137,10 +137,11 @@ public final class SistemaIncendios {
 
     private static boolean establecerFuego(Juego juego, Posicion posicion, int intensidad) {
         Celda celda = juego.getMapa().getCelda(posicion);
-        if (celda.getNivelFuego() >= intensidad) {
+        int nuevaIntensidad = Math.max(0, Math.min(3, intensidad));
+        if (celda.getNivelFuego() >= nuevaIntensidad) {
             return false;
         }
-        celda.setNivelFuego(Math.min(3, intensidad));
+        celda.setNivelFuego(nuevaIntensidad);
         juego.getConsola().imprimir("INCENDIO iniciado en " + posicion + ".", TipoMensaje.ERROR);
         return true;
     }

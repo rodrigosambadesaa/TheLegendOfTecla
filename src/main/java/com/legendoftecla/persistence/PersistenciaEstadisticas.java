@@ -23,7 +23,7 @@ public final class PersistenciaEstadisticas {
         EstadisticasGlobales estadisticas = new EstadisticasGlobales();
         try {
             estadisticas.restaurar(snapshot);
-        } catch (IllegalArgumentException error) {
+        } catch (RuntimeException error) {
             throw new IOException("Estadisticas corruptas", error);
         }
         return estadisticas;

@@ -17,6 +17,9 @@ import com.legendoftecla.model.world.Posicion;
 import com.legendoftecla.validation.Limites;
 import com.legendoftecla.validation.Validaciones;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * Representa la entidad ComandoUsar del juego.
@@ -54,6 +57,7 @@ public class ComandoUsar implements Comando {
     public void ejecutar() throws ComandoException {
         Jugador jugador = context.getJuego().getJugador();
         int saludAntes = jugador.getSalud();
+        List<Objeto> originales = List.copyOf(jugador.getMochila().getObjetos());
         Objeto obj = jugador.getMochila().quitarPorNombre(nombreObjeto);
         boolean estabaEquipado = false;
         Binocular equipado = jugador.getBinocularEquipado();
@@ -72,7 +76,7 @@ public class ComandoUsar implements Comando {
                 obj.usar(jugador);
             }
             if (!obj.isConsumible()) {
-                devolverObjeto(jugador, obj, estabaEquipado);
+                devolverObjeto(jugador, obj, estabaEquipado, originales);
             }
             String detalle = obj instanceof Linterna
                     ? (jugador.isLinternaActiva() ? " encendida." : " apagada.") : ".";
@@ -87,10 +91,10 @@ public class ComandoUsar implements Comando {
                         curacion, jugador.getPosicion()));
             }
         } catch (ComandoException e) {
-            devolverObjeto(jugador, obj, estabaEquipado);
+            devolverObjeto(jugador, obj, estabaEquipado, originales);
             throw e;
         } catch (JuegoException e) {
-            devolverObjeto(jugador, obj, estabaEquipado);
+            devolverObjeto(jugador, obj, estabaEquipado, originales);
             throw new ComandoException(e.getMessage());
         }
     }
@@ -123,11 +127,17 @@ public class ComandoUsar implements Comando {
         cubo.consumirAgua();
     }
 
-    private void devolverObjeto(Jugador jugador, Objeto objeto, boolean estabaEquipado) {
+    private void devolverObjeto(Jugador jugador, Objeto objeto, boolean estabaEquipado,
+            List<Objeto> originales) {
         if (estabaEquipado && objeto instanceof Binocular binocular) {
             jugador.setBinocularEquipado(binocular);
         } else {
-            jugador.getMochila().guardar(objeto);
+            List<Objeto> actuales = new ArrayList<>(jugador.getMochila().getObjetos());
+            int indiceOriginal = originales.indexOf(objeto);
+            int indice = indiceOriginal < 0 ? actuales.size()
+                    : Math.min(indiceOriginal, actuales.size());
+            actuales.add(indice, objeto);
+            jugador.getMochila().setObjetos(actuales);
         }
     }
 }

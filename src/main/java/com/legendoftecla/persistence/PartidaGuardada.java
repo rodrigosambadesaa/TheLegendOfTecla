@@ -13,8 +13,11 @@ public record PartidaGuardada(int version, long seed, int turnos, int pasosMaxim
         List<PersonajeEstado> enemigos, Set<Posicion> inspeccionadas,
         String misionId, int puntuacion, EstadisticasPartida.Snapshot estadisticas,
         Set<String> logros, MisionEstado mision, Boolean mejorasEquipoAliado,
-        Boolean municionAliadaAutomatica) {
-    public static final int VERSION_ACTUAL = 1;
+        Boolean municionAliadaAutomatica,
+        List<PersonajeEstado> aliadosRegistrados, List<Integer> indicesExtraidos,
+        String condicionVictoria, String formacionAliada) {
+    public static final int VERSION_ACTUAL = 2;
+    public static final int VERSION_INICIAL = 1;
 
     public record MapaEstado(String nombre, String descripcion, int filas, int columnas,
             Posicion inicio, Posicion objetivo, List<CeldaEstado> celdas) { }

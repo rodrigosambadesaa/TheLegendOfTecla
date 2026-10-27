@@ -52,7 +52,13 @@ public final class GestorEstados {
         if (actual == null) {
             activos.put(efecto.tipo(), new Aplicacion(efecto,
                     efecto.duracionInicial(), 1));
-            efecto.alAplicar(personaje);
+            try {
+                efecto.alAplicar(personaje);
+            } catch (RuntimeException | Error fallo) {
+                // Un hook fallido no debe dejar el efecto activo.
+                activos.remove(efecto.tipo());
+                throw fallo;
+            }
             publicarAplicado(efecto.tipo());
             return true;
         }
@@ -171,8 +177,18 @@ public final class GestorEstados {
 
     /** Sustituye el estado interno desde una vista persistida validada. */
     public void restaurar(List<EstadoActivo> estados) {
+        List<EstadoActivo> validados = List.copyOf(
+                Objects.requireNonNull(estados, "Estados"));
+        var tipos = java.util.EnumSet.noneOf(TipoEstado.class);
+        for (EstadoActivo estado : validados) {
+            if (!tipos.add(estado.tipo())) {
+                throw new IllegalArgumentException(
+                        "El estado persistido contiene efectos duplicados: " + estado.tipo());
+            }
+        }
+        // No tocar el gestor hasta completar todas las validaciones.
         activos.clear();
-        for (EstadoActivo estado : List.copyOf(Objects.requireNonNull(estados, "Estados"))) {
+        for (EstadoActivo estado : validados) {
             EfectoEstado efecto = crear(estado.tipo());
             activos.put(estado.tipo(), new Aplicacion(efecto,
                     estado.turnosRestantes(), estado.acumulaciones()));

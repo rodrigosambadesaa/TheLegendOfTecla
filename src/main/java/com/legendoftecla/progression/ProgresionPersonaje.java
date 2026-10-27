@@ -36,7 +36,13 @@ public final class ProgresionPersonaje {
         if (nivel < requisito.nivelMinimo() || requisito.habilidadPrevia() != null
                 && !desbloqueadas.contains(requisito.habilidadPrevia())) return false;
         desbloqueadas.add(id);
-        habilidad.efecto().aplicar(jugador);
+        try {
+            habilidad.efecto().aplicar(jugador);
+        } catch (RuntimeException | Error fallo) {
+            // Un efecto que falla no debe consumir el desbloqueo.
+            desbloqueadas.remove(id);
+            throw fallo;
+        }
         return true;
     }
 

@@ -9,8 +9,6 @@ import com.legendoftecla.events.PersonajeMuerto;
 import com.legendoftecla.events.RuidoGenerado;
 import com.legendoftecla.effects.Quemado;
 import com.legendoftecla.model.characters.Personaje;
-import com.legendoftecla.model.characters.Jugador;
-import com.legendoftecla.model.characters.Aliado;
 import com.legendoftecla.model.world.Celda;
 import com.legendoftecla.model.world.Direccion;
 import com.legendoftecla.model.world.Juego;
@@ -18,7 +16,9 @@ import com.legendoftecla.model.world.Posicion;
 import com.legendoftecla.model.world.TipoSuelo;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 /** Reglas de caida de antorchas, propagacion, daño y extincion. */
@@ -66,12 +66,15 @@ public final class SistemaIncendios {
                 if (juego.getMapa().getCelda(posicion).estaArdiendo()) ardiendo.add(posicion);
             }
         }
+        // Los bandos de Juego son la fuente de verdad: las listas de Celda
+        // pueden estar desactualizadas despues de cargas o movimientos.
+        Map<Posicion, List<Personaje>> ocupantes = indexarCombatientes(juego);
         for (Posicion posicion : ardiendo) {
             Celda celda = juego.getMapa().getCelda(posicion);
             int danio = 4 + celda.getNivelFuego() * 3;
-            danar(juego, juego.getJugador(), posicion, danio);
-            List.copyOf(celda.getAliados()).forEach(p -> danar(juego, p, posicion, danio));
-            List.copyOf(celda.getEnemigos()).forEach(p -> danar(juego, p, posicion, danio));
+            for (Personaje personaje : ocupantes.getOrDefault(posicion, List.of())) {
+                danar(juego, personaje, posicion, danio);
+            }
             SistemaDestruccion.danar(juego, posicion,
                     Math.max(1, celda.getNivelFuego() * 3));
             for (Direccion direccion : Direccion.values()) {
@@ -93,6 +96,22 @@ public final class SistemaIncendios {
                 celda.setTipoSuelo(TipoSuelo.PIEDRA);
             }
         }
+    }
+
+    /** Construye una vez por turno el indice de combatientes actualmente activos. */
+    private static Map<Posicion, List<Personaje>> indexarCombatientes(Juego juego) {
+        Map<Posicion, List<Personaje>> ocupantes = new HashMap<>();
+        agregarCombatiente(ocupantes, juego.getJugador());
+        juego.getAliados().forEach(personaje -> agregarCombatiente(ocupantes, personaje));
+        juego.getEnemigos().forEach(personaje -> agregarCombatiente(ocupantes, personaje));
+        return ocupantes;
+    }
+
+    private static void agregarCombatiente(
+            Map<Posicion, List<Personaje>> ocupantes, Personaje personaje) {
+        Posicion posicion = personaje.getPosicion();
+        Posicion clave = new Posicion(posicion.getFila(), posicion.getColumna());
+        ocupantes.computeIfAbsent(clave, ignorada -> new ArrayList<>()).add(personaje);
     }
 
     private static void danar(Juego juego, Personaje personaje, Posicion posicion, int danio) {

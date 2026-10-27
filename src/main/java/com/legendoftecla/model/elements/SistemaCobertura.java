@@ -3,6 +3,7 @@ package com.legendoftecla.model.elements;
 import com.legendoftecla.model.world.Mapa;
 import com.legendoftecla.model.world.Posicion;
 
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.random.RandomGenerator;
 
@@ -46,6 +47,8 @@ public final class SistemaCobertura {
             return Proteccion.ninguna();
         }
         OrientacionCobertura ataqueDesde = orientacion(pasoFila, pasoColumna);
+        // Elegir cobertura efectiva, no la primera barricada insertada:
+        // una barricada flanqueada no debe ocultar otra que protege al objetivo.
         return mapa.getCelda(posicionCobertura).getElementos().stream()
                 .filter(Barricada.class::isInstance).map(Barricada.class::cast)
                 .filter(barricada -> !barricada.estaDestruido())
@@ -53,7 +56,11 @@ public final class SistemaCobertura {
                         barricada.getOrientacion() != OrientacionCobertura.TODAS
                                 && barricada.getOrientacion() != ataqueDesde,
                         barricada))
-                .findFirst().orElseGet(Proteccion::ninguna);
+                .min(Comparator.comparing(Proteccion::flanqueada)
+                        .thenComparing(Comparator.comparingInt(
+                                (Proteccion proteccion) -> proteccion.tipo().ordinal()).reversed())
+                        .thenComparing(proteccion -> proteccion.barricada().getId()))
+                .orElseGet(Proteccion::ninguna);
     }
 
     private OrientacionCobertura orientacion(int fila, int columna) {

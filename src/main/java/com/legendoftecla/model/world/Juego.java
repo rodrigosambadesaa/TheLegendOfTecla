@@ -10,6 +10,7 @@ import com.legendoftecla.events.EventoJuego;
 import com.legendoftecla.model.characters.Aliado;
 import com.legendoftecla.model.characters.Enemigo;
 import com.legendoftecla.model.characters.Jugador;
+import com.legendoftecla.model.characters.Personaje;
 import com.legendoftecla.validation.Limites;
 import com.legendoftecla.validation.Validaciones;
 
@@ -121,6 +122,13 @@ public class Juego {
         if (celdasInspeccionadasAliados != null && celdasInspeccionadasAliados.values().stream()
                 .flatMap(Set::stream).anyMatch(posicion -> !validado.estaDentro(posicion))) {
             throw new IllegalArgumentException("El nuevo mapa dejaria inspecciones aliadas fuera de sus limites.");
+        }
+        if (contienePersonajeFuera(validado, aliados)
+                || contienePersonajeFuera(validado, aliadosRegistrados)
+                || contienePersonajeFuera(validado, aliadosExtraidosDetalle)
+                || contienePersonajeFuera(validado, enemigos)) {
+            throw new IllegalArgumentException(
+                    "El nuevo mapa dejaria personajes registrados fuera de sus limites.");
         }
         AmbientacionMapa.completar(validado);
         this.mapa = validado;
@@ -648,6 +656,13 @@ public class Juego {
      */
     public boolean excedioPasos() {
         return pasos > pasosMaximos;
+    }
+
+    /** Verifica todos los bandos antes de aplicar un cambio de mapa. */
+    private static boolean contienePersonajeFuera(Mapa mapa,
+            List<? extends Personaje> personajes) {
+        return personajes != null && personajes.stream()
+                .anyMatch(personaje -> !mapa.estaDentro(personaje.getPosicion()));
     }
 
     private void validarPosicionPersonaje(Posicion posicion, String tipo) {

@@ -18,6 +18,10 @@ public final class SistemaDestruccion {
         if (!juego.getMapa().estaDentro(posicion) || dano < 0) {
             throw new IllegalArgumentException("Destruccion fuera de mapa o dano invalido");
         }
+        // Un impacto sin dano no altera resistencia ni debe declararse como modificacion.
+        if (dano == 0) {
+            return new ResultadoDestruccion(List.of(), List.of());
+        }
         List<String> danados = new ArrayList<>();
         List<String> destruidos = new ArrayList<>();
         for (ElementoMapa elemento : juego.getMapa().getCelda(posicion).getElementos()) {

@@ -23,12 +23,10 @@ public class ComandoRecorrido implements Comando {
         this.context = Validaciones.noNulo(context, "Contexto");
     }
 
-    @Override
-    /**
-     * Ejecuta ejecutar.
-     */
     private static final int MAXIMO_PUNTOS_MOSTRADOS = 100;
 
+    /** Muestra solo el tramo reciente sin alterar el historial completo. */
+    @Override
     public void ejecutar() {
         var jugador = context.getJuego().getJugador();
         int total = jugador.getLongitudRecorrido();

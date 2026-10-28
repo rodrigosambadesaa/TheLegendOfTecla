@@ -22,10 +22,10 @@ public final class SistemaIluminacion {
      */
     public static Set<Posicion> precalcularIluminacion(Juego juego) {
         Set<Posicion> iluminadas = new HashSet<>();
-        agregarIluminacion(juego.getJugador(), iluminadas);
+        agregarIluminacion(juego, juego.getJugador(), iluminadas);
         for (Aliado aliado : juego.getAliados()) {
             if (aliado.getSalud() > 0) {
-                agregarIluminacion(aliado, iluminadas);
+                agregarIluminacion(juego, aliado, iluminadas);
             }
         }
         return iluminadas;
@@ -64,14 +64,25 @@ public final class SistemaIluminacion {
                 && personaje.getPosicion().distanciaManhattan(posicion) <= personaje.getAlcanceLinterna();
     }
 
-    private static void agregarIluminacion(Personaje personaje, Set<Posicion> destino) {
+    /**
+     * Recorre solamente casillas existentes: la complejidad queda acotada por
+     * filas × columnas, incluso si el alcance de linterna es enorme.
+     */
+    private static void agregarIluminacion(
+            Juego juego, Personaje personaje, Set<Posicion> destino) {
         if (!personaje.isLinternaActiva()) return;
         int alcance = personaje.getAlcanceLinterna();
         Posicion centro = personaje.getPosicion();
-        for (int df = -alcance; df <= alcance; df++) {
-            int colMax = alcance - Math.abs(df);
-            for (int dc = -colMax; dc <= colMax; dc++) {
-                destino.add(new Posicion(centro.getFila() + df, centro.getColumna() + dc));
+        int primeraFila = Math.max(0, centro.getFila() - alcance);
+        int ultimaFila = Math.min(juego.getMapa().getFilas() - 1,
+                centro.getFila() + alcance);
+        for (int fila = primeraFila; fila <= ultimaFila; fila++) {
+            int margen = alcance - Math.abs(fila - centro.getFila());
+            int primeraColumna = Math.max(0, centro.getColumna() - margen);
+            int ultimaColumna = Math.min(juego.getMapa().getColumnas() - 1,
+                    centro.getColumna() + margen);
+            for (int columna = primeraColumna; columna <= ultimaColumna; columna++) {
+                destino.add(new Posicion(fila, columna));
             }
         }
     }

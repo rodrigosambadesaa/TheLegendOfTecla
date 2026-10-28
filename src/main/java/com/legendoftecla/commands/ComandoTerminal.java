@@ -19,18 +19,20 @@ public final class ComandoTerminal implements Comando {
             if (!contexto.getJuego().getMapa().estaDentro(p)) continue;
             for (var elemento : contexto.getJuego().getMapa().getCelda(p).getElementos()) {
                 if (terminal && elemento instanceof Terminal t) {
+                    ElementoMapa objetivo = buscarPorId(t.getObjetivoId());
                     if (!t.hackear(contexto.getJuego().getJugador().getVisionBase() + 3)) {
                         throw new ComandoException("El hackeo ha fallado.");
                     }
-                    aplicarObjetivo(t.getObjetivoId());
+                    aplicarObjetivo(objetivo);
                     ruido(p, "terminal");
                     contexto.getJuego().getConsola().imprimirExito(
                             "Terminal " + t.getId() + " hackeado.");
                     return;
                 }
                 if (!terminal && elemento instanceof Interruptor i) {
+                    ElementoMapa objetivo = buscarPorId(i.getObjetivoId());
                     i.activar();
-                    aplicarObjetivo(i.getObjetivoId());
+                    aplicarObjetivo(objetivo);
                     ruido(p, "interruptor");
                     contexto.getJuego().getConsola().imprimirExito(
                             "Interruptor " + i.getId() + " activado.");
@@ -45,22 +47,29 @@ public final class ComandoTerminal implements Comando {
         for (Direccion direccion : Direccion.values()) resultado.add(origen.mover(direccion));
         return resultado;
     }
-    private void aplicarObjetivo(String objetivoId) {
-        if (objetivoId == null || objetivoId.isBlank()) return;
-        ElementoMapa objetivo = buscarPorId(objetivoId);
+    private void aplicarObjetivo(ElementoMapa objetivo) {
         if (objetivo instanceof Puerta puerta) puerta.desbloquearPorTerminal();
         if (objetivo instanceof Interruptor interruptor) interruptor.setActivo(true);
     }
-    private ElementoMapa buscarPorId(String id) {
+    /** La identidad de un objetivo global debe ser unica en todo el mapa. */
+    private ElementoMapa buscarPorId(String id) throws ComandoException {
+        if (id == null || id.isBlank()) return null;
+        ElementoMapa encontrado = null;
         for (int f = 0; f < contexto.getJuego().getMapa().getFilas(); f++) {
             for (int c = 0; c < contexto.getJuego().getMapa().getColumnas(); c++) {
                 for (ElementoMapa elemento : contexto.getJuego().getMapa()
                         .getCelda(new Posicion(f, c)).getElementos()) {
-                    if (elemento.getId().equals(id)) return elemento;
+                    if (elemento.getId().equals(id)) {
+                        if (encontrado != null && encontrado != elemento) {
+                            throw new ComandoException(
+                                    "Objetivo ambiguo: varios elementos tienen el ID " + id + ".");
+                        }
+                        encontrado = elemento;
+                    }
                 }
             }
         }
-        return null;
+        return encontrado;
     }
     private void ruido(Posicion posicion, String causa) {
         contexto.getJuego().publicarEvento(new RuidoGenerado(

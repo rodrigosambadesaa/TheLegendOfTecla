@@ -41,9 +41,10 @@ public abstract class Jugador extends Personaje {
      * Ejecuta registrarPosicion.
      */
     public void registrarPosicion() {
-        List<Posicion> nuevoRecorrido = new ArrayList<>(recorrido);
-        nuevoRecorrido.add(getPosicion());
-        setRecorrido(nuevoRecorrido);
+        Posicion actual = getPosicion();
+        // Una sola copia defensiva por paso. Copiar todo el recorrido en cada
+        // movimiento hacia que N pasos acumularan un coste cuadratico.
+        recorrido.add(new Posicion(actual.getFila(), actual.getColumna()));
     }
 
     /**

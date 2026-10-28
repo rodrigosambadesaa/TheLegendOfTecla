@@ -736,6 +736,8 @@ public abstract class Personaje {
      */
     public void recuperarSalud(int cantidad) {
         Validaciones.enteroEntre(cantidad, 0, Limites.ESTADISTICA, "Salud recuperada");
+        // Curar heridas no equivale a resucitar a un personaje que ha muerto.
+        if (salud == 0) return;
         setSalud(salud + cantidad);
     }
 
@@ -756,8 +758,10 @@ public abstract class Personaje {
         Validaciones.decimalEntre(factor, 0.01, 100.0, "Factor de salud");
         int nuevaSaludMaxima = Math.max(1, (int) Math.round(saludMaxima * factor));
         double proporcionActual = saludMaxima <= 0 ? 1.0 : (double) salud / saludMaxima;
+        boolean fallecido = salud == 0;
         setSaludMaxima(nuevaSaludMaxima);
-        setSalud(Math.max(1, (int) Math.round(saludMaxima * proporcionActual)));
+        setSalud(fallecido ? 0
+                : Math.max(1, (int) Math.round(saludMaxima * proporcionActual)));
     }
 
     /**

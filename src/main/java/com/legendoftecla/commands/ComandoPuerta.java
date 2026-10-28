@@ -4,6 +4,7 @@ import com.legendoftecla.events.PuertaCerrada;
 import com.legendoftecla.events.RuidoGenerado;
 import com.legendoftecla.exceptions.ComandoException;
 import com.legendoftecla.model.elements.Puerta;
+import com.legendoftecla.model.elements.EstadoPuerta;
 import com.legendoftecla.model.items.Credencial;
 import com.legendoftecla.model.world.Direccion;
 import com.legendoftecla.model.world.Posicion;
@@ -15,6 +16,14 @@ public final class ComandoPuerta implements Comando {
     public void ejecutar() throws ComandoException {
         PuertaLocalizada seleccion = buscar();
         Puerta puerta = seleccion.puerta();
+        // Abrir una puerta ya abierta o destruida no cambia su estado:
+        // no publicar falsas aperturas ni ruidos para la IA.
+        if (abrir && (puerta.estaDestruido()
+                || puerta.getEstado() == EstadoPuerta.ABIERTA)) {
+            contexto.getJuego().getConsola().imprimirInfo(
+                    "La puerta " + puerta.getId() + " ya permite el paso.");
+            return;
+        }
         boolean exito;
         if (abrir) {
             String codigo = contexto.getJuego().getJugador().getMochila().getObjetos().stream()

@@ -75,8 +75,11 @@ public class ComandoAtacar implements Comando {
         if (!SistemaIluminacion.hayLuz(context.getJuego(), destino)) {
             throw new ComandoException("La celda objetivo esta oscura; necesitas iluminarla antes de atacar.");
         }
-        List<Enemigo> enemigos = celda.getEnemigos().stream()
-                .filter(enemigo -> enemigo.getSalud() > 0)
+        // La lista de enemigos activos es la fuente de verdad: las celdas
+        // pueden conservar ocupantes obsoletos tras movimientos o restauraciones.
+        List<Enemigo> enemigos = context.getJuego().getEnemigos().stream()
+                .filter(enemigo -> enemigo.getSalud() > 0
+                        && enemigo.getPosicion().equals(destino))
                 .toList();
         if (enemigos.isEmpty()) {
             throw new ComandoException("No hay enemigos en la celda objetivo.");

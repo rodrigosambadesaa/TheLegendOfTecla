@@ -19,6 +19,7 @@ import com.legendoftecla.validation.Limites;
 import com.legendoftecla.validation.Validaciones;
 import com.legendoftecla.engine.SistemaIluminacion;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -130,16 +131,23 @@ public class ComandoMirar implements Comando {
             context.getJuego().getConsola().imprimir(
                     "Los objetos solo pueden inspeccionarse al llegar a la celda y mirar alli.");
         }
+        // La lista de ocupantes de Celda puede quedar desactualizada tras
+        // movimientos o bajas. La partida conserva el bando activo y su posicion real.
+        List<Enemigo> enemigosActivos = context.getJuego().getEnemigos().stream()
+                .filter(enemigo -> enemigo.getSalud() > 0
+                        && enemigo.getPosicion().equals(observada))
+                .toList();
         if (detalle != null && direccion != null) {
-            Enemigo enemigo = celda.getEnemigos().stream()
+            Enemigo enemigo = enemigosActivos.stream()
                     .filter(candidato -> candidato.getNombre().equalsIgnoreCase(detalle))
                     .findFirst()
                     .orElseThrow(() -> new ComandoException("No existe ese enemigo en la celda observada."));
             context.getJuego().getConsola().imprimirInfo(ArteEnemigoLore.renderizarFicha(enemigo));
-        } else if (!celda.getEnemigos().isEmpty()) {
-            String enemigos = celda.getEnemigos().stream().map(e -> e.getNombre()).collect(Collectors.joining(", "));
+        } else if (!enemigosActivos.isEmpty()) {
+            String enemigos = enemigosActivos.stream().map(Enemigo::getNombre)
+                    .collect(Collectors.joining(", "));
             context.getJuego().getConsola().imprimir("Enemigos aqui: " + enemigos);
-            for (var enemigo : celda.getEnemigos()) {
+            for (Enemigo enemigo : enemigosActivos) {
                 context.getJuego().getConsola().imprimirInfo(ArteEnemigoLore.renderizarFicha(enemigo));
             }
         }

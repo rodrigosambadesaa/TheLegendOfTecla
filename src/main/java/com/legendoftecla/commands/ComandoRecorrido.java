@@ -27,9 +27,18 @@ public class ComandoRecorrido implements Comando {
     /**
      * Ejecuta ejecutar.
      */
+    private static final int MAXIMO_PUNTOS_MOSTRADOS = 100;
+
     public void ejecutar() {
+        var jugador = context.getJuego().getJugador();
+        int total = jugador.getLongitudRecorrido();
+        var recientes = jugador.getRecorridoReciente(MAXIMO_PUNTOS_MOSTRADOS);
         StringBuilder sb = new StringBuilder("Recorrido: ");
-        context.getJuego().getJugador().getRecorrido().forEach(p -> sb.append(p).append(" "));
+        if (total > recientes.size()) {
+            sb.append("(ultimas ").append(recientes.size()).append(" de ")
+                    .append(total).append(" posiciones) ");
+        }
+        recientes.forEach(p -> sb.append(p).append(" "));
         context.getJuego().getConsola().imprimir(sb.toString());
     }
 }

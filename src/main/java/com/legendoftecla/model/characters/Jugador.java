@@ -5,6 +5,7 @@ import com.legendoftecla.model.world.Posicion;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import com.legendoftecla.validation.Limites;
 import com.legendoftecla.validation.Validaciones;
 
 

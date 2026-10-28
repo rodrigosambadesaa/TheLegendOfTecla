@@ -186,6 +186,9 @@ public class ComandoMirar implements Comando {
         if (!mapa.esTransitable(destino)) {
             throw new ComandoException("No puedes mirar esa celda: destino no transitable.");
         }
+        if (!mapa.hayLineaAtaque(origen, destino)) {
+            throw new ComandoException("No puedes mirar a traves de obstaculos que bloquean la vision.");
+        }
 
         if (!SistemaIluminacion.hayLuz(context.getJuego(), destino)) {
             throw new ComandoException("La zona esta oscura; necesitas una linterna o una fuente de luz.");

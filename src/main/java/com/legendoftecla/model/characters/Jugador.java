@@ -57,6 +57,25 @@ public abstract class Jugador extends Personaje {
                 .toList();
     }
 
+    /** @return numero total de posiciones registradas sin copiar el recorrido */
+    public int getLongitudRecorrido() {
+        return recorrido.size();
+    }
+
+    /**
+     * Copia solo las ultimas posiciones para vistas de consola acotadas.
+     *
+     * @param maximo numero maximo de puntos, mayor o igual a uno
+     * @return instantanea defensiva en orden cronologico
+     */
+    public List<Posicion> getRecorridoReciente(int maximo) {
+        Validaciones.enteroEntre(maximo, 1, Limites.PASOS_MAXIMOS, "Limite de recorrido");
+        int desde = Math.max(0, recorrido.size() - maximo);
+        return recorrido.subList(desde, recorrido.size()).stream()
+                .map(posicion -> new Posicion(posicion.getFila(), posicion.getColumna()))
+                .toList();
+    }
+
     /**
      * Sustituye el recorrido por una copia sin posiciones nulas.
      *

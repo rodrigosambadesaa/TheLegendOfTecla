@@ -69,33 +69,41 @@ public class ComandoUsar implements Comando {
         if (obj == null) {
             throw new ComandoException("No tienes ese objeto en la mochila.");
         }
+        boolean consumible;
         try {
             if (obj instanceof CuboAgua cubo) {
                 usarCubo(jugador, cubo);
             } else {
                 obj.usar(jugador);
             }
-            if (!obj.isConsumible()) {
-                devolverObjeto(jugador, obj, estabaEquipado, originales);
-            }
-            String detalle = obj instanceof Linterna
-                    ? (jugador.isLinternaActiva() ? " encendida." : " apagada.") : ".";
-            context.getJuego().getConsola().imprimir("Usas " + obj.getNombre() + detalle);
-            context.getJuego().publicarEvento(new ObjetoUsado(
-                    context.getJuego().getBusEventos().ahora(), jugador.getNombre(),
-                    obj.getNombre(), jugador.getPosicion()));
-            int curacion = jugador.getSalud() - saludAntes;
-            if (curacion > 0) {
-                context.getJuego().publicarEvento(new PersonajeCurado(
-                        context.getJuego().getBusEventos().ahora(), jugador.getNombre(),
-                        curacion, jugador.getPosicion()));
-            }
+            consumible = obj.isConsumible();
         } catch (ComandoException e) {
             devolverObjeto(jugador, obj, estabaEquipado, originales);
             throw e;
         } catch (JuegoException e) {
             devolverObjeto(jugador, obj, estabaEquipado, originales);
             throw new ComandoException(e.getMessage());
+        } catch (RuntimeException | Error e) {
+            // Un fallo inesperado del efecto no debe eliminar el objeto.
+            devolverObjeto(jugador, obj, estabaEquipado, originales);
+            throw e;
+        }
+        if (!consumible) {
+            devolverObjeto(jugador, obj, estabaEquipado, originales);
+        }
+        // Las notificaciones se envian una vez concluido el uso. Un listener
+        // que falle no debe devolver un consumible que ya produjo su efecto.
+        String detalle = obj instanceof Linterna
+                ? (jugador.isLinternaActiva() ? " encendida." : " apagada.") : ".";
+        context.getJuego().getConsola().imprimir("Usas " + obj.getNombre() + detalle);
+        context.getJuego().publicarEvento(new ObjetoUsado(
+                context.getJuego().getBusEventos().ahora(), jugador.getNombre(),
+                obj.getNombre(), jugador.getPosicion()));
+        int curacion = jugador.getSalud() - saludAntes;
+        if (curacion > 0) {
+            context.getJuego().publicarEvento(new PersonajeCurado(
+                    context.getJuego().getBusEventos().ahora(), jugador.getNombre(),
+                    curacion, jugador.getPosicion()));
         }
     }
 

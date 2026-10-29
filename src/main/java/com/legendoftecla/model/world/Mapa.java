@@ -310,6 +310,8 @@ public class Mapa {
             if (estaDentro(p, filas, columnas)) inspeccionadas[p.getFila()][p.getColumna()] = true;
         }
 
+        // Estas mascaras proceden de los bandos activos y su visibilidad real.
+        // No depender de listas de ocupantes de la celda, que pueden estar obsoletas.
         boolean modoDocker = MODO_DOCKER;
 
         int charsPorCelda = modoDocker ? 2 : 2;
@@ -340,9 +342,9 @@ public class Mapa {
                         else tile = String.valueOf(sim) + " ";
                     } else if (!celda.isTransitable()) {
                         tile = "🧱";
-                    } else if (celda.hasEnemigos() && enemigosV[f][c]) {
+                    } else if (enemigosV[f][c]) {
                         tile = "🧟";
-                    } else if (celda.hasAliados() && aliadosV[f][c]) {
+                    } else if (aliadosV[f][c]) {
                         tile = "👮";
                     } else if (celda.hasObjetos() && inspeccionadas[f][c]) {
                         tile = "🎁";
@@ -367,9 +369,9 @@ public class Mapa {
                         sb.append(celda.simboloElemento());
                     } else if (!celda.isTransitable()) {
                         sb.append('#');
-                    } else if (celda.hasEnemigos() && enemigosV[f][c]) {
+                    } else if (enemigosV[f][c]) {
                         sb.append('E');
-                    } else if (celda.hasAliados() && aliadosV[f][c]) {
+                    } else if (aliadosV[f][c]) {
                         sb.append('A');
                     } else if (celda.hasObjetos() && inspeccionadas[f][c]) {
                         sb.append('o');

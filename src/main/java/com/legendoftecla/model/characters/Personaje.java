@@ -317,6 +317,10 @@ public abstract class Personaje {
         if (armas.size() > 2 || armas.stream().anyMatch(java.util.Objects::isNull)) {
             throw new IllegalArgumentException("Solo se admiten dos armas equipadas y ninguna puede ser nula.");
         }
+        if (armas.size() == 2 && armas.get(0) == armas.get(1)) {
+            throw new IllegalArgumentException(
+                    "Una misma instancia de arma no puede ocupar dos ranuras.");
+        }
         if (armas.stream().anyMatch(arma -> !faccionCompatible(arma.getFaccion()))) {
             throw new IllegalArgumentException(
                     "El armamento equipado no es compatible con la faccion o el rol.");

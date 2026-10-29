@@ -19,6 +19,7 @@ import com.legendoftecla.validation.Limites;
 import com.legendoftecla.validation.Validaciones;
 import com.legendoftecla.engine.SistemaIncendios;
 import com.legendoftecla.engine.ServicioBotinEnemigo;
+import com.legendoftecla.engine.ServicioExperiencia;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -122,6 +123,8 @@ public final class ComandoLanzarExplosivo implements Comando {
             if (vidasAntes.get(i) > 0 && enemigo.getSalud() <= 0) {
                 context.getJuego().publicarEvento(new PersonajeMuerto(
                         context.getJuego().getBusEventos().ahora(), enemigo.getNombre(), destino));
+                ServicioExperiencia.recompensarBaja(
+                        context.getJuego(), context.getJuego().getJugador(), enemigo);
             }
         }
         SistemaIncendios.intentarDerribarAntorcha(

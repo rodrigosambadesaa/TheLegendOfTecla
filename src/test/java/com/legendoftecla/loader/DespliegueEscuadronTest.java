@@ -73,6 +73,7 @@ class DespliegueEscuadronTest {
                 "procedural", Dificultad.NORMAL, new DimensionesMapa(15, 21), null, false, 1);
         configuracion.setCantidadAliados(23);
         configuracion.setNivelAliados(12);
+        configuracion.setNivelJugador(12);
         configuracion.setSeed(77);
         Juego juego = FabricaJuego.crear(TestFixtures.consola(), configuracion);
 

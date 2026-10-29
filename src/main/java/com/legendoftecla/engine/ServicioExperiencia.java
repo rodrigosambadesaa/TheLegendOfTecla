@@ -99,16 +99,20 @@ public final class ServicioExperiencia {
         int objetivo = Math.max(1, Math.min(NIVEL_MAXIMO, nivel));
         int diferencia = objetivo - aliado.getNivel();
         if (diferencia == 0) return;
-        int saludActual = aliado.getSalud();
-        int energiaActual = aliado.getEnergia();
-        int saludMaxima = (int) Math.max(1, Math.min(Limites.ESTADISTICA,
-                (long) aliado.getSaludMaxima() + diferencia * 8L));
-        int energiaMaxima = (int) Math.max(1, Math.min(Limites.ESTADISTICA,
-                (long) aliado.getEnergiaMaxima() + diferencia * 10L));
+        // Un nivel asignado manualmente puede no haber actualizado las estadisticas
+        // originales. No interpretar el nivel alto como bonificaciones ya presentes.
+        int saludOriginal = aliado.getSaludMaxima();
+        int energiaOriginal = aliado.getEnergiaMaxima();
+        double saludRelativa = (double) aliado.getSalud() / saludOriginal;
+        double energiaRelativa = (double) aliado.getEnergia() / energiaOriginal;
+        long baseSalud = Math.max(90L, (long) saludOriginal - (aliado.getNivel() - 1L) * 8);
+        long baseEnergia = Math.max(140L, (long) energiaOriginal - (aliado.getNivel() - 1L) * 10);
+        int saludMaxima = (int) Math.min(Limites.ESTADISTICA, baseSalud + (objetivo - 1L) * 8);
+        int energiaMaxima = (int) Math.min(Limites.ESTADISTICA, baseEnergia + (objetivo - 1L) * 10);
         aliado.setSaludMaxima(saludMaxima);
         aliado.setEnergiaMaxima(energiaMaxima);
-        aliado.setSalud(Math.max(1, Math.min(saludMaxima, saludActual + diferencia * 8)));
-        aliado.setEnergia(Math.max(1, Math.min(energiaMaxima, energiaActual + diferencia * 10)));
+        aliado.setSalud((int) Math.round(saludMaxima * saludRelativa));
+        aliado.setEnergia((int) Math.round(energiaMaxima * energiaRelativa));
         aliado.setNivel(objetivo);
     }
 }

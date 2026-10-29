@@ -53,7 +53,11 @@ public final class FabricaJuego {
                     configuracion.cantidadAliados());
         };
         if (cargador instanceof CargadorJuegoBase base) {
-            base.setNivelAliados(configuracion.nivelAliados());
+            int solicitado = configuracion.nivelAliados();
+            int referencia = configuracion.nivelJugador();
+            int nivelEquilibrado = solicitado == 0 ? 0 : Math.max(
+                    Math.max(1, referencia - 2), Math.min(referencia + 2, solicitado));
+            base.setNivelAliados(nivelEquilibrado);
         }
         Juego juego = cargador.cargarJuego();
         ServicioNivelInicial.aplicar(juego.getJugador(), configuracion.nivelJugador());

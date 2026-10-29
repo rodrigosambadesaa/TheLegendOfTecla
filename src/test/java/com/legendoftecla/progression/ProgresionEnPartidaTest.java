@@ -138,6 +138,8 @@ class ProgresionEnPartidaTest {
         juego.agregarAliado(demasiadoFuerte);
         ServicioEquilibrioInicial.aplicar(juego, Dificultad.NORMAL);
         assertEquals(3, demasiadoFuerte.getNivel());
+        assertTrue(demasiadoFuerte.getSaludMaxima() >= 90);
+        assertTrue(demasiadoFuerte.getSalud() > 0);
 
         ServicioNivelInicial.aplicar(juego.getJugador(), 30);
         Sectoid enemigo = new Sectoid("Blanco", new Posicion(0, 1), new Mochila(4, 20), 2);

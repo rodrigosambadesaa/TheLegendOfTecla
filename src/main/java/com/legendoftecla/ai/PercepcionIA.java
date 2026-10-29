@@ -48,26 +48,14 @@ public final class PercepcionIA {
 
     private void agregarAliadosCandidatos(Juego juego, Enemigo enemigo,
                                           List<Personaje> destino) {
-        if (juego.getAliados().size() <= 128) {
-            juego.getAliados().stream().filter(aliado -> aliado.getSalud() > 0)
-                    .forEach(destino::add);
-            return;
-        }
+        // Recorrer los aliados realmente activos, no las listas de las celdas.
+        // La distancia filtra candidatos antes de calcular iluminacion y vision.
         Posicion origen = enemigo.getPosicion();
         int radio = enemigo.getRangoVision();
-        int filaMinima = Math.max(0, origen.getFila() - radio);
-        int filaMaxima = Math.min(juego.getMapa().getFilas() - 1, origen.getFila() + radio);
-        int columnaMinima = Math.max(0, origen.getColumna() - radio);
-        int columnaMaxima = Math.min(juego.getMapa().getColumnas() - 1,
-                origen.getColumna() + radio);
-        for (int fila = filaMinima; fila <= filaMaxima; fila++) {
-            for (int columna = columnaMinima; columna <= columnaMaxima; columna++) {
-                Posicion posicion = new Posicion(fila, columna);
-                if (origen.distanciaManhattan(posicion) > radio) continue;
-                juego.getMapa().getCelda(posicion).getAliados().stream()
-                        .filter(aliado -> aliado.getSalud() > 0).forEach(destino::add);
-            }
-        }
+        juego.getAliados().stream()
+                .filter(aliado -> aliado.getSalud() > 0)
+                .filter(aliado -> origen.distanciaManhattan(aliado.getPosicion()) <= radio)
+                .forEach(destino::add);
     }
 
     private boolean visible(Juego juego, Enemigo enemigo, Personaje objetivo) {

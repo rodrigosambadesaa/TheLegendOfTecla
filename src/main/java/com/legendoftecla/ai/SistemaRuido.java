@@ -50,18 +50,13 @@ public final class SistemaRuido implements AutoCloseable {
 
     private void distribuirEnRadio(RuidoGenerado ruido) {
         int radio = Math.max(0, ruido.intensidad());
-        int filaMinima = Math.max(0, ruido.origen().getFila() - radio);
-        int filaMaxima = Math.min(mapa.getFilas() - 1, ruido.origen().getFila() + radio);
-        int columnaMinima = Math.max(0, ruido.origen().getColumna() - radio);
-        int columnaMaxima = Math.min(mapa.getColumnas() - 1,
-                ruido.origen().getColumna() + radio);
-        for (int fila = filaMinima; fila <= filaMaxima; fila++) {
-            for (int columna = columnaMinima; columna <= columnaMaxima; columna++) {
-                Posicion posicion = new Posicion(fila, columna);
-                if (ruido.origen().distanciaManhattan(posicion) > radio) continue;
-                mapa.getCelda(posicion).getEnemigos().stream()
-                        .filter(enemigo -> enemigo.getSalud() > 0)
-                        .forEach(enemigo -> enemigo.getControladorIA().percibir(ruido));
+        // La lista activa es la fuente de verdad: el registro de una celda
+        // puede no reflejar movimientos, restauraciones o bajas anteriores.
+        for (Enemigo enemigo : enemigos.get()) {
+            if (enemigo.getSalud() > 0
+                    && mapa.estaDentro(enemigo.getPosicion())
+                    && ruido.origen().distanciaManhattan(enemigo.getPosicion()) <= radio) {
+                enemigo.getControladorIA().percibir(ruido);
             }
         }
     }

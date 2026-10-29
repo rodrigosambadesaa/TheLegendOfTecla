@@ -229,6 +229,48 @@ public class Mapa {
     }
 
     /**
+     * Determina la visibilidad optica en linea recta, incluso en diagonal.
+     * A diferencia de la linea de ataque, la vision no se limita a un eje.
+     * En un cruce diagonal no permite ver por una esquina bloqueada por ambos lados.
+     *
+     * @param origen celda desde la que se observa
+     * @param destino celda observada
+     * @return si ninguna barrera solida impide la visual
+     */
+    public boolean hayLineaVision(Posicion origen, Posicion destino) {
+        if (!estaDentro(origen) || !estaDentro(destino)) return false;
+        int fila = origen.getFila();
+        int columna = origen.getColumna();
+        int destinoFila = destino.getFila();
+        int destinoColumna = destino.getColumna();
+        int deltaFila = Math.abs(destinoFila - fila);
+        int deltaColumna = Math.abs(destinoColumna - columna);
+        int pasoFila = Integer.compare(destinoFila, fila);
+        int pasoColumna = Integer.compare(destinoColumna, columna);
+        int error = deltaColumna - deltaFila;
+        while (fila != destinoFila || columna != destinoColumna) {
+            int dobleError = 2 * error;
+            boolean avanzarColumna = dobleError > -deltaFila;
+            boolean avanzarFila = dobleError < deltaColumna;
+            if (avanzarColumna && avanzarFila
+                    && celdas[fila][columna + pasoColumna].bloqueaVision()
+                    && celdas[fila + pasoFila][columna].bloqueaVision()) {
+                return false;
+            }
+            if (avanzarColumna) {
+                error -= deltaFila;
+                columna += pasoColumna;
+            }
+            if (avanzarFila) {
+                error += deltaColumna;
+                fila += pasoFila;
+            }
+            if (celdas[fila][columna].bloqueaVision()) return false;
+        }
+        return true;
+    }
+
+    /**
      * Ejecuta renderAscii.
       * @param jugador valor de {@code jugador}
       * @return resultado de la operacion

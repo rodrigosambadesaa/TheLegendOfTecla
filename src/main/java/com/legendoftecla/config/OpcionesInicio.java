@@ -253,6 +253,7 @@ public final class OpcionesInicio {
         Integer nivelJugador = null;
         boolean mejorasEquipoAliado = true;
         boolean municionAliadaAutomatica = true;
+        boolean usarPerfilLocal = false;
         CondicionVictoria condicionVictoria = null;
         Integer varianteMapa = null;
         boolean rapido = false;

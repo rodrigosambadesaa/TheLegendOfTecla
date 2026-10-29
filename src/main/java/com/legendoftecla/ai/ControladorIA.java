@@ -25,7 +25,7 @@ public final class ControladorIA {
     public boolean percibir(RuidoGenerado ruido) {
         int distancia = enemigo.getPosicion().distanciaManhattan(ruido.origen());
         if (distancia > Math.min(enemigo.getRangoAudicion(), ruido.intensidad())) return false;
-        ultimaPosicionConocida = ruido.origen();
+        ultimaPosicionConocida = copiar(ruido.origen());
         turnosMemoria = Math.max(2, ruido.intensidad() / 2);
         estado = ruido.intensidad() >= 8 ? NivelAlerta.ALERTA : NivelAlerta.INVESTIGANDO;
         return true;
@@ -37,7 +37,7 @@ public final class ControladorIA {
             estado = NivelAlerta.HUYENDO;
         } else if (contexto.veJugador()) {
             estado = NivelAlerta.COMBATE;
-            ultimaPosicionConocida = contexto.posicionObjetivo();
+            ultimaPosicionConocida = copiar(contexto.posicionObjetivo());
             turnosMemoria = 3;
         } else if (estado == NivelAlerta.COMBATE) {
             estado = NivelAlerta.BUSQUEDA;
@@ -51,13 +51,13 @@ public final class ControladorIA {
     public void setEstado(NivelAlerta estado) {
         this.estado = Objects.requireNonNull(estado, "Estado");
     }
-    public Posicion getUltimaPosicionConocida() { return ultimaPosicionConocida; }
+    public Posicion getUltimaPosicionConocida() { return copiar(ultimaPosicionConocida); }
     /** @return turnos durante los que se recuerda el ultimo estimulo */
     public int getTurnosMemoria() { return turnosMemoria; }
 
     /** Comunica una alerta externa con memoria acotada. */
     public void alertar(Posicion posicion, int turnos) {
-        ultimaPosicionConocida = Objects.requireNonNull(posicion, "Posicion");
+        ultimaPosicionConocida = copiar(Objects.requireNonNull(posicion, "Posicion"));
         turnosMemoria = Math.max(1, turnos);
         estado = NivelAlerta.ALERTA;
     }
@@ -83,7 +83,13 @@ public final class ControladorIA {
     }
 
     private AccionIA accion(TipoAccionIA tipo, Posicion objetivo, String motivo) {
-        return new AccionIA(tipo, objetivo, motivo);
+        return new AccionIA(tipo, copiar(objetivo), motivo);
+    }
+
+    /** Las posiciones son mutables: la memoria nunca comparte su referencia. */
+    private static Posicion copiar(Posicion posicion) {
+        return posicion == null ? null
+                : new Posicion(posicion.getFila(), posicion.getColumna());
     }
 
     private void envejecerMemoria(boolean visionActual) {

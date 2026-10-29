@@ -7,7 +7,8 @@ import com.legendoftecla.model.world.Posicion;
  * Representa la entidad Aliado del juego.
  */
 public final class Aliado extends Personaje {
-    private int nivel = 1;
+    private final com.legendoftecla.progression.ProgresionPersonaje progresion =
+            new com.legendoftecla.progression.ProgresionPersonaje();
     private RolAliado rol = RolAliado.COMBATIENTE;
     /**
      * Ejecuta Aliado.
@@ -21,12 +22,18 @@ public final class Aliado extends Personaje {
     }
 
     /** @return nivel tactico del aliado */
-    public int getNivel() { return nivel; }
+    public int getNivel() { return progresion.getNivel(); }
+
+    /** Progreso individual, compartido entre la partida y sus guardados. */
+    public com.legendoftecla.progression.ProgresionPersonaje getProgresion() {
+        return progresion;
+    }
 
     /** @param nivel nivel entre uno y el limite defensivo */
     public void setNivel(int nivel) {
-        this.nivel = com.legendoftecla.validation.Validaciones.enteroEntre(nivel, 1,
+        int elegido = com.legendoftecla.validation.Validaciones.enteroEntre(nivel, 1,
                 com.legendoftecla.validation.Limites.NIVEL_ALIADO_MAXIMO, "Nivel del aliado");
+        progresion.restaurar(elegido, 0, java.util.Set.of());
     }
 
     /** @return especializacion operativa del aliado */

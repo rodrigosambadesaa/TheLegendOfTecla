@@ -222,7 +222,8 @@ public final class PersistenciaPartida {
         int nivel = personaje instanceof Jugador jugador ? jugador.getProgresion().getNivel()
                 : personaje instanceof Aliado aliado ? aliado.getNivel() : 0;
         int experiencia = personaje instanceof Jugador jugador
-                ? jugador.getProgresion().getExperiencia() : 0;
+                ? jugador.getProgresion().getExperiencia()
+                : personaje instanceof Aliado aliado ? aliado.getProgresion().getExperiencia() : 0;
         java.util.Set<String> habilidades = personaje instanceof Jugador jugador
                 ? jugador.getProgresion().getDesbloqueadas() : java.util.Set.of();
         return new PersonajeEstado(personaje.getClass().getSimpleName(), personaje.getNombre(),
@@ -272,7 +273,9 @@ public final class PersistenciaPartida {
             jugador.getProgresion().restaurar(estado.nivel(), estado.experiencia(),
                     estado.habilidades());
         } else if (personaje instanceof Aliado aliado) {
-            if (estado.nivel() > 0) aliado.setNivel(estado.nivel());
+            if (estado.nivel() > 0) {
+                aliado.getProgresion().restaurar(estado.nivel(), estado.experiencia(), java.util.Set.of());
+            }
             if (estado.rolAliado() != null) aliado.setRol(
                     RolAliado.valueOf(estado.rolAliado()));
         }

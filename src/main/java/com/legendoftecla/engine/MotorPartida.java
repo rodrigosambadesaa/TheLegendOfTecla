@@ -242,6 +242,8 @@ public final class MotorPartida {
     public String getEstadoJugador() {
         return juego.getJugador().getNombre()
                 + "  Nivel " + juego.getJugador().getProgresion().getNivel()
+                + "  XP " + juego.getJugador().getProgresion().getExperiencia()
+                + "/" + juego.getJugador().getProgresion().experienciaSiguienteNivel()
                 + "  Salud " + juego.getJugador().getSalud() + "/" + juego.getJugador().getSaludMaxima()
                 + "  Energia " + juego.getJugador().getEnergia() + "/" + juego.getJugador().getEnergiaMaxima()
                 + "  Pasos " + juego.getPasos() + "/" + juego.getPasosMaximos()
@@ -312,6 +314,7 @@ public final class MotorPartida {
     }
 
     private void reemplazarJuegoCargado(Juego cargado) {
+        cargado.setUsarPerfilLocal(juego.isUsarPerfilLocal());
         setJuego(cargado);
         setSistemaRuido(new SistemaRuido(cargado));
         SuscriptorAudioEventos.registrar(cargado);
@@ -516,6 +519,7 @@ public final class MotorPartida {
             setResultadoBatalla(ResultadoBatalla.VICTORIA_ENEMIGA);
         }
         if (estado == SistemaPuntuacion.EstadoFinalPartida.VICTORIA) {
+            ServicioExperiencia.recompensarVictoria(juego);
             juego.publicarEvento(new MisionCompletada(
                     juego.getBusEventos().ahora(), juego.getMision() == null
                             ? "victoria-original" : juego.getMision().getId()));

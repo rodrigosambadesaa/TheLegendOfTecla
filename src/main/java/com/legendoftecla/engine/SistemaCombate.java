@@ -52,7 +52,7 @@ public final class SistemaCombate {
         atacante.atacar(objetivo);
         aplicarEfectosDeArma(juego, atacante, objetivo, arma);
         ResultadoAtaque resultado = resultado(atacante, objetivo, vidaAntes);
-        informar(juego, resultado, objetivo);
+        informar(juego, atacante, resultado, objetivo);
         SistemaIncendios.intentarDerribarAntorcha(juego, objetivo.getPosicion(), random);
         return resultado;
     }
@@ -90,7 +90,7 @@ public final class SistemaCombate {
             Personaje objetivo = objetivos.get(i);
             ResultadoAtaque resultado = resultado(atacante, objetivo, vidas.get(i));
             resultados.add(resultado);
-            informar(juego, resultado, objetivo);
+            informar(juego, atacante, resultado, objetivo);
         }
         if (!objetivos.isEmpty()) {
             SistemaIncendios.intentarDerribarAntorcha(juego, objetivos.get(0).getPosicion(), random);
@@ -124,7 +124,8 @@ public final class SistemaCombate {
                 objetivo.getSaludMaxima(), vidaAntes > 0 && objetivo.getSalud() <= 0);
     }
 
-    private static void informar(Juego juego, ResultadoAtaque resultado, Personaje objetivo) {
+    private static void informar(Juego juego, Personaje atacante,
+            ResultadoAtaque resultado, Personaje objetivo) {
         String texto = resultado.atacante() + " ataca a " + resultado.objetivo()
                 + ": quita " + resultado.vidaQuitada() + " de vida; quedan "
                 + resultado.vidaRestante() + "/" + resultado.vidaMaxima() + ".";
@@ -136,6 +137,7 @@ public final class SistemaCombate {
         if (resultado.mortal()) {
             juego.publicarEvento(new PersonajeMuerto(juego.getBusEventos().ahora(),
                     objetivo.getNombre(), objetivo.getPosicion()));
+            ServicioExperiencia.recompensarBaja(juego, atacante, objetivo);
             juego.getConsola().imprimir(resultado.objetivo() + " muere.", TipoMensaje.ADVERTENCIA);
         }
     }

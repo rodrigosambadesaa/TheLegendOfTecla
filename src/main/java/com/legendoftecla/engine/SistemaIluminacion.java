@@ -22,7 +22,9 @@ public final class SistemaIluminacion {
      */
     public static Set<Posicion> precalcularIluminacion(Juego juego) {
         Set<Posicion> iluminadas = new HashSet<>();
-        agregarIluminacion(juego, juego.getJugador(), iluminadas);
+        if (juego.getJugador().getSalud() > 0) {
+            agregarIluminacion(juego, juego.getJugador(), iluminadas);
+        }
         for (Aliado aliado : juego.getAliados()) {
             if (aliado.getSalud() > 0) {
                 agregarIluminacion(juego, aliado, iluminadas);
@@ -55,7 +57,7 @@ public final class SistemaIluminacion {
     public static boolean hayLuz(Juego juego, Posicion posicion) {
         Celda celda = juego.getMapa().getCelda(posicion);
         if (!celda.isOscura() || celda.estaArdiendo() || celda.hasAntorchaMural()) return true;
-        if (ilumina(juego.getJugador(), posicion)) return true;
+        if (juego.getJugador().getSalud() > 0 && ilumina(juego.getJugador(), posicion)) return true;
         return juego.getAliados().stream().anyMatch(aliado -> aliado.getSalud() > 0 && ilumina(aliado, posicion));
     }
 

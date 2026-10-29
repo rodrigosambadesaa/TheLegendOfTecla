@@ -358,9 +358,11 @@ public final class MotorPartida {
       * @return resultado de la operacion
      */
     public Set<Posicion> getAliadosVisibles() {
+        Set<Posicion> iluminadas = SistemaIluminacion.precalcularIluminacion(juego);
         Set<Posicion> visibles = new HashSet<>();
         for (Aliado aliado : juego.getAliados()) {
-            if (aliado.getSalud() > 0 && SistemaIluminacion.hayLuz(juego, aliado.getPosicion())) {
+            if (aliado.getSalud() > 0
+                    && SistemaIluminacion.hayLuz(juego, aliado.getPosicion(), iluminadas)) {
                 visibles.add(aliado.getPosicion());
             }
         }
@@ -376,13 +378,14 @@ public final class MotorPartida {
             return juego.getEnemigos().stream().filter(enemigo -> enemigo.getSalud() > 0)
                     .map(Enemigo::getPosicion).collect(java.util.stream.Collectors.toSet());
         }
+        Set<Posicion> iluminadas = SistemaIluminacion.precalcularIluminacion(juego);
         Set<Posicion> visibles = new HashSet<>();
         Posicion jugadorPos = juego.getJugador().getPosicion();
         int vision = juego.getJugador().getRangoVision();
         for (Enemigo enemigo : juego.getEnemigos()) {
             if (enemigo.getSalud() > 0
                     && jugadorPos.distanciaManhattan(enemigo.getPosicion()) <= vision
-                    && SistemaIluminacion.hayLuz(juego, enemigo.getPosicion())
+                    && SistemaIluminacion.hayLuz(juego, enemigo.getPosicion(), iluminadas)
                     && juego.getMapa().hayLineaVision(jugadorPos, enemigo.getPosicion())) {
                 visibles.add(enemigo.getPosicion());
             }
@@ -392,11 +395,12 @@ public final class MotorPartida {
 
     /** @return todas las celdas que pueden representarse con detalle pese a la oscuridad */
     public Set<Posicion> getCeldasIluminadas() {
+        Set<Posicion> linternas = SistemaIluminacion.precalcularIluminacion(juego);
         Set<Posicion> iluminadas = new HashSet<>();
         for (int f = 0; f < juego.getMapa().getFilas(); f++) {
             for (int c = 0; c < juego.getMapa().getColumnas(); c++) {
                 Posicion posicion = new Posicion(f, c);
-                if (modoEspectador || SistemaIluminacion.hayLuz(juego, posicion)) {
+                if (modoEspectador || SistemaIluminacion.hayLuz(juego, posicion, linternas)) {
                     iluminadas.add(posicion);
                 }
             }

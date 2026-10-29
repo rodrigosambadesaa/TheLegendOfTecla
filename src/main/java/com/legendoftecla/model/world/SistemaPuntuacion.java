@@ -40,7 +40,8 @@ public final class SistemaPuntuacion {
 
         int distanciaInicial = mapa.getInicio().distanciaManhattan(mapa.getObjetivo());
         int distanciaActual = jugador.getPosicion().distanciaManhattan(mapa.getObjetivo());
-        float progreso = distanciaInicial <= 0 ? 1.0f : 1.0f - ((float) distanciaActual / distanciaInicial);
+        float progreso = distanciaInicial == 0 ? (distanciaActual == 0 ? 1.0f : 0.0f)
+                : 1.0f - ((float) distanciaActual / distanciaInicial);
         int puntosProgreso = Math.round(MAX_PUNTOS_PROGRESO * clamp01(progreso));
 
         long derrotados = juego.getEnemigos().stream().filter(e -> e.getSalud() <= 0).count();
@@ -77,7 +78,7 @@ public final class SistemaPuntuacion {
         Mapa mapa = juego.getMapa();
         int distanciaInicial = mapa.getInicio().distanciaManhattan(mapa.getObjetivo());
         int distanciaActual = aliado.getPosicion().distanciaManhattan(mapa.getObjetivo());
-        float avance = distanciaInicial <= 0 ? 1.0f
+        float avance = distanciaInicial == 0 ? (distanciaActual == 0 ? 1.0f : 0.0f)
                 : 1.0f - (float) distanciaActual / distanciaInicial;
         int progreso = Math.round(MAX_PUNTOS_PROGRESO_ALIADO * clamp01(avance));
         int supervivencia = juego.estaAliadoExtraido(aliado) ? 300

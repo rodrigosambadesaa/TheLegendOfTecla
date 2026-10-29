@@ -243,27 +243,46 @@ public class Mapa {
         int columna = origen.getColumna();
         int destinoFila = destino.getFila();
         int destinoColumna = destino.getColumna();
+        if (fila == destinoFila && columna == destinoColumna) return true;
+        if (celdas[fila][columna].bloqueaVision()
+                || celdas[destinoFila][destinoColumna].bloqueaVision()) return false;
+
         int deltaFila = Math.abs(destinoFila - fila);
         int deltaColumna = Math.abs(destinoColumna - columna);
         int pasoFila = Integer.compare(destinoFila, fila);
         int pasoColumna = Integer.compare(destinoColumna, columna);
-        int error = deltaColumna - deltaFila;
-        while (fila != destinoFila || columna != destinoColumna) {
-            int dobleError = 2 * error;
-            boolean avanzarColumna = dobleError > -deltaFila;
-            boolean avanzarFila = dobleError < deltaColumna;
-            if (avanzarColumna && avanzarFila
-                    && celdas[fila][columna + pasoColumna].bloqueaVision()
-                    && celdas[fila + pasoFila][columna].bloqueaVision()) {
-                return false;
+        int recorridasFila = 0;
+        int recorridasColumna = 0;
+        while (recorridasFila < deltaFila || recorridasColumna < deltaColumna) {
+            // Comparar el instante exacto del proximo cruce de cuadrícula.
+            // A diferencia del Bresenham sesgado, el resultado es simetrico
+            // al invertir origen y destino, tambien para pendientes oblicuas.
+            int comparacion;
+            if (recorridasFila == deltaFila) {
+                comparacion = 1;
+            } else if (recorridasColumna == deltaColumna) {
+                comparacion = -1;
+            } else {
+                comparacion = (2 * recorridasFila + 1) * deltaColumna
+                        - (2 * recorridasColumna + 1) * deltaFila;
             }
-            if (avanzarColumna) {
-                error -= deltaFila;
-                columna += pasoColumna;
-            }
-            if (avanzarFila) {
-                error += deltaColumna;
+            if (comparacion == 0) {
+                // Cruce exacto de esquina: al menos uno de sus lados
+                // contiguos debe dejar pasar la visual.
+                if (celdas[fila + pasoFila][columna].bloqueaVision()
+                        && celdas[fila][columna + pasoColumna].bloqueaVision()) {
+                    return false;
+                }
                 fila += pasoFila;
+                columna += pasoColumna;
+                recorridasFila++;
+                recorridasColumna++;
+            } else if (comparacion < 0) {
+                fila += pasoFila;
+                recorridasFila++;
+            } else {
+                columna += pasoColumna;
+                recorridasColumna++;
             }
             if (celdas[fila][columna].bloqueaVision()) return false;
         }

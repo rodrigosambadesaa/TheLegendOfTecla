@@ -27,6 +27,7 @@ public final class SistemaCombate {
     private SistemaCombate() { }
 
     public static ResultadoAtaque atacar(Juego juego, Personaje atacante, Personaje objetivo, Random random) {
+        exigirVivos(atacante, objetivo);
         int distancia = atacante.getPosicion().distanciaManhattan(objetivo.getPosicion());
         Arma arma = atacante.armaDisponiblePara(distancia).orElse(null);
         exigirMunicion(atacante, objetivo);
@@ -63,6 +64,7 @@ public final class SistemaCombate {
         java.util.Objects.requireNonNull(objetivos, "Objetivos");
         if (objetivos.isEmpty()) return List.of();
         validarObjetivosColectivos(objetivos);
+        for (Personaje objetivo : objetivos) exigirVivos(atacante, objetivo);
         Arma arma = atacante.armaDisponiblePara(
                 atacante.getPosicion().distanciaManhattan(
                         objetivos.get(0).getPosicion())).orElse(null);
@@ -115,6 +117,18 @@ public final class SistemaCombate {
                 throw new IllegalArgumentException(
                         "Los objetivos colectivos deben ocupar la misma casilla.");
             }
+        }
+    }
+
+    /** Ninguna baja debe poder atacar, recibir ataques ni gastar cartuchos. */
+    private static void exigirVivos(Personaje atacante, Personaje objetivo) {
+        java.util.Objects.requireNonNull(atacante, "Atacante");
+        java.util.Objects.requireNonNull(objetivo, "Objetivo");
+        if (atacante.getSalud() <= 0) {
+            throw new IllegalStateException("Un personaje muerto no puede atacar.");
+        }
+        if (objetivo.getSalud() <= 0) {
+            throw new IllegalArgumentException("No se puede atacar a un personaje muerto.");
         }
     }
 

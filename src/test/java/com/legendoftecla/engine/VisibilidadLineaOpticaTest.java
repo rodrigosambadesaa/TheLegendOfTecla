@@ -9,7 +9,6 @@ import com.legendoftecla.model.world.Mapa;
 import com.legendoftecla.model.world.Posicion;
 import org.junit.jupiter.api.Test;
 
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;

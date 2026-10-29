@@ -48,23 +48,7 @@ public final class PersistenciaProgresoLocal {
 
     /** Restablece XP/niveles sin mezclar perfiles de personajes diferentes. */
     public static void aplicar(Juego juego, Path archivo) throws IOException {
-        Perfil perfil;
-        try {
-            perfil = GSON.fromJson(ArchivoJsonAcotado.leer(archivo), Perfil.class);
-            if (perfil == null || perfil.version() != VERSION
-                    || perfil.progresoJugador() == null || perfil.aliados() == null) {
-                throw new IllegalArgumentException("Perfil de progreso incompatible");
-            }
-            validar(perfil.progresoJugador());
-            for (var entrada : perfil.aliados().entrySet()) {
-                if (entrada.getKey() == null || entrada.getKey().isBlank()) {
-                    throw new IllegalArgumentException("Aliado sin identificador");
-                }
-                validar(entrada.getValue());
-            }
-        } catch (RuntimeException error) {
-            throw new IOException("Perfil local corrupto o incompatible", error);
-        }
+        Perfil perfil = leerValidado(archivo);
         if (!juego.getJugador().getNombre().equals(perfil.jugador())
                 || !juego.getJugador().getClass().getSimpleName().equals(perfil.clase())) return;
 
@@ -82,6 +66,27 @@ public final class PersistenciaProgresoLocal {
             if (elegido == progreso.nivel()) {
                 aliado.getProgresion().restaurar(elegido, progreso.experiencia(), Set.of());
             }
+        }
+    }
+
+    /** Comparte la validacion entre la carga normal y las fusiones de perfiles. */
+    private static Perfil leerValidado(Path archivo) throws IOException {
+        try {
+            Perfil perfil = GSON.fromJson(ArchivoJsonAcotado.leer(archivo), Perfil.class);
+            if (perfil == null || perfil.version() != VERSION
+                    || perfil.progresoJugador() == null || perfil.aliados() == null) {
+                throw new IllegalArgumentException("Perfil de progreso incompatible");
+            }
+            validar(perfil.progresoJugador());
+            for (var entrada : perfil.aliados().entrySet()) {
+                if (entrada.getKey() == null || entrada.getKey().isBlank()) {
+                    throw new IllegalArgumentException("Aliado sin identificador");
+                }
+                validar(entrada.getValue());
+            }
+            return perfil;
+        } catch (RuntimeException error) {
+            throw new IOException("Perfil local corrupto o incompatible", error);
         }
     }
 
@@ -105,16 +110,43 @@ public final class PersistenciaProgresoLocal {
         }
     }
 
-    /** Guarda solo niveles y XP, no datos de mapa ni inventario. */
+    /**
+     * Guarda el mejor progreso conocido. Los aliados que no participan en la
+     * partida actual no pierden su historial cuando cambia la composicion
+     * del escuadron. Un savegame antiguo tampoco rebaja nivel ni XP.
+     */
     public static void guardar(Juego juego, Path archivo) throws IOException {
+        String nombre = juego.getJugador().getNombre();
+        String clase = juego.getJugador().getClass().getSimpleName();
+        Nivel jugador = snapshot(juego.getJugador().getProgresion());
         Map<String, Nivel> aliados = new LinkedHashMap<>();
-        for (Aliado aliado : juego.getAliadosRegistrados()) {
-            aliados.put(aliado.getNombre(), snapshot(aliado.getProgresion()));
+
+        if (Files.exists(archivo)) {
+            try {
+                Perfil anterior = leerValidado(archivo);
+                if (nombre.equals(anterior.jugador()) && clase.equals(anterior.clase())) {
+                    jugador = mejor(jugador, anterior.progresoJugador());
+                    aliados.putAll(anterior.aliados());
+                }
+            } catch (IOException error) {
+                // Se conserva el comportamiento previo: un archivo corrupto
+                // puede reemplazarse con el estado valido de esta partida.
+            }
         }
-        Perfil perfil = new Perfil(VERSION, juego.getJugador().getNombre(),
-                juego.getJugador().getClass().getSimpleName(),
-                snapshot(juego.getJugador().getProgresion()), aliados);
+        for (Aliado aliado : juego.getAliadosRegistrados()) {
+            aliados.merge(aliado.getNombre(), snapshot(aliado.getProgresion()),
+                    PersistenciaProgresoLocal::mejor);
+        }
+        Perfil perfil = new Perfil(VERSION, nombre, clase, jugador, aliados);
         ArchivoJsonAcotado.escribir(archivo, GSON.toJson(perfil));
+    }
+
+    /** Prioriza nivel, despues experiencia acumulada en el mismo nivel. */
+    private static Nivel mejor(Nivel primero, Nivel segundo) {
+        return primero.nivel() > segundo.nivel()
+                || primero.nivel() == segundo.nivel()
+                        && primero.experiencia() >= segundo.experiencia()
+                ? primero : segundo;
     }
 
     private static Nivel snapshot(ProgresionPersonaje progreso) {

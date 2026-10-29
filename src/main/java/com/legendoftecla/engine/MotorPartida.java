@@ -382,7 +382,8 @@ public final class MotorPartida {
         for (Enemigo enemigo : juego.getEnemigos()) {
             if (enemigo.getSalud() > 0
                     && jugadorPos.distanciaManhattan(enemigo.getPosicion()) <= vision
-                    && SistemaIluminacion.hayLuz(juego, enemigo.getPosicion())) {
+                    && SistemaIluminacion.hayLuz(juego, enemigo.getPosicion())
+                    && juego.getMapa().hayLineaVision(jugadorPos, enemigo.getPosicion())) {
                 visibles.add(enemigo.getPosicion());
             }
         }

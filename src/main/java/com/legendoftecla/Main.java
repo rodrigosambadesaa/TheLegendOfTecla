@@ -105,6 +105,7 @@ public final class Main {
                     condicionVictoria, varianteMapa);
             configuracion.setNivelAliados(nivelAliados);
             configuracion.setNivelJugador(nivelJugador);
+            configuracion.setUsarPerfilLocal(opciones.isUsarPerfilLocal());
             configuracion.setMejorasEquipoAliado(opciones.isMejorasEquipoAliado());
             configuracion.setMunicionAliadaAutomatica(opciones.isMunicionAliadaAutomatica());
             if (opciones.seed() != null) configuracion.setSeed(opciones.seed());

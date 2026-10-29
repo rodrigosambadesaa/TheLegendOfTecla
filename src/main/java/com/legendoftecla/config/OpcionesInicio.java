@@ -33,6 +33,7 @@ public final class OpcionesInicio {
     private boolean gui;
     private boolean editor;
     private Long seed;
+    private boolean usarPerfilLocal;
 
     /**
      * Crea las opciones usando sus setters delimitados.
@@ -229,6 +230,9 @@ public final class OpcionesInicio {
     public Long getSeed() { return seed; }
     public void setSeed(Long seed) { this.seed = seed; }
     public Long seed() { return seed; }
+    /** @return si se utiliza el perfil persistente de niveles */
+    public boolean isUsarPerfilLocal() { return usarPerfilLocal; }
+    public void setUsarPerfilLocal(boolean valor) { usarPerfilLocal = valor; }
 
     /**
      * Interpreta las opciones de la linea de comandos.
@@ -277,6 +281,7 @@ public final class OpcionesInicio {
                         siguienteValor(args, ++i, argumento));
                 case "--nivel-jugador" -> nivelJugador = parsearNivelJugador(
                         siguienteValor(args, ++i, argumento));
+                case "--progreso-local" -> usarPerfilLocal = true;
                 case "--sin-mejoras-aliados" -> mejorasEquipoAliado = false;
                 case "--sin-municion-aliada" -> municionAliadaAutomatica = false;
                 case "--victoria" -> condicionVictoria = parsearCondicionVictoria(
@@ -311,6 +316,7 @@ public final class OpcionesInicio {
         opciones.setCantidadAliados(cantidadAliados);
         opciones.setNivelAliados(nivelAliados);
         opciones.setNivelJugador(nivelJugador);
+        opciones.setUsarPerfilLocal(usarPerfilLocal);
         opciones.setMejorasEquipoAliado(mejorasEquipoAliado);
         opciones.setMunicionAliadaAutomatica(municionAliadaAutomatica);
         opciones.setSeed(seed);
@@ -336,6 +342,7 @@ public final class OpcionesInicio {
                   --aliados <no|auto|N>     Sin aliados, calculados o cantidad exacta (1-4999)
                   --nivel-aliados <auto|N>  Nivel automatico o exacto para todos (1-100)
                   --nivel-jugador <1-100>   Nivel inicial, con o sin aliados
+                  --progreso-local          Guarda y reutiliza XP/niveles en el equipo local
                   --sin-mejoras-aliados     Impide que los aliados sustituyan su equipo
                   --sin-municion-aliada     Desactiva la entrega automatica de municion
                   --victoria <condicion>    solo_jugador o jugador_y_aliados

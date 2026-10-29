@@ -57,6 +57,11 @@ public final class FabricaJuego {
         }
         Juego juego = cargador.cargarJuego();
         ServicioNivelInicial.aplicar(juego.getJugador(), configuracion.nivelJugador());
+        juego.setUsarPerfilLocal(configuracion.isUsarPerfilLocal());
+        if (juego.isUsarPerfilLocal()) {
+            com.legendoftecla.persistence.PersistenciaProgresoLocal.aplicarSiExiste(juego);
+        }
+        ServicioEquilibrioInicial.aplicar(juego, configuracion.dificultad());
         juego.setMejorasEquipoAliadoPermitidas(configuracion.isMejorasEquipoAliado());
         juego.setMunicionAliadaAutomatica(configuracion.isMunicionAliadaAutomatica());
         EquilibradorBandos.aplicar(juego);

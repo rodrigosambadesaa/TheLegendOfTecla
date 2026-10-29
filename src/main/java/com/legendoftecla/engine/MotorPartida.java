@@ -1683,19 +1683,15 @@ public final class MotorPartida {
         }
         return NavegacionTactica.primerPaso(juego.getMapa(), origen, objetivo);
     }
-
     private void cambiarSituacion(Aliado aliado, SituacionAliado situacion) {
         registroAliados.cambiar(aliado, situacion);
     }
-
     private void marcarCombate(Aliado aliado, boolean enCombate) {
         registroAliados.marcarCombate(aliado, enCombate);
     }
-
     private SituacionAliado obtenerSituacionAliado(Aliado aliado) {
         return registroAliados.situacion(juego, aliado);
     }
-
     private boolean estaAliadoEnCombate(Aliado aliado) {
         return registroAliados.estaEnCombate(juego, aliado);
     }

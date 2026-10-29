@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 /**
@@ -691,6 +692,13 @@ public class Juego {
         Validaciones.noNulo(personajes, campo);
         if (personajes.stream().anyMatch(java.util.Objects::isNull)) {
             throw new IllegalArgumentException(campo + " no puede contener valores nulos.");
+        }
+        Set<T> identidades = Collections.newSetFromMap(new IdentityHashMap<>());
+        for (T personaje : personajes) {
+            if (!identidades.add(personaje)) {
+                throw new IllegalArgumentException(campo
+                        + " no puede contener dos veces el mismo personaje.");
+            }
         }
         if (mapa != null) {
             personajes.forEach(personaje -> validarPosicionPersonaje(personaje.getPosicion(), campo));

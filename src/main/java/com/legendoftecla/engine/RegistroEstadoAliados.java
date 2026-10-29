@@ -107,7 +107,10 @@ public final class RegistroEstadoAliados {
         lineas.add("- " + aliado.getNombre() + " | Estado "
                 + situacion(juego, aliado).getEtiqueta() + " | Combate "
                 + (estaEnCombate(juego, aliado) ? "EN COMBATE" : "FUERA DE COMBATE")
-                + " | Nivel " + aliado.getNivel() + " | Rol " + aliado.getRol().getEtiqueta()
+                + " | Nivel " + aliado.getNivel() + " | XP "
+                + aliado.getProgresion().getExperiencia() + "/"
+                + aliado.getProgresion().experienciaSiguienteNivel()
+                + " | Rol " + aliado.getRol().getEtiqueta()
                 + " | Vida " + aliado.getSalud() + "/" + aliado.getSaludMaxima()
                 + " | Energia " + aliado.getEnergia() + "/" + aliado.getEnergiaMaxima()
                 + " | Puntuacion " + SistemaPuntuacion.calcularAliado(juego, aliado).total()

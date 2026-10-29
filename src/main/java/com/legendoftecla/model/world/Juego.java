@@ -53,6 +53,8 @@ public class Juego {
     private boolean municionAliadaAutomatica;
     private boolean equilibrioBandosSellado;
     private int limiteEnemigos;
+    /** Opt-in del perfil de progresion reutilizable entre misiones. */
+    private boolean usarPerfilLocal;
 
     /**
      * Ejecuta Juego.
@@ -61,6 +63,12 @@ public class Juego {
       * @param mapa valor de {@code mapa}
       * @param pasosMaximos valor de {@code pasosMaximos}
      */
+    /** @return si se conserva el progreso al iniciar otras partidas */
+    public boolean isUsarPerfilLocal() { return usarPerfilLocal; }
+
+    /** @param valor activa el guardado de progresion entre partidas */
+    public void setUsarPerfilLocal(boolean valor) { usarPerfilLocal = valor; }
+
     public Juego(Consola consola, Mapa mapa, Jugador jugador, int pasosMaximos) {
         setConsola(consola);
         setMapa(mapa);

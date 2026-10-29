@@ -31,6 +31,7 @@ public final class ConfiguracionPartida {
     private CondicionVictoria condicionVictoria;
     private int varianteMapa;
     private long seed = 1L;
+    private boolean usarPerfilLocal;
 
     /**
      * Crea una configuracion completa utilizando exclusivamente setters.
@@ -243,6 +244,9 @@ public final class ConfiguracionPartida {
         this.nivelJugador = Validaciones.enteroEntre(nivelJugador, 1,
                 Limites.NIVEL_ALIADO_MAXIMO, "Nivel del jugador");
     }
+    /** Reutiliza y actualiza el nivel en un archivo local, de forma opcional. */
+    public boolean isUsarPerfilLocal() { return usarPerfilLocal; }
+    public void setUsarPerfilLocal(boolean valor) { usarPerfilLocal = valor; }
     /** @return nivel inicial conservando acceso compacto */
     public int nivelJugador() { return getNivelJugador(); }
     /** @return permiso para optimizar automaticamente el equipo aliado */

@@ -85,6 +85,8 @@ public final class PanelConfiguracion extends JPanel {
     private final JCheckBox mejorasAliados = new JCheckBox("Sustituir equipo por mejoras", true);
     /** Autoriza por defecto la entrega automatica de municion al jugador. */
     private final JCheckBox municionAliada = new JCheckBox("Compartir municion", true);
+    /** Opt-in explicito, sin afectar los savegames manuales. */
+    private final JCheckBox progresoLocal = new JCheckBox("Conservar niveles entre partidas");
     /** Selector de los participantes que deben alcanzar la salida. */
     private final JComboBox<CondicionVictoria> condicionVictoria =
             new JComboBox<>(CondicionVictoria.values());
@@ -131,6 +133,8 @@ public final class PanelConfiguracion extends JPanel {
         agregarFila(formulario, fila++, "Nombre del personaje", nombre);
         agregarFila(formulario, fila++, "Clase", clase);
         agregarFila(formulario, fila++, "Nivel inicial", nivelJugador);
+        progresoLocal.setName("progresion.perfilLocal");
+        agregarFila(formulario, fila++, "Progreso local", progresoLocal);
         agregarFila(formulario, fila++, "Modo", modo);
         dificultad.setSelectedItem(Dificultad.NORMAL);
         dificultad.setRenderer((lista, valor, indice, seleccionado, foco) -> {
@@ -263,6 +267,7 @@ public final class PanelConfiguracion extends JPanel {
         configuracion.setSeed(ControlesNumericos.valorEntero(seed));
         configuracion.setNivelAliados(ControlesNumericos.valorEntero(nivelAliados));
         configuracion.setNivelJugador(ControlesNumericos.valorEntero(nivelJugador));
+        configuracion.setUsarPerfilLocal(progresoLocal.isSelected());
         configuracion.setMejorasEquipoAliado(mejorasAliados.isSelected());
         configuracion.setMunicionAliadaAutomatica(municionAliada.isSelected());
         return configuracion;

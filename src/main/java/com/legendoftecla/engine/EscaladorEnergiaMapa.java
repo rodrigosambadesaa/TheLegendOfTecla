@@ -96,7 +96,8 @@ final class EscaladorEnergiaMapa {
 
     private static int energiaNecesaria(Personaje personaje, int pasosRuta, double fraccion) {
         int pasosCubiertos = (int) Math.ceil(pasosRuta * fraccion) + PASOS_DE_RESERVA;
-        return pasosCubiertos * personaje.estimarCosteMovimiento();
+        long coste = (long) pasosCubiertos * personaje.estimarCosteMovimiento();
+        return (int) Math.min(com.legendoftecla.validation.Limites.ESTADISTICA, coste);
     }
 
     private static int distancia(Mapa mapa, Posicion origen, Posicion destino) {

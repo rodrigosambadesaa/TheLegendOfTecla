@@ -238,7 +238,9 @@ public final class EjecutorAccionIA {
                 .filter(juego.getMapa()::esTransitable)
                 .filter(posicion -> !posicion.equals(juego.getJugador().getPosicion()))
                 .filter(posicion -> juego.getAliados().stream()
-                        .noneMatch(aliado -> aliado.getPosicion().equals(posicion)))
+                        .noneMatch(aliado -> aliado.getSalud() > 0
+                                && !juego.estaAliadoExtraido(aliado)
+                                && aliado.getPosicion().equals(posicion)))
                 .filter(posicion -> juego.getEnemigos().stream()
                         .noneMatch(otro -> otro != enemigo
                                 && otro.getSalud() > 0

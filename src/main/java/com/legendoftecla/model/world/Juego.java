@@ -55,6 +55,10 @@ public class Juego {
     private int limiteEnemigos;
     /** Opt-in del perfil de progresion reutilizable entre misiones. */
     private boolean usarPerfilLocal;
+    /** Las bajas se identifican por instancia, nunca por el nombre compartido. */
+    private final Set<Enemigo> bajasRecompensadas =
+            Collections.newSetFromMap(new IdentityHashMap<>());
+    private boolean victoriaRecompensada;
 
     /**
      * Ejecuta Juego.
@@ -63,6 +67,45 @@ public class Juego {
       * @param mapa valor de {@code mapa}
       * @param pasosMaximos valor de {@code pasosMaximos}
      */
+    /** Devuelve una instantanea de las bajas recompensadas sin exponer el conjunto interno. */
+    public Set<Enemigo> getBajasRecompensadas() {
+        Set<Enemigo> copia = Collections.newSetFromMap(new IdentityHashMap<>());
+        copia.addAll(bajasRecompensadas);
+        return Collections.unmodifiableSet(copia);
+    }
+
+    /** Restaura el registro, preservando la identidad de los enemigos. */
+    public void setBajasRecompensadas(Set<Enemigo> bajas) {
+        Validaciones.noNulo(bajas, "Bajas recompensadas");
+        if (bajas.stream().anyMatch(java.util.Objects::isNull)) {
+            throw new IllegalArgumentException("El registro de bajas no admite nulos.");
+        }
+        Set<Enemigo> copia = Collections.newSetFromMap(new IdentityHashMap<>());
+        copia.addAll(bajas);
+        bajasRecompensadas.clear();
+        bajasRecompensadas.addAll(copia);
+    }
+
+    /** @return si se concedio la recompensa de victoria en esta partida */
+    public boolean isVictoriaRecompensada() { return victoriaRecompensada; }
+
+    /** @param valor si el premio de victoria ya se entrego */
+    public void setVictoriaRecompensada(boolean valor) {
+        victoriaRecompensada = valor;
+    }
+
+    /** Registra una recompensa por baja, exactamente una vez por enemigo y partida. */
+    public boolean registrarBajaRecompensada(Enemigo enemigo) {
+        return bajasRecompensadas.add(Validaciones.noNulo(enemigo, "Enemigo"));
+    }
+
+    /** Registra una recompensa final solo la primera vez que se concede. */
+    public boolean registrarVictoriaRecompensada() {
+        if (victoriaRecompensada) return false;
+        victoriaRecompensada = true;
+        return true;
+    }
+
     /** @return si se conserva el progreso al iniciar otras partidas */
     public boolean isUsarPerfilLocal() { return usarPerfilLocal; }
 

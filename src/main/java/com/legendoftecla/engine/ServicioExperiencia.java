@@ -16,8 +16,9 @@ public final class ServicioExperiencia {
 
     /** Una baja atribuye XP al autor y una pequena bonificacion al equipo cercano. */
     public static void recompensarBaja(Juego juego, Personaje atacante, Personaje objetivo) {
-        if (!(objetivo instanceof Enemigo) || objetivo.getSalud() > 0
+        if (!(objetivo instanceof Enemigo enemigo) || objetivo.getSalud() > 0
                 || !(atacante instanceof Jugador || atacante instanceof Aliado)) return;
+        if (!juego.registrarBajaRecompensada(enemigo)) return;
         int experiencia = 40 + Math.min(40, objetivo.getSaludMaxima() / 8);
         conceder(juego, atacante, experiencia);
         if (juego.getJugador() != atacante && juego.getJugador().getSalud() > 0
@@ -34,6 +35,7 @@ public final class ServicioExperiencia {
 
     /** Premio de objetivo completado, una sola vez al finalizar el motor. */
     public static void recompensarVictoria(Juego juego) {
+        if (!juego.registrarVictoriaRecompensada()) return;
         if (juego.getJugador().getSalud() > 0) conceder(juego, juego.getJugador(), 100);
         for (Aliado aliado : juego.getAliadosRegistrados()) {
             if (aliado.getSalud() > 0) conceder(juego, aliado, 60);

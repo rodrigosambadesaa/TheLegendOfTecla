@@ -291,6 +291,11 @@ public abstract class Personaje {
      * @param nuevaVision alcance visual base del personaje
      */
     public void configurarEstadisticas(int nuevaSalud, int nuevaEnergia, int nuevaVision) {
+        // Las tres entradas se validan antes de modificar la primera estadistica:
+        // un escenario erroneo no puede dejar salud y energia actualizadas a medias.
+        Validaciones.enteroEntre(nuevaSalud, 1, Limites.ESTADISTICA, "Salud maxima");
+        Validaciones.enteroEntre(nuevaEnergia, 1, Limites.ESTADISTICA, "Energia maxima");
+        Validaciones.enteroEntre(nuevaVision, 1, Limites.ESTADISTICA, "Vision base");
         setSaludMaxima(nuevaSalud);
         setSalud(nuevaSalud);
         setEnergiaMaxima(nuevaEnergia);

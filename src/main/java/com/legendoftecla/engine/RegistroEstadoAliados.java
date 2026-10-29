@@ -86,7 +86,9 @@ public final class RegistroEstadoAliados {
         List<Aliado> aliados = juego.getAliadosRegistrados();
         if (aliados.isEmpty()) return "Aliados: ninguno.";
         long evacuados = aliados.stream().filter(juego::estaAliadoExtraido).count();
-        long caidos = aliados.stream().filter(aliado -> aliado.getSalud() <= 0).count();
+        // Los evacuados ya tienen situacion prioritaria; no restarlos dos veces.
+        long caidos = aliados.stream().filter(aliado -> aliado.getSalud() <= 0
+                && !juego.estaAliadoExtraido(aliado)).count();
         long enCombate = aliados.stream().filter(aliado -> estaEnCombate(juego, aliado)).count();
         int puntuacion = aliados.stream().mapToInt(aliado ->
                 SistemaPuntuacion.calcularAliado(juego, aliado).total()).sum();
@@ -116,7 +118,7 @@ public final class RegistroEstadoAliados {
     private String objetos(Aliado aliado) {
         if (aliado.getMochila().getObjetos().isEmpty()) return "ninguno";
         return aliado.getMochila().getObjetos().stream().map(Objeto::getNombre)
-                .reduce((primero, segundo) -> primero + ", " + segundo).orElse("ninguno");
+                .collect(java.util.stream.Collectors.joining(", "));
     }
 
     private String equipo(Aliado aliado) {

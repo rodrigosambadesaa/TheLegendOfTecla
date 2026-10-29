@@ -33,10 +33,16 @@ final class EscaladorEnergiaMapa {
                 jugador, pasosRutaPrincipal, FRACCION_RUTA_JUGADOR);
         jugador.asegurarEnergiaMaxima(energiaJugador);
 
+        // En un mapa no dirigido, la ruta A -> B tiene la misma longitud
+        // que B -> A. Dos busquedas calculan distancias para todos los aliados.
+        int[][] distanciasJugador = distanciasDesde(mapa, jugador.getPosicion());
+        int[][] distanciasSalida = distanciasDesde(mapa, mapa.getObjetivo());
         int energiaAliadaMinima = Integer.MAX_VALUE;
         for (Aliado aliado : juego.getAliados()) {
-            int hastaJugador = distancia(mapa, aliado.getPosicion(), jugador.getPosicion());
-            int hastaSalida = distancia(mapa, aliado.getPosicion(), mapa.getObjetivo());
+            int hastaJugador = distanciaIndexada(mapa, aliado.getPosicion(),
+                    jugador.getPosicion(), distanciasJugador);
+            int hastaSalida = distanciaIndexada(mapa, aliado.getPosicion(),
+                    mapa.getObjetivo(), distanciasSalida);
             int recorridoExigente = Math.max(pasosRutaPrincipal, Math.max(hastaJugador, hastaSalida));
             int energiaAliado = energiaNecesaria(aliado, recorridoExigente, FRACCION_RUTA_ALIADO);
             aliado.asegurarEnergiaMaxima(energiaAliado);
@@ -49,6 +55,43 @@ final class EscaladorEnergiaMapa {
             mensaje += " | aliados desde=" + energiaAliadaMinima;
         }
         juego.getConsola().imprimirInfo(mensaje + ".");
+    }
+
+    /**
+     * Calcula en una unica BFS la distancia minima desde una meta a cada celda.
+     * Las distancias de celdas inaccesibles permanecen en -1.
+     */
+    private static int[][] distanciasDesde(Mapa mapa, Posicion meta) {
+        int filas = mapa.getFilas();
+        int columnas = mapa.getColumnas();
+        int[][] distancias = new int[filas][columnas];
+        for (int[] fila : distancias) java.util.Arrays.fill(fila, -1);
+        if (!mapa.esTransitable(meta)) return distancias;
+        ArrayDeque<Posicion> pendientes = new ArrayDeque<>();
+        pendientes.add(meta);
+        distancias[meta.getFila()][meta.getColumna()] = 0;
+        while (!pendientes.isEmpty()) {
+            Posicion actual = pendientes.removeFirst();
+            int siguienteDistancia = distancias[actual.getFila()][actual.getColumna()] + 1;
+            for (Direccion direccion : Direccion.values()) {
+                Posicion siguiente = actual.mover(direccion);
+                if (!mapa.esTransitable(siguiente)
+                        || distancias[siguiente.getFila()][siguiente.getColumna()] >= 0) {
+                    continue;
+                }
+                distancias[siguiente.getFila()][siguiente.getColumna()] = siguienteDistancia;
+                pendientes.addLast(siguiente);
+            }
+        }
+        return distancias;
+    }
+
+    /** Conserva los casos limites de origen no transitable de la BFS original. */
+    private static int distanciaIndexada(Mapa mapa, Posicion origen, Posicion meta,
+            int[][] distancias) {
+        if (origen.equals(meta)) return 0;
+        if (!mapa.esTransitable(origen)) return distancia(mapa, origen, meta);
+        return distancias[origen.getFila()][origen.getColumna()];
     }
 
     private static int energiaNecesaria(Personaje personaje, int pasosRuta, double fraccion) {

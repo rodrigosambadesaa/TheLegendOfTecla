@@ -254,7 +254,9 @@ public final class PersistenciaPartida {
                 personaje.getArmasEquipadas().stream().map(PersistenciaPartida::objeto).toList(),
                 personaje.getArmaduraEquipada() == null ? null : objeto(personaje.getArmaduraEquipada()),
                 personaje.getEstados().getActivos(), nivel, experiencia, habilidades,
-                personaje instanceof Aliado aliado ? aliado.getRol().name() : null);
+                personaje instanceof Aliado aliado ? aliado.getRol().name() : null,
+                personaje instanceof Enemigo enemigo
+                        ? enemigo.getMultiplicadorDanioPartida() : null);
     }
 
     private static Personaje crearPersonaje(PersonajeEstado estado) {
@@ -289,6 +291,9 @@ public final class PersistenciaPartida {
                 (Armadura) crearObjeto(estado.armadura(), faccionHistorica));
         lista(estado.estados()).forEach(activo -> personaje.getEstados().restaurar(
                 efecto(activo.tipo()), activo.turnosRestantes(), activo.acumulaciones()));
+        if (personaje instanceof Enemigo enemigo && estado.multiplicadorDanio() != null) {
+            enemigo.setMultiplicadorDanioPartida(estado.multiplicadorDanio());
+        }
         if (personaje instanceof Jugador jugador && estado.nivel() > 0) {
             jugador.getProgresion().restaurar(estado.nivel(), estado.experiencia(),
                     estado.habilidades());

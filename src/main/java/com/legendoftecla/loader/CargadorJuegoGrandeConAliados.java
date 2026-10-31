@@ -221,15 +221,20 @@ public class CargadorJuegoGrandeConAliados extends CargadorJuegoBase {
     }
 
     private Posicion randomPosTransitable(Mapa mapa, Random random, List<Posicion> ocupadas) {
-        while (true) {
-            Posicion p = new Posicion(random.nextInt(mapa.getFilas()), random.nextInt(mapa.getColumnas()));
-            if (!mapa.esTransitable(p)) {
-                continue;
-            }
-            if (ocupadas.stream().anyMatch(o -> o.equals(p))) {
-                continue;
-            }
-            return p;
+        int columnas = mapa.getColumnas();
+        int total = mapa.getFilas() * columnas;
+        for (int intento = 0; intento < Math.min(total, 64); intento++) {
+            Posicion posicion = new Posicion(random.nextInt(mapa.getFilas()),
+                    random.nextInt(columnas));
+            if (mapa.esTransitable(posicion) && !ocupadas.contains(posicion)) return posicion;
         }
+        int inicial = random.nextInt(total);
+        for (int desplazamiento = 0; desplazamiento < total; desplazamiento++) {
+            int indice = (inicial + desplazamiento) % total;
+            Posicion posicion = new Posicion(indice / columnas, indice % columnas);
+            if (mapa.esTransitable(posicion) && !ocupadas.contains(posicion)) return posicion;
+        }
+        throw new IllegalArgumentException(
+                "No quedan casillas transitables libres para generar el escenario.");
     }
 }

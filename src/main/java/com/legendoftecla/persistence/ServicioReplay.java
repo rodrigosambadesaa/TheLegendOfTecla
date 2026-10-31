@@ -7,6 +7,8 @@ import com.legendoftecla.model.world.Juego;
 import com.legendoftecla.validation.Limites;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,16 +44,25 @@ public final class ServicioReplay {
 
     /** Lee un replay acotado y traduce corrupcion JSON a IOException. */
     public static ReplayPartida cargar(Path archivo) throws IOException {
-        if (Files.size(archivo) > MAX_BYTES) {
-            throw new IOException("El replay supera el limite de 16 MiB.");
-        }
         try {
             ReplayPartida replay = GSON.fromJson(
-                    Files.readString(archivo, StandardCharsets.UTF_8), ReplayPartida.class);
+                    leerAcotado(archivo), ReplayPartida.class);
             validar(replay);
             return replay;
         } catch (RuntimeException error) {
             throw new IOException("Replay corrupto o de version no compatible", error);
+        }
+    }
+
+    /** Lee hasta el limite incluso si el archivo cambia de tamano durante la lectura. */
+    private static String leerAcotado(Path archivo) throws IOException {
+        try (InputStream entrada = Files.newInputStream(archivo)) {
+            byte[] bytes = entrada.readNBytes(MAX_BYTES + 1);
+            if (bytes.length > MAX_BYTES) {
+                throw new IOException("El replay supera el limite de 16 MiB.");
+            }
+            return StandardCharsets.UTF_8.newDecoder()
+                    .decode(ByteBuffer.wrap(bytes)).toString();
         }
     }
 

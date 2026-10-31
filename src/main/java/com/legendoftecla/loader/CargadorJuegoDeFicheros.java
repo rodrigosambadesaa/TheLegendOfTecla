@@ -237,19 +237,32 @@ public class CargadorJuegoDeFicheros extends CargadorJuegoBase {
         return new Posicion(Integer.parseInt(p[0].trim()), Integer.parseInt(p[1].trim()));
     }
 
-    private Posicion randomPosTransitableSinEnemigos(Mapa mapa, Random random, Posicion inicio, Posicion objetivo) {
-        while (true) {
-            Posicion p = new Posicion(random.nextInt(mapa.getFilas()), random.nextInt(mapa.getColumnas()));
-            if (!mapa.esTransitable(p)) {
-                continue;
-            }
-            if (p.equals(inicio) || p.equals(objetivo)) {
-                continue;
-            }
-            if (!mapa.getCelda(p).getEnemigos().isEmpty() || !mapa.getCelda(p).getAliados().isEmpty()) {
-                continue;
-            }
-            return p;
+    private Posicion randomPosTransitableSinEnemigos(Mapa mapa, Random random, Posicion inicio,
+            Posicion objetivo) {
+        int columnas = mapa.getColumnas();
+        int total = mapa.getFilas() * columnas;
+        // Con un mapa saturado la busqueda aleatoria anterior nunca terminaba.
+        for (int intento = 0; intento < Math.min(total, 64); intento++) {
+            Posicion posicion = new Posicion(random.nextInt(mapa.getFilas()),
+                    random.nextInt(columnas));
+            if (libreParaEnemigo(mapa, posicion, inicio, objetivo)) return posicion;
         }
+        // Barrido acotado, con punto de inicio aleatorio para mantener la distribucion.
+        int inicial = random.nextInt(total);
+        for (int desplazamiento = 0; desplazamiento < total; desplazamiento++) {
+            int indice = (inicial + desplazamiento) % total;
+            Posicion posicion = new Posicion(indice / columnas, indice % columnas);
+            if (libreParaEnemigo(mapa, posicion, inicio, objetivo)) return posicion;
+        }
+        throw new IllegalArgumentException(
+                "No quedan casillas transitables libres para desplegar enemigos.");
+    }
+
+    private static boolean libreParaEnemigo(Mapa mapa, Posicion posicion, Posicion inicio,
+            Posicion objetivo) {
+        if (!mapa.esTransitable(posicion) || posicion.equals(inicio)
+                || posicion.equals(objetivo)) return false;
+        Celda celda = mapa.getCelda(posicion);
+        return celda.getEnemigos().isEmpty() && celda.getAliados().isEmpty();
     }
 }

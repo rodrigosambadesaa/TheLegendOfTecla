@@ -24,15 +24,22 @@ public final class ServicioNivelInicial {
         if (elegido == validado.getProgresion().getNivel()) {
             return;
         }
-        validado.getProgresion().restaurar(elegido, 0, Set.of());
-        int saltos = elegido - 1;
-        int salud = Math.min(Limites.ESTADISTICA, validado.getSaludMaxima() + saltos * 3);
-        int energia = Math.min(Limites.ESTADISTICA, validado.getEnergiaMaxima() + saltos * 4);
+        int anterior = validado.getProgresion().getNivel();
+        int diferencia = elegido - anterior;
+        // Al cargar un perfil local el jugador ya puede tener bonificaciones
+        // del nivel seleccionado en la pantalla inicial: no sumarlas de nuevo.
+        int salud = (int) Math.max(1, Math.min(Limites.ESTADISTICA,
+                (long) validado.getSaludMaxima() + (long) diferencia * 3));
+        int energia = (int) Math.max(1, Math.min(Limites.ESTADISTICA,
+                (long) validado.getEnergiaMaxima() + (long) diferencia * 4));
+        int visionAdicional = (elegido - 1) / 10 - (anterior - 1) / 10;
+        int vision = (int) Math.max(1, Math.min(Limites.ESTADISTICA,
+                (long) validado.getVisionBase() + visionAdicional));
         validado.setSaludMaxima(salud);
         validado.setSalud(salud);
         validado.setEnergiaMaxima(energia);
         validado.setEnergia(energia);
-        validado.setVisionBase(Math.min(Limites.ESTADISTICA,
-                validado.getVisionBase() + saltos / 10));
+        validado.setVisionBase(vision);
+        validado.getProgresion().restaurar(elegido, 0, Set.of());
     }
 }

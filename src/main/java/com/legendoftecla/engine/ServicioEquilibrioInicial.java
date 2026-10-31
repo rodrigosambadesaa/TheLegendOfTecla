@@ -26,7 +26,12 @@ public final class ServicioEquilibrioInicial {
         if (salud > 1) {
             for (Enemigo enemigo : juego.getEnemigos()) enemigo.escalarSalud(salud);
         }
-        Enemigo.setMultiplicadorDanioGlobal(
-                dificultad.getMultiplicadorDanioEnemigo() * dano);
+        double multiplicador = dificultad.getMultiplicadorDanioEnemigo() * dano;
+        // Mantener el valor global de referencia para consumidores historicos,
+        // pero fijar el dano de los enemigos de ESTA partida al inicializarla.
+        Enemigo.setMultiplicadorDanioGlobal(multiplicador);
+        for (Enemigo enemigo : juego.getEnemigos()) {
+            enemigo.setMultiplicadorDanioPartida(multiplicador);
+        }
     }
 }

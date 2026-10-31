@@ -71,6 +71,31 @@ class GeneracionEnemigosSinBloqueosTest {
     }
 
     @Test
+    void generadorPorDefectoNoBloqueaUnMapaDemasiadoPequeno() {
+        CargadorJuegoPorDefecto cargador = new CargadorJuegoPorDefecto(
+                TestFixtures.consola(), "Tecla", "marine",
+                Dificultad.NORMAL, new DimensionesMapa(3, 3), false);
+
+        assertTimeoutPreemptively(Duration.ofSeconds(5), () -> {
+            IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                    cargador::cargarJuego);
+            assertTrue(error.getMessage().contains("No quedan casillas"),
+                    error::getMessage);
+        });
+    }
+
+    @Test
+    void generadorPorDefectoConEspacioDisponibleSeCompleta() {
+        CargadorJuegoPorDefecto cargador = new CargadorJuegoPorDefecto(
+                TestFixtures.consola(), "Tecla", "marine",
+                Dificultad.NORMAL, new DimensionesMapa(15, 15), false);
+
+        Juego juego = assertTimeoutPreemptively(Duration.ofSeconds(5),
+                cargador::cargarJuego);
+        assertTrue(!juego.getEnemigos().isEmpty());
+    }
+
+    @Test
     void atlasConEspacioSuficienteMantieneGeneracionNormal() {
         CargadorJuegoGrandeConAliados cargador = new CargadorJuegoGrandeConAliados(
                 TestFixtures.consola(), "Tecla", "marine",

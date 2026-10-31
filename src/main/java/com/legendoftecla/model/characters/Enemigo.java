@@ -8,6 +8,7 @@ import com.legendoftecla.validation.Validaciones;
  */
 public abstract class Enemigo extends Personaje {
     private static double multiplicadorDanioGlobal = 1.0;
+    private Double multiplicadorDanioPartida;
     private int rangoAudicion;
     private final com.legendoftecla.ai.ControladorIA controladorIA;
 
@@ -31,7 +32,8 @@ public abstract class Enemigo extends Personaje {
      * Ejecuta aplicarModificadorDanio.
      */
     protected int aplicarModificadorDanio(int base, Personaje objetivo) {
-        return Math.max(1, (int) Math.round(base * multiplicadorDanioGlobal));
+        return Math.max(1, (int) Math.round(base * (multiplicadorDanioPartida == null
+                ? multiplicadorDanioGlobal : multiplicadorDanioPartida)));
     }
 
     /**
@@ -46,6 +48,17 @@ public abstract class Enemigo extends Personaje {
     /** @return multiplicador global aplicado al dano enemigo */
     public static double getMultiplicadorDanioGlobal() {
         return multiplicadorDanioGlobal;
+    }
+
+    /** Multiplicador persistible que impide mezclar la dificultad de dos partidas. */
+    public void setMultiplicadorDanioPartida(double valor) {
+        multiplicadorDanioPartida = Validaciones.decimalEntre(
+                valor, 0.1, 100.0, "Multiplicador de dano de partida");
+    }
+
+    /** @return valor por enemigo; null en personajes de guardados historicos. */
+    public Double getMultiplicadorDanioPartida() {
+        return multiplicadorDanioPartida;
     }
 
     /** @return alcance auditivo base */

@@ -30,7 +30,19 @@ public record PartidaGuardada(int version, long seed, int turnos, int pasosMaxim
             Posicion posicion, int capacidad, double pesoMax,
             List<ObjetoEstado> inventario, List<ObjetoEstado> armas,
             ObjetoEstado armadura, List<EstadoActivo> estados,
-            int nivel, int experiencia, Set<String> habilidades, String rolAliado) { }
+            int nivel, int experiencia, Set<String> habilidades, String rolAliado,
+            Double multiplicadorDanio) {
+        /** Constructor compatible con serializadores y pruebas anteriores. */
+        public PersonajeEstado(String tipo, String nombre, int salud, int saludMaxima,
+                int energia, int energiaMaxima, int vision, Posicion posicion,
+                int capacidad, double pesoMax, List<ObjetoEstado> inventario,
+                List<ObjetoEstado> armas, ObjetoEstado armadura, List<EstadoActivo> estados,
+                int nivel, int experiencia, Set<String> habilidades, String rolAliado) {
+            this(tipo, nombre, salud, saludMaxima, energia, energiaMaxima, vision,
+                    posicion, capacidad, pesoMax, inventario, armas, armadura, estados,
+                    nivel, experiencia, habilidades, rolAliado, null);
+        }
+    }
     public record ObjetoEstado(String tipo, String nombre, String descripcion,
             double peso, int valor, int valor2, int valor3, boolean bandera,
             String subtipo, String faccion, String categoria, String claseArma,

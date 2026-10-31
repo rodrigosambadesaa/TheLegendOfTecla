@@ -13,6 +13,8 @@ import com.legendoftecla.missions.*;
 import com.legendoftecla.persistence.PartidaGuardada.*;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,11 +24,16 @@ import java.util.List;
 /** Serializador de savegames con validacion de version y corrupcion. */
 public final class PersistenciaPartida {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    static final int MAX_PARTIDA_BYTES = 32 * 1024 * 1024;
     private PersistenciaPartida() { }
 
     public static void guardar(Juego juego, Path archivo, long seed) throws JuegoException {
         try {
-            EscrituraAtomica.escribir(archivo, GSON.toJson(capturar(juego, seed)));
+            String contenido = GSON.toJson(capturar(juego, seed));
+            if (contenido.getBytes(StandardCharsets.UTF_8).length > MAX_PARTIDA_BYTES) {
+                throw new IOException("La partida supera el limite de 32 MiB.");
+            }
+            EscrituraAtomica.escribir(archivo, contenido);
         } catch (IOException error) {
             throw new JuegoException("No se pudo guardar la partida: " + error.getMessage());
         }
@@ -35,11 +42,24 @@ public final class PersistenciaPartida {
     public static Juego cargar(Path archivo, Consola consola) throws JuegoException {
         try {
             PartidaGuardada guardada = GSON.fromJson(
-                    Files.readString(archivo, StandardCharsets.UTF_8), PartidaGuardada.class);
+                    leerAcotado(archivo), PartidaGuardada.class);
             validar(guardada);
             return restaurar(guardada, consola);
         } catch (IOException | RuntimeException error) {
             throw new JuegoException("Partida corrupta o ilegible: " + error.getMessage());
+        }
+    }
+
+    /** Impide reservar memoria sin limite al abrir partidas no confiables. */
+    private static String leerAcotado(Path archivo) throws IOException {
+        try (InputStream entrada = Files.newInputStream(archivo)) {
+            byte[] datos = entrada.readNBytes(MAX_PARTIDA_BYTES + 1);
+            if (datos.length > MAX_PARTIDA_BYTES) {
+                throw new IOException("La partida supera el limite de 32 MiB.");
+            }
+            // Rechazar caracteres UTF-8 malformados, no sustituirlos silenciosamente.
+            return StandardCharsets.UTF_8.newDecoder()
+                    .decode(ByteBuffer.wrap(datos)).toString();
         }
     }
 

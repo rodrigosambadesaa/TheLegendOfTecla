@@ -39,7 +39,15 @@ jobs:
       - name: Audit dependencies (CVSS 7+ fails)
         id: dependency-audit
         continue-on-error: true
-        run: mvn --batch-mode --no-transfer-progress -Dsecurity -DdataDirectory="$HOME/.cache/dependency-check" dependency-check:check
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        shell: bash
+        run: |
+          if [[ -z "${NVD_API_KEY:-}" ]]; then
+            echo "::warning::NVD_API_KEY not configured. Una carga inicial sin clave puede recibir HTTP 429; configure el secreto del repositorio."
+          fi
+          mvn --batch-mode --no-transfer-progress -Dsecurity \
+            -DdataDirectory="$HOME/.cache/dependency-check" dependency-check:check
       - name: Upload dependency audit
         if: always()
         uses: actions/upload-artifact@v7

@@ -262,6 +262,11 @@
                         <version>12.2.2</version>
                         <configuration>
                             <failBuildOnCVSS>7.0</failBuildOnCVSS>
+                            <!-- Nunca pasar la clave por parametro de Maven ni registrarla. -->
+                            <nvdApiKeyEnvironmentVariable>NVD_API_KEY</nvdApiKeyEnvironmentVariable>
+                            <!-- Peticiones moderadas y reintentos para inicializaciones sin cache. -->
+                            <nvdApiDelay>12000</nvdApiDelay>
+                            <nvdMaxRetryCount>20</nvdMaxRetryCount>
                             <ossIndexAnalyzerEnabled>false</ossIndexAnalyzerEnabled>
                             <ossIndexWarnOnlyOnRemoteErrors>true</ossIndexWarnOnlyOnRemoteErrors>
                             <formats>

@@ -32,6 +32,11 @@ jobs:
           java-version: '17'
           cache: maven
 
+      - name: Verify Java4Shell mitigation in CI JVM
+        run: |
+          set -euo pipefail
+          java -XX:+PrintFlagsFinal -version 2>&1 | grep -E 'UseBASE64Intrinsics[[:space:]]+=[[:space:]]+false'
+
       - name: Validate Docker Compose and GUI entrypoint syntax
         run: |
           docker compose config --quiet
@@ -94,6 +99,12 @@ jobs:
 
       - name: Build GUI container
         run: docker compose build gui
+
+      - name: Verify Java4Shell mitigation in GUI container
+        run: |
+          set -euo pipefail
+          docker compose run --rm --entrypoint java gui -XX:+PrintFlagsFinal -version 2>&1 \
+            | grep -E 'UseBASE64Intrinsics[[:space:]]+=[[:space:]]+false'
 
       - name: Start GUI without remote debugger
         run: docker compose up -d gui

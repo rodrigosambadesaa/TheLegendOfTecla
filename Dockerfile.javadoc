@@ -1,4 +1,6 @@
 FROM maven:3.9.11-eclipse-temurin-17-alpine AS documentation
+# CVE-2026-114938: protect the Maven/Javadoc JVM during image builds.
+ENV JAVA_TOOL_OPTIONS="-XX:-UseBASE64Intrinsics"
 
 WORKDIR /build
 COPY pom.xml ./

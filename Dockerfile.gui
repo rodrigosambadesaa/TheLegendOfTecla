@@ -1,4 +1,6 @@
 FROM maven:3.9.11-eclipse-temurin-17-alpine AS build
+# CVE-2026-114938: keep the build JVM protected as well.
+ENV JAVA_TOOL_OPTIONS="-XX:-UseBASE64Intrinsics"
 
 WORKDIR /build
 COPY pom.xml ./
@@ -40,7 +42,7 @@ RUN chmod 0755 /app/gui-entrypoint.sh
 
 USER tecla
 ENV DISPLAY=:99 \
-    JAVA_TOOL_OPTIONS="-Djava.awt.headless=false" \
+    JAVA_TOOL_OPTIONS="-XX:-UseBASE64Intrinsics -Djava.awt.headless=false" \
     LANG=C.UTF-8
 
 EXPOSE 6080 5005

@@ -18,7 +18,7 @@ jobs:
   scan-pr:
     name: Reject newly introduced vulnerable dependencies
     if: github.event_name == 'pull_request'
-    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@v2.7.0
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@v2.7.1
 
   scan-full:
     name: Scan full dependency graph

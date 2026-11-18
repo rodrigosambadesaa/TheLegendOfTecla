@@ -20,6 +20,9 @@ services:
 
   javadoc:
     image: maven:3.9.11-eclipse-temurin-17-alpine
+    # CVE-2026-114938: this service uses the JDK image directly.
+    environment:
+      JAVA_TOOL_OPTIONS: "-XX:-UseBASE64Intrinsics"
     working_dir: /workspace
     command: mvn -B -ntp javadoc:javadoc
     volumes:

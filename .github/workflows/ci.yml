@@ -13,6 +13,10 @@ concurrency:
 permissions:
   contents: read
 
+# All Java processes in CI, including Gradle/Maven and tests, disable the vulnerable intrinsic.
+env:
+  JAVA_TOOL_OPTIONS: -XX:-UseBASE64Intrinsics
+
 jobs:
   verify:
     runs-on: ubuntu-latest

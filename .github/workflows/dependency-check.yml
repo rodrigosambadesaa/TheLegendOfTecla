@@ -12,6 +12,10 @@ concurrency:
   group: weekly-dependency-check
   cancel-in-progress: false
 
+# CVE-2026-114938: ensure security scanners use the mitigated Java 17 JVM.
+env:
+  JAVA_TOOL_OPTIONS: -XX:-UseBASE64Intrinsics
+
 jobs:
   dependency-audit:
     runs-on: ubuntu-latest

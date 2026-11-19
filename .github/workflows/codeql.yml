@@ -16,6 +16,10 @@ permissions:
   contents: read
   security-events: write
 
+# CVE-2026-114938: ensure security scanners use the mitigated Java 17 JVM.
+env:
+  JAVA_TOOL_OPTIONS: -XX:-UseBASE64Intrinsics
+
 jobs:
   analyze:
     name: Analyze Java

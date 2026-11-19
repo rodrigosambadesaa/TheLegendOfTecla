@@ -1,0 +1,39 @@
+name: Java4Shell JDK safeguard
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  JAVA_TOOL_OPTIONS: -XX:-UseBASE64Intrinsics
+
+jobs:
+  java4shell-guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Verify Base64 intrinsic is disabled
+        shell: bash
+        run: |
+          set -euo pipefail
+          java -XX:+PrintFlagsFinal -version 2>&1 |
+            grep -E 'UseBASE64Intrinsics[[:space:]]+=[[:space:]]+false'
+      - name: Verify Java-build security workflows remain protected
+        shell: bash
+        run: |
+          set -euo pipefail
+          for workflow in ci codeql dependency-check; do
+            file=".github/workflows/${workflow}.yml"
+            test -f "$file"
+            grep -Fq 'JAVA_TOOL_OPTIONS: -XX:-UseBASE64Intrinsics' "$file"
+          done
